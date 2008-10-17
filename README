@@ -1,0 +1,7 @@
+
+A simple Java Class file unpacking and inspecting module.
+
+The end result of which should be the ability to write a short script with
+output identical to the variations of javap as included with most SDKs.
+
+author: Christopher O'Brien <siege@preoccupied.net>
