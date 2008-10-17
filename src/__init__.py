@@ -154,7 +154,7 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
 
     def funpack(self, buff):
 
-        self.magic, buff = _funpack("BBBB", buff)
+        self.magic, buff = _funpack(">BBBB", buff)
         self.version, buff = _funpack(">HH", buff)
         buff = JavaConstantPool.funpack(self, buff)
         (self.access_flags,), buff = _funpack(">H", buff)
@@ -312,7 +312,7 @@ def is_class(buff):
     match, or for any errors. """
 
     try:
-        return _unpack("BBBB", buff) == (0xCA, 0xFE, 0xBA, 0xBE)
+        return _unpack(">BBBB", buff) == (0xCA, 0xFE, 0xBA, 0xBE)
     except:
         return False
 
