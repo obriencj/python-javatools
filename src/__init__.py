@@ -149,7 +149,9 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         self.fields = tuple()
         self.methods = tuple()
 
-        self.sourcefile_ref = 0
+        # cached unpacked attributes
+        self._sourcefile_ref = 0
+        self._inners = None
 
 
     def funpack(self, buff):
@@ -160,29 +162,38 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         (self.access_flags,), buff = _funpack(">H", buff)
         (self.this_ref,), buff = _funpack(">H", buff)
         (self.super_ref,), buff = _funpack(">H", buff)
-        self.interfaces, buff = _funpack_interfaces(buff)
-        self.fields, buff = _funpack_members(buff, owner=self)
-        self.methods, buff = _funpack_members(buff, owner=self)
+
+        (count,),buff = _funpack(">H", buff)
+        self.interfaces, buff = _funpack(">%iH" % count, buff)
+        
+        self.fields, buff = _funpack_array(JavaMemberInfo, buff, self)
+        self.methods, buff = _funpack_array(JavaMemberInfo, buff, self)
+
         buff = JavaAttributes.funpack(self, buff)
         
         return buff
 
 
     def get_sourcefile(self):
-        if self.sourcefile_ref == 0:
+        if self._sourcefile_ref == 0:
             (r,) = _unpack(">H", self.get_attribute("SourceFile"))
-            self.sourcefile_ref = r
+            self._sourcefile_ref = r
             
-        return self.get_const_val(self.sourcefile_ref)
+        return self.get_const_val(self._sourcefile_ref)
 
 
     def get_innerclasses(self):
-        inner = self.get_attribute("InnerClasses")
-        if inner is None:
-            return None
+        if self._inners is not None:
+            return self._inners
 
-        # todo: unpack into tuple of JavaInnerClass
-        pass
+        buff = self.get_attribute("InnerClasses")
+        if buff is None:
+            return None
+        
+        inners, buff = _funpack_array(JavaInnerClassInfo, buff, self)
+
+        self._inners = inners
+        return inners
 
 
 
@@ -193,6 +204,10 @@ class JavaMemberInfo(JavaAttributes):
         self.access_flags = 0
         self.name_ref = 0
         self.descriptor_ref = 0
+        
+        # cached unpacked attributes
+        self._code = None
+        self._exceptions = None
 
 
     def funpack(self, buff):
@@ -219,34 +234,58 @@ class JavaMemberInfo(JavaAttributes):
 
 
     def get_code(self):
-        code = self.get_attribute("Code")
-        if code is None:
+        if self._code is not None:
+            return self._code
+
+        buff = self.get_attribute("Code")
+        if buff is None:
             return None
 
-        # todo: unpack into a JavaCode
-        pass
+        if not self.owner:
+            raise Exception("memeber has no owning class")
+
+        code = JavaCodeInfo(self.owner)
+        buff = code.funpack(buff)
+
+        self._code = code
+        return code
 
 
     def get_exceptions(self):
-        excp = self.get_attribute("Exceptions")
-        if excp is None:
+
+        """ a tuple of index ref to the contant pool of the exception types
+        this method may raise, or None if this is not a method """
+
+        if self._exceptions is not None:
+            return self._exceptions
+
+        buff = self.get_attribute("Exceptions")
+        if buff is None:
             return None
 
-        # todo: unpack into tuple of JavaException
-        pass
+        (count,), buff = _funpack(">H", buff)
+        excps, buff = _funpack(">%iH" % count, buff)
+
+        self._exceptions = excps
+        return excps
 
 
     def get_constvalue(self):
-        cval = self.get_attribute("ConstantValue")
-        if cval is None:
+
+        """ an index ref of the constant pool to the constant value of this
+        field, or None if this is not a contant field """
+
+        buff = self.get_attribute("ConstantValue")
+        if buff is None:
             return None
 
-        # todo: unpack into a JavaConstValue
-        pass
+        (cval_ref,) = _unpack(">H", buff)
+        return cval_ref
 
 
 
 class JavaCodeInfo(JavaAttributes):
+
     def __init__(self, owner):
         JavaAttributes.__init__(self, owner)
 
@@ -257,19 +296,109 @@ class JavaCodeInfo(JavaAttributes):
 
 
     def funpack(self, buff):
+        (a,b,c), buff = _funpack(">HHI", buff)
+        
+        self.max_stack = a
+        self.max_locals = b
+        self.code = buffer(buff, 0, c)
+        buff = buffer(buff, c)
+
+        excps, buff = _funpack_array(JavaExceptionInfo, buff, self)
+        self.exceptions = excps
+
+        buff = JavaAttributes.funpack(self, buff)
+
         return buff
 
+
+
+class JavaExceptionInfo(object):
+
+    def __init__(self, owner):
+        self.owner = owner
+        
+        self.start_pc = 0
+        self.end_pc = 0
+        self.handler_pc = 0
+        self.catch_type_ref = 0
+
+
+    def funpack(self, buff):
+        (a,b,c,d), buff = _funpack(">HHHH", buff)
+
+        self.start_pc = a
+        self.end_pc = b
+        self.handler_pc = c
+        self.catch_type_ref = d
+
+        return buff
+
+
+    def get_catch_type(self):
+        return self.owner.get_const_val(self.catch_type_ref)
+
+
+
+class JavaInnerClassInfo(object):
+
+    def __init__(self, owner):
+        self.owner = owner
+
+        self.inner_info_ref = 0
+        self.outer_info_ref = 0
+        self.name_ref = 0
+        self.access_flags = 0
+
+
+    def funpack(self, buff):
+        (a,b,c,d), buff = _funpack(">HHHH", buff)
+        
+        self.inner_info_ref = a
+        self.outer_info_ref = b
+        self.name_ref = c
+        self.access_flags = d
+
+        return buff
+
+
+    def get_name(self):
+        return self.owner.get_const_val(self.name_ref)
+
+
+
+def struct_class():
+    
+    """ ideally, we want to use the struct.Struct class to cache compiled
+    unpackers. But since that's a semi-recent addition to Python,
+    we'll provide our own dummy class that presents the same interface
+    but just calls the older unpack function """
+
+    import struct
+
+    class DummyStruct(object):
+        def __init__(self, fmt):
+            self.fmt = fmt
+            self.size = struct.calcsize(fmt)
+        def unpack(self, buff):
+            return struct.unpack(buff)
+
+    if hasattr(struct, "Struct"):
+        return getattr(struct, "Struct")
+    else:
+        return DummyStruct
+
+
+MyStruct = struct_class()
+    
 
 
 def _compile(fmt):
 
     """ just a cache of Struct instances """
 
-    import struct
-
     sfmt = _compile.cache.get(fmt, None)
     if not sfmt:
-        sfmt = struct.Struct(fmt)
+        sfmt = MyStruct(fmt)
         _compile.cache[fmt] = sfmt
     return sfmt
 
@@ -305,16 +434,16 @@ def _funpack(fmt, buff):
 
 
 
-def is_class(buff):
+def _funpack_array(atype, buff, *params, **kwds):
+    (count,), buff = _funpack(">H", buff)
 
-    """ checks that the data buffer has the magic numbers indicating
-    it is a Java class file. Returns False if the magic numbers do not
-    match, or for any errors. """
+    items = []
+    for i in xrange(0, count):
+        o  = atype(*params, **kwds)
+        buff = o.funpack(buff)
+        items.append(o)
 
-    try:
-        return _unpack(">BBBB", buff) == (0xCA, 0xFE, 0xBA, 0xBE)
-    except:
-        return False
+    return tuple(items)
 
 
 
@@ -349,28 +478,16 @@ def _funpack_const_item(buff):
 
 
 
-def _funpack_interfaces(buff):
-    (count,), buff = _funpack(">H", buff)
-    items = []
+def is_class(buff):
 
-    for i in xrange(0, count):
-        (item,), buff = _funpack(">H", buff)
-        items.append(item)
+    """ checks that the data buffer has the magic numbers indicating
+    it is a Java class file. Returns False if the magic numbers do not
+    match, or for any errors. """
 
-    return tuple(items), buff
-
-
-
-def _funpack_members(buff, owner=None):
-    (count,), buff = _funpack(">H", buff)
-    items = []
-
-    for i in xrange(0, count):
-        member = JavaMemberInfo(owner)
-        buff = member.funpack(buff)
-        items.append(member)
-
-    return tuple(items), buff
+    try:
+        return _unpack(">BBBB", buff) == (0xCA, 0xFE, 0xBA, 0xBE)
+    except:
+        return False
 
 
 
