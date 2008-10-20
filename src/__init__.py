@@ -14,7 +14,7 @@ author: Christopher O'Brien  <siege@preoccupied.net>
 """
 
 
-DEBUG = 1
+DEBUG = 0
 
 def debug(*args):
     if DEBUG:
@@ -46,21 +46,32 @@ class JavaConstantPool(object):
         debug("unpacking constant pool")
 
         (count,), buff = _funpack(">H", buff)
+
+        # first item is never present in the actual data buffer, but
+        # the count number acts like it would be.
         items = [None,]
-    
-        hackpass = False
         count -= 1
+    
+        # two const types will "consume" an item count, but no data
+        hackpass = False
+
         for i in xrange(0, count):
+
             if hackpass:
+                # previous item was a long or double
                 hackpass = False
                 items.append(None)
+
             else:
                 debug("unpacking const item %i of %i" % (i+1, count))
                 item, buff = _funpack_const_item(buff)
+                items.append(item)
+
+                # if this item was a long or double, skip the next
+                # counter.
                 if item[0] in (CONST_Long, CONST_Double):
                     hackpass = True
-                items.append(item)
-        
+
         self.consts = tuple(items)
         return buff
 
