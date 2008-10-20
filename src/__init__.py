@@ -294,6 +294,8 @@ class JavaCodeInfo(JavaAttributes):
         self.code = None
         self.exceptions = tuple()
 
+        self._lnt = None
+
 
     def funpack(self, buff):
         (a,b,c), buff = _funpack(">HHI", buff)
@@ -309,6 +311,25 @@ class JavaCodeInfo(JavaAttributes):
         buff = JavaAttributes.funpack(self, buff)
 
         return buff
+
+    
+    def get_linenumbertable(self):
+        if self._lnt is not None:
+            return self._lnt
+
+        buff = self.get_attribute("LineNumberTable")
+        if buff is None:
+            return None
+
+        lnt = []
+        (count,), buff = _funpack(">H", buff)
+        for i in xrange(0, count):
+            item, buff = _funpack(">HH", buff)
+            lnt.append(item)
+
+        lnt = tuple(lnt)
+        self._lnt = lnt
+        return lnt    
 
 
 
@@ -443,7 +464,7 @@ def _funpack_array(atype, buff, *params, **kwds):
         buff = o.funpack(buff)
         items.append(o)
 
-    return tuple(items)
+    return tuple(items), buff
 
 
 
