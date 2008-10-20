@@ -14,14 +14,17 @@ author: Christopher O'Brien  <siege@preoccupied.net>
 """
 
 
-DEBUG = 0
-
-def debug(*args):
-    if DEBUG:
+# debugging mode
+if False:
+    def debug(*args):
         print " ".join(args)
+else:
+    def debug(*args):
+        pass
 
 
 
+# The constant pool types
 CONST_Asciz = 1
 CONST_Integer = 3
 CONST_Float = 4
@@ -37,6 +40,8 @@ CONST_NameAndType = 12
 
 
 class JavaConstantPool(object):
+
+    """ A constants pool """
 
     def __init__(self):
         self.consts = tuple()
@@ -102,7 +107,7 @@ class JavaConstantPool(object):
 
     def pretty_const(self, index):
         type,val = self.consts[index]
-        type,val = pretty_type_val(type,val)
+        type,val = _pretty_const_type_val(type,val)
 
         return "const #%i = %s\t%s;" % (index, type, val)
 
@@ -113,7 +118,48 @@ class JavaConstantPool(object):
 
 
 
-def pretty_type_val(type, val):
+def _funpack_const_item(buff):
+
+    """ unpack a constant pool item, which will consist of a type byte
+    (see the CONST_ values in this module) and a value of the
+    appropriate type """
+
+    (type,),  buff = _funpack(">B", buff)
+
+    if type == CONST_Asciz:
+        (slen,), buff = _funpack(">H", buff)
+        val = buffer(buff, 0, slen)
+        val = str(val) # meh. Easier to work with than buffer
+        buff = buffer(buff, slen)
+    
+    elif type == CONST_Integer:
+        (val,), buff = _funpack(">i", buff)
+
+    elif type == CONST_Float:
+        (val,), buff = _funpack(">f", buff)
+
+    elif type == CONST_Long:
+        (val,), buff = _funpack(">q", buff)
+
+    elif type == CONST_Double:
+        (val,), buff = _funpack(">d", buff)
+
+    elif type in (CONST_Class, CONST_String):
+        (val,), buff = _funpack(">H", buff)
+
+    elif type in (CONST_Fieldref, CONST_Methodref,
+                  CONST_InterfaceMethodref, CONST_NameAndType):
+        val, buff = _funpack(">HH", buff)
+
+    else:
+        raise Exception("unknown constant type %r" % type)
+
+    debug("const %s\t%s;" % _pretty_const_type_val(type,val))
+    return (type, val), buff
+
+
+
+def _pretty_const_type_val(type, val):
 
     if type == CONST_Asciz:
         type = "Asciz"
@@ -150,6 +196,9 @@ def pretty_type_val(type, val):
 
 
 class JavaAttributes(object):
+
+    """ attributes table, as used in class, member, and code
+    structures """
 
     def __init__(self, owner=None):
         self.attributes = tuple()
@@ -189,11 +238,14 @@ class JavaAttributes(object):
 
 
     def get_attribute(self, name):
-        return self.get_attributes_as_map()[name]
+        return self.get_attributes_as_map().get(name)
 
 
 
 class JavaClassInfo(JavaConstantPool, JavaAttributes):
+
+    """ Information from a disassembled Java class file """
+
     def __init__(self):
         JavaConstantPool.__init__(self)
         JavaAttributes.__init__(self)
@@ -271,6 +323,9 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
 
 
 class JavaMemberInfo(JavaAttributes):
+
+    """ A field or method of a java class """
+
     def __init__(self, owner):
         JavaAttributes.__init__(self, owner)
 
@@ -365,6 +420,8 @@ class JavaMemberInfo(JavaAttributes):
 
 
 class JavaCodeInfo(JavaAttributes):
+
+    """ The 'Code' attribue of a method member of a java class """
 
     def __init__(self, owner):
         JavaAttributes.__init__(self, owner)
@@ -553,42 +610,6 @@ def _funpack_array(atype, buff, *params, **kwds):
         items.append(o)
 
     return tuple(items), buff
-
-
-
-def _funpack_const_item(buff):
-    (type,),  buff = _funpack(">B", buff)
-
-    if type == CONST_Asciz:
-        (slen,), buff = _funpack(">H", buff)
-        val = buffer(buff, 0, slen)
-        val = str(val) # meh.
-        buff = buffer(buff, slen)
-    
-    elif type == CONST_Integer:
-        (val,), buff = _funpack(">i", buff)
-
-    elif type == CONST_Float:
-        (val,), buff = _funpack(">f", buff)
-
-    elif type == CONST_Long:
-        (val,), buff = _funpack(">q", buff)
-
-    elif type == CONST_Double:
-        (val,), buff = _funpack(">d", buff)
-
-    elif type in (CONST_Class, CONST_String):
-        (val,), buff = _funpack(">H", buff)
-
-    elif type in (CONST_Fieldref, CONST_Methodref,
-                  CONST_InterfaceMethodref, CONST_NameAndType):
-        val, buff = _funpack(">HH", buff)
-
-    else:
-        raise Exception("unknown constant type %r" % type)
-
-    debug("const %s\t%s;" % pretty_type_val(type,val))
-    return (type, val), buff
 
 
 
