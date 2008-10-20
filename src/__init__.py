@@ -14,6 +14,27 @@ author: Christopher O'Brien  <siege@preoccupied.net>
 """
 
 
+DEBUG = 1
+
+def debug(*args):
+    if DEBUG:
+        print " ".join(args)
+
+
+
+CONST_Asciz = 1
+CONST_Integer = 3
+CONST_Float = 4
+CONST_Long = 5
+CONST_Double = 6
+CONST_Class = 7
+CONST_String = 8
+CONST_Fieldref = 9
+CONST_Methodref = 10
+CONST_InterfaceMethodref = 11
+CONST_NameAndType = 12
+
+
 
 class JavaConstantPool(object):
 
@@ -22,12 +43,23 @@ class JavaConstantPool(object):
 
 
     def funpack(self, buff):
+        debug("unpacking constant pool")
+
         (count,), buff = _funpack(">H", buff)
         items = [None,]
     
-        for i in xrange(1, count):
-            item, buff = _funpack_const_item(buff)
-            items.append(item)
+        hackpass = False
+        count -= 1
+        for i in xrange(0, count):
+            if hackpass:
+                hackpass = False
+                items.append(None)
+            else:
+                debug("unpacking const item %i of %i" % (i+1, count))
+                item, buff = _funpack_const_item(buff)
+                if item[0] in (CONST_Long, CONST_Double):
+                    hackpass = True
+                items.append(item)
         
         self.consts = tuple(items)
         return buff
@@ -40,54 +72,26 @@ class JavaConstantPool(object):
     def get_const_val(self, index):
         t,v = self.get_const(index)
         
-        if t in (1,3,4):
+        if t in (CONST_Asciz, CONST_Integer, CONST_Float):
             return v
 
-        elif t == 5:
-            t2,v2 = self.get_const(index+1)
+        elif t in (CONST_Long, CONST_Double):
+            return v
 
-        elif t == 6:
-            t2,v2 = self.get_const(index+1)
-
-        elif t in (7,8):
+        elif t in (CONST_Class, CONST_String):
             return self.get_const_val(v)
         
-        elif t in (9,10,11,12):
+        elif t in (CONST_Fieldref, CONST_Methodref,
+                   CONST_InterfaceMethodref, CONST_NameAndType):
             return tuple([self.get_const_val(i) for i in v])
-
+    
+        else:
+            raise Exception("Unknown constant pool type %i" % t)
+    
 
     def pretty_const(self, index):
         type,val = self.consts[index]
-
-        if type == 1:
-            type = "Asciz"
-            val = str(val)
-        elif type == 3:
-            type = "Integer"
-        elif type == 4:
-            type = "Float"
-        elif type == 5:
-            type = "Long"
-        elif type == 6:
-            type = "Double"
-        elif type == 7:
-            type = "class"
-            val = "#%i" % val
-        elif type == 8:
-            type = "String"
-            val = "#%i" % val
-        elif type == 9:
-            type = "Field"
-            val = "#%i.#%i" % val
-        elif type == 10:
-            type = "Method"
-            val = "#%i.#%i" % val
-        elif type == 11:
-            type = "InterfaceMethod"
-            val = "#%i.#%i" % val
-        elif type == 12:
-            type = "NameAndType"
-            val = "#%i:#%i" % val
+        type,val = pretty_type_val(type,val)
 
         return "const #%i = %s\t%s;" % (index, type, val)
 
@@ -95,6 +99,42 @@ class JavaConstantPool(object):
     def print_consts(self):
         for i in xrange(1, len(self.consts)):
             print self.pretty_const(i)
+
+
+
+def pretty_type_val(type, val):
+
+    if type == CONST_Asciz:
+        type = "Asciz"
+        val = str(val)
+    elif type == CONST_Integer:
+        type = "Integer"
+    elif type == CONST_Float:
+        type = "Float"
+    elif type == CONST_Long:
+        type = "Long"
+    elif type == CONST_Double:
+        type = "Double"
+    elif type == CONST_Class:
+        type = "class"
+        val = "#%i" % val
+    elif type == CONST_String:
+        type = "String"
+        val = "#%i" % val
+    elif type == CONST_Fieldref:
+        type = "Field"
+        val = "#%i.#%i" % val
+    elif type == CONST_Methodref:
+        type = "Method"
+        val = "#%i.#%i" % val
+    elif type == CONST_InterfaceMethodref:
+        type = "InterfaceMethod"
+        val = "#%i.#%i" % val
+    elif type == CONST_NameAndType:
+        type = "NameAndType"
+        val = "#%i:#%i" % val
+    
+    return type,val
 
 
 
@@ -111,10 +151,14 @@ class JavaAttributes(object):
 
 
     def funpack(self, buff):
+        debug("unpacking attributes")
+
         (count,), buff = _funpack(">H", buff)
         items = []
 
         for i in xrange(0, count):
+            debug("unpacking attribute %i of %i" % (i, count))
+
             (name, size,), buff = _funpack(">HI", buff)
             data = buffer(buff, 0, size)
             buff = buffer(buff, size)
@@ -155,18 +199,24 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
 
 
     def funpack(self, buff):
+        debug("unpacking class info")
 
         self.magic, buff = _funpack(">BBBB", buff)
         self.version, buff = _funpack(">HH", buff)
         buff = JavaConstantPool.funpack(self, buff)
+
         (self.access_flags,), buff = _funpack(">H", buff)
         (self.this_ref,), buff = _funpack(">H", buff)
         (self.super_ref,), buff = _funpack(">H", buff)
 
+        debug("unpacking interfaces")
         (count,),buff = _funpack(">H", buff)
         self.interfaces, buff = _funpack(">%iH" % count, buff)
         
+        debug("unpacking fields")
         self.fields, buff = _funpack_array(JavaMemberInfo, buff, self)
+
+        debug("unpacking methods")
         self.methods, buff = _funpack_array(JavaMemberInfo, buff, self)
 
         buff = JavaAttributes.funpack(self, buff)
@@ -220,9 +270,12 @@ class JavaMemberInfo(JavaAttributes):
         # cached unpacked attributes
         self._code = None
         self._exceptions = None
+        self._cval = None
 
 
     def funpack(self, buff):
+        debug("unpacking member info")
+
         (a, b, c), buff = _funpack(">HHH", buff)
 
         self.access_flags = a
@@ -284,15 +337,19 @@ class JavaMemberInfo(JavaAttributes):
 
     def get_constvalue(self):
 
-        """ an index ref of the constant pool to the constant value of this
-        field, or None if this is not a contant field """
+        """ the constant value of this field, or None if this is not a
+        contant field """
+
+        if self._cval is not None:
+            return self._cval
 
         buff = self.get_attribute("ConstantValue")
         if buff is None:
             return None
 
         (cval_ref,) = _unpack(">H", buff)
-        return cval_ref
+        self._cval = self.owner.get_const_val(cval_ref)
+        return self._cval
 
 
 
@@ -310,6 +367,8 @@ class JavaCodeInfo(JavaAttributes):
 
 
     def funpack(self, buff):
+        debug("unpacking code info")
+
         (a,b,c), buff = _funpack(">HHI", buff)
         
         self.max_stack = a
@@ -412,6 +471,8 @@ def struct_class():
         def __init__(self, fmt):
             self.fmt = fmt
             self.size = struct.calcsize(fmt)
+        def pack(self, *args):
+            return struct.pack(*args)
         def unpack(self, buff):
             return struct.unpack(buff)
 
@@ -461,17 +522,21 @@ def _funpack(fmt, buff):
 
     pbuff = buffer(buff, 0, sfmt.size)
     val = sfmt.unpack(pbuff)
-    #print "unpacked %r: %r" % (fmt, val)
+    debug("unpacked %r: %r" % (fmt, val))
 
     return val, buffer(buff, sfmt.size)
 
 
 
 def _funpack_array(atype, buff, *params, **kwds):
+    debug("funpack typed array")
+
     (count,), buff = _funpack(">H", buff)
 
     items = []
     for i in xrange(0, count):
+        debug("unpacking typed item %i of %i" % (i+1, count))
+
         o  = atype(*params, **kwds)
         buff = o.funpack(buff)
         items.append(o)
@@ -483,30 +548,35 @@ def _funpack_array(atype, buff, *params, **kwds):
 def _funpack_const_item(buff):
     (type,),  buff = _funpack(">B", buff)
 
-    if type == 1:
+    if type == CONST_Asciz:
         (slen,), buff = _funpack(">H", buff)
         val = buffer(buff, 0, slen)
         val = str(val) # meh.
         buff = buffer(buff, slen)
     
-    elif type == 3:
+    elif type == CONST_Integer:
         (val,), buff = _funpack(">i", buff)
 
-    elif type == 4:
+    elif type == CONST_Float:
         (val,), buff = _funpack(">f", buff)
 
-    elif type in (5, 6):
-        (val,), buff = _funpack(">I", buff)
+    elif type == CONST_Long:
+        (val,), buff = _funpack(">q", buff)
 
-    elif type in (7, 8):
+    elif type == CONST_Double:
+        (val,), buff = _funpack(">d", buff)
+
+    elif type in (CONST_Class, CONST_String):
         (val,), buff = _funpack(">H", buff)
 
-    elif type in (9, 10, 11, 12):
+    elif type in (CONST_Fieldref, CONST_Methodref,
+                  CONST_InterfaceMethodref, CONST_NameAndType):
         val, buff = _funpack(">HH", buff)
 
     else:
         raise Exception("unknown constant type %r" % type)
 
+    debug("const %s\t%s;" % pretty_type_val(type,val))
     return (type, val), buff
 
 
