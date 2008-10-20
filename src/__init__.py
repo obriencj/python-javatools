@@ -174,6 +174,18 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         return buff
 
 
+    def get_this(self):
+        return self.get_const_val(self.this_ref)
+
+
+    def get_super(self):
+        return self.get_const_val(self.super_ref)
+
+
+    def get_interfaces(self):
+        return [self.get_const_val(i) for i in self.interfaces]
+
+
     def get_sourcefile(self):
         if self._sourcefile_ref == 0:
             (r,) = _unpack(">H", self.get_attribute("SourceFile"))
