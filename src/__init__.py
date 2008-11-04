@@ -419,6 +419,8 @@ class JavaMemberInfo(JavaAttributes):
 
 
 
+
+
 class JavaCodeInfo(JavaAttributes):
 
     """ The 'Code' attribue of a method member of a java class """
@@ -526,7 +528,7 @@ class JavaInnerClassInfo(object):
 
 
 
-def struct_class():
+def _struct_class():
     
     """ ideally, we want to use the struct.Struct class to cache compiled
     unpackers. But since that's a semi-recent addition to Python,
@@ -550,7 +552,7 @@ def struct_class():
         return DummyStruct
 
 
-MyStruct = struct_class()
+MyStruct = _struct_class()
     
 
 
