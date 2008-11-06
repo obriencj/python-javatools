@@ -1,9 +1,13 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 
 """
 
 """
+
+
+
+import sys
 
 
 
@@ -13,7 +17,17 @@ PRIVATE = 7
 
 
 
-def print_details(options, classfile):
+def print_field(options, field):
+    pass
+
+
+
+def print_method(options, method):
+    pass
+
+
+
+def print_class(options, classfile):
     import javaclass
 
     info = javaclass.load_from_classfile(classfile)
@@ -21,17 +35,16 @@ def print_details(options, classfile):
     print "%s class %s%s%s{"
 
     for field in info.fields:
-        print "%s;" % field.pretty()
+        print_field(options, field)
 
     for method in info.methods:
-        print "%s;" % field.pretty()
+        print_method(options, method)
 
     print "}"
 
 
 
-
-def create_parser():
+def create_optparser():
     from optparse import OptionParser
 
     p = OptionParser("%prog <options> <classfiles>")
@@ -55,13 +68,13 @@ def cli(options, rest):
 
 
 def main(args):
-    parser = create_parser()
+    parser = create_optparser()
     return cli(*parser.parse_args(args))
 
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.args))
+    sys.exit(main(sys.argv))
 
 
 

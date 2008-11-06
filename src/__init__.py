@@ -364,6 +364,10 @@ class JavaMemberInfo(JavaAttributes):
         return self.owner.get_const_val(self.descriptor_ref)
 
 
+    def is_method(self):
+        return bool(self._code or self.get_attribute("Code"))
+
+
     def get_code(self):
         if self._code is not None:
             return self._code
@@ -419,8 +423,6 @@ class JavaMemberInfo(JavaAttributes):
 
 
 
-
-
 class JavaCodeInfo(JavaAttributes):
 
     """ The 'Code' attribue of a method member of a java class """
@@ -433,7 +435,9 @@ class JavaCodeInfo(JavaAttributes):
         self.code = None
         self.exceptions = tuple()
 
+        # cached unpacked internals
         self._lnt = None
+        self._dis = None
 
 
     def funpack(self, buff):
@@ -471,6 +475,16 @@ class JavaCodeInfo(JavaAttributes):
         lnt = tuple(lnt)
         self._lnt = lnt
         return lnt    
+
+
+    def disassemble(self):
+        if self._dis is not None:
+            return self._dis
+
+        dis = opcodes.disassemble(self.code)
+
+        self._dis = dis
+        return dis
 
 
 
