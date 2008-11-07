@@ -3,11 +3,17 @@
 
 """
 
+Let's pretend to be the javap tool shipped with many Java SDKs
+
+author: Christopher O'Brien  <siege@preoccupied.net>
+
 """
 
 
 
 import sys
+import javaclass
+import javaclass.opcodes as opcodes
 
 
 
@@ -18,27 +24,40 @@ PRIVATE = 7
 
 
 def print_field(options, field):
-    pass
+    print "%s;" % field.pretty_name()
 
 
 
 def print_method(options, method):
-    pass
+    print "%s;" % method.pretty_name()
+    
+    if options.disassemble:
+        print "  Code:"
+        for line in method.get_code().disassemble():
+            opname = opcodes.get_opname_by_code(line[1])
+            args = line[2]
+            if args:
+                args = ", ".join(map(str,args))
+                print "   %i:\t%s\t%s" % (line[0], opname, args)
+            else:
+                print "   %i:\t%s" % (line[0], opname)
 
 
 
 def print_class(options, classfile):
-    import javaclass
 
-    info = javaclass.load_from_classfile(classfile)
+    info = javaclass.unpack_classfile(classfile)
 
-    print "%s class %s%s%s{"
+    print "Compiled from \"%s\"" % info.get_sourcefile()
+    print "class %s {" % info.pretty_name()
 
     for field in info.fields:
         print_field(options, field)
+        print
 
     for method in info.methods:
         print_method(options, method)
+        print
 
     print "}"
 
@@ -49,9 +68,9 @@ def create_optparser():
 
     p = OptionParser("%prog <options> <classfiles>")
 
-    p.add_option("--public", dest="show", action="store", value=PUBLIC)
-    p.add_option("--private", dest="show", action="store", value=PRIVATE)
-    p.add_option("--package", dest="show", action="store", value=PACKAGE)
+    p.add_option("--public", dest="show", action="store_const", const=PUBLIC)
+    p.add_option("--private", dest="show", action="store_const", const=PRIVATE)
+    p.add_option("--package", dest="show", action="store_const", const=PACKAGE)
 
     p.add_option("-l", dest="lines", action="store_true")
     p.add_option("-c", dest="disassemble", action="store_true")
@@ -63,6 +82,9 @@ def create_optparser():
 
 
 def cli(options, rest):
+    for f in rest[1:]:
+        print_class(options, f)
+        
     return 0
 
 

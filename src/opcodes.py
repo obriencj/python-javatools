@@ -55,17 +55,61 @@ def _unpack(frmt, bc, offset=0):
 
 
 def _unpack_lookupswitch(bc, offset):
-    pass
+    jump = (offset % 4)
+    if jump:
+        offset += (4 - jump)
+
+    (default, npairs), offset = _unpack(">ii", bc, offset)
+
+    switches = []
+    for i in xrange(0, npairs):
+        pair, offset = _unpack(">ii", bc, offset)
+        switches.append(pair)
+    switches = tuple(switches)
+
+    return (default, switches), offset
 
 
 
 def _unpack_tableswitch(bc, offset):
-    pass
+    jump = (offset % 4)
+    if jump:
+        offset += (4 - jump)
+
+    (default, low, high), offset = _unpack(">iii", bc, offset)
+
+    joffs = []
+    for i in xrange(0, (high - low) + 1):
+        j, offset = _unpack(">i", bc, offset)
+        joffs.append(j)
+    joffs = tuple(joffs)
+
+    return (default, low, high, joffs), offset
 
 
 
 def _unpack_wide(bc, offset):
-    pass
+    code = ord(bc[offset])
+
+    if code == OP_iinc:
+        # 0x84
+
+        # iinc
+        return _unpack(">BHh", bc, offset)
+
+    elif code in (OP_iload, OP_fload, OP_aload, OP_lload, OP_dload,
+                  OP_istore, OP_fstore, OP_astore, OP_lstore,
+                  OP_dstore, OP_ret):
+
+        # ( 0x15, 0x17, 0x19, 0x16, 0x18, 0x36, 0x38, 0x3a, 0x37,
+        #   0x39, 0xa9 )
+
+        return _unpack(">BH", bc, offset)
+
+    else:
+
+        # nothing else is valid
+        assert(False)
 
 
 
@@ -79,16 +123,19 @@ def disassemble(bytecode):
     while offset < end:
         orig_offset = offset
 
-        code = bytecode[offset]
+        code = ord(bytecode[offset])
         offset += 1
 
         format = get_arg_format(code)
+
         if callable(format):
             args,offset = format(bytecode, offset)
         elif format:
             args,offset = _unpack(format, bytecode, offset)
+        else:
+            args = ()
 
-        dis.append( (code, args, orig_offset) )
+        dis.append( (orig_offset, code, args) )
 
     return tuple(dis)
 

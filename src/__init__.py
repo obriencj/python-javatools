@@ -291,6 +291,18 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         return self.get_const_val(self.this_ref)
 
 
+    def pretty_name(self):
+        n = _pretty_class(self.get_this())
+        e = _pretty_class(self.get_super())
+        i = [_pretty_class(t) for t in self.get_interfaces()]
+        i = ",".join(i)
+
+        if i:
+            return "%s extends %s implements %s" % (n, e, i)
+        else:
+            return "%s extends %s" % (n, e)
+
+
     def get_super(self):
         return self.get_const_val(self.super_ref)
 
@@ -364,6 +376,24 @@ class JavaMemberInfo(JavaAttributes):
         return self.owner.get_const_val(self.descriptor_ref)
 
 
+    def pretty_name(self):
+        n, t = self.get_name(), self.get_descriptor()
+        
+        if n == "<init>":
+            n = self.owner.get_this()
+            if "/" in n:
+                n = n[n.rfind("/")+1:]
+
+        if t[0] != "(":
+            return "%s %s" % (_pretty_type(t), n)
+
+        else:
+            back = t.rfind(")")
+            rt = _pretty_type(t[back+1:])
+            at = _pretty_type(t[:back])
+            return "%s %s%s" % (rt, n, at)
+
+
     def is_method(self):
         return bool(self._code or self.get_attribute("Code"))
 
@@ -423,6 +453,39 @@ class JavaMemberInfo(JavaAttributes):
 
 
 
+def _pretty_type(s):
+    tc = s[0]
+    if tc == "(":
+        pt = [t for t in s[1:-1].split(";") if t]
+        pt = [_pretty_type(t+";") for t in pt]
+        return "(%s)" % ",".join(pt)
+    
+    elif tc == "V":
+        return "void"
+    elif tc == "Z":
+        return "boolean"
+    elif tc == "I":
+        return "int"
+    elif tc == "J":
+        return "long"
+    elif tc == "D":
+        return "double"
+    elif tc == "F":
+        return "float"
+    elif tc == "L":
+        return _pretty_class(s[1:-1])
+    elif tc == "[":
+        return "%s[]" % _pretty_type(s[1:])
+    else:
+        assert(False)
+        
+
+
+def _pretty_class(s):
+    return s.replace("/", ".")
+
+
+
 class JavaCodeInfo(JavaAttributes):
 
     """ The 'Code' attribue of a method member of a java class """
@@ -478,6 +541,8 @@ class JavaCodeInfo(JavaAttributes):
 
 
     def disassemble(self):
+        import opcodes
+
         if self._dis is not None:
             return self._dis
 
