@@ -115,6 +115,9 @@ def _unpack_wide(bc, offset):
 
 def disassemble(bytecode):
     
+    """ disassembles Java bytecode into a sequence of
+    (offset,code,args) tuples """
+
     offset = 0
     end = len(bytecode)
 

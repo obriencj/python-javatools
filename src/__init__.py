@@ -65,7 +65,7 @@ class JavaConstantPool(object):
             if hackpass:
                 # previous item was a long or double
                 hackpass = False
-                items.append(None)
+                items.append((None,None))
 
             else:
                 debug("unpacking const item %i of %i" % (i+1, count))
@@ -105,16 +105,37 @@ class JavaConstantPool(object):
             raise Exception("Unknown constant pool type %i" % t)
     
 
+    def pretty_const_comment(self, index):
+        t,v = self.get_const(index)
+
+        if t == CONST_String:
+            return "\"%s\"" % repr(self.get_const_val(v))[1:-1]
+
+        elif t == CONST_Class:
+            return self.get_const_val(v)
+
+        elif t in (CONST_Fieldref, CONST_Methodref,
+                   CONST_InterfaceMethodref):
+
+            nat = self.pretty_const_comment(v[1])
+            return "%s.%s" % (self.get_const_val(v[0]), nat)
+
+        elif t == CONST_NameAndType:
+            a,b = (self.get_const_val(i) for i in v)
+            if a == "<init>":
+                a = self.owner.get_this()
+            return "%s:%s" % (a,b)
+
+        else:
+            return ""
+
+
     def pretty_const(self, index):
         type,val = self.consts[index]
-        type,val = _pretty_const_type_val(type,val)
 
-        return "const #%i = %s\t%s;" % (index, type, val)
-
-
-    def print_consts(self):
-        for i in xrange(1, len(self.consts)):
-            print self.pretty_const(i)
+        if type is not None:
+            t,v = _pretty_const_type_val(type,val)
+            return "const #%i = %s\t%s;" % (index, t, v)
 
 
 
@@ -128,8 +149,7 @@ def _funpack_const_item(buff):
 
     if type == CONST_Asciz:
         (slen,), buff = _funpack(">H", buff)
-        val = buffer(buff, 0, slen)
-        val = str(val) # meh. Easier to work with than buffer
+        val = buff[:slen]
         buff = buffer(buff, slen)
     
     elif type == CONST_Integer:
@@ -163,7 +183,7 @@ def _pretty_const_type_val(type, val):
 
     if type == CONST_Asciz:
         type = "Asciz"
-        val = str(val)
+        val = "\"%s\"" % repr(val)[1:-1]
     elif type == CONST_Integer:
         type = "Integer"
     elif type == CONST_Float:
@@ -190,6 +210,8 @@ def _pretty_const_type_val(type, val):
     elif type == CONST_NameAndType:
         type = "NameAndType"
         val = "#%i:#%i" % val
+    else:
+        assert(False)
     
     return type,val
 
@@ -376,7 +398,7 @@ class JavaMemberInfo(JavaAttributes):
         return self.owner.get_const_val(self.descriptor_ref)
 
 
-    def pretty_name(self):
+    def pretty_descriptor(self):
         n, t = self.get_name(), self.get_descriptor()
         
         if n == "<init>":
@@ -384,14 +406,11 @@ class JavaMemberInfo(JavaAttributes):
             if "/" in n:
                 n = n[n.rfind("/")+1:]
 
-        if t[0] != "(":
-            return "%s %s" % (_pretty_type(t), n)
-
+        pretty = _pretty_typeseq(t)
+        if len(pretty) == 1:
+            return "%s %s" % (pretty[0], n)
         else:
-            back = t.rfind(")")
-            rt = _pretty_type(t[back+1:])
-            at = _pretty_type(t[:back])
-            return "%s %s%s" % (rt, n, at)
+            return "%s %s%s" % (pretty[1], n, pretty[0])
 
 
     def is_method(self):
@@ -453,13 +472,43 @@ class JavaMemberInfo(JavaAttributes):
 
 
 
+def _next_argsig(buff):
+    c = buff[0]
+    if c in "VZIJDF":
+        return c, buffer(buff,1)
+    elif c == "[":
+        d,buff = _next_argsig(buffer(buff,1))
+        return c+d, buff
+    elif c == "L":
+        s = buff[:]
+        i = s.find(';')+1
+        return s[:i],buffer(buff,i)
+    elif c == "(":
+        s = buff[:]
+        i = s.find(')')+1
+        return s[:i],buffer(buff,i)
+    else:
+        assert(False)
+        
+
+
+def _pretty_typeseq(s):
+    at = []
+    
+    buff = buffer(s)
+    while buff:
+        t,buff = _next_argsig(buff)
+        at.append(_pretty_type(t))
+        
+    return tuple(at)
+
+
+
 def _pretty_type(s):
     tc = s[0]
     if tc == "(":
-        pt = [t for t in s[1:-1].split(";") if t]
-        pt = [_pretty_type(t+";") for t in pt]
-        return "(%s)" % ",".join(pt)
-    
+        args = _pretty_typeseq(s[1:-1])
+        return "(%s)" % ",".join(args)
     elif tc == "V":
         return "void"
     elif tc == "Z":
@@ -538,6 +587,21 @@ class JavaCodeInfo(JavaAttributes):
         lnt = tuple(lnt)
         self._lnt = lnt
         return lnt    
+
+
+    def get_line_for_offset(self, code_offset):
+        lnt = self.get_linenumbertable()
+
+        prev = -1
+        for (o,l) in lnt:
+            if o < code_offset:
+                prev = o
+            elif o == code_offset:
+                return l
+            else:
+                return prev
+
+        return prev
 
 
     def disassemble(self):

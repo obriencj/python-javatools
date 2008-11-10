@@ -24,13 +24,19 @@ PRIVATE = 7
 
 
 def print_field(options, field):
-    print "%s;" % field.pretty_name()
+    print "%s;" % field.pretty_descriptor()
+
+    if options.sigs:
+        print "  Signature:", field.get_descriptor()
 
 
 
 def print_method(options, method):
-    print "%s;" % method.pretty_name()
-    
+    print "%s;" % method.pretty_descriptor()
+
+    if options.sigs:
+        print "  Signature:", method.get_descriptor()
+
     if options.disassemble:
         print "  Code:"
         for line in method.get_code().disassemble():
@@ -42,6 +48,14 @@ def print_method(options, method):
             else:
                 print "   %i:\t%s" % (line[0], opname)
 
+    if options.lines:
+        if options.disassemble:
+            print
+
+        print "  LineNumberTable:"
+        for (o,l) in method.get_code().get_linenumbertable():
+            print "   line %i: %i" % (l,o)
+
 
 
 def print_class(options, classfile):
@@ -49,6 +63,16 @@ def print_class(options, classfile):
     info = javaclass.unpack_classfile(classfile)
 
     print "Compiled from \"%s\"" % info.get_sourcefile()
+
+    if options.constpool:
+        print
+        print "Constants Pool:"
+        for i in xrange(1, len(info.consts)):
+            c = info.pretty_const(i)
+            if c:
+                print c
+
+    print
     print "class %s {" % info.pretty_name()
 
     for field in info.fields:
@@ -75,6 +99,7 @@ def create_optparser():
     p.add_option("-l", dest="lines", action="store_true")
     p.add_option("-c", dest="disassemble", action="store_true")
     p.add_option("-s", dest="sigs", action="store_true")
+    p.add_option("-p", dest="constpool", action="store_true")
     p.add_option("--verbose", dest="verbose", action="store_true")
     
     return p
