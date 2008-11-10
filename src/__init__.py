@@ -39,6 +39,39 @@ CONST_NameAndType = 12
 
 
 
+ACC_PUBLIC = 0x0001
+ACC_PRIVATE = 0x0002
+ACC_PROTECTED = 0x0004
+ACC_STATIC = 0x0008
+ACC_FINAL = 0x0010
+ACC_SYNCHRONIZED = 0x0020
+ACC_SUPER = 0x0020
+ACC_VOLATILE = 0x0040
+ACC_TRANSIENT = 0x0080
+ACC_NATIVE = 0x0100
+ACC_INTERFACE = 0x0200
+ACC_ABSTRACT = 0x0400
+ACC_STRICT = 0x0800
+
+
+
+_pretty_access_flag = {
+    ACC_PUBLIC: "public",
+    ACC_PRIVATE: "private",
+    ACC_PROTECTED: "protected",
+    ACC_STATIC: "static",
+    ACC_FINAL: "final",
+    ACC_SYNCHRONIZED: "synchronized",
+    ACC_VOLATILE: "volatile",
+    ACC_TRANSIENT: "transient",
+    ACC_NATIVE: "native",
+    ACC_INTERFACE: "interface",
+    ACC_ABSTRACT: "abstract",
+    ACC_STRICT: "strict" }
+        
+
+
+
 class JavaConstantPool(object):
 
     """ A constants pool """
@@ -309,20 +342,58 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         return buff
 
 
+    def is_public(self):
+        return self.access_flags & ACC_PUBLIC
+
+
+    def is_final(self):
+        return self.access_flags & ACC_FINAL
+
+
+    def is_super(self):
+        return self.access_flags & ACC_SUPER
+
+
+    def is_interface(self):
+        return self.access_flags & ACC_INTERFACE
+
+
+    def is_abstract(self):
+        return self.access_flags & ACC_ABSTRACT
+
+
     def get_this(self):
         return self.get_const_val(self.this_ref)
 
 
+    def pretty_access_flags(self):
+        n = []
+        if self.is_public():
+            n.append("public")
+        if self.is_final():
+            n.append("final")
+        if self.is_interface():
+            n.append("interface")
+        if self.is_abstract():
+            n.append("abstract")
+        return " ".join(n)
+
+
     def pretty_name(self):
+
+        f = self.pretty_access_flags()
+        if not self.is_interface():
+            f += " class"
+
         n = _pretty_class(self.get_this())
         e = _pretty_class(self.get_super())
         i = [_pretty_class(t) for t in self.get_interfaces()]
         i = ",".join(i)
 
         if i:
-            return "%s extends %s implements %s" % (n, e, i)
+            return "%s %s extends %s implements %s" % (f, n, e, i)
         else:
-            return "%s extends %s" % (n, e)
+            return "%s %s extends %s" % (f, n, e)
 
 
     def get_super(self):
@@ -371,6 +442,8 @@ class JavaMemberInfo(JavaAttributes):
         self._code = None
         self._exceptions = None
         self._cval = None
+        self._type = None
+        self._arg_types = None
 
 
     def funpack(self, buff):
@@ -398,19 +471,104 @@ class JavaMemberInfo(JavaAttributes):
         return self.owner.get_const_val(self.descriptor_ref)
 
 
-    def pretty_descriptor(self):
-        n, t = self.get_name(), self.get_descriptor()
+    def pretty_type(self):
+        return _pretty_type(self.get_type_descriptor())
+
+
+    def pretty_arg_types(self):
+        if not self.is_method():
+            return None
+
+        pt = [_pretty_type(t) for t in self.get_arg_type_descriptors()]
+        return "(%s)" % ",".join(pt)
+
+
+    def pretty_name(self):
+        n = self.get_name()
+        f = self.pretty_access_flags()
+        p = self.pretty_type()
+        a = self.pretty_arg_types()
         
         if n == "<init>":
             n = self.owner.get_this()
             if "/" in n:
                 n = n[n.rfind("/")+1:]
-
-        pretty = _pretty_typeseq(t)
-        if len(pretty) == 1:
-            return "%s %s" % (pretty[0], n)
+        
+        if a is not None:
+            return "%s %s %s%s" % (f, p, n, a)
         else:
-            return "%s %s%s" % (pretty[1], n, pretty[0])
+            return "%s %s %s" % (f, p, n)
+
+
+    def pretty_access_flags(self):
+        n = []
+        if self.is_public():
+            n.append("public")
+        if self.is_private():
+            n.append("private")
+        if self.is_protected():
+            n.append("protected")
+        if self.is_static():
+            n.append("static")
+        if self.is_final():
+            n.append("final")
+        if self.is_synchronized():
+            n.append("synchronized")
+        if self.is_native():
+            n.append("native")
+        if self.is_abstract():
+            n.append("abstract")
+        if self.is_strict():
+            n.append("strict")
+        if self.is_volatile():
+            n.append("volatile")
+        if self.is_transient():
+            n.append("transient")
+        return " ".join(n)
+
+
+    def is_public(self):
+        return self.access_flags & ACC_PUBLIC
+
+
+    def is_private(self):
+        return self.access_flags & ACC_PRIVATE
+
+
+    def is_protected(self):
+        return self.access_flags & ACC_PROTECTED
+
+
+    def is_static(self):
+        return self.access_flags & ACC_STATIC
+
+
+    def is_final(self):
+        return self.access_flags & ACC_FINAL
+
+
+    def is_synchronized(self):
+        return self.access_flags & ACC_SYNCHRONIZED
+
+
+    def is_native(self):
+        return self.access_flags & ACC_NATIVE
+
+
+    def is_abstract(self):
+        return self.access_flags & ACC_ABSTRACT
+
+
+    def is_strict(self):
+        return self.access_flags & ACC_STRICT
+
+
+    def is_volatile(self):
+        return self.access_flags & ACC_VOLATILE
+
+
+    def is_transient(self):
+        return self.access_flags & ACC_TRANSIENT
 
 
     def is_method(self):
@@ -471,6 +629,26 @@ class JavaMemberInfo(JavaAttributes):
         return self._cval
 
 
+    def get_type_descriptor(self):
+        if self._type is None:
+            self._type = _typeseq(self.get_descriptor())[-1]
+        return self._type
+
+
+    def get_arg_type_descriptors(self):
+        if self._arg_types is not None:
+            return self._arg_types
+
+        if not self.is_method():
+            return None
+
+        tp = _typeseq(self.get_descriptor())
+        tp = _typeseq(tp[0][1:-1])
+
+        self._arg_types = tp
+        return tp
+
+
 
 def _next_argsig(buff):
     c = buff[0]
@@ -489,18 +667,23 @@ def _next_argsig(buff):
         return s[:i],buffer(buff,i)
     else:
         assert(False)
-        
 
 
-def _pretty_typeseq(s):
+
+def _typeseq(s):
     at = []
     
     buff = buffer(s)
     while buff:
         t,buff = _next_argsig(buff)
-        at.append(_pretty_type(t))
+        at.append(t)
         
     return tuple(at)
+    
+
+
+def _pretty_typeseq(s):
+    return [_pretty_type(t) for t in _typeseq(s)]
 
 
 
