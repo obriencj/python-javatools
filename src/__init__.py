@@ -167,12 +167,18 @@ class JavaConstantPool(object):
             return ""
 
 
-    def pretty_const(self, index):
-        type,val = self.consts[index]
+    def pretty_const_type_val(self, index):
+        
+        """ a tuple of the pretty type and val, or (None,None) for
+        invalid indexes (such as the second part of a long or double
+        value)
+        """
 
-        if type is not None:
-            t,v = _pretty_const_type_val(type,val)
-            return "const #%i = %s\t%s;" % (index, t, v)
+        tv = self.get_const(index)
+        if not (tv and tv[0]):
+            return None,None
+        else:
+            return _pretty_const_type_val(*tv)
 
 
 
@@ -220,15 +226,18 @@ def _pretty_const_type_val(type, val):
 
     if type == CONST_Asciz:
         type = "Asciz"
-        val = "\"%s\"" % repr(val)[1:-1]
+        val = repr(val)[1:-1]
     elif type == CONST_Integer:
-        type = "Integer"
+        type = "int"
     elif type == CONST_Float:
-        type = "Float"
+        type = "float"
+        val = "%ff" % val
     elif type == CONST_Long:
-        type = "Long"
+        type = "long"
+        val = "%il" % val
     elif type == CONST_Double:
-        type = "Double"
+        type = "double"
+        val = "%dd" % val
     elif type == CONST_Class:
         type = "class"
         val = "#%i" % val
@@ -389,6 +398,9 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
 
     def pretty_name(self):
 
+        """ get the class or interface name, it's accessor flags, it's
+        parent class, and any interfaces it implements"""
+
         f = self.pretty_access_flags()
         if not self.is_interface():
             f += " class"
@@ -492,24 +504,35 @@ class JavaMemberInfo(JavaAttributes):
 
 
     def pretty_name(self):
-        n = self.get_name()
+        
+        """ assemble a long member name from access flags, type,
+        argument types, exceptions as applicable """
+        
         f = self.pretty_access_flags()
         p = self.pretty_type()
+        n = self.get_name()
         a = self.pretty_arg_types()
+        t = ",".join(self.get_pretty_exceptions())
         
         if n == "<init>":
+            # rename this method to match the class name
             n = self.owner.get_this()
             if "/" in n:
                 n = n[n.rfind("/")+1:]
-        
-        if a is not None:
-            t = ",".join(self.get_pretty_exceptions())
-            if t:
-                return "%s %s %s%s throws %s" % (f, p, n, a, t)
-            else:
-                return "%s %s %s%s" % (f, p, n, a)
-        else:
-            return "%s %s %s" % (f, p, n)
+
+            # we pretend that there's no return type, even though it's V
+            p = None
+
+        if a:
+            # stick the name and args together so there's no space
+            n = n+a
+
+        if t:
+            # assemble any throws as necessary
+            t = "throws "+t
+
+        x = [z for z in (f,p,n,t) if z]
+        return " ".join(x)
 
 
     def pretty_access_flags(self):
@@ -635,7 +658,7 @@ class JavaMemberInfo(JavaAttributes):
         return [_pretty_class(e) for e in self.get_exceptions()]
 
 
-    def get_constvalue(self):
+    def get_constantvalue(self):
 
         """ the constant value of this field, or None if this is not a
         contant field """
@@ -648,8 +671,12 @@ class JavaMemberInfo(JavaAttributes):
             return None
 
         (cval_ref,) = _unpack(">H", buff)
-        self._cval = self.owner.get_const_val(cval_ref)
-        return self._cval
+        self._cval = cval_ref
+        return cval_ref
+
+
+    def get_const_val(self):
+        return self.owner.get_const_val(self.get_constvalue())
 
 
     def get_type_descriptor(self):

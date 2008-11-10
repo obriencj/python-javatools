@@ -40,19 +40,30 @@ def should_show(options, memeber):
 
 
 def print_field(options, field):
+
+    if options.indent:
+        print "   ",
+
     print "%s;" % field.pretty_name()
 
     if options.sigs:
         print "  Signature:", field.get_descriptor()
 
     if options.verbose:
-        cv = field.get_constvalue()
+        cv = field.get_constantvalue()
         if cv is not None:
-            print "  Constant value: %s %s" % (field.pretty_type(), cv)
+            t,v = field.owner.pretty_const_type_val(cv)
+            if t:
+                print "  Constant value: %s %s" % (t,v)
+        print
 
 
 
 def print_method(options, method):
+
+    if options.indent:
+        print "   ",
+
     print "%s;" % method.pretty_name()
 
     if options.sigs:
@@ -97,7 +108,6 @@ def print_method(options, method):
         if method.is_deprecated():
             print "  Deprecated: true"
 
-
     if options.lines:
         print "  LineNumberTable:"
         for (o,l) in method.get_code().get_linenumbertable():
@@ -109,6 +119,8 @@ def print_method(options, method):
             print "  Exceptions:"
             for e in exps:
                 print "   throws", e
+
+        print
 
 
 
@@ -128,11 +140,11 @@ def print_class(options, classfile):
     if options.constpool:
         print "  Constant pool:"
         for i in xrange(1, len(info.consts)):
-            c = info.pretty_const(i)
-            if c:
+            t,v = info.pretty_const_type_val(i)
+            if t:
                 # skipping the None consts, which would be the entries
                 # comprising the second half of a long or double value
-                print c
+                print "const #%i = %s\t%s;" % (i,t,v)
         print
         
     print "{"
@@ -140,14 +152,13 @@ def print_class(options, classfile):
     for field in info.fields:
         if should_show(options, field):
             print_field(options, field)
-            print
 
     for method in info.methods:
         if should_show(options, field):
             print_method(options, method)
-            print
 
     print "}"
+    print
 
 
 
@@ -193,6 +204,10 @@ def cli(options, rest):
         options.disassemble = True
         options.sigs = True
         options.constpool = True
+
+    # just a tiny hack to mimic some indenting sun's javap will do if
+    # the output it terse
+    options.indent = not( options.lines or options.disassemble or options.sigs)
 
     for f in rest[1:]:
         print_class(options, f)
