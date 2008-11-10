@@ -24,6 +24,11 @@ PRIVATE = 7
 
 
 def should_show(options, memeber):
+
+    """ whether to show a member by its access flags and the show
+    option. There's probably a faster and smarter way to do this, but
+    eh."""
+
     show = options.show
     if show == PUBLIC:
         return member.is_public()
@@ -59,6 +64,10 @@ def print_method(options, method):
         code = method.get_code()
 
         if options.verbose:
+            # the arg count is the number of arguments consumed from
+            # the stack when this method is called. non-static methods
+            # implicitly have a "this" argument that's not in the
+            # descriptor
             argsc = len(method.get_arg_type_descriptors())
             if not method.is_static():
                 argsc += 1
@@ -75,10 +84,31 @@ def print_method(options, method):
             else:
                 print "   %i:\t%s" % (line[0], opname)
 
+        exps = code.exceptions
+        if exps:
+            print "  Exception table:"
+            print "   from   to  target type"
+            for e in exps:
+                ctype = e.get_pretty_catch_type()
+                print "  % 4i  % 4i  % 4i   %s" % \
+                    (e.start_pc, e.end_pc, e.handler_pc, ctype)
+
+    if options.verbose:
+        if method.is_deprecated():
+            print "  Deprecated: true"
+
+
     if options.lines:
         print "  LineNumberTable:"
         for (o,l) in method.get_code().get_linenumbertable():
             print "   line %i: %i" % (l,o)
+
+    if options.verbose:
+        exps = method.get_pretty_exceptions()
+        if exps:
+            print "  Exceptions:"
+            for e in exps:
+                print "   throws", e
 
 
 
@@ -100,6 +130,8 @@ def print_class(options, classfile):
         for i in xrange(1, len(info.consts)):
             c = info.pretty_const(i)
             if c:
+                # skipping the None consts, which would be the entries
+                # comprising the second half of a long or double value
                 print c
         print
         

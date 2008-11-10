@@ -119,7 +119,11 @@ class JavaConstantPool(object):
 
 
     def get_const_val(self, index):
-        t,v = self.get_const(index)
+        tv = self.get_const(index)
+        if not tv:
+            return None
+
+        t,v = tv
         
         if t in (CONST_Asciz, CONST_Integer, CONST_Float):
             return v
@@ -366,6 +370,10 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         return self.get_const_val(self.this_ref)
 
 
+    def is_deprecated(self):
+        return bool(self.get_attribute("Deprecated"))
+
+
     def pretty_access_flags(self):
         n = []
         if self.is_public():
@@ -495,7 +503,11 @@ class JavaMemberInfo(JavaAttributes):
                 n = n[n.rfind("/")+1:]
         
         if a is not None:
-            return "%s %s %s%s" % (f, p, n, a)
+            t = ",".join(self.get_pretty_exceptions())
+            if t:
+                return "%s %s %s%s throws %s" % (f, p, n, a, t)
+            else:
+                return "%s %s %s%s" % (f, p, n, a)
         else:
             return "%s %s %s" % (f, p, n)
 
@@ -575,6 +587,10 @@ class JavaMemberInfo(JavaAttributes):
         return bool(self._code or self.get_attribute("Code"))
 
 
+    def is_deprecated(self):
+        return bool(self.get_attribute("Deprecated"))
+
+
     def get_code(self):
         if self._code is not None:
             return self._code
@@ -595,21 +611,28 @@ class JavaMemberInfo(JavaAttributes):
 
     def get_exceptions(self):
 
-        """ a tuple of index ref to the contant pool of the exception types
-        this method may raise, or None if this is not a method """
+        """ a tuple class names for the exception types this method
+        may raise, or None if this is not a method"""
 
         if self._exceptions is not None:
             return self._exceptions
 
         buff = self.get_attribute("Exceptions")
         if buff is None:
-            return None
+            self._exceptions = ()
+            return ()
 
         (count,), buff = _funpack(">H", buff)
         excps, buff = _funpack(">%iH" % count, buff)
 
+        excps = [self.owner.get_const_val(e) for e in excps]
+
         self._exceptions = excps
         return excps
+
+
+    def get_pretty_exceptions(self):
+        return [_pretty_class(e) for e in self.get_exceptions()]
 
 
     def get_constvalue(self):
@@ -802,13 +825,14 @@ class JavaCodeInfo(JavaAttributes):
 
 class JavaExceptionInfo(object):
 
-    def __init__(self, owner):
-        self.owner = owner
+    def __init__(self, code):
+        self.code = code
+        self.owner = code.owner
         
         self.start_pc = 0
         self.end_pc = 0
         self.handler_pc = 0
-        self.catch_type_ref = 0
+        self.catchx_type_ref = 0
 
 
     def funpack(self, buff):
@@ -824,6 +848,14 @@ class JavaExceptionInfo(object):
 
     def get_catch_type(self):
         return self.owner.get_const_val(self.catch_type_ref)
+
+
+    def get_pretty_catch_type(self):
+        ct = self.get_catch_type()
+        if ct:
+            return "Class "+ct
+        else:
+            return "any"
 
 
 
