@@ -100,7 +100,7 @@ def print_method(options, method):
             print "  Exception table:"
             print "   from   to  target type"
             for e in exps:
-                ctype = e.get_pretty_catch_type()
+                ctype = e.pretty_catch_type()
                 print "  % 4i  % 4i  % 4i   %s" % \
                     (e.start_pc, e.end_pc, e.handler_pc, ctype)
 
@@ -114,7 +114,7 @@ def print_method(options, method):
             print "   line %i: %i" % (l,o)
 
     if options.verbose:
-        exps = method.get_pretty_exceptions()
+        exps = method.pretty_exceptions()
         if exps:
             print "  Exceptions:"
             for e in exps:

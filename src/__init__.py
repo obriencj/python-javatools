@@ -52,24 +52,7 @@ ACC_NATIVE = 0x0100
 ACC_INTERFACE = 0x0200
 ACC_ABSTRACT = 0x0400
 ACC_STRICT = 0x0800
-
-
-
-_pretty_access_flag = {
-    ACC_PUBLIC: "public",
-    ACC_PRIVATE: "private",
-    ACC_PROTECTED: "protected",
-    ACC_STATIC: "static",
-    ACC_FINAL: "final",
-    ACC_SYNCHRONIZED: "synchronized",
-    ACC_VOLATILE: "volatile",
-    ACC_TRANSIENT: "transient",
-    ACC_NATIVE: "native",
-    ACC_INTERFACE: "interface",
-    ACC_ABSTRACT: "abstract",
-    ACC_STRICT: "strict" }
         
-
 
 
 class JavaConstantPool(object):
@@ -179,87 +162,6 @@ class JavaConstantPool(object):
             return None,None
         else:
             return _pretty_const_type_val(*tv)
-
-
-
-def _funpack_const_item(buff):
-
-    """ unpack a constant pool item, which will consist of a type byte
-    (see the CONST_ values in this module) and a value of the
-    appropriate type """
-
-    (type,),  buff = _funpack(">B", buff)
-
-    if type == CONST_Asciz:
-        (slen,), buff = _funpack(">H", buff)
-        val = buff[:slen]
-        buff = buffer(buff, slen)
-    
-    elif type == CONST_Integer:
-        (val,), buff = _funpack(">i", buff)
-
-    elif type == CONST_Float:
-        (val,), buff = _funpack(">f", buff)
-
-    elif type == CONST_Long:
-        (val,), buff = _funpack(">q", buff)
-
-    elif type == CONST_Double:
-        (val,), buff = _funpack(">d", buff)
-
-    elif type in (CONST_Class, CONST_String):
-        (val,), buff = _funpack(">H", buff)
-
-    elif type in (CONST_Fieldref, CONST_Methodref,
-                  CONST_InterfaceMethodref, CONST_NameAndType):
-        val, buff = _funpack(">HH", buff)
-
-    else:
-        raise Exception("unknown constant type %r" % type)
-
-    debug("const %s\t%s;" % _pretty_const_type_val(type,val))
-    return (type, val), buff
-
-
-
-def _pretty_const_type_val(type, val):
-
-    if type == CONST_Asciz:
-        type = "Asciz"
-        val = repr(val)[1:-1]
-    elif type == CONST_Integer:
-        type = "int"
-    elif type == CONST_Float:
-        type = "float"
-        val = "%ff" % val
-    elif type == CONST_Long:
-        type = "long"
-        val = "%il" % val
-    elif type == CONST_Double:
-        type = "double"
-        val = "%dd" % val
-    elif type == CONST_Class:
-        type = "class"
-        val = "#%i" % val
-    elif type == CONST_String:
-        type = "String"
-        val = "#%i" % val
-    elif type == CONST_Fieldref:
-        type = "Field"
-        val = "#%i.#%i" % val
-    elif type == CONST_Methodref:
-        type = "Method"
-        val = "#%i.#%i" % val
-    elif type == CONST_InterfaceMethodref:
-        type = "InterfaceMethod"
-        val = "#%i.#%i" % val
-    elif type == CONST_NameAndType:
-        type = "NameAndType"
-        val = "#%i:#%i" % val
-    else:
-        assert(False)
-    
-    return type,val
 
 
 
@@ -383,39 +285,6 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         return bool(self.get_attribute("Deprecated"))
 
 
-    def pretty_access_flags(self):
-        n = []
-        if self.is_public():
-            n.append("public")
-        if self.is_final():
-            n.append("final")
-        if self.is_interface():
-            n.append("interface")
-        if self.is_abstract():
-            n.append("abstract")
-        return " ".join(n)
-
-
-    def pretty_name(self):
-
-        """ get the class or interface name, it's accessor flags, it's
-        parent class, and any interfaces it implements"""
-
-        f = self.pretty_access_flags()
-        if not self.is_interface():
-            f += " class"
-
-        n = _pretty_class(self.get_this())
-        e = _pretty_class(self.get_super())
-        i = [_pretty_class(t) for t in self.get_interfaces()]
-        i = ",".join(i)
-
-        if i:
-            return "%s %s extends %s implements %s" % (f, n, e, i)
-        else:
-            return "%s %s extends %s" % (f, n, e)
-
-
     def get_super(self):
         return self.get_const_val(self.super_ref)
 
@@ -444,6 +313,41 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
 
         self._inners = inners
         return inners
+
+
+    def pretty_access_flags(self):
+        n = []
+
+        if self.is_public():
+            n.append("public")
+        if self.is_final():
+            n.append("final")
+        if self.is_interface():
+            n.append("interface")
+        if self.is_abstract():
+            n.append("abstract")
+
+        return tuple(n)
+
+
+    def pretty_name(self):
+
+        """ get the class or interface name, it's accessor flags, it's
+        parent class, and any interfaces it implements"""
+
+        f = " ".join(self.pretty_access_flags())
+        if not self.is_interface():
+            f += " class"
+
+        n = _pretty_class(self.get_this())
+        e = _pretty_class(self.get_super())
+        i = [_pretty_class(t) for t in self.get_interfaces()]
+        i = ",".join(i)
+
+        if i:
+            return "%s %s extends %s implements %s" % (f, n, e, i)
+        else:
+            return "%s %s extends %s" % (f, n, e)
 
 
 
@@ -489,77 +393,6 @@ class JavaMemberInfo(JavaAttributes):
         if not self.owner:
             raise Exception("memeber has no owning class")
         return self.owner.get_const_val(self.descriptor_ref)
-
-
-    def pretty_type(self):
-        return _pretty_type(self.get_type_descriptor())
-
-
-    def pretty_arg_types(self):
-        if not self.is_method():
-            return None
-
-        pt = [_pretty_type(t) for t in self.get_arg_type_descriptors()]
-        return "(%s)" % ",".join(pt)
-
-
-    def pretty_name(self):
-        
-        """ assemble a long member name from access flags, type,
-        argument types, exceptions as applicable """
-        
-        f = self.pretty_access_flags()
-        p = self.pretty_type()
-        n = self.get_name()
-        a = self.pretty_arg_types()
-        t = ",".join(self.get_pretty_exceptions())
-        
-        if n == "<init>":
-            # rename this method to match the class name
-            n = self.owner.get_this()
-            if "/" in n:
-                n = n[n.rfind("/")+1:]
-
-            # we pretend that there's no return type, even though it's V
-            p = None
-
-        if a:
-            # stick the name and args together so there's no space
-            n = n+a
-
-        if t:
-            # assemble any throws as necessary
-            t = "throws "+t
-
-        x = [z for z in (f,p,n,t) if z]
-        return " ".join(x)
-
-
-    def pretty_access_flags(self):
-        n = []
-        if self.is_public():
-            n.append("public")
-        if self.is_private():
-            n.append("private")
-        if self.is_protected():
-            n.append("protected")
-        if self.is_static():
-            n.append("static")
-        if self.is_final():
-            n.append("final")
-        if self.is_synchronized():
-            n.append("synchronized")
-        if self.is_native():
-            n.append("native")
-        if self.is_abstract():
-            n.append("abstract")
-        if self.is_strict():
-            n.append("strict")
-        if self.is_volatile():
-            n.append("volatile")
-        if self.is_transient():
-            n.append("transient")
-        return " ".join(n)
 
 
     def is_public(self):
@@ -654,10 +487,6 @@ class JavaMemberInfo(JavaAttributes):
         return excps
 
 
-    def get_pretty_exceptions(self):
-        return [_pretty_class(e) for e in self.get_exceptions()]
-
-
     def get_constantvalue(self):
 
         """ the constant value of this field, or None if this is not a
@@ -699,72 +528,87 @@ class JavaMemberInfo(JavaAttributes):
         return tp
 
 
-
-def _next_argsig(buff):
-    c = buff[0]
-    if c in "VZIJDF":
-        return c, buffer(buff,1)
-    elif c == "[":
-        d,buff = _next_argsig(buffer(buff,1))
-        return c+d, buff
-    elif c == "L":
-        s = buff[:]
-        i = s.find(';')+1
-        return s[:i],buffer(buff,i)
-    elif c == "(":
-        s = buff[:]
-        i = s.find(')')+1
-        return s[:i],buffer(buff,i)
-    else:
-        assert(False)
+    def pretty_type(self):
+        return _pretty_type(self.get_type_descriptor())
 
 
+    def pretty_arg_types(self):
+        if not self.is_method():
+            return None
 
-def _typeseq(s):
-    at = []
-    
-    buff = buffer(s)
-    while buff:
-        t,buff = _next_argsig(buff)
-        at.append(t)
+        pt = [_pretty_type(t) for t in self.get_arg_type_descriptors()]
+        return "(%s)" % ",".join(pt)
+
+
+    def pretty_name(self):
         
-    return tuple(at)
-    
-
-
-def _pretty_typeseq(s):
-    return [_pretty_type(t) for t in _typeseq(s)]
-
-
-
-def _pretty_type(s):
-    tc = s[0]
-    if tc == "(":
-        args = _pretty_typeseq(s[1:-1])
-        return "(%s)" % ",".join(args)
-    elif tc == "V":
-        return "void"
-    elif tc == "Z":
-        return "boolean"
-    elif tc == "I":
-        return "int"
-    elif tc == "J":
-        return "long"
-    elif tc == "D":
-        return "double"
-    elif tc == "F":
-        return "float"
-    elif tc == "L":
-        return _pretty_class(s[1:-1])
-    elif tc == "[":
-        return "%s[]" % _pretty_type(s[1:])
-    else:
-        assert(False)
+        """ assemble a long member name from access flags, type,
+        argument types, exceptions as applicable """
         
+        f = " ".join(self.pretty_access_flags())
+        p = self.pretty_type()
+        n = self.get_name()
+        a = self.pretty_arg_types()
+        t = ",".join(self.pretty_exceptions())
+        
+        if n == "<init>":
+            # rename this method to match the class name
+            n = self.owner.get_this()
+            if "/" in n:
+                n = n[n.rfind("/")+1:]
+
+            # we pretend that there's no return type, even though it's V
+            p = None
+
+        if a:
+            # stick the name and args together so there's no space
+            n = n+a
+
+        if t:
+            # assemble any throws as necessary
+            t = "throws "+t
+
+        x = [z for z in (f,p,n,t) if z]
+        return " ".join(x)
 
 
-def _pretty_class(s):
-    return s.replace("/", ".")
+    def pretty_access_flags(self):
+
+        """ sequence of the keywords determined from the access flags"""
+
+        n = []
+
+        if self.is_public():
+            n.append("public")
+        if self.is_private():
+            n.append("private")
+        if self.is_protected():
+            n.append("protected")
+        if self.is_static():
+            n.append("static")
+        if self.is_final():
+            n.append("final")
+        if self.is_synchronized():
+            n.append("synchronized")
+        if self.is_native():
+            n.append("native")
+        if self.is_abstract():
+            n.append("abstract")
+        if self.is_strict():
+            n.append("strict")
+        if self.is_volatile():
+            n.append("volatile")
+        if self.is_transient():
+            n.append("transient")
+
+        return tuple(n)
+
+
+    def pretty_exceptions(self):
+
+        """ sequence of pretty names for get_exceptions() """
+
+        return [_pretty_class(e) for e in self.get_exceptions()]
 
 
 
@@ -852,6 +696,9 @@ class JavaCodeInfo(JavaAttributes):
 
 class JavaExceptionInfo(object):
 
+    """ Information about an exception handler entry in an exception
+    table """
+
     def __init__(self, code):
         self.code = code
         self.owner = code.owner
@@ -877,7 +724,7 @@ class JavaExceptionInfo(object):
         return self.owner.get_const_val(self.catch_type_ref)
 
 
-    def get_pretty_catch_type(self):
+    def pretty_catch_type(self):
         ct = self.get_catch_type()
         if ct:
             return "Class "+ct
@@ -887,6 +734,8 @@ class JavaExceptionInfo(object):
 
 
 class JavaInnerClassInfo(object):
+
+    """ Information about an inner class """    
 
     def __init__(self, owner):
         self.owner = owner
@@ -911,6 +760,172 @@ class JavaInnerClassInfo(object):
     def get_name(self):
         return self.owner.get_const_val(self.name_ref)
 
+
+
+#
+# Utility functions for the constants pool
+
+
+
+def _funpack_const_item(buff):
+
+    """ unpack a constant pool item, which will consist of a type byte
+    (see the CONST_ values in this module) and a value of the
+    appropriate type """
+
+    (type,),  buff = _funpack(">B", buff)
+
+    if type == CONST_Asciz:
+        (slen,), buff = _funpack(">H", buff)
+        val = buff[:slen]
+        buff = buffer(buff, slen)
+    
+    elif type == CONST_Integer:
+        (val,), buff = _funpack(">i", buff)
+
+    elif type == CONST_Float:
+        (val,), buff = _funpack(">f", buff)
+
+    elif type == CONST_Long:
+        (val,), buff = _funpack(">q", buff)
+
+    elif type == CONST_Double:
+        (val,), buff = _funpack(">d", buff)
+
+    elif type in (CONST_Class, CONST_String):
+        (val,), buff = _funpack(">H", buff)
+
+    elif type in (CONST_Fieldref, CONST_Methodref,
+                  CONST_InterfaceMethodref, CONST_NameAndType):
+        val, buff = _funpack(">HH", buff)
+
+    else:
+        raise Exception("unknown constant type %r" % type)
+
+    debug("const %s\t%s;" % _pretty_const_type_val(type,val))
+    return (type, val), buff
+
+
+
+def _pretty_const_type_val(type, val):
+
+    if type == CONST_Asciz:
+        type = "Asciz"
+        val = repr(val)[1:-1]
+    elif type == CONST_Integer:
+        type = "int"
+    elif type == CONST_Float:
+        type = "float"
+        val = "%ff" % val
+    elif type == CONST_Long:
+        type = "long"
+        val = "%il" % val
+    elif type == CONST_Double:
+        type = "double"
+        val = "%dd" % val
+    elif type == CONST_Class:
+        type = "class"
+        val = "#%i" % val
+    elif type == CONST_String:
+        type = "String"
+        val = "#%i" % val
+    elif type == CONST_Fieldref:
+        type = "Field"
+        val = "#%i.#%i" % val
+    elif type == CONST_Methodref:
+        type = "Method"
+        val = "#%i.#%i" % val
+    elif type == CONST_InterfaceMethodref:
+        type = "InterfaceMethod"
+        val = "#%i.#%i" % val
+    elif type == CONST_NameAndType:
+        type = "NameAndType"
+        val = "#%i:#%i" % val
+    else:
+        assert(False)
+    
+    return type,val
+
+
+
+#
+# Utility functions for dealing with exploding internal type
+# signatures into sequences, and converting type signatures into
+# "pretty" strings
+
+
+
+def _next_argsig(buff):
+    c = buff[0]
+    if c in "VZIJDF":
+        return c, buffer(buff,1)
+    elif c == "[":
+        d,buff = _next_argsig(buffer(buff,1))
+        return c+d, buff
+    elif c == "L":
+        s = buff[:]
+        i = s.find(';')+1
+        return s[:i],buffer(buff,i)
+    elif c == "(":
+        s = buff[:]
+        i = s.find(')')+1
+        return s[:i],buffer(buff,i)
+    else:
+        assert(False)
+
+
+
+def _typeseq(s):
+    at = []
+    
+    buff = buffer(s)
+    while buff:
+        t,buff = _next_argsig(buff)
+        at.append(t)
+        
+    return tuple(at)
+    
+
+
+def _pretty_typeseq(s):
+    return [_pretty_type(t) for t in _typeseq(s)]
+
+
+
+def _pretty_type(s):
+    tc = s[0]
+    if tc == "(":
+        args = _pretty_typeseq(s[1:-1])
+        return "(%s)" % ",".join(args)
+    elif tc == "V":
+        return "void"
+    elif tc == "Z":
+        return "boolean"
+    elif tc == "I":
+        return "int"
+    elif tc == "J":
+        return "long"
+    elif tc == "D":
+        return "double"
+    elif tc == "F":
+        return "float"
+    elif tc == "L":
+        return _pretty_class(s[1:-1])
+    elif tc == "[":
+        return "%s[]" % _pretty_type(s[1:])
+    else:
+        assert(False)
+        
+
+
+def _pretty_class(s):
+    return s.replace("/", ".")
+
+
+
+#
+# Utility functions for unpacking shapes of binary data from a
+# buffer. The _funpack function is particularly important.
 
 
 def _struct_class():
@@ -997,6 +1012,11 @@ def _funpack_array(atype, buff, *params, **kwds):
         items.append(o)
 
     return tuple(items), buff
+
+
+
+#
+# Functions for dealing with buffers and files
 
 
 
