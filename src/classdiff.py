@@ -92,23 +92,114 @@ def cli_compare_class(options, left, right):
 
 
 
+def cli_members_diff(options, compare, left_members, right_members):
+    
+    """ generator yielding (EVENT, (left_meth, right_meth)) """
+
+    li = {}
+    for f in left_members:
+        li[f.get_identifier()] = f
+
+    for f in right_members:
+        key = f.get_identifier()
+        lf = li.get(key, None)
+
+        if lf:
+            del li[key]
+            if compare(options, lf, f):
+                yield (CHANGE, (lf, f))
+            else:
+                yield (SAME, (lf, f))
+
+        else:
+            yield (RIGHT, (None, f))
+    
+    for f in li.values():
+        yield (LEFT, (f, None))
+        
+
+
+def cli_collect_members_diff(options, compare,
+                             left_members, right_members,
+                             added=None, removed=None,
+                             changed=None, same=None):
+    
+    for event,data in cli_members_diff(options, compare,
+                                       left_members, right_members):
+        l = None
+
+        if event is LEFT:
+            l = removed
+        elif event is RIGHT:
+            l = added
+        elif event is CHANGE:
+            l = changed
+        elif event is SAME:
+            l = same
+        
+        if l is not None:
+            l.append(data)
+
+    return added, removed, changed, same
+
+
+
 def cli_compare_field(options, left, right):
-    # if we're here, we already presume name is the same
     
-    # type descriptor
+    from javaclass import JavaMemberInfo
+
+    if not (isinstance(left, JavaMemberInfo) and
+            isinstance(right, JavaMemberInfo)):
+        raise TypeError("wanted JavaMemberInfo")
+    
+    # name and type
+    if not ((left.get_name() == right.get_name()) and
+            (left.get_descriptor() == right.get_descriptor())):
+
+        return 1
+
     # access flags
-    # const val
+    if left.access_flags != right.access_flags:
+        return 1
     
+    # const val
+    lconst, rconst = left.get_const_val(), right.get_const_val()
+    if lconst != rconst:
+        return 1
+
     return 0
 
 
 
 def cli_compare_fields(options, left, right):
-    # added fields
-    # removed fields
-    # modified fields
-    
-    return 0
+
+    added, removed, changed = [], [], []
+
+    cli_collect_members_diff(options, cli_compare_field,
+                             left.fields, right.fields,
+                             added, removed, changed)
+
+    ret = 0
+
+    if not options.ignore_added and added:
+        print "Added fields:"
+        for l,r in added:
+            print "  ", r.pretty_name()
+        ret = FIELD_DATA_CHANGE
+
+    if removed:
+        print "Removed fields:"
+        for l,r in removed:
+            print "  ", l.pretty_name()
+        ret = FIELD_DATA_CHANGE
+
+    if changed:
+        print "Changed fields:"
+        for l,r in changed:
+            print "  ", r.pretty_name()
+        ret = FIELD_DATA_CHANGE
+
+    return ret
 
 
 
@@ -159,60 +250,12 @@ def cli_compare_method(options, left, right):
 
 
 
-def _method_key(meth):
-    return meth.get_name()+meth.get_descriptor()
-
-
-
-def cli_methods_diff(options, left, right):
-    
-    """ generator yielding (EVENT, (left_meth, right_meth)) """
-
-    li = {}
-    for meth in left.methods:
-        li[_method_key(meth)] = meth
-
-    for meth in right.methods:
-        key = _method_key(meth)
-        lmeth = li.get(key, None)
-
-        if lmeth:
-            del li[key]
-            if cli_compare_method(options, lmeth, meth):
-                yield (CHANGE, (lmeth, meth))
-            else:
-                yield (SAME, (lmeth, meth))
-
-        else:
-            yield (RIGHT, (None, meth))
-    
-    for meth in li.values():
-        yield (LEFT, (meth, None))
-        
-
-
-def cli_collect_methods_diff(options, left, right,
-                             added=None, removed=None,
-                             changed=None, same=None):
-
-    for event, data in cli_methods_diff(options, left, right):
-        if removed is not None and event is LEFT:
-            removed.append(data)
-        elif added is not None and event is RIGHT:
-            added.append(data)
-        elif changed is not None and event is CHANGE:
-            changed.append(data)
-        elif same is not None and event is SAME:
-            same.append(data)
-
-    return added, removed, changed, same
-
-
-
 def cli_compare_methods(options, left, right):
     
     added, removed, changed = [], [], []
-    cli_collect_methods_diff(options, left, right, added, removed, changed)
+    cli_collect_members_diff(options, cli_compare_method,
+                             left.methods, right.methods,
+                             added, removed, changed)
 
     ret = 0
 

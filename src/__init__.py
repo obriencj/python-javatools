@@ -506,7 +506,11 @@ class JavaMemberInfo(JavaAttributes):
 
 
     def get_const_val(self):
-        return self.owner.get_const_val(self.get_constvalue())
+        index = self.get_constantvalue()
+        if index is None:
+            return None
+        else:
+            return self.owner.get_const_val(index)
 
 
     def get_type_descriptor(self):
@@ -610,6 +614,18 @@ class JavaMemberInfo(JavaAttributes):
         """ sequence of pretty names for get_exceptions() """
 
         return [_pretty_class(e) for e in self.get_exceptions()]
+
+
+    def get_identifier(self):
+
+        """ for methods this is the name and the argument descriptor. For
+        fields it is simply the name """
+
+        if self.is_method():
+            return "%s(%s)" % (self.get_name(),
+                               ",".join(self.get_arg_type_descriptors()))
+        else:
+            return self.get_name()
 
 
 
