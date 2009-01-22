@@ -222,6 +222,7 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
 
         self.magic = 0
         self.version = (0,0)
+        self.access_flags = 0
         self.interfaces = tuple()
         self.fields = tuple()
         self.methods = tuple()
@@ -628,6 +629,8 @@ class JavaCodeInfo(JavaAttributes):
         self._lnt = None
         self._dis = None
 
+        self.__cmp_t = None
+
 
     def funpack(self, buff):
         debug("unpacking code info")
@@ -682,7 +685,7 @@ class JavaCodeInfo(JavaAttributes):
 
 
     def disassemble(self):
-        import opcodes
+        import javaclass.opcodes as opcodes
 
         if self._dis is not None:
             return self._dis
@@ -693,11 +696,39 @@ class JavaCodeInfo(JavaAttributes):
         return dis
 
 
+    def __eq__(self, other):
+        import javaclass.opcodes as opcodes
+
+        if not (self.max_stack == other.max_stack and
+                self.max_locals == other.max_locals and
+                len(self.code) == len(other.code)):
+            return False
+
+        for left,right in zip(self.disassemble(), other.disassemble()):
+
+            if not ((left[0] == right[0]) and (left[1] == right[1])):
+                return False
+
+            largs, rargs = left[2], right[2]
+
+            if opcodes.has_const_arg(left[1]):
+                largs, rargs = list(largs), list(rargs)
+                largs[0] = self.owner.get_const_val(largs[0])
+                rargs[0] = other.owner.get_const_val(rargs[0])
+
+            if largs != rargs:
+                return False
+
+        return True
+
+
+
 
 class JavaExceptionInfo(object):
 
     """ Information about an exception handler entry in an exception
     table """
+
 
     def __init__(self, code):
         self.code = code
@@ -707,6 +738,8 @@ class JavaExceptionInfo(object):
         self.end_pc = 0
         self.handler_pc = 0
         self.catchx_type_ref = 0
+
+        self.__cmp_t = None
 
 
     def funpack(self, buff):
@@ -730,6 +763,22 @@ class JavaExceptionInfo(object):
             return "Class "+ct
         else:
             return "any"
+
+
+    def __cmp_tuple(self):
+        if not self.__cmp_t:
+            self.__cmp_t = (self.start_pc, self.end_pc,
+                            self.handler_pc, self.get_catch_type())
+        return self.__cmp_t
+
+
+    def __hash__(self):
+        return hash(self.__cmp_tuple())
+
+
+    def __eq__(self, other):
+        return self.__cmp_tuple() == other.__cmp_tuple()
+
 
 
 

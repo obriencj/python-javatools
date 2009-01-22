@@ -23,7 +23,7 @@ PRIVATE = 7
 
 
 
-def should_show(options, memeber):
+def should_show(options, member):
 
     """ whether to show a member by its access flags and the show
     option. There's probably a faster and smarter way to do this, but

@@ -7,13 +7,14 @@ A module to hold all the java opcodes. Data taken from
 
 
 _optable = {}
+    
 
 
 
-def _op(name,val,format=None,consume=0,produce=0):
+def _op(name,val,format=None,const=False,consume=0,produce=0):
     name = name.lower()
 
-    operand = (name,val,format,consume,produce)
+    operand = (name,val,format,consume,produce,const)
 
     assert(not _optable.has_key(name))
     assert(not _optable.has_key(val))
@@ -36,6 +37,11 @@ def get_opname_by_code(code):
 
 def get_arg_format(code):
     return _optable[code][2]
+
+
+
+def has_const_arg(code):
+    return _optable[code][5]
 
 
 
@@ -154,7 +160,7 @@ _op("aload_0", 0x2a)
 _op("aload_1", 0x2b)
 _op("aload_2", 0x2c)
 _op("aload_3", 0x2d)
-_op("anewarray", 0xbd, format=">H")
+_op("anewarray", 0xbd, format=">H", const=True)
 _op("areturn", 0xb0)
 _op("arraylength", 0xbe)
 _op("astore", 0x3a, format=">B")
@@ -170,7 +176,7 @@ _op("bipush", 0x10, format=">B")
 
 _op("caload", 0x34)
 _op("castore", 0x55)
-_op("checkcast", 0xc0, format=">H")
+_op("checkcast", 0xc0, format=">H", const=True)
 
 _op("d2f", 0x90)
 _op("d2i", 0x8e)
@@ -233,8 +239,8 @@ _op("fstore_2", 0x45)
 _op("fstore_3", 0x46)
 _op("fsub", 0x66)
 
-_op("getfield", 0xb4, format=">H")
-_op("getstatic", 0xb2, format=">H")
+_op("getfield", 0xb4, format=">H", const=True)
+_op("getstatic", 0xb2, format=">H", const=True)
 _op("goto", 0xa7, format=">h")
 _op("goto_w", 0xc8, format=">i")
 
@@ -280,11 +286,11 @@ _op("iload_2", 0x1c)
 _op("iload_3", 0x1d)
 _op("imul", 0x68)
 _op("ineg", 0x74)
-_op("instanceof", 0xc1, format=">H")
-_op("invokeinterface", 0xb9, format=">HBB")
-_op("invokespecial", 0xb7, format=">H")
-_op("invokestatic", 0xb8, format=">H")
-_op("invokevirtual", 0xb6, format=">H")
+_op("instanceof", 0xc1, format=">H", const=True)
+_op("invokeinterface", 0xb9, format=">HBB", const=True)
+_op("invokespecial", 0xb7, format=">H", const=True)
+_op("invokestatic", 0xb8, format=">H", const=True)
+_op("invokevirtual", 0xb6, format=">H", const=True)
 _op("ior", 0x80)
 _op("irem", 0x70)
 _op("ireturn", 0xac)
@@ -312,9 +318,9 @@ _op("lastore", 0x50)
 _op("lcmp", 0x94)
 _op("lconst_0", 0x09)
 _op("lconst_1", 0x0a)
-_op("ldc", 0x12, format=">B")
-_op("ldc_w", 0x13, format=">H")
-_op("ldc2_w", 0x14, format=">H")
+_op("ldc", 0x12, format=">B", const=True)
+_op("ldc_w", 0x13, format=">H", const=True)
+_op("ldc2_w", 0x14, format=">H", const=True)
 _op("ldiv", 0x6d)
 _op("lload", 0x16, format=">B")
 _op("lload_0", 0x1e)
@@ -342,14 +348,14 @@ _op("monitorentry", 0xc2)
 _op("monitorexit", 0xc3)
 _op("multianewarray", 0xc5)
 
-_op("new", 0xbb, format=">H")
+_op("new", 0xbb, format=">H", const=True)
 _op("newarray", 0xbc, format=">B")
 _op("nop", 0x00)
 
 _op("pop", 0x57)
 _op("pop2", 0x58)
-_op("putfield", 0xb5, format=">H")
-_op("putstatic", 0xb3, format=">H")
+_op("putfield", 0xb5, format=">H", const=True)
+_op("putstatic", 0xb3, format=">H", const=True)
 
 _op("ret", 0xa9, format=">B")
 _op("return", 0xb1)
