@@ -331,7 +331,19 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         return tuple(n)
 
 
-    def pretty_name(self):
+    def pretty_this(self):
+        return _pretty_class(self.get_this())
+
+
+    def pretty_super(self):
+        return _pretty_class(self.get_super())
+
+
+    def pretty_interfaces(self):
+        return [_pretty_class(t) for t in self.get_interfaces()]
+    
+
+    def pretty_descriptor(self):
 
         """ get the class or interface name, it's accessor flags, it's
         parent class, and any interfaces it implements"""
@@ -340,10 +352,9 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         if not self.is_interface():
             f += " class"
 
-        n = _pretty_class(self.get_this())
-        e = _pretty_class(self.get_super())
-        i = [_pretty_class(t) for t in self.get_interfaces()]
-        i = ",".join(i)
+        n = self.pretty_this()
+        e = self.pretty_super()
+        i = ",".join(self.pretty_interfaces())
 
         if i:
             return "%s %s extends %s implements %s" % (f, n, e, i)
@@ -490,8 +501,8 @@ class JavaMemberInfo(JavaAttributes):
 
     def get_constantvalue(self):
 
-        """ the constant value of this field, or None if this is not a
-        contant field """
+        """ the constant pool index for this field, or None if this is
+        not a contant field"""
 
         if self._cval is not None:
             return self._cval
@@ -506,6 +517,10 @@ class JavaMemberInfo(JavaAttributes):
 
 
     def get_const_val(self):
+
+        """ the value at in the constant pool at the
+        get_constantvalue() index """
+
         index = self.get_constantvalue()
         if index is None:
             return None
@@ -514,12 +529,19 @@ class JavaMemberInfo(JavaAttributes):
 
 
     def get_type_descriptor(self):
+
+        """ the type for a field, or the return type for a method """
+        
         if self._type is None:
             self._type = _typeseq(self.get_descriptor())[-1]
         return self._type
 
 
     def get_arg_type_descriptors(self):
+
+        """ the parameter type list for a method, or None for a field
+        """
+
         if self._arg_types is not None:
             return self._arg_types
 
@@ -545,7 +567,7 @@ class JavaMemberInfo(JavaAttributes):
         return "(%s)" % ",".join(pt)
 
 
-    def pretty_name(self):
+    def pretty_descriptor(self):
         
         """ assemble a long member name from access flags, type,
         argument types, exceptions as applicable """
@@ -667,6 +689,9 @@ class JavaCodeInfo(JavaAttributes):
 
     
     def get_linenumbertable(self):
+
+        """  a sequence of (code_offset, line_number) pairs """
+
         if self._lnt is not None:
             return self._lnt
 
@@ -710,32 +735,6 @@ class JavaCodeInfo(JavaAttributes):
 
         self._dis = dis
         return dis
-
-
-    def __eq__(self, other):
-        import javaclass.opcodes as opcodes
-
-        if not (self.max_stack == other.max_stack and
-                self.max_locals == other.max_locals and
-                len(self.code) == len(other.code)):
-            return False
-
-        for left,right in zip(self.disassemble(), other.disassemble()):
-
-            if not ((left[0] == right[0]) and (left[1] == right[1])):
-                return False
-
-            largs, rargs = left[2], right[2]
-
-            if opcodes.has_const_arg(left[1]):
-                largs, rargs = list(largs), list(rargs)
-                largs[0] = self.owner.get_const_val(largs[0])
-                rargs[0] = other.owner.get_const_val(rargs[0])
-
-            if largs != rargs:
-                return False
-
-        return True
 
 
 

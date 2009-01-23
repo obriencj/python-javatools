@@ -44,7 +44,7 @@ def print_field(options, field):
     if options.indent:
         print "   ",
 
-    print "%s;" % field.pretty_name()
+    print "%s;" % field.pretty_descriptor()
 
     if options.sigs:
         print "  Signature:", field.get_descriptor()
@@ -64,7 +64,7 @@ def print_method(options, method):
     if options.indent:
         print "   ",
 
-    print "%s;" % method.pretty_name()
+    print "%s;" % method.pretty_descriptor()
 
     if options.sigs:
         print "  Signature:", method.get_descriptor()
@@ -129,7 +129,7 @@ def print_class(options, classfile):
     info = javaclass.unpack_classfile(classfile)
 
     print "Compiled from \"%s\"" % info.get_sourcefile()
-    print info.pretty_name(),
+    print info.pretty_descriptor(),
 
     if options.verbose:
         print

@@ -21,8 +21,7 @@ CONST_DATA_CHANGE = 1 << 4
 
 LEFT = "left"
 RIGHT = "right"
-CHANGE = "change"
-SAME = "same"
+BOTH = "both"
 
 
 
@@ -53,7 +52,7 @@ def cli_compare_class(options, left, right):
     # name
     if left.get_this() != right.get_this():
         print "Class name changed: %s to %s" % \
-            (left.get_this(), right.get_this())
+            (left.pretty_this(), right.pretty_this())
         ret = CLASS_DATA_CHANGE
 
     # sourcefile
@@ -67,7 +66,7 @@ def cli_compare_class(options, left, right):
     # inheritance
     if left.get_super() != right.get_super():
         print "Superclass changed: %s to %s" % \
-            (left.get_super(), right.get_super())
+            (left.pretty_super(), right.pretty_super())
 
     # interfaces
     li, ri = set(left.get_interfaces()), set(right.get_interfaces())
@@ -92,7 +91,7 @@ def cli_compare_class(options, left, right):
 
 
 
-def cli_members_diff(options, compare, left_members, right_members):
+def cli_members_diff(options, left_members, right_members):
     
     """ generator yielding (EVENT, (left_meth, right_meth)) """
 
@@ -106,11 +105,7 @@ def cli_members_diff(options, compare, left_members, right_members):
 
         if lf:
             del li[key]
-            if compare(options, lf, f):
-                yield (CHANGE, (lf, f))
-            else:
-                yield (SAME, (lf, f))
-
+            yield (BOTH, (lf, f))
         else:
             yield (RIGHT, (None, f))
     
@@ -119,112 +114,171 @@ def cli_members_diff(options, compare, left_members, right_members):
         
 
 
-def cli_collect_members_diff(options, compare,
-                             left_members, right_members,
-                             added=None, removed=None,
-                             changed=None, same=None):
+def cli_collect_members_diff(options, left_members, right_members,
+                             added=None, removed=None, both=None):
     
-    for event,data in cli_members_diff(options, compare,
-                                       left_members, right_members):
+    for event,data in cli_members_diff(options, left_members, right_members):
         l = None
 
         if event is LEFT:
             l = removed
         elif event is RIGHT:
             l = added
-        elif event is CHANGE:
-            l = changed
-        elif event is SAME:
-            l = same
+        elif event is BOTH:
+            l = both
         
         if l is not None:
             l.append(data)
 
-    return added, removed, changed, same
+    return added, removed, both
 
 
 
-def cli_compare_field(options, left, right):
+def _cli_compare_field(options, left, right):
     
     from javaclass import JavaMemberInfo
-
+    
     if not (isinstance(left, JavaMemberInfo) and
             isinstance(right, JavaMemberInfo)):
         raise TypeError("wanted JavaMemberInfo")
     
-    # name and type
-    if not ((left.get_name() == right.get_name()) and
-            (left.get_descriptor() == right.get_descriptor())):
+    if left.get_name() != right.get_name():
+        yield "name changed from %s to %s" % \
+            (left.get_name(), right.get_name())
+        
+    if left.get_descriptor() != right.get_descriptor():
+        yield "type changed from %s to %s" % \
+            (left.pretty_type(), right.pretty_type())
 
-        return 1
-
-    # access flags
     if left.access_flags != right.access_flags:
-        return 1
-    
-    # const val
-    lconst, rconst = left.get_const_val(), right.get_const_val()
-    if lconst != rconst:
-        return 1
+        yield "access flags changed from (%s) to (%s)" % \
+            (",".join(left.pretty_access_flags()),
+             ",".join(right.pretty_access_flags()))
+        
+    if left.get_const_val() != right.get_const_val():
+        yield "constant value changed"
 
-    return 0
+
+
+def cli_compare_field(options, left, right):
+    return [change for change in _cli_compare_field(options, left, right)]
 
 
 
 def cli_compare_fields(options, left, right):
 
-    added, removed, changed = [], [], []
+    added, removed, both = [], [], []
 
-    cli_collect_members_diff(options, cli_compare_field,
-                             left.fields, right.fields,
-                             added, removed, changed)
+    cli_collect_members_diff(options, left.fields, right.fields,
+                             added, removed, both)
 
     ret = 0
 
     if not options.ignore_added and added:
         print "Added fields:"
         for l,r in added:
-            print "  ", r.pretty_name()
+            print "  ", r.pretty_descriptor()
         ret = FIELD_DATA_CHANGE
 
     if removed:
         print "Removed fields:"
         for l,r in removed:
-            print "  ", l.pretty_name()
+            print "  ", l.pretty_descriptor()
         ret = FIELD_DATA_CHANGE
 
-    if changed:
-        print "Changed fields:"
-        for l,r in changed:
-            print "  ", r.pretty_name()
-        ret = FIELD_DATA_CHANGE
+    def print_changed(field, changes):
+        if print_changed.p:
+            print "Changed fields:"
+            print_changed.p = False
+
+        print "  ", field.pretty_descriptor()
+        for change in changes:
+            print "    ", change
+    print_changed.p = True
+
+    if both:
+        for l,r in both:
+            changes = cli_compare_field(options, l, r)
+            if changes:
+                print_changed(r, changes)
+                ret = FIELD_DATA_CHANGE
 
     return ret
 
 
 
-def cli_compare_code(options, left, right):
+def relative_lnt(lnt):
+    lineoff = lnt[0][1]
+    return [(o,l-lineoff) for (o,l) in lnt]
+
+
+
+def _cli_compare_code(options, left, right):
 
     from javaclass import JavaCodeInfo
+    import javaclass.opcodes as opcodes
 
     if not (isinstance(left, JavaCodeInfo) and
             isinstance(right, JavaCodeInfo)):
         raise TypeError("wanted JavaCodeInfo")
 
-    if (not options.ignore_lines and
-        left.get_linenumbertable() != right.get_linenumbertable()):
-        return 1
+    l_lnt, r_lnt = left.get_linenumbertable(), right.get_linenumbertable()
+    if (not options.ignore_absolute_lines and l_lnt != r_lnt):
+        yield "absolute line numbers changed"
 
-    if left == right:
-        return 0
+    l_lnt, r_lnt = relative_lnt(l_lnt), relative_lnt(r_lnt)
+    if (not options.ignore_relative_lines and l_lnt != r_lnt):
+        yield "relative line numbers changed"
+
+    if left.max_stack != right.max_stack:
+        yield "max stack size changed from %i to %i" % \
+            (left.max_stack, right.max_stack)
+
+    if left.max_locals != right.max_locals:
+        yield "max locals changed from %i to %i" % \
+            (left.max_locals, right.max_locals)
+
+    if left.exceptions != right.exceptions:
+        yield "exception table changed"
+
+    if len(left.code) == len(right.code):
+        code_vals_change = False
+        code_body_change = False
+
+        for l,r in zip(left.disassemble(), right.disassemble()):
+            if not ((l[0] == r[0]) and (l[1] == r[1])):
+                code_body_change = True
+                break
+
+            largs, rargs = l[2], r[2]
+
+            if opcodes.has_const_arg(l[1]):
+                largs, rargs = list(largs), list(rargs)
+                largs[0] = left.owner.get_const_val(largs[0])
+                rargs[0] = right.owner.get_const_val(rargs[0])
+
+            if largs != rargs:
+                code_vals_change = True
+                break
+
+        if code_vals_change:
+            yield "code constants changed"
+
     else:
-        return 1
+        print "length changed:", len(left.code), len(right.code)
+        code_body_change = True
+
+    if code_body_change:
+        yield "code body changed"
 
 
 
-def cli_compare_method(options, left, right):
-    
-    """ returns zero for same, non-zero for differ """
+def cli_compare_code(options, left, right):
+    return [change for change in _cli_compare_code(options, left, right)]
+
+
+
+def _cli_compare_method(options, left, right):
 
     from javaclass import JavaMemberInfo
 
@@ -232,50 +286,75 @@ def cli_compare_method(options, left, right):
             isinstance(right, JavaMemberInfo)):
         raise TypeError("wanted JavaMemberInfo")
 
-    # name and descriptor
-    if not (left.get_name() == right.get_name() and
-            left.get_descriptor() == right.get_descriptor()):
-        return 1
+    if left.get_name() != right.get_name():
+        yield "name changed from %s to %s" % \
+            (left.get_name(), right.get_name())
 
-    # access flags
+    if left.get_type_descriptor() != right.get_type_descriptor():
+        yield "return type changed from %s to %s" % \
+            (left.pretty_type(), right.pretty_type())
+
+    if left.get_arg_type_descriptors() != right.get_arg_type_descriptors():
+        yield "parameters changed from (%s) to (%s)" % \
+            (",".join(left.pretty_arg_types()),
+             ",".join(right.pretty_arg_types()))
+
     if left.access_flags != right.access_flags:
-        return 1
+        yield "access flags changed from (%s) to (%s)" % \
+            (",".join(left.pretty_access_flags()),
+             ",".join(right.pretty_access_flags()))
 
-    # exceptions
     if set(left.get_exceptions()) != set(right.get_exceptions()):
-        return 1
+        yield "exceptions changed from (%s) to (%s)" % \
+            (",".join(left.pretty_exceptions()),
+             ",".join(right.pretty_exceptions()))
 
-    # code
-    return cli_compare_code(options, left.get_code(), right.get_code())
+    for c in _cli_compare_code(options, left.get_code(), right.get_code()):
+        yield c
+        
+
+
+def cli_compare_method(options, left, right):
+    return [change for change in _cli_compare_method(options, left, right)]
 
 
 
 def cli_compare_methods(options, left, right):
     
-    added, removed, changed = [], [], []
-    cli_collect_members_diff(options, cli_compare_method,
-                             left.methods, right.methods,
-                             added, removed, changed)
+    added, removed, both = [], [], []
+    cli_collect_members_diff(options, left.methods, right.methods,
+                             added, removed, both)
 
     ret = 0
 
     if not options.ignore_added and added:
         print "Added methods:"
         for l,r in added:
-            print "  ", r.pretty_name()
+            print "  ", r.pretty_descriptor()
         ret = METHOD_DATA_CHANGE
 
     if removed:
         print "Removed methods:"
         for l,r in removed:
-            print "  ", l.pretty_name()
+            print "  ", l.pretty_descriptor()
         ret = METHOD_DATA_CHANGE
 
-    if changed:
-        print "Changed methods:"
-        for l,r in changed:
-            print "  ", r.pretty_name()
-        ret = METHOD_DATA_CHANGE
+    def print_changed(meth, changes):
+        if print_changed.p:
+            print "Changed methods:"
+            print_changed.p = False
+
+        print "  ", meth.pretty_descriptor()
+        for change in changes:
+            print "    ", change
+    print_changed.p = True
+
+    if both:
+        for l,r in both:
+            changes = cli_compare_method(options, l, r)
+            if changes:
+                print_changed(r, changes)
+                ret = METHOD_DATA_CHANGE
 
     return ret
 
@@ -296,9 +375,15 @@ def options_magic(options):
 
     # turn a --ignore list into the individual ignore flags
     ign = (i.strip() for i in options.ignore.split(","))
-    for i in (i for i in ign if i):
+    for i in (i.replace("-","_") for i in ign if i):
         setattr(options, "ignore_"+i, True)
     
+    # lines or --ignore-lines is a shortcut for ignoring both absolute
+    # and relative line number changes
+    if options.ignore_lines:
+        options.ignore_absolute_lines = True
+        options.ignore_relative_lines = True
+
 
 
 def cli(options, rest):
@@ -333,6 +418,8 @@ def create_optparser():
     parse.add_option("--ignore", action="store", default="")
     parse.add_option("--ignore-version", action="store_true")
     parse.add_option("--ignore-lines", action="store_true")
+    parse.add_option("--ignore-absolute-lines", action="store_true")
+    parse.add_option("--ignore-relative-lines", action="store_true")
     parse.add_option("--ignore-deprecated", action="store_true")
     parse.add_option("--ignore-added", action="store_true")
     parse.add_option("--ignore-pool", action="store_true")
