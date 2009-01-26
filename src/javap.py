@@ -154,7 +154,7 @@ def print_class(options, classfile):
             print_field(options, field)
 
     for method in info.methods:
-        if should_show(options, field):
+        if should_show(options, method):
             print_method(options, method)
 
     print "}"
