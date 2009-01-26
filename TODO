@@ -1,0 +1,15 @@
+
+- move the pretty_* methods out of __init__.py and into javap.py or
+  some-such.
+
+- create bin script wrappers for classdiff and (maybe) javap, though
+  the latter may be too much of a potential conflict with existing
+  installations of JVMs, etc. Perhaps it'll install as pavaj or
+  something ridiculous as that to avoid the conflict.
+
+- expand the verbosity of classdiff
+
+- perhaps diff-like opcode output? That would be a bit of an
+  undertaking; would it be at all worth it?
+
+#

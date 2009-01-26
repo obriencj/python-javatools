@@ -11,7 +11,7 @@ import sys
 
 
 
-IDENTICAL_CLASS = 0
+NO_CHANGE = 0
 CLASS_DATA_CHANGE = 1 << 1
 FIELD_DATA_CHANGE = 1 << 2
 METHOD_DATA_CHANGE = 1 << 3
@@ -25,18 +25,18 @@ BOTH = "both"
 
 
 
-def WriteFilter(object):
-    def __init__(self, threshold, out):
-        self.v = threshold
-        self.o = out
-
-    def write(self,level,*args):
-        if level >= self.v:
-            self.o.write(*args)
-
-    def writelines(self,level,*args):
-        if level >= self.v:
-            self.o.writelines(*args)
+# def WriteFilter(object):
+#     def __init__(self, threshold, out):
+#         self.v = threshold
+#         self.o = out
+#
+#     def write(self,level,*args):
+#         if level >= self.v:
+#             self.o.write(*args)
+#
+#     def writelines(self,level,*args):
+#         if level >= self.v:
+#             self.o.writelines(*args)
 
 
 
@@ -47,7 +47,7 @@ def cli_compare_class(options, left, right):
             isinstance(right, JavaClassInfo)):
         raise TypeError("wanted JavaClassInfo")
 
-    ret = 0
+    ret = NO_CHANGE
 
     # name
     if left.get_this() != right.get_this():
@@ -161,18 +161,26 @@ def _cli_compare_field(options, left, right):
 
 
 def cli_compare_field(options, left, right):
+
+    """ a sequence of changes (strings describing the change). Will be
+    empty if the fields are considered identical according to the
+    options passed """
+
     return [change for change in _cli_compare_field(options, left, right)]
 
 
 
 def cli_compare_fields(options, left, right):
 
+    """ returns either NO_CHANGE or FIELD_DATA_CHANGE, and prints
+    detailed information to stdout """
+
     added, removed, both = [], [], []
 
     cli_collect_members_diff(options, left.fields, right.fields,
                              added, removed, both)
 
-    ret = 0
+    ret = NO_CHANGE
 
     if not options.ignore_added and added:
         print "Added fields:"
@@ -274,6 +282,12 @@ def _cli_compare_code(options, left, right):
 
 
 def cli_compare_code(options, left, right):
+
+    """ a sequence of changes (strings describing the change). Will be
+    empty if the code bodies are considered identical according to the
+    options passed. This method is normally only called from within
+    cli_compare_method """
+
     return [change for change in _cli_compare_code(options, left, right)]
 
 
@@ -315,17 +329,25 @@ def _cli_compare_method(options, left, right):
 
 
 def cli_compare_method(options, left, right):
+
+    """ a sequence of changes (strings describing the change). Will be
+    empty if the methods are considered identical according to the
+    options passed """
+
     return [change for change in _cli_compare_method(options, left, right)]
 
 
 
 def cli_compare_methods(options, left, right):
     
+    """ returns either NO_CHANGE or METHOD_DATA_CHANGE, and prints out
+    detailed information on any changes to stdout """
+
     added, removed, both = [], [], []
     cli_collect_members_diff(options, left.methods, right.methods,
                              added, removed, both)
 
-    ret = 0
+    ret = NO_CHANGE
 
     if not options.ignore_added and added:
         print "Added methods:"
@@ -362,12 +384,15 @@ def cli_compare_methods(options, left, right):
 
 def cli_compare_constants(options, left, right):
 
+    """ returns either NO_CHANGE or CONST_DATA_CHANGE, and prints out
+    a message to stdout """
+
     if options.ignore_pool or left.consts == right.consts:
-        return 0
+        return NO_CHANGE
 
     else:
         print "Constant pool is altered."
-        return 1
+        return CONST_DATA_CHANGE
 
 
 
@@ -397,7 +422,7 @@ def cli(options, rest):
     left_i = javaclass.unpack_classfile(left_f)
     right_i = javaclass.unpack_classfile(right_f)
 
-    ret = 0
+    ret = NO_CHANGE
     ret += cli_compare_class(options, left_i, right_i)
     ret += cli_compare_fields(options, left_i, right_i)
     ret += cli_compare_methods(options, left_i, right_i)
@@ -412,7 +437,7 @@ def create_optparser():
 
     parse = OptionParser()
 
-    parse.add_option("--verbosity", action="store", type="int")
+    #parse.add_option("--verbosity", action="store", type="int")
     #parse.add_option("-v", dest="verbosity", action="increment")
 
     parse.add_option("--ignore", action="store", default="")
