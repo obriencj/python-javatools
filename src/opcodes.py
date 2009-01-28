@@ -1,6 +1,11 @@
 """
 
-A module to hold all the java opcodes. Data taken from 
+A module to hold all the java opcodes. Data taken from publicly
+available sources (see following for more information)
+
+http://java.sun.com/docs/books/jvms/second_edition/html/VMSpecTOC.doc.html
+
+author: Christopher O'Brien  <siege@preoccupied.net>
 
 """
 

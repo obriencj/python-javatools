@@ -1,6 +1,3 @@
-#!/usr/bin/env python2
-
-
 """
 
 Let's pretend to be the javap tool shipped with many Java SDKs

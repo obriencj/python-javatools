@@ -1,7 +1,12 @@
-#!/usr/bin/env python2
-
-
 """
+
+Utility script for comparing the internals of two Java class files for
+differences in structure and data. Has options to specify changes
+which may be immaterial or unimportant, such as re-ordering of the
+constant pool, line number changes (either absolute or relative),
+added fields or methods, deprecation changes, etc.
+
+author: Christopher O'Brien  <siege@preoccupied.net>
 
 """
 
