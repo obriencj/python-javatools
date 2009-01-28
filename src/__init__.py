@@ -14,6 +14,18 @@ author: Christopher O'Brien  <siege@preoccupied.net>
 """
 
 
+
+# Q: What is "funpack" ?
+#
+# A: Any function that performs some unpacking from a buffer, then
+#    returns both the unpacked data or structure, and a buffer that
+#    points past the last consumed byte in unpacking. "Forward
+#    Unpack". Alternately, any method which updated the structure of
+#    the instance by unpacking data from the buffer, then returns the
+#    forwarded buffer.
+
+
+
 # debugging mode
 if False:
     def debug(*args):
@@ -64,7 +76,12 @@ class JavaConstantPool(object):
 
 
     def funpack(self, buff):
-        debug("unpacking constant pool")
+ 
+        """ forward and unpack a constant pool structure from
+        buff. Modifies the internal structure of this instance, and
+        returns the forwarded buffer."""
+
+       debug("unpacking constant pool")
 
         (count,), buff = _funpack(">H", buff)
 
@@ -181,6 +198,11 @@ class JavaAttributes(object):
 
 
     def funpack(self, buff):
+        
+        """ Forward and unpack an attributes table from a
+        buffer. Modifies the structure of this instance, and returns
+        the forwarded buffer """
+
         debug("unpacking attributes")
 
         (count,), buff = _funpack(">H", buff)
@@ -233,6 +255,11 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
 
 
     def funpack(self, buff):
+
+        """ Forwards and unpacks a Java class from a buffer. Updates
+        the structure of this instance, and returns the forwarded
+        buffer """
+
         debug("unpacking class info")
 
         self.magic, buff = _funpack(">BBBB", buff)
@@ -383,6 +410,11 @@ class JavaMemberInfo(JavaAttributes):
 
 
     def funpack(self, buff):
+
+        """ Forwards and unpacks a method or field member from a
+        buffer. Updates the internal structure of this instance, and
+        returns the forwarded buffer. """
+
         debug("unpacking member info")
 
         (a, b, c), buff = _funpack(">HHH", buff)
@@ -671,6 +703,11 @@ class JavaCodeInfo(JavaAttributes):
 
 
     def funpack(self, buff):
+
+        """ Forwards and unpacks a code block from a buffer. Updates
+        the internal structure of this instance, and returns the
+        forwarded buffer """
+
         debug("unpacking code info")
 
         (a,b,c), buff = _funpack(">HHI", buff)
@@ -758,6 +795,11 @@ class JavaExceptionInfo(object):
 
 
     def funpack(self, buff):
+
+        """ Forwards and unpacks an exception handler entry in an
+        exception table from buff. Updates the internal structure of
+        this instance and returns the forwarded buffer """
+
         (a,b,c,d), buff = _funpack(">HHHH", buff)
 
         self.start_pc = a
@@ -1098,6 +1140,10 @@ def is_class(buff):
 
 
 def funpack_class(buff):
+
+    """ forwards and unpacks a Java class from buff. Returns a tuple
+    of a JavaClassInfo and the advanced buffer """
+
     if not is_class(buff):
         raise Exception("not a Java class file")
 
@@ -1107,12 +1153,21 @@ def funpack_class(buff):
 
 
 def unpack_class(buff):
+
+    """ returns a newly allocated JavaClassInfo object populated with
+    the data unpacked from the passed buffer """
+
     info, buff = funpack_class(buff)
+    # ignore the forwarded buff
     return info
 
 
 
 def unpack_classfile(filename):
+
+    """ returns a newly allocated JavaClassInfo object populated with
+    the data unpacked from the specified file """
+
     fd = open(filename, "rb")
     data = fd.read()
     fd.close()
