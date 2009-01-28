@@ -206,8 +206,8 @@ def cli(options, rest):
         options.constpool = True
 
     # just a tiny hack to mimic some indenting sun's javap will do if
-    # the output it terse
-    options.indent = not( options.lines or options.disassemble or options.sigs)
+    # the output is terse
+    options.indent = not(options.lines or options.disassemble or options.sigs)
 
     for f in rest[1:]:
         print_class(options, f)
