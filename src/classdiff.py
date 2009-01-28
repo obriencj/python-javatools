@@ -60,13 +60,21 @@ def cli_compare_class(options, left, right):
             (left.pretty_this(), right.pretty_this())
         ret = CLASS_DATA_CHANGE
 
-    # sourcefile
-
     # version
-    if not options.ignore_version and (left.version != right.version):
-        print "Java version changed: %r to %r" % \
-            (left.version, right.version)
-        ret = CLASS_DATA_CHANGE
+    lver, rver = left.version, right.version
+    if lver != rver:
+        if ((not options.ignore_version_up and lver < rver) and
+            (not options.ignore_version_down and lver > rver)):
+            print "Java class version changed: %r to %r" % (lver, rver)
+            ret = CLASS_DATA_CHANGE
+            
+    # platform
+    lplat, rplat = left.get_platform(), right.get_platform()
+    if lplat != rplat:
+        if ((not options.ignore_platform_up and lver < rver) and
+            (not options.ignore_platform_down and lver > rver)):
+            print "Java platform changed: %s to %s" % (lplat, rplat)
+            ret = CLASS_DATA_CHANGE
 
     # inheritance
     if left.get_super() != right.get_super():
@@ -414,6 +422,14 @@ def options_magic(options):
         options.ignore_absolute_lines = True
         options.ignore_relative_lines = True
 
+    if options.ignore_version:
+        options.ignore_version_up = True
+        options.ignore_version_down = True
+
+    if options.ignore_platform:
+        options.ignore_platform_up = True
+        options.ignore_platform_down = True
+
 
 
 def cli(options, rest):
@@ -447,6 +463,11 @@ def create_optparser():
 
     parse.add_option("--ignore", action="store", default="")
     parse.add_option("--ignore-version", action="store_true")
+    parse.add_option("--ignore-version-up", action="store_true")
+    parse.add_option("--ignore-version-down", action="store_true")
+    parse.add_option("--ignore-platform", action="store_true")
+    parse.add_option("--ignore-platform-up", action="store_true")
+    parse.add_option("--ignore-platform-down", action="store_true")
     parse.add_option("--ignore-lines", action="store_true")
     parse.add_option("--ignore-absolute-lines", action="store_true")
     parse.add_option("--ignore-relative-lines", action="store_true")

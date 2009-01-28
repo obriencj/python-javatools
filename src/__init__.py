@@ -81,15 +81,15 @@ class JavaConstantPool(object):
         buff. Modifies the internal structure of this instance, and
         returns the forwarded buffer."""
 
-       debug("unpacking constant pool")
-
+        debug("unpacking constant pool")
+        
         (count,), buff = _funpack(">H", buff)
-
+        
         # first item is never present in the actual data buffer, but
         # the count number acts like it would be.
         items = [None,]
         count -= 1
-    
+        
         # two const types will "consume" an item count, but no data
         hackpass = False
 
@@ -243,7 +243,7 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         JavaAttributes.__init__(self)
 
         self.magic = 0
-        self.version = (0,0)
+        self._version = (0,0)
         self.access_flags = 0
         self.interfaces = tuple()
         self.fields = tuple()
@@ -263,7 +263,11 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         debug("unpacking class info")
 
         self.magic, buff = _funpack(">BBBB", buff)
+
+        # unpack (minor,major), store as (major, minor)
         self.version, buff = _funpack(">HH", buff)
+        self.version = self.version[::-1]
+
         buff = JavaConstantPool.funpack(self, buff)
 
         (self.access_flags,), buff = _funpack(">H", buff)
@@ -283,6 +287,18 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         buff = JavaAttributes.funpack(self, buff)
         
         return buff
+
+
+    def get_major_version(self):
+        return self.version[1]
+
+
+    def get_minor_version(self):
+        return self.version[0]
+
+
+    def get_platform(self):
+        return platform_from_version(*self.version)
 
 
     def is_public(self):
@@ -865,6 +881,29 @@ class JavaInnerClassInfo(object):
 
     def get_name(self):
         return self.owner.get_const_val(self.name_ref)
+
+
+
+#
+# Utility functions for turning major/minor versions into JVM releases
+
+
+_platforms = ( ((45, 0), (45, 3), "1.0.2"),
+               ((45, 4), (45, 65535), "1.1"),
+               ((46, 0), (46, 65535), "1.2"),
+               ((47, 0), (47, 65535), "1.3"),
+               ((48, 0), (48, 65525), "1.4"),
+               ((49, 0), (49, 65535), "1.5"),
+               ((50, 0), (50, 65535), "1.6") )
+
+
+
+def platform_from_version(major, minor):
+    v = (major, minor)
+    for low,high,name in _platforms:
+        if low <= v <= high:
+            return name
+    return None
 
 
 
