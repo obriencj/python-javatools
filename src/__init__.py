@@ -243,7 +243,7 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         JavaAttributes.__init__(self)
 
         self.magic = 0
-        self._version = (0,0)
+        self.version = (0,0)
         self.access_flags = 0
         self.interfaces = tuple()
         self.fields = tuple()
@@ -287,6 +287,25 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         buff = JavaAttributes.funpack(self, buff)
         
         return buff
+
+
+    def get_field_by_name(self, name):
+        for f in self.fields:
+            if f.get_name() == name:
+                return f
+        return None
+
+
+    def get_methods_by_name(self, name):
+        return [m for m in self.methods if m.get_name() == name]
+
+
+    def get_method_by_name_type(self, name, *argtypes):
+        id = "%s(%s)" % (name, ",".join(argtypes))
+        for m in self.methods:
+            if m.get_identifier() == id:
+                return m
+        return None
 
 
     def get_major_version(self):
@@ -423,6 +442,7 @@ class JavaMemberInfo(JavaAttributes):
         self._cval = None
         self._type = None
         self._arg_types = None
+        self._id = None
 
 
     def funpack(self, buff):
@@ -691,11 +711,17 @@ class JavaMemberInfo(JavaAttributes):
         """ for methods this is the name and the argument descriptor. For
         fields it is simply the name """
 
+        if self._id is not None:
+            return self._id
+
         if self.is_method():
-            return "%s(%s)" % (self.get_name(),
-                               ",".join(self.get_arg_type_descriptors()))
+            id = "%s(%s)" % \
+                (self.get_name(), ",".join(self.get_arg_type_descriptors()))
         else:
-            return self.get_name()
+            id = self.get_name()
+
+        self._id = id
+        return id
 
 
 
@@ -886,19 +912,24 @@ class JavaInnerClassInfo(object):
 
 #
 # Utility functions for turning major/minor versions into JVM releases
-
+# Each entry is a tuple of minimum version and maxiumum version,
+# inclusive, and the string of the platform version.
 
 _platforms = ( ((45, 0), (45, 3), "1.0.2"),
                ((45, 4), (45, 65535), "1.1"),
                ((46, 0), (46, 65535), "1.2"),
                ((47, 0), (47, 65535), "1.3"),
-               ((48, 0), (48, 65525), "1.4"),
+               ((48, 0), (48, 65535), "1.4"),
                ((49, 0), (49, 65535), "1.5"),
                ((50, 0), (50, 65535), "1.6") )
 
 
 
 def platform_from_version(major, minor):
+
+    """ returns the minimum platform version that can load the given
+    class version indicated by major.minor"""
+    
     v = (major, minor)
     for low,high,name in _platforms:
         if low <= v <= high:
@@ -1098,7 +1129,7 @@ def _struct_class():
 
 
 MyStruct = _struct_class()
-    
+
 
 
 def _compile(fmt):
