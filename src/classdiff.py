@@ -239,6 +239,13 @@ def _cli_compare_code(options, left, right):
     from javaclass import JavaCodeInfo
     import javaclass.opcodes as opcodes
 
+    if None in (left, right):
+        if not left:
+            yield "code removed"
+        else:
+            yield "code added"
+        return
+
     if not (isinstance(left, JavaCodeInfo) and
             isinstance(right, JavaCodeInfo)):
         raise TypeError("wanted JavaCodeInfo")

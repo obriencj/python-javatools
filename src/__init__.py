@@ -1033,7 +1033,7 @@ def _pretty_const_type_val(type, val):
 
 def _next_argsig(buff):
     c = buff[0]
-    if c in "VZIJDF":
+    if c in "VZBCSIJDF":
         return c, buffer(buff,1)
     elif c == "[":
         d,buff = _next_argsig(buffer(buff,1))
@@ -1047,6 +1047,7 @@ def _next_argsig(buff):
         i = s.find(')')+1
         return s[:i],buffer(buff,i)
     else:
+        print "ZOMG WTF, _next_argsig is", c, "in", buff
         assert(False)
 
 
@@ -1077,6 +1078,12 @@ def _pretty_type(s):
         return "void"
     elif tc == "Z":
         return "boolean"
+    elif tc == "C":
+        return "char"
+    elif tc == "B":
+        return "byte"
+    elif tc == "S":
+        return "short"
     elif tc == "I":
         return "int"
     elif tc == "J":
