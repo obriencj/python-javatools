@@ -240,9 +240,12 @@ def _cli_compare_code(options, left, right):
     import javaclass.opcodes as opcodes
 
     if None in (left, right):
-        if not left:
+        if left == right:
+            # both sides are probably abstract
+            pass
+        elif not left:
             yield "code removed"
-        else:
+        elif not right:
             yield "code added"
         return
 
@@ -293,7 +296,7 @@ def _cli_compare_code(options, left, right):
             yield "code constants changed"
 
     else:
-        print "length changed:", len(left.code), len(right.code)
+        yield "code length changed:", len(left.code), len(right.code)
         code_body_change = True
 
     if code_body_change:
