@@ -13,7 +13,8 @@ setup( name = "javaclass",
        package_dir = {"javaclass": "src"},
        packages = ["javaclass"],
        scripts = ["scripts/classdiff",
-                  "scripts/classinfo"])
+                  "scripts/classinfo",
+                  "scripts/jardiff"])
 
 
 #

@@ -432,6 +432,18 @@ def options_magic(options):
 
 
 
+def cli_classes_info(options, left_i, right_i):
+
+    ret = NO_CHANGE
+    ret += cli_compare_class(options, left_i, right_i)
+    ret += cli_compare_fields(options, left_i, right_i)
+    ret += cli_compare_methods(options, left_i, right_i)
+    ret += cli_compare_constants(options, left_i, right_i)
+    
+    return ret
+    
+
+
 def cli(options, rest):
     import javaclass
 
@@ -442,15 +454,9 @@ def cli(options, rest):
     left_f, right_f = rest[1:3]
     left_i = javaclass.unpack_classfile(left_f)
     right_i = javaclass.unpack_classfile(right_f)
+    
+    return cli_classes_info(options, left_i, right_i)
 
-    ret = NO_CHANGE
-    ret += cli_compare_class(options, left_i, right_i)
-    ret += cli_compare_fields(options, left_i, right_i)
-    ret += cli_compare_methods(options, left_i, right_i)
-    ret += cli_compare_constants(options, left_i, right_i)
-    
-    return ret
-    
 
 
 def create_optparser():
