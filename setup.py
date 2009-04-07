@@ -1,6 +1,6 @@
 """
 
-author: Christopher O'Brien  <siege@preoccupied.net>
+author: Christopher O'Brien  <obriencj@gmail.com>
 
 """
 
