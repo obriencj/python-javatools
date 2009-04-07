@@ -9,7 +9,7 @@ following web pages
 http://en.wikipedia.org/wiki/Class_(file_format)
 http://java.sun.com/docs/books/jvms/second_edition/html/VMSpecTOC.doc.html
 
-author: Christopher O'Brien  <siege@preoccupied.net>
+author: Christopher O'Brien  <obriencj@gmail.com>
 
 """
 

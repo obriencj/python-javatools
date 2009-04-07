@@ -6,7 +6,7 @@ which may be immaterial or unimportant, such as re-ordering of the
 constant pool, line number changes (either absolute or relative),
 added fields or methods, deprecation changes, etc.
 
-author: Christopher O'Brien  <siege@preoccupied.net>
+author: Christopher O'Brien  <obriencj@gmail.com>
 
 """
 
@@ -296,7 +296,8 @@ def _cli_compare_code(options, left, right):
             yield "code constants changed"
 
     else:
-        yield "code length changed:", len(left.code), len(right.code)
+        yield "code length changed from %i to %i" % \
+            (len(left.code), len(right.code))
         code_body_change = True
 
     if code_body_change:

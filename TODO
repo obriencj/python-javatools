@@ -2,14 +2,25 @@
 - move the pretty_* methods out of __init__.py and into javap.py or
   some-such.
 
-- create bin script wrappers for classdiff and (maybe) javap, though
-  the latter may be too much of a potential conflict with existing
-  installations of JVMs, etc. Perhaps it'll install as pavaj or
-  something ridiculous as that to avoid the conflict.
-
 - expand the verbosity of classdiff
 
-- perhaps diff-like opcode output? That would be a bit of an
-  undertaking; would it be at all worth it?
+- perhaps diff-like opcode output for method code? That would be a bit
+  of an undertaking; would it be at all worth it?
+
+- make jardiff understand META-INF magic files
+
+- make jardiff work transparently with exploded jars (dirdelta and
+  zipdelta need to work together)
+
+- give jardiff a meaningful return code
+
+- an class or class-member attribute discovery script
+
+- switch to using logging instead of print statements for output
+
+- dependency discovery ie: given a class or set of classes generate
+  the list of classes and members expected
+
+- fill in more docstrings with meaningful explanations
 
 #
