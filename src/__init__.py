@@ -279,10 +279,12 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         self.interfaces, buff = _funpack(">%iH" % count, buff)
         
         debug("unpacking fields")
-        self.fields, buff = _funpack_array(JavaMemberInfo, buff, self)
-
+        self.fields, buff = _funpack_array(JavaMemberInfo, buff,
+                                           self, is_method=False)
+        
         debug("unpacking methods")
-        self.methods, buff = _funpack_array(JavaMemberInfo, buff, self)
+        self.methods, buff = _funpack_array(JavaMemberInfo, buff,
+                                            self, is_method=True)
 
         buff = JavaAttributes.funpack(self, buff)
         
@@ -429,12 +431,14 @@ class JavaMemberInfo(JavaAttributes):
 
     """ A field or method of a java class """
 
-    def __init__(self, owner):
+    def __init__(self, owner, is_method=False):
         JavaAttributes.__init__(self, owner)
 
         self.access_flags = 0
         self.name_ref = 0
         self.descriptor_ref = 0
+
+        self.is_method = is_method
         
         # cached unpacked attributes
         self._code = None
@@ -517,10 +521,6 @@ class JavaMemberInfo(JavaAttributes):
 
     def is_transient(self):
         return self.access_flags & ACC_TRANSIENT
-
-
-    def is_method(self):
-        return bool(self._code or self.get_attribute("Code"))
 
 
     def is_deprecated(self):
@@ -610,10 +610,12 @@ class JavaMemberInfo(JavaAttributes):
         """ the parameter type list for a method, or None for a field
         """
 
+        # use the pre-computed data if any
         if self._arg_types is not None:
             return self._arg_types
 
-        if not self.is_method():
+        if not self.is_method:
+            # hey, we're not a method, so we don't have args
             return None
 
         tp = _typeseq(self.get_descriptor())
@@ -628,7 +630,7 @@ class JavaMemberInfo(JavaAttributes):
 
 
     def pretty_arg_types(self):
-        if not self.is_method():
+        if not self.is_method:
             return None
 
         pt = [_pretty_type(t) for t in self.get_arg_type_descriptors()]
@@ -714,7 +716,7 @@ class JavaMemberInfo(JavaAttributes):
         if self._id is not None:
             return self._id
 
-        if self.is_method():
+        if self.is_method:
             id = "%s(%s)" % \
                 (self.get_name(), ",".join(self.get_arg_type_descriptors()))
         else:
