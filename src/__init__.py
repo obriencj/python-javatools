@@ -716,11 +716,11 @@ class JavaMemberInfo(JavaAttributes):
         if self._id is not None:
             return self._id
 
+        id = self.get_name()
+
         if self.is_method:
-            id = "%s(%s)" % \
-                (self.get_name(), ",".join(self.get_arg_type_descriptors()))
-        else:
-            id = self.get_name()
+            args = ",".join(self.get_art_type_descriptors())
+            id = "%s(%s)" % (id, args)
 
         self._id = id
         return id
@@ -1115,10 +1115,10 @@ def _pretty_class(s):
 
 def _struct_class():
     
-    """ ideally, we want to use the struct.Struct class to cache compiled
-    unpackers. But since that's a semi-recent addition to Python,
-    we'll provide our own dummy class that presents the same interface
-    but just calls the older unpack function """
+    """ ideally, we want to use the struct.Struct class to cache
+    compiled unpackers. But since that's a semi-recent addition to
+    Python, we'll provide our own dummy class that presents the same
+    interface but just calls the older unpack function"""
 
     import struct
 

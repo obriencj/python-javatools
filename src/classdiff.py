@@ -127,10 +127,10 @@ def cli_members_diff(options, left_members, right_members):
         
 
 
-def cli_collect_members_diff(options, left_members, right_members,
+def cli_collect_members_diff(options, l_members, r_members,
                              added=None, removed=None, both=None):
     
-    for event,data in cli_members_diff(options, left_members, right_members):
+    for event,data in cli_members_diff(options, l_members, r_members):
         l = None
 
         if event is LEFT:

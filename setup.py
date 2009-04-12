@@ -14,7 +14,8 @@ setup( name = "javaclass",
        packages = ["javaclass"],
        scripts = ["scripts/classdiff",
                   "scripts/classinfo",
-                  "scripts/jardiff"])
+                  "scripts/jardiff",
+                  "scripts/jarinfo"])
 
 
 #

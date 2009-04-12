@@ -9,8 +9,6 @@ author: Christopher O'Brien  <obriencj@gmail.com>
 
 
 import sys
-import javaclass
-import javaclass.opcodes as opcodes
 
 
 
@@ -24,7 +22,7 @@ def should_show(options, member):
 
     """ whether to show a member by its access flags and the show
     option. There's probably a faster and smarter way to do this, but
-    eh."""
+    eh. """
 
     show = options.show
     if show == PUBLIC:
@@ -57,6 +55,7 @@ def print_field(options, field):
 
 
 def print_method(options, method):
+    import javaclass.opcodes as opcodes
 
     if options.indent:
         print "   ",
@@ -122,8 +121,9 @@ def print_method(options, method):
 
 
 def print_class(options, classfile):
+    from javaclass import unpack_classfile
 
-    info = javaclass.unpack_classfile(classfile)
+    info = unpack_classfile(classfile)
 
     print "Compiled from \"%s\"" % info.get_sourcefile()
     print info.pretty_descriptor(),
@@ -196,7 +196,9 @@ def create_optparser():
 
 
 def cli(options, rest):
+
     if options.verbose:
+        # verbose also sets all of the following options
         options.lines = True
         options.disassemble = True
         options.sigs = True
@@ -204,7 +206,9 @@ def cli(options, rest):
 
     # just a tiny hack to mimic some indenting sun's javap will do if
     # the output is terse
-    options.indent = not(options.lines or options.disassemble or options.sigs)
+    options.indent = not(options.lines or
+                         options.disassemble or
+                         options.sigs)
 
     for f in rest[1:]:
         print_class(options, f)
