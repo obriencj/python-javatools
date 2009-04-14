@@ -23,4 +23,13 @@
 
 - fill in more docstrings with meaningful explanations
 
+- classdeps tool to display all of the class, field, method dependencies
+
+- jardeps tool to do the same as classdeps, but for an entire JAR
+
+- options to classdeps and jardeps to attempt to fulfill dependencies
+  (possibly recursively) from discoverable locations (JAVA_HOME,
+  CLASSPATH, etc) and output missing deps
+
+
 #
