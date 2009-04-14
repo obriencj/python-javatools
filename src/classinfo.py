@@ -65,10 +65,10 @@ def print_method(options, method):
     if options.sigs:
         print "  Signature:", method.get_descriptor()
 
-    if options.disassemble:
+    code = method.get_code()
+    if options.disassemble and code:
+
         print "  Code:"
-        
-        code = method.get_code()
 
         if options.verbose:
             # the arg count is the number of arguments consumed from
@@ -104,7 +104,7 @@ def print_method(options, method):
         if method.is_deprecated():
             print "  Deprecated: true"
 
-    if options.lines:
+    if options.lines and code:
         print "  LineNumberTable:"
         for (o,l) in method.get_code().get_linenumbertable():
             print "   line %i: %i" % (l,o)

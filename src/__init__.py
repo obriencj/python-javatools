@@ -719,7 +719,7 @@ class JavaMemberInfo(JavaAttributes):
         id = self.get_name()
 
         if self.is_method:
-            args = ",".join(self.get_art_type_descriptors())
+            args = ",".join(self.get_arg_type_descriptors())
             id = "%s(%s)" % (id, args)
 
         self._id = id

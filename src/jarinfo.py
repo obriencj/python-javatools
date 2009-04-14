@@ -74,13 +74,13 @@ def cli_manifest_info(options, zip):
 
 
     print "Manifest main section:"
-    for k,v in mf[0].items():
+    for k,v in sorted(mf[0].items()):
         print "  %s: %s" % (k,v)
 
     for sect in mf[1:]:
         print
         print "Manifest sub-section:"
-        for k,v in sect.items():
+        for k,v in sorted(sect.items()):
             print "  %s: %s" % (k,v)
 
     print
