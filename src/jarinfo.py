@@ -32,20 +32,23 @@ def parse_sections(data):
     cont_key = None
 
     for line in data:
-        if not line:
+        sl = line.strip()
+        
+        if not sl:
             curr = None
 
         elif line[0] == ' ':
             prev = curr[cont_key]
-            curr[cont_key] = prev + line.strip()
+            curr[cont_key] = prev + sl
 
         else:
             if not curr:
                 curr = {}
                 sects.append(curr)
         
-            k,v = line.split(':', 1)
-            curr[k] = v.strip()
+            k,v = sl.split(':', 1)
+            cont_key = k
+            curr[k] = v[1:]
     
     return sects
 
@@ -69,16 +72,18 @@ def cli_manifest_info(options, zip):
         print "META-INFO/MANIFEST.MF not found"
         return -1
 
-    print "Manifest data follows:"
 
-    print " Main section:"
+    print "Manifest main section:"
     for k,v in mf[0].items():
         print "  %s: %s" % (k,v)
 
     for sect in mf[1:]:
-        print " Sub-section:"
+        print
+        print "Manifest sub-section:"
         for k,v in sect.items():
             print "  %s: %s" % (k,v)
+
+    print
 
 
 def zip_entry_rollup(zip):
@@ -110,7 +115,8 @@ def cli_zip_info(options, zip):
     print "Contains %i files, %i directories" % (files, dirs)
     print "Uncompressed size is %i" % uncomp
     print "Compressed size is %i (%0.1f%%)" % (comp, prcnt)
-
+    print
+    
     return 0
 
 
@@ -137,10 +143,10 @@ def cli(options, rest):
 
     ret = 0
 
-    for fn in rest[0:]:
+    for fn in rest[1:]:
         try:
             zip = ZipFile(fn, "r")
-            nret = cli_zipfile(zip)
+            nret = cli_zipfile(options, zip)
 
         except BadZipfile, bad:
             print bad
