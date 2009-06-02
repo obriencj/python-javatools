@@ -109,6 +109,30 @@ def print_method(options, method):
         for (o,l) in method.get_code().get_linenumbertable():
             print "   line %i: %i" % (l,o)
 
+    if options.locals and code:
+        if method.owner:
+            cval = method.owner.get_const_val
+        else:
+            cval = str
+
+        lvt = method.get_code().get_localvariabletable()
+        lvtt = method.get_code().get_localvariabletypetable()
+
+        if lvt:
+            print " LocalVariableTable:"
+            print "   Start  Length  Slot  Name   Descriptor"
+            for (o,l,n,d,i) in lvt:
+                line = (str(o), str(l), str(i), cval(n), cval(d))
+                print "   %s" % "\t".join(line)
+
+        if lvtt:
+            print " LocalVariableTypeTable:"
+            print "   Start  Length  Slot  Name   Signature"
+            for (o,l,n,s,i) in lvtt:
+                line = (str(o), str(l), str(i), cval(n), cval(s))
+                print "   %s" % "\t".join(line)
+
+
     if options.verbose:
         exps = method.pretty_exceptions()
         if exps:
@@ -184,6 +208,9 @@ def create_optparser():
     p.add_option("-l", dest="lines", action="store_true",
                  help="show the line number table")
 
+    p.add_option("-o", dest="locals", action="store_true",
+                 help="show the local variable tables")
+
     p.add_option("-c", dest="disassemble", action="store_true",
                  help="disassemble method code")
 
@@ -194,7 +221,7 @@ def create_optparser():
                  help="show the constants pool")
 
     p.add_option("--verbose", dest="verbose", action="store_true",
-                 help="sets -lcsp options and shows stack bounds")
+                 help="sets -locsp options and shows stack bounds")
     
     return p
 
@@ -205,6 +232,7 @@ def cli(options, rest):
     if options.verbose:
         # verbose also sets all of the following options
         options.lines = True
+        options.locals = True
         options.disassemble = True
         options.sigs = True
         options.constpool = True

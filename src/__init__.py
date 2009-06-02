@@ -821,6 +821,8 @@ class JavaCodeInfo(JavaAttributes):
 
         # cached unpacked internals
         self._lnt = None
+        self._lvt = None
+        self._lvtt = None
         self._dis = None
 
         self.__cmp_t = None
@@ -868,7 +870,53 @@ class JavaCodeInfo(JavaAttributes):
 
         lnt = tuple(lnt)
         self._lnt = lnt
-        return lnt    
+        return lnt
+
+
+    def get_localvariabletable(self):
+        
+        """ a sequence of (code_offset, length, name_index,
+        desc_index, index) tuples """
+
+        if self._lvt is not None:
+            return self._lvt
+
+        buff = self.get_attribute("LocalVariableTable")
+        if buff is None:
+            return None
+
+        lvt = []
+        (count,), buff = _funpack(">H", buff)
+        for i in xrange(0, count):
+            item, buff = _funpack(">HHHHH", buff)
+            lvt.append(item)
+
+        lvt = tuple(lvt)
+        self._lvt = lvt
+        return lvt
+
+
+    def get_localvariabletypetable(self):
+        
+        """ a sequence of (code_offset, length, name_index,
+        signature_index, index) tuples """
+
+        if self._lvtt is not None:
+            return self._lvtt
+
+        buff = self.get_attribute("LocalVariableTypeTable")
+        if buff is None:
+            return None
+
+        lvt = []
+        (count,), buff = _funpack(">H", buff)
+        for i in xrange(0, count):
+            item, buff = _funpack(">HHHHH", buff)
+            lvt.append(item)
+
+        lvt = tuple(lvt)
+        self._lvtt = lvt
+        return lvt
 
 
     def get_line_for_offset(self, code_offset):
