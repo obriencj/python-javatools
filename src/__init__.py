@@ -767,16 +767,17 @@ class JavaMemberInfo(JavaAttributes):
             n.append("abstract")
         if self.is_enum():
             n.append("enum")
-        if self.is_synthetic():
-            n.append("synthetic")
+
+        #if self.is_synthetic():
+        #    n.append("synthetic")
 
         if self.is_method:
             if self.is_synchronized():
                 n.append("synchronized")
-            if self.is_bridge():
-                n.append("bridge")
-            if self.is_varargs():
-                n.append("varargs")
+            #if self.is_bridge():
+            #    n.append("bridge")
+            #if self.is_varargs():
+            #    n.append("varargs")
         else:
             if self.is_super():
                 n.append("super")

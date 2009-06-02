@@ -94,15 +94,24 @@ def print_method(options, method):
         exps = code.exceptions
         if exps:
             print "  Exception table:"
-            print "   from   to  target type"
+            print "   from\tto\ttarget\ttype"
             for e in exps:
                 ctype = e.pretty_catch_type()
-                print "  % 4i  % 4i  % 4i   %s" % \
+                print "  % 4i\t% 4i\t% 4i\t%s" % \
                     (e.start_pc, e.end_pc, e.handler_pc, ctype)
 
     if options.verbose:
         if method.is_deprecated():
             print "  Deprecated: true"
+
+        if method.is_synthetic():
+            print "  Synthetic: true"
+
+        if method.is_bridge():
+            print "  Bridge: true"
+
+        if method.is_varargs():
+            print "  Varargs: true"
 
     if options.lines and code:
         print "  LineNumberTable:"
@@ -119,15 +128,15 @@ def print_method(options, method):
         lvtt = method.get_code().get_localvariabletypetable()
 
         if lvt:
-            print " LocalVariableTable:"
-            print "   Start  Length  Slot  Name   Descriptor"
+            print "  LocalVariableTable:"
+            print "   Start\tLength\tSlot\tName\tDescriptor"
             for (o,l,n,d,i) in lvt:
                 line = (str(o), str(l), str(i), cval(n), cval(d))
                 print "   %s" % "\t".join(line)
 
         if lvtt:
-            print " LocalVariableTypeTable:"
-            print "   Start  Length  Slot  Name   Signature"
+            print "  LocalVariableTypeTable:"
+            print "   Start\tLength\tSlot\tName\tSignature"
             for (o,l,n,s,i) in lvtt:
                 line = (str(o), str(l), str(i), cval(n), cval(s))
                 print "   %s" % "\t".join(line)
