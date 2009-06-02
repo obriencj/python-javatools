@@ -124,6 +124,12 @@ class JavaConstantPool(object):
 
 
     def get_const_val(self, index):
+
+        """ returns the value from the const pool. For simple types,
+        this will be a single value indicating the constant. For more
+        complex types, such as fieldref, methodref, etc, this will
+        return a tuple. """
+
         tv = self.get_const(index)
         if not tv:
             return None
@@ -141,7 +147,7 @@ class JavaConstantPool(object):
         
         elif t in (CONST_Fieldref, CONST_Methodref,
                    CONST_InterfaceMethodref, CONST_NameAndType):
-            return tuple([self.get_const_val(i) for i in v])
+            return tuple(self.get_const_val(i) for i in v)
     
         else:
             raise Exception("Unknown constant pool type %i" % t)
@@ -583,7 +589,8 @@ class JavaMemberInfo(JavaAttributes):
 
 
     def is_synthetic(self):
-        return self.access_flags & ACC_SYNTHETIC
+        return ((self.access_flags & ACC_SYNTHETIC) or
+                bool(self.get_attribute("Synthetic")))
 
 
     def is_enum(self):
