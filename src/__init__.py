@@ -147,7 +147,7 @@ class JavaConstantPool(object):
         
         elif t in (CONST_Fieldref, CONST_Methodref,
                    CONST_InterfaceMethodref, CONST_NameAndType):
-            return tuple(self.get_const_val(i) for i in v)
+            return tuple([self.get_const_val(i) for i in v])
     
         else:
             raise Exception("Unknown constant pool type %i" % t)
@@ -444,6 +444,8 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
             n.append("interface")
         if self.is_abstract():
             n.append("abstract")
+        if self.is_super():
+            n.append("super")
         if self.is_annotation():
             n.append("annotation")
         if self.is_enum():
@@ -774,13 +776,13 @@ class JavaMemberInfo(JavaAttributes):
         if self.is_method:
             if self.is_synchronized():
                 n.append("synchronized")
+
             #if self.is_bridge():
             #    n.append("bridge")
             #if self.is_varargs():
             #    n.append("varargs")
+
         else:
-            if self.is_super():
-                n.append("super")
             if self.is_transient():
                 n.append("transient")
             if self.is_volatile():

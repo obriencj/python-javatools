@@ -49,7 +49,7 @@ def print_field(options, field):
         if cv is not None:
             t,v = field.owner.pretty_const_type_val(cv)
             if t:
-                print "  Constant value: %s %s" % (t,v)
+                print "  Constant value:", t, v
         print
 
 
@@ -129,14 +129,14 @@ def print_method(options, method):
 
         if lvt:
             print "  LocalVariableTable:"
-            print "   Start\tLength\tSlot\tName\tDescriptor"
+            print "   Start  Length  Slot\tName\tDescriptor"
             for (o,l,n,d,i) in lvt:
                 line = (str(o), str(l), str(i), cval(n), cval(d))
                 print "   %s" % "\t".join(line)
 
         if lvtt:
             print "  LocalVariableTypeTable:"
-            print "   Start\tLength\tSlot\tName\tSignature"
+            print "   Start  Length  Slot\tName\tSignature"
             for (o,l,n,s,i) in lvtt:
                 line = (str(o), str(l), str(i), cval(n), cval(s))
                 print "   %s" % "\t".join(line)
@@ -154,7 +154,7 @@ def print_method(options, method):
 
 
 def print_class(options, classfile):
-    from javaclass import unpack_classfile
+    from javaclass import unpack_classfile, platform_from_version
 
     info = unpack_classfile(classfile)
 
@@ -166,11 +166,13 @@ def print_class(options, classfile):
         if info.get_sourcefile():
             print "  SourceFile: \"%s\"" % info.get_sourcefile()
         if info.get_signature():
-            print "  Signature: %s" % info.get_signature()
+            print "  Signature:", info.get_signature()
         if info.get_enclosingmethod():
-            print "  EnclosingMethod: %s" % info.get_enclosingmethod()
-        print "  minor version: %i" % info.version[0]
-        print "  major version: %i" % info.version[1]
+            print "  EnclosingMethod:", info.get_enclosingmethod()
+        print "  minor version:", info.version[0]
+        print "  major version:", info.version[1]
+        platform = platform_from_version(*info.version) or "unknown"
+        print "  Platform:", platform
 
     if options.constpool:
         print "  Constant pool:"
