@@ -421,9 +421,9 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         # class index, method index
         (ci,mi) = _unpack(">HH", buff)
         enc_class = self.get_const_val(ci)
-        enc_meth = self.get_const_val(mi)
+        enc_meth,enc_type = self.get_const_val(mi)
 
-        self._enclosing = "%s.%s" % (enc_class, enc_meth)
+        self._enclosing = "%s.%s%s" % (enc_class, enc_meth, enc_type)
         return self._enclosing
 
 
