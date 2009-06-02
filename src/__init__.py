@@ -59,12 +59,17 @@ ACC_FINAL = 0x0010
 ACC_SYNCHRONIZED = 0x0020
 ACC_SUPER = 0x0020
 ACC_VOLATILE = 0x0040
+ACC_BRIDGE = 0x0040
 ACC_TRANSIENT = 0x0080
+ACC_VARARGS = 0x0080
 ACC_NATIVE = 0x0100
 ACC_INTERFACE = 0x0200
 ACC_ABSTRACT = 0x0400
 ACC_STRICT = 0x0800
-        
+ACC_SYNTHETIC = 0x1000        
+ACC_ANNOTATION = 0x2000
+ACC_ENUM = 0x4000
+
 
 
 class JavaConstantPool(object):
@@ -252,6 +257,8 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         # cached unpacked attributes
         self._sourcefile_ref = 0
         self._inners = None
+        self._signature = None
+        self._enclosing = None
 
 
     def funpack(self, buff):
@@ -342,6 +349,14 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         return self.access_flags & ACC_ABSTRACT
 
 
+    def is_annotation(self):
+        return self.access_flags & ACC_ANNOTATION
+
+
+    def is_enum(self):
+        return self.access_flags & ACC_ENUM
+
+
     def get_this(self):
         return self.get_const_val(self.this_ref)
 
@@ -380,6 +395,38 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         return inners
 
 
+    def get_signature(self):
+        if self._signature is not None:
+            return self._signature
+
+        buff = self.get_attribute("Signature")
+        if buff is None:
+            return None
+
+        # type index
+        (ti,) = _unpack(">H", buff)
+
+        self._signature = self.get_const_val(ti)
+        return self._signature
+
+
+    def get_enclosingmethod(self):
+        if self._enclosing is not None:
+            return self._enclosing
+
+        buff = self.get_attribute("EnclosingMethod")
+        if buff is None:
+            return None
+
+        # class index, method index
+        (ci,mi) = _unpack(">HH", buff)
+        enc_class = self.get_const_val(ci)
+        enc_meth = self.get_const_val(mi)
+
+        self._enclosing = "%s.%s" % (enc_class, enc_meth)
+        return self._enclosing
+
+
     def pretty_access_flags(self):
         n = []
 
@@ -391,6 +438,10 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
             n.append("interface")
         if self.is_abstract():
             n.append("abstract")
+        if self.is_annotation():
+            n.append("annotation")
+        if self.is_enum():
+            n.append("enum")
 
         return tuple(n)
 
@@ -521,6 +572,22 @@ class JavaMemberInfo(JavaAttributes):
 
     def is_transient(self):
         return self.access_flags & ACC_TRANSIENT
+
+
+    def is_bridge(self):
+        return self.access_flags & ACC_BRIDGE
+
+
+    def is_varargs(self):
+        return self.access_flags & ACC_VARARGS
+
+
+    def is_synthetic(self):
+        return self.access_flags & ACC_SYNTHETIC
+
+
+    def is_enum(self):
+        return self.access_flags & ACC_ENUM
 
 
     def is_deprecated(self):
@@ -685,18 +752,31 @@ class JavaMemberInfo(JavaAttributes):
             n.append("static")
         if self.is_final():
             n.append("final")
-        if self.is_synchronized():
-            n.append("synchronized")
+        if self.is_strict():
+            n.append("strict")
         if self.is_native():
             n.append("native")
         if self.is_abstract():
             n.append("abstract")
-        if self.is_strict():
-            n.append("strict")
-        if self.is_volatile():
-            n.append("volatile")
-        if self.is_transient():
-            n.append("transient")
+        if self.is_enum():
+            n.append("enum")
+        if self.is_synthetic():
+            n.append("synthetic")
+
+        if self.is_method:
+            if self.is_synchronized():
+                n.append("synchronized")
+            if self.is_bridge():
+                n.append("bridge")
+            if self.is_varargs():
+                n.append("varargs")
+        else:
+            if self.is_super():
+                n.append("super")
+            if self.is_transient():
+                n.append("transient")
+            if self.is_volatile():
+                n.append("volatile")
 
         return tuple(n)
 
@@ -710,8 +790,8 @@ class JavaMemberInfo(JavaAttributes):
 
     def get_identifier(self):
 
-        """ for methods this is the name and the argument descriptor. For
-        fields it is simply the name """
+        """ for methods this is the return type, the name and the
+        argument descriptor. For fields it is simply the name"""
 
         if self._id is not None:
             return self._id
@@ -720,7 +800,7 @@ class JavaMemberInfo(JavaAttributes):
 
         if self.is_method:
             args = ",".join(self.get_arg_type_descriptors())
-            id = "%s(%s)" % (id, args)
+            id = "%s(%s):%s" % (id, args,self.get_descriptor())
 
         self._id = id
         return id

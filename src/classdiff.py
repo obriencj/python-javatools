@@ -110,9 +110,11 @@ def cli_members_diff(options, left_members, right_members):
 
     li = {}
     for f in left_members:
+        #print " XXX l_memb:", f.get_identifier()
         li[f.get_identifier()] = f
 
     for f in right_members:
+        #print " XXX r_memb:", f.get_identifier()
         key = f.get_identifier()
         lf = li.get(key, None)
 

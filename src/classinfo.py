@@ -130,7 +130,12 @@ def print_class(options, classfile):
 
     if options.verbose:
         print
-        print "  SourceFile: \"%s\"" % info.get_sourcefile()
+        if info.get_sourcefile():
+            print "  SourceFile: \"%s\"" % info.get_sourcefile()
+        if info.get_signature():
+            print "  Signature: %s" % info.get_signature()
+        if info.get_enclosingmethod():
+            print "  EnclosingMethod: %s" % info.get_enclosingmethod()
         print "  minor version: %i" % info.version[0]
         print "  major version: %i" % info.version[1]
 
