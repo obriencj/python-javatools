@@ -231,8 +231,11 @@ def cli_compare_fields(options, left, right):
 
 
 def relative_lnt(lnt):
-    lineoff = lnt[0][1]
-    return [(o,l-lineoff) for (o,l) in lnt]
+    if lnt:
+        lineoff = lnt[0][1]
+        return [(o,l-lineoff) for (o,l) in lnt]
+    else:
+        return tuple()
 
 
 
