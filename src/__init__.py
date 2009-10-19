@@ -211,8 +211,7 @@ class JavaConstantPool(object):
         
         """ a tuple of the pretty type and val, or (None,None) for
         invalid indexes (such as the second part of a long or double
-        value)
-        """
+        value) """
 
         tv = self.get_const(index)
         if not (tv and tv[0]):
@@ -260,13 +259,14 @@ class JavaAttributes(object):
         return buff
 
 
+    @memoized_getter
     def get_attributes_as_map(self):
-        cp = self.cpool
-        if self.attr_map is None:
-            pairs = ((cp.get_const_val(i),v) for (i,v) in self.attributes)
-            self.attr_map = dict(pairs)
+        if not self.cpool:
+            raise NoPoolException("cannot dereference attribute keys")
 
-        return self.attr_map
+        cval = self.cpool.get_const_val
+        pairs = ((cval(i),v) for (i,v) in self.attributes)
+        return dict(pairs)
 
 
     def get_attribute(self, name):
@@ -412,6 +412,15 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
     @memoized_getter
     def get_sourcefile(self):
         return self.get_const_val(self.get_sourcefile_ref())
+
+
+    @memoized_getter
+    def get_source_debug_extension(self):
+        buff = self.get_attribute("SourceDebugExtension")
+        if buff is None:
+            return None
+
+        return str(buff)
 
 
     @memoized_getter
@@ -1153,20 +1162,20 @@ def _next_argsig(buff):
 
 
 
-def _typeseq(s):
-    at = []
-    
+def _typeseq_iter(s):
     buff = buffer(s)
     while buff:
         t,buff = _next_argsig(buff)
-        at.append(t)
-        
-    return tuple(at)
+        yield t
+
+
+def _typeseq(s):
+    return tuple(_typeseq_iter(s))
     
 
 
 def _pretty_typeseq(s):
-    return [_pretty_type(t) for t in _typeseq(s)]
+    return [_pretty_type(t) for t in _typeseq_iter(s)]
 
 
 
@@ -1203,6 +1212,8 @@ def _pretty_type(s):
 
 
 def _pretty_class(s):
+    
+    # well that's easy.
     return s.replace("/", ".")
 
 
