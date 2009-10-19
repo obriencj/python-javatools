@@ -169,8 +169,8 @@ def print_class(options, classfile):
             print "  Signature:", info.get_signature()
         if info.get_enclosingmethod():
             print "  EnclosingMethod:", info.get_enclosingmethod()
-        print "  minor version:", info.version[0]
-        print "  major version:", info.version[1]
+        print "  minor version:", info.get_minor_version()
+        print "  major version:", info.get_major_version()
         platform = platform_from_version(*info.version) or "unknown"
         print "  Platform:", platform
 

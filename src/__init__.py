@@ -87,7 +87,21 @@ class UnpackException(Exception):
         
 class Unimplemented(Exception):
     pass
-        
+
+
+
+def memoized_getter(fun):
+    cfn = "_" + fun.func_name
+    def memd(self):
+        v = getattr(self, cfn, fun)
+        if v is fun:
+            v = fun(self)
+            setattr(self, cfn, v)
+        return v
+    memd.func_name = fun.func_name
+    return memd
+
+
 
 class JavaConstantPool(object):
     
@@ -275,12 +289,6 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         self.fields = tuple()
         self.methods = tuple()
 
-        # cached unpacked attributes
-        self._sourcefile_ref = 0
-        self._inners = None
-        self._signature = None
-        self._enclosing = None
-
 
     def funpack(self, buff):
 
@@ -339,11 +347,11 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
 
 
     def get_major_version(self):
-        return self.version[1]
+        return self.version[0]
 
 
     def get_minor_version(self):
-        return self.version[0]
+        return self.version[1]
 
 
     def get_platform(self):
@@ -390,36 +398,34 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         return self.get_const_val(self.super_ref)
 
 
+    @memoized_getter
     def get_interfaces(self):
-        return [self.get_const_val(i) for i in self.interfaces]
+        return tuple([self.get_const_val(i) for i in self.interfaces])
 
 
+    @memoized_getter
+    def get_sourcefile_ref(self):
+        (r,) = _unpack(">H", self.get_attribute("SourceFile"))
+        return r
+
+
+    @memoized_getter
     def get_sourcefile(self):
-        if self._sourcefile_ref == 0:
-            (r,) = _unpack(">H", self.get_attribute("SourceFile"))
-            self._sourcefile_ref = r
-            
-        return self.get_const_val(self._sourcefile_ref)
+        return self.get_const_val(self.get_sourcefile_ref())
 
 
+    @memoized_getter
     def get_innerclasses(self):
-        if self._inners is not None:
-            return self._inners
-
         buff = self.get_attribute("InnerClasses")
         if buff is None:
             return None
         
         inners, buff = _funpack_array(JavaInnerClassInfo, buff, self)
-
-        self._inners = inners
         return inners
 
 
+    @memoized_getter
     def get_signature(self):
-        if self._signature is not None:
-            return self._signature
-
         buff = self.get_attribute("Signature")
         if buff is None:
             return None
@@ -427,14 +433,11 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         # type index
         (ti,) = _unpack(">H", buff)
 
-        self._signature = self.get_const_val(ti)
-        return self._signature
+        return self.get_const_val(ti)
 
 
+    @memoized_getter
     def get_enclosingmethod(self):
-        if self._enclosing is not None:
-            return self._enclosing
-
         buff = self.get_attribute("EnclosingMethod")
         if buff is None:
             return None
@@ -444,8 +447,7 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         enc_class = self.get_const_val(ci)
         enc_meth,enc_type = self.get_const_val(mi)
 
-        self._enclosing = "%s.%s%s" % (enc_class, enc_meth, enc_type)
-        return self._enclosing
+        return "%s.%s%s" % (enc_class, enc_meth, enc_type)
 
 
     def pretty_access_flags(self):
@@ -459,8 +461,8 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
             n.append("interface")
         if self.is_abstract():
             n.append("abstract")
-        if self.is_super():
-            n.append("super")
+        #if self.is_super():
+        #    n.append("super")
         if self.is_annotation():
             n.append("annotation")
         if self.is_enum():
@@ -513,14 +515,6 @@ class JavaMemberInfo(JavaAttributes):
         self.descriptor_ref = 0
 
         self.is_method = is_method
-        
-        # cached unpacked attributes
-        self._code = None
-        self._exceptions = None
-        self._cval = None
-        self._type = None
-        self._arg_types = None
-        self._id = None
 
 
     def funpack(self, buff):
@@ -618,10 +612,8 @@ class JavaMemberInfo(JavaAttributes):
         return bool(self.get_attribute("Deprecated"))
 
 
+    @memoized_getter
     def get_code(self):
-        if self._code is not None:
-            return self._code
-
         buff = self.get_attribute("Code")
         if buff is None:
             return None
@@ -632,46 +624,36 @@ class JavaMemberInfo(JavaAttributes):
         code = JavaCodeInfo(self.cpool)
         buff = code.funpack(buff)
 
-        self._code = code
         return code
 
 
+    @memoized_getter
     def get_exceptions(self):
 
         """ a tuple class names for the exception types this method
         may raise, or None if this is not a method"""
 
-        if self._exceptions is not None:
-            return self._exceptions
-
         buff = self.get_attribute("Exceptions")
         if buff is None:
-            self._exceptions = ()
             return ()
 
         (count,), buff = _funpack(">H", buff)
         excps, buff = _funpack(">%iH" % count, buff)
 
-        excps = [self.cpool.get_const_val(e) for e in excps]
-
-        self._exceptions = excps
-        return excps
+        return tuple([self.cpool.get_const_val(e) for e in excps])
 
 
+    @memoized_getter
     def get_constantvalue(self):
 
         """ the constant pool index for this field, or None if this is
         not a contant field"""
-
-        if self._cval is not None:
-            return self._cval
 
         buff = self.get_attribute("ConstantValue")
         if buff is None:
             return None
 
         (cval_ref,) = _unpack(">H", buff)
-        self._cval = cval_ref
         return cval_ref
 
 
@@ -687,23 +669,19 @@ class JavaMemberInfo(JavaAttributes):
             return self.cpool.get_const_val(index)
 
 
+    @memoized_getter
     def get_type_descriptor(self):
 
         """ the type for a field, or the return type for a method """
         
-        if self._type is None:
-            self._type = _typeseq(self.get_descriptor())[-1]
-        return self._type
+        return _typeseq(self.get_descriptor())[-1]
 
 
+    @memoized_getter
     def get_arg_type_descriptors(self):
 
         """ the parameter type list for a method, or None for a field
         """
-
-        # use the pre-computed data if any
-        if self._arg_types is not None:
-            return self._arg_types
 
         if not self.is_method:
             # hey, we're not a method, so we don't have args
@@ -712,7 +690,6 @@ class JavaMemberInfo(JavaAttributes):
         tp = _typeseq(self.get_descriptor())
         tp = _typeseq(tp[0][1:-1])
 
-        self._arg_types = tp
         return tp
 
 
@@ -813,13 +790,11 @@ class JavaMemberInfo(JavaAttributes):
         return [_pretty_class(e) for e in self.get_exceptions()]
 
 
+    @memoized_getter
     def get_identifier(self):
 
         """ for methods this is the return type, the name and the
         argument descriptor. For fields it is simply the name"""
-
-        if self._id is not None:
-            return self._id
 
         id = self.get_name()
 
@@ -827,7 +802,6 @@ class JavaMemberInfo(JavaAttributes):
             args = ",".join(self.get_arg_type_descriptors())
             id = "%s(%s):%s" % (id, args,self.get_descriptor())
 
-        self._id = id
         return id
 
 
@@ -843,14 +817,6 @@ class JavaCodeInfo(JavaAttributes):
         self.max_locals = 0
         self.code = None
         self.exceptions = tuple()
-
-        # cached unpacked internals
-        self._lnt = None
-        self._lvt = None
-        self._lvtt = None
-        self._dis = None
-
-        self.__cmp_t = None
 
 
     def funpack(self, buff):
@@ -876,12 +842,10 @@ class JavaCodeInfo(JavaAttributes):
         return buff
 
     
+    @memoized_getter
     def get_linenumbertable(self):
 
         """  a sequence of (code_offset, line_number) pairs """
-
-        if self._lnt is not None:
-            return self._lnt
 
         buff = self.get_attribute("LineNumberTable")
         if buff is None:
@@ -894,17 +858,14 @@ class JavaCodeInfo(JavaAttributes):
             lnt.append(item)
 
         lnt = tuple(lnt)
-        self._lnt = lnt
         return lnt
 
 
+    @memoized_getter
     def get_localvariabletable(self):
         
         """ a sequence of (code_offset, length, name_index,
         desc_index, index) tuples """
-
-        if self._lvt is not None:
-            return self._lvt
 
         buff = self.get_attribute("LocalVariableTable")
         if buff is None:
@@ -917,17 +878,14 @@ class JavaCodeInfo(JavaAttributes):
             lvt.append(item)
 
         lvt = tuple(lvt)
-        self._lvt = lvt
         return lvt
 
 
+    @memoized_getter
     def get_localvariabletypetable(self):
         
         """ a sequence of (code_offset, length, name_index,
         signature_index, index) tuples """
-
-        if self._lvtt is not None:
-            return self._lvtt
 
         buff = self.get_attribute("LocalVariableTypeTable")
         if buff is None:
@@ -940,7 +898,6 @@ class JavaCodeInfo(JavaAttributes):
             lvt.append(item)
 
         lvt = tuple(lvt)
-        self._lvtt = lvt
         return lvt
 
 
@@ -959,17 +916,10 @@ class JavaCodeInfo(JavaAttributes):
         return prev
 
 
+    @memoized_getter
     def disassemble(self):
         import javaclass.opcodes as opcodes
-
-        if self._dis is not None:
-            return self._dis
-
-        dis = opcodes.disassemble(self.code)
-
-        self._dis = dis
-        return dis
-
+        return opcodes.disassemble(self.code)
 
 
 
@@ -987,8 +937,6 @@ class JavaExceptionInfo(object):
         self.end_pc = 0
         self.handler_pc = 0
         self.catchx_type_ref = 0
-
-        self.__cmp_t = None
 
 
     def funpack(self, buff):
@@ -1019,11 +967,10 @@ class JavaExceptionInfo(object):
             return "any"
 
 
+    @memoized_getter
     def __cmp_tuple(self):
-        if not self.__cmp_t:
-            self.__cmp_t = (self.start_pc, self.end_pc,
-                            self.handler_pc, self.get_catch_type())
-        return self.__cmp_t
+        return (self.start_pc, self.end_pc,
+                self.handler_pc, self.get_catch_type())
 
 
     def __hash__(self):
