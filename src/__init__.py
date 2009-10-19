@@ -37,7 +37,7 @@ else:
 
 
 # The constant pool types
-CONST_Asciz = 1
+CONST_Utf8 = 1
 CONST_Integer = 3
 CONST_Float = 4
 CONST_Long = 5
@@ -72,10 +72,27 @@ ACC_ENUM = 0x4000
 
 
 
+class NoPoolException(Exception):
+    pass
+
+
+class UnpackException(Exception):
+    def __init__(self, format, wanted, present):
+        self.format = format
+        self.bytes_wanted = wanted
+        self.bytes_present = present
+        Exception.__init__("format %r requires %i bytes, only %i present" %
+                           (format, wanted, present))
+        
+        
+class Unimplemented(Exception):
+    pass
+        
+
 class JavaConstantPool(object):
-
+    
     """ A constants pool """
-
+    
     def __init__(self):
         self.consts = tuple()
 
@@ -136,7 +153,7 @@ class JavaConstantPool(object):
 
         t,v = tv
         
-        if t in (CONST_Asciz, CONST_Integer, CONST_Float):
+        if t in (CONST_Utf8, CONST_Integer, CONST_Float):
             return v
 
         elif t in (CONST_Long, CONST_Double):
@@ -150,7 +167,7 @@ class JavaConstantPool(object):
             return tuple([self.get_const_val(i) for i in v])
     
         else:
-            raise Exception("Unknown constant pool type %i" % t)
+            raise Unimplemented("Unknown constant pool type %i" % t)
     
 
     def pretty_const_comment(self, index):
@@ -170,8 +187,6 @@ class JavaConstantPool(object):
 
         elif t == CONST_NameAndType:
             a,b = (self.get_const_val(i) for i in v)
-            if a == "<init>":
-                a = self.owner.get_this()
             return "%s:%s" % (a,b)
 
         else:
@@ -198,14 +213,14 @@ class JavaAttributes(object):
     """ attributes table, as used in class, member, and code
     structures """
 
-    def __init__(self, owner=None):
+    def __init__(self, cpool=None):
         self.attributes = tuple()
         self.attr_map = None
         
-        if not owner and isinstance(self, JavaConstantPool):
-            owner = self
+        if not cpool and isinstance(self, JavaConstantPool):
+            cpool = self
 
-        self.owner = owner
+        self.cpool = cpool
 
 
     def funpack(self, buff):
@@ -232,9 +247,9 @@ class JavaAttributes(object):
 
 
     def get_attributes_as_map(self):
-        o = self.owner
+        cp = self.cpool
         if self.attr_map is None:
-            pairs = ((o.get_const_val(i),v) for (i,v) in self.attributes)
+            pairs = ((cp.get_const_val(i),v) for (i,v) in self.attributes)
             self.attr_map = dict(pairs)
 
         return self.attr_map
@@ -490,8 +505,8 @@ class JavaMemberInfo(JavaAttributes):
 
     """ A field or method of a java class """
 
-    def __init__(self, owner, is_method=False):
-        JavaAttributes.__init__(self, owner)
+    def __init__(self, cpool, is_method=False):
+        JavaAttributes.__init__(self, cpool)
 
         self.access_flags = 0
         self.name_ref = 0
@@ -527,15 +542,15 @@ class JavaMemberInfo(JavaAttributes):
 
 
     def get_name(self):
-        if not self.owner:
-            raise Exception("member has no owning class")
-        return self.owner.get_const_val(self.name_ref)
+        if not self.cpool:
+            raise NoPoolException("cannot get Name ref")
+        return self.cpool.get_const_val(self.name_ref)
 
 
     def get_descriptor(self):
-        if not self.owner:
-            raise Exception("memeber has no owning class")
-        return self.owner.get_const_val(self.descriptor_ref)
+        if not self.cpool:
+            raise NoPoolException("cannot get Descriptor ref")
+        return self.cpool.get_const_val(self.descriptor_ref)
 
 
     def is_public(self):
@@ -611,10 +626,10 @@ class JavaMemberInfo(JavaAttributes):
         if buff is None:
             return None
 
-        if not self.owner:
-            raise Exception("memeber has no owning class")
+        if not self.cpool:
+            raise NoPoolException("cannot unpack Code")
 
-        code = JavaCodeInfo(self.owner)
+        code = JavaCodeInfo(self.cpool)
         buff = code.funpack(buff)
 
         self._code = code
@@ -637,7 +652,7 @@ class JavaMemberInfo(JavaAttributes):
         (count,), buff = _funpack(">H", buff)
         excps, buff = _funpack(">%iH" % count, buff)
 
-        excps = [self.owner.get_const_val(e) for e in excps]
+        excps = [self.cpool.get_const_val(e) for e in excps]
 
         self._exceptions = excps
         return excps
@@ -669,7 +684,7 @@ class JavaMemberInfo(JavaAttributes):
         if index is None:
             return None
         else:
-            return self.owner.get_const_val(index)
+            return self.cpool.get_const_val(index)
 
 
     def get_type_descriptor(self):
@@ -726,7 +741,7 @@ class JavaMemberInfo(JavaAttributes):
         
         if n == "<init>":
             # rename this method to match the class name
-            n = self.owner.get_this()
+            n = self.cpool.get_this()
             if "/" in n:
                 n = n[n.rfind("/")+1:]
 
@@ -821,8 +836,8 @@ class JavaCodeInfo(JavaAttributes):
 
     """ The 'Code' attribue of a method member of a java class """
 
-    def __init__(self, owner):
-        JavaAttributes.__init__(self, owner)
+    def __init__(self, cpool):
+        JavaAttributes.__init__(self, cpool)
 
         self.max_stack = 0
         self.max_locals = 0
@@ -966,7 +981,7 @@ class JavaExceptionInfo(object):
 
     def __init__(self, code):
         self.code = code
-        self.owner = code.owner
+        self.cpool = code.cpool
         
         self.start_pc = 0
         self.end_pc = 0
@@ -993,7 +1008,7 @@ class JavaExceptionInfo(object):
 
 
     def get_catch_type(self):
-        return self.owner.get_const_val(self.catch_type_ref)
+        return self.cpool.get_const_val(self.catch_type_ref)
 
 
     def pretty_catch_type(self):
@@ -1025,8 +1040,8 @@ class JavaInnerClassInfo(object):
 
     """ Information about an inner class """    
 
-    def __init__(self, owner):
-        self.owner = owner
+    def __init__(self, cpool):
+        self.cpool = cpool
 
         self.inner_info_ref = 0
         self.outer_info_ref = 0
@@ -1046,7 +1061,7 @@ class JavaInnerClassInfo(object):
 
 
     def get_name(self):
-        return self.owner.get_const_val(self.name_ref)
+        return self.cpool.get_const_val(self.name_ref)
 
 
 
@@ -1091,7 +1106,7 @@ def _funpack_const_item(buff):
 
     (type,),  buff = _funpack(">B", buff)
 
-    if type == CONST_Asciz:
+    if type == CONST_Utf8:
         (slen,), buff = _funpack(">H", buff)
         val = buff[:slen]
         buff = buffer(buff, slen)
@@ -1116,7 +1131,7 @@ def _funpack_const_item(buff):
         val, buff = _funpack(">HH", buff)
 
     else:
-        raise Exception("unknown constant type %r" % type)
+        raise Unimplemented("unknown constant type %r" % type)
 
     debug("const %s\t%s;" % _pretty_const_type_val(type,val))
     return (type, val), buff
@@ -1125,7 +1140,7 @@ def _funpack_const_item(buff):
 
 def _pretty_const_type_val(type, val):
 
-    if type == CONST_Asciz:
+    if type == CONST_Utf8:
         type = "Asciz"
         val = repr(val)[1:-1]
     elif type == CONST_Integer:
@@ -1158,7 +1173,7 @@ def _pretty_const_type_val(type, val):
         type = "NameAndType"
         val = "#%i:#%i" % val
     else:
-        assert(False)
+        raise Unimplemented("unknown type, %s", type)
     
     return type,val
 
@@ -1187,8 +1202,7 @@ def _next_argsig(buff):
         i = s.find(')')+1
         return s[:i],buffer(buff,i)
     else:
-        print "ZOMG WTF, _next_argsig is", c, "in", buff
-        assert(False)
+        raise Unimplemented("_next_argsig is %r in %r" % (c, buff))
 
 
 
@@ -1237,7 +1251,7 @@ def _pretty_type(s):
     elif tc == "[":
         return "%s[]" % _pretty_type(s[1:])
     else:
-        assert(False)
+        raise Unimplemented("unknown type, %s" % tc)
         
 
 
@@ -1311,7 +1325,7 @@ def _funpack(fmt, buff):
     sfmt = _compile(fmt)
 
     if len(buff) < sfmt.size:
-        raise Exception("not enough data in buffer for format")
+        raise UnpackException(fmt, sfmt.size, len(buff))
 
     pbuff = buffer(buff, 0, sfmt.size)
     val = sfmt.unpack(pbuff)

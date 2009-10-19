@@ -209,15 +209,14 @@ def cli_compare_fields(options, left, right):
             print "  ", l.pretty_descriptor()
         ret = FIELD_DATA_CHANGE
 
-    def print_changed(field, changes):
-        if print_changed.p:
+    def print_changed(field, changes, pc=[True]):
+        if pc[0]:
             print "Changed fields:"
-            print_changed.p = False
+            pc[0] = False
 
         print "  ", field.pretty_descriptor()
         for change in changes:
             print "    ", change
-    print_changed.p = True
 
     if both:
         for l,r in both:
@@ -290,8 +289,8 @@ def _cli_compare_code(options, left, right):
 
             if opcodes.has_const_arg(l[1]):
                 largs, rargs = list(largs), list(rargs)
-                largs[0] = left.owner.get_const_val(largs[0])
-                rargs[0] = right.owner.get_const_val(rargs[0])
+                largs[0] = left.cpool.get_const_val(largs[0])
+                rargs[0] = right.cpool.get_const_val(rargs[0])
 
             if largs != rargs:
                 code_vals_change = True
@@ -390,15 +389,14 @@ def cli_compare_methods(options, left, right):
             print "  ", l.pretty_descriptor()
         ret = METHOD_DATA_CHANGE
 
-    def print_changed(meth, changes):
-        if print_changed.p:
+    def print_changed(meth, changes, pc=[True]):
+        if pc[0]:
             print "Changed methods:"
-            print_changed.p = False
+            pc[0] = False
 
         print "  ", meth.pretty_descriptor()
         for change in changes:
             print "    ", change
-    print_changed.p = True
 
     if both:
         for l,r in both:

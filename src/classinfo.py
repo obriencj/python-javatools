@@ -47,7 +47,7 @@ def print_field(options, field):
     if options.verbose:
         cv = field.get_constantvalue()
         if cv is not None:
-            t,v = field.owner.pretty_const_type_val(cv)
+            t,v = field.cpool.pretty_const_type_val(cv)
             if t:
                 print "  Constant value:", t, v
         print
@@ -119,8 +119,8 @@ def print_method(options, method):
             print "   line %i: %i" % (l,o)
 
     if options.locals and code:
-        if method.owner:
-            cval = method.owner.get_const_val
+        if method.cpool:
+            cval = method.cpool.get_const_val
         else:
             cval = str
 
