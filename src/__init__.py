@@ -51,6 +51,7 @@ CONST_NameAndType = 12
 
 
 
+# class and member flags
 ACC_PUBLIC = 0x0001
 ACC_PRIVATE = 0x0002
 ACC_PROTECTED = 0x0004
@@ -73,10 +74,18 @@ ACC_ENUM = 0x4000
 
 
 class NoPoolException(Exception):
+
+    """ raised by methods that need a JavaConstantPool, but aren't
+    provided one on the owning instance """
+
     pass
 
 
 class UnpackException(Exception):
+
+    """ raised when there is not enough data to unpack the expected
+    structures """
+
     def __init__(self, format, wanted, present):
         self.format = format
         self.bytes_wanted = wanted
@@ -86,11 +95,21 @@ class UnpackException(Exception):
         
         
 class Unimplemented(Exception):
+
+    """ raised when something unexpected happens, which usually
+    indicates part of the classfile specification that wasn't
+    implemented in this module yet """
+
     pass
 
 
 
 def memoized_getter(fun):
+
+    """ Decorator. Records the result of a method the first time it is
+    called, and returns that result thereafter rather than re-running
+    the method """
+
     cfn = "_" + fun.func_name
     def memd(self):
         v = getattr(self, cfn, fun)

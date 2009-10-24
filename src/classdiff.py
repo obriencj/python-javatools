@@ -162,7 +162,7 @@ def _cli_compare_field(options, left, right):
             (left.get_name(), right.get_name())
         
     if left.get_descriptor() != right.get_descriptor():
-        yield "type changed from %s to %s" % \
+        yield "type chnaged from %s to %s" % \
             (left.pretty_type(), right.pretty_type())
 
     if left.access_flags != right.access_flags:
@@ -191,16 +191,6 @@ def cli_compare_fields(options, left, right):
     detailed information to stdout """
 
     ret = NO_CHANGE
-
-    for event,data in _cli_compare_fields(options, left, right):
-        if event == RIGHT:
-            print "Added fields:"
-            for l,r in data:
-                print "  ", r.pretty_descriptor()
-                ret = FIELD_DATA_CHANGE
-
-        elif event == LEFT:
-            print "Removed fields:"
 
     added, removed, both = [], [], []
 
@@ -238,30 +228,6 @@ def cli_compare_fields(options, left, right):
                 ret = FIELD_DATA_CHANGE
 
     return ret
-
-
-
-def _cli_compare_fields(options, left, right):
-    added = None
-    removed, both = list(), list()
-
-    if not options.ignore_added:
-        added = list()
-
-    cli_collect_members_diff(options, left.fields, right.fields,
-                             added, removed, both)
-
-    yield (RIGHT, added or tuple())
-    yield (LEFT, removed)
-
-    both = (l,cli_compare_field(options, l, r) for l,r in both)
-    both = [field,changes for field,changes in both if changes]
-    yield (BOTH, both)
-
-
-
-def cli_compare_fields(options, left, right):
-    return tuple(_cli_compare_fields(options, left, right))
 
 
 
