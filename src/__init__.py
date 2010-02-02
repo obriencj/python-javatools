@@ -1258,7 +1258,7 @@ def _struct_class():
         def pack(self, *args):
             return struct.pack(*args)
         def unpack(self, buff):
-            return struct.unpack(fmt, buff)
+            return struct.unpack(self.fmt, buff)
 
     if hasattr(struct, "Struct"):
         return getattr(struct, "Struct")
