@@ -1128,8 +1128,7 @@ def _pretty_const_type_val(typecode, val):
         val = "%il" % val
     elif typecode == CONST_Double:
         typestr = "double"
-        print "repr CONST_Double", repr(val)
-        val = "%dd" % val
+        val = "%fd" % val
     elif typecode == CONST_Class:
         typestr = "class"
         val = "#%i" % val
