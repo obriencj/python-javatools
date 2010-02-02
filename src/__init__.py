@@ -1258,7 +1258,7 @@ def _struct_class():
         def pack(self, *args):
             return struct.pack(*args)
         def unpack(self, buff):
-            return struct.unpack(buff)
+            return struct.unpack(fmt, buff)
 
     if hasattr(struct, "Struct"):
         return getattr(struct, "Struct")
@@ -1345,6 +1345,7 @@ def is_class(buff):
         print "0x%x 0x%x 0x%x 0x%x" % head
         return head == (0xCA, 0xFE, 0xBA, 0xBE)
     except:
+        
         return False
 
 
