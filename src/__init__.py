@@ -1340,13 +1340,9 @@ def is_class(buff):
     it is a Java class file. Returns False if the magic numbers do not
     match, or for any errors. """
 
-    try:
-        head = _unpack(">BBBB", buff)
-        print "0x%x 0x%x 0x%x 0x%x" % head
-        return head == (0xCA, 0xFE, 0xBA, 0xBE)
-    except:
-        
-        return False
+    head = _unpack(">BBBB", buff)
+    print "0x%x 0x%x 0x%x 0x%x" % head
+    return head == (0xCA, 0xFE, 0xBA, 0xBE)
 
 
 
