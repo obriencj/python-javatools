@@ -1341,7 +1341,9 @@ def is_class(buff):
     match, or for any errors. """
 
     try:
-        return _unpack(">BBBB", buff) == (0xCA, 0xFE, 0xBA, 0xBE)
+        head = _unpack(">BBBB", buff)
+        print "0x%x 0x%x 0x%x 0x%x" % head
+        return head == (0xCA, 0xFE, 0xBA, 0xBE)
     except:
         return False
 
