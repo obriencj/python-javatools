@@ -1079,78 +1079,79 @@ def _funpack_const_item(buff):
     (see the CONST_ values in this module) and a value of the
     appropriate type """
 
-    (type,),  buff = _funpack(">B", buff)
+    (typecode,),  buff = _funpack(">B", buff)
 
-    if type == CONST_Utf8:
+    if typecode == CONST_Utf8:
         (slen,), buff = _funpack(">H", buff)
         val = buff[:slen]
         buff = buffer(buff, slen)
     
-    elif type == CONST_Integer:
+    elif typecode == CONST_Integer:
         (val,), buff = _funpack(">i", buff)
 
-    elif type == CONST_Float:
+    elif typecode == CONST_Float:
         (val,), buff = _funpack(">f", buff)
 
-    elif type == CONST_Long:
+    elif typecode == CONST_Long:
         (val,), buff = _funpack(">q", buff)
 
-    elif type == CONST_Double:
+    elif typecode == CONST_Double:
         (val,), buff = _funpack(">d", buff)
 
-    elif type in (CONST_Class, CONST_String):
+    elif typecode in (CONST_Class, CONST_String):
         (val,), buff = _funpack(">H", buff)
 
-    elif type in (CONST_Fieldref, CONST_Methodref,
+    elif typecode in (CONST_Fieldref, CONST_Methodref,
                   CONST_InterfaceMethodref, CONST_NameAndType):
         val, buff = _funpack(">HH", buff)
 
     else:
         raise Unimplemented("unknown constant type %r" % type)
 
-    debug("const %s\t%s;" % _pretty_const_type_val(type,val))
-    return (type, val), buff
+    debug("const %s\t%s;" % _pretty_const_type_val(typecode,val))
+    return (typecode, val), buff
 
 
 
-def _pretty_const_type_val(type, val):
+def _pretty_const_type_val(typecode, val):
 
-    if type == CONST_Utf8:
-        type = "Asciz"
+    if typecode == CONST_Utf8:
+        typestr = "Asciz"
         val = repr(val)[1:-1]
-    elif type == CONST_Integer:
-        type = "int"
-    elif type == CONST_Float:
-        type = "float"
+    elif typecode == CONST_Integer:
+        typestr = "int"
+    elif typecode == CONST_Float:
+        typestr = "float"
         val = "%ff" % val
-    elif type == CONST_Long:
-        type = "long"
+    elif typecode == CONST_Long:
+        typestr = "long"
         val = "%il" % val
-    elif type == CONST_Double:
-        type = "double"
+    elif typecode == CONST_Double:
+        typestr = "double"
+        print repr(val)
         val = "%dd" % val
-    elif type == CONST_Class:
-        type = "class"
+    elif typecode == CONST_Class:
+        typestr = "class"
         val = "#%i" % val
-    elif type == CONST_String:
-        type = "String"
+    elif typecode == CONST_String:
+        typestr = "String"
         val = "#%i" % val
-    elif type == CONST_Fieldref:
-        type = "Field"
+    elif typecode == CONST_Fieldref:
+        typestr = "Field"
         val = "#%i.#%i" % val
-    elif type == CONST_Methodref:
-        type = "Method"
+    elif typecode == CONST_Methodref:
+        typestr = "Method"
         val = "#%i.#%i" % val
-    elif type == CONST_InterfaceMethodref:
-        type = "InterfaceMethod"
+    elif typecode == CONST_InterfaceMethodref:
+        typestr = "InterfaceMethod"
         val = "#%i.#%i" % val
-    elif type == CONST_NameAndType:
-        type = "NameAndType"
+    elif typecode == CONST_NameAndType:
+        typestr = "NameAndType"
         val = "#%i:#%i" % val
     else:
-        raise Unimplemented("unknown type, %s", type)
+        raise Unimplemented("unknown type, %r", typecode)
     
-    return type,val
+    return typestr,val
 
 
 
