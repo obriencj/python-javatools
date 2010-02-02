@@ -9,8 +9,8 @@ author: Christopher O'Brien  <obriencj@gmail.com>
 LEFT = "left only"
 RIGHT = "right only"
 DIFF = "changed"
-BOTH = "same"
-
+SAME = "same"
+BOTH = SAME # meh, synonyms
 
 
 def compare(left, right):

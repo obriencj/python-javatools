@@ -19,7 +19,7 @@ def cli_compare_jars(options, left, right):
     import javaclass, zipdelta, classdiff
     from zipfile import ZipFile
 
-    from zipdelta import LEFT, RIGHT, BOTH, DIFF
+    from zipdelta import LEFT, RIGHT, SAME, DIFF
 
 
     leftz, rightz = ZipFile(left, 'r'), ZipFile(right, 'r')
@@ -31,23 +31,25 @@ def cli_compare_jars(options, left, right):
         elif event == RIGHT:
             print "Added file:", entry
 
-        elif event == BOTH:
+        elif event == SAME:
             # let's not bother to print the lack of a change, that's
             # just silly.
 
             pass
 
         elif event == DIFF:
-            print "Changed file:", entry
-
             leftd, rightd = leftz.read(entry), rightz.read(entry)
+
             if javaclass.is_class(leftd) and javaclass.is_class(rightd):
+                print "Changed class:", entry
+
                 lefti = javaclass.unpack_class(leftd)
                 righti = javaclass.unpack_class(rightd)
                 classdiff.cli_classes_info(options, lefti, righti)
 
             else:
-                pass
+                print "Changed file:", entry
+
 
     # might want to make this do something more fun later
     return 0

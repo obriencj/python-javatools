@@ -6,7 +6,7 @@ author: Christopher O'Brien  <cobrien@redhat.com>
 
 
 
-from dirdelta import LEFT, RIGHT, DIFF, BOTH
+from dirdelta import LEFT, RIGHT, DIFF, SAME
 
 
 
@@ -36,7 +36,7 @@ def compare_zips(left, right, lprefix=None, rprefix=None):
                 yield DIFF, f
 
             else:
-                yield BOTH, f
+                yield SAME, f
 
         else:
             yield LEFT, f
@@ -105,7 +105,7 @@ def collect_compare_zips_into(left, right, added, removed, altered, same):
             group = added
         elif event == DIFF:
             group = altered
-        elif event == BOTH:
+        elif event == SAME:
             group = same
         else:
             assert(False)
