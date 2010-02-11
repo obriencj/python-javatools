@@ -112,7 +112,7 @@ def cli(options, rest):
 
 def create_optparser():
     from classdiff import create_optparser
-    parser = create_optparser
+    parser = create_optparser()
 
     parser.add_option("-r", "--recursive", action="store_true")
     parser.add_option("--ignore-jar", action="append", default=[])
