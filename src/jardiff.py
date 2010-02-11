@@ -17,16 +17,16 @@ import sys
 
 def fnmatches(pattern_list, entry):
     from fnmatch import fnmatch
-    for ignore in options.ignore:
-        if ignore and fnmatch(ignore, entry):
-            return true
-    return false
+    for pattern in pattern_list:
+        if pattern and fnmatch(entry, pattern):
+            return True
+    return False
 
 
 
 def cli_compare_jars(options, left, right):
     import javaclass, zipdelta
-    from classdiff import cli_classes_info_gen
+    from classdiff import cli_classes_info
     from zipfile import ZipFile
 
     from zipdelta import LEFT, RIGHT, SAME, DIFF
@@ -58,7 +58,7 @@ def cli_compare_jars(options, left, right):
 
                 lefti = javaclass.unpack_class(leftd)
                 righti = javaclass.unpack_class(rightd)
-                classdiff.cli_classes_info(options, lefti, righti)
+                cli_classes_info(options, lefti, righti)
 
             else:
                 print "Changed file:", entry
@@ -70,6 +70,12 @@ def cli_compare_dirs(options, leftd, rightd):
     from os.path import join
 
     for event,entry in compare(leftd, rightd):
+        if not fnmatches(("*.jar","*.sar","*.ear","*.war"), entry):
+            # skip non-JARs. This is a terrible way to test for this,
+            # but I am in a hurry.
+            print "skipping non-jar:", entry
+            continue
+
         if fnmatches(options.ignore_jar, entry):
             # skip
             continue
@@ -91,7 +97,7 @@ def cli_compare_dirs(options, leftd, rightd):
 
         elif event == DIFF:
             print "JAR Changed:", entry
-            cli_compare_jars(options, join(leftd, entry), join(rightd, entry))
+            cli_compare_jars(options, join(leftd, entry[len(rightd):]), entry)
 
         # print an empty line, for legibility
         print
