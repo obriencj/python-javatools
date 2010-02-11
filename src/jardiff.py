@@ -15,16 +15,29 @@ import sys
 
 
 
+def fnmatches(pattern_list, entry):
+    from fnmatch import fnmatch
+    for ignore in options.ignore:
+        if ignore and fnmatch(ignore, entry):
+            return true
+    return false
+
+
+
 def cli_compare_jars(options, left, right):
-    import javaclass, zipdelta, classdiff
+    import javaclass, zipdelta
+    from classdiff import cli_classes_info_gen
     from zipfile import ZipFile
 
     from zipdelta import LEFT, RIGHT, SAME, DIFF
 
-
     leftz, rightz = ZipFile(left, 'r'), ZipFile(right, 'r')
 
     for event,entry in zipdelta.compare_zips(leftz, rightz):
+        if fnmatches(options.ignore_content, entry):
+            # ignoring this entry
+            continue
+
         if event == LEFT:
             print "Removed file:", entry
 
@@ -51,10 +64,38 @@ def cli_compare_jars(options, left, right):
                 print "Changed file:", entry
 
 
-    # might want to make this do something more fun later
-    return 0
 
+def cli_compare_dirs(options, leftd, rightd):
+    from dirdelta import compare, LEFT, RIGHT, SAME, DIFF
+    from os.path import join
 
+    for event,entry in compare(leftd, rightd):
+        if fnmatches(options.ignore_jar, entry):
+            # skip
+            continue
+    
+        elif event == LEFT:
+            if options.ignore_jar_removed:
+                continue
+            else:
+                print "JAR Removed:", entry
+            
+        elif event == RIGHT:
+            if options.ignore_jar_added:
+                continue
+            else:
+                print "JAR Added:", entry
+
+        elif event == SAME:
+            pass
+
+        elif event == DIFF:
+            print "JAR Changed:", entry
+            cli_compare_jars(options, join(leftd, entry), join(rightd, entry))
+
+        # print an empty line, for legibility
+        print
+            
 
 def cli(options, rest):
     from classdiff import options_magic
@@ -62,13 +103,28 @@ def cli(options, rest):
     options_magic(options)
     left, right = rest[1:3]
 
-    return cli_compare_jars(options, left, right)
+    if options.recursive:
+        return cli_compare_dirs(options, left, right)
+    else:
+        return cli_compare_jars(options, left, right)
+
+
+
+def create_optparser():
+    from classdiff import create_optparser
+    parser = create_optparser
+
+    parser.add_option("-r", "--recursive", action="store_true")
+    parser.add_option("--ignore-jar", action="append", default=[])
+    parser.add_option("--ignore-content", action="append", default=[])
+    parser.add_option("--ignore-jar-added", action="store_true")
+    parser.add_option("--ignore-jar-removed", action="store_true")
+
+    return parser
 
 
 
 def main(args):
-    from classdiff import create_optparser
-
     parser = create_optparser()
     return cli(*parser.parse_args(args))
 
