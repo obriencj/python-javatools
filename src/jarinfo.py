@@ -13,52 +13,13 @@ import sys
 
 
 
-def parse_sections(data):
-
-    """ Parse a string or a stream into a sequence of key:value
-    sections as specified in the JAR specification. Returns a list of
-    dicts """
-
-    from StringIO import StringIO
-    
-    if not data:
-        return tuple()
-    
-    if isinstance(data, str):
-        data = StringIO(data)
-        
-    sects = []
-    curr = None
-    cont_key = None
-
-    for line in data:
-        sl = line.strip()
-        
-        if not sl:
-            curr = None
-
-        elif line[0] == ' ':
-            prev = curr[cont_key]
-            curr[cont_key] = prev + sl
-
-        else:
-            if not curr:
-                curr = {}
-                sects.append(curr)
-        
-            k,v = sl.split(':', 1)
-            cont_key = k
-            curr[k] = v[1:]
-    
-    return sects
-
-
-
 def get_manifest_info(zip):
     
     """ fetch the sections from the MANIFEST.MF file. Returns a list
     of dicts representing all of the key:val sections in the
     manifest. """
+
+    from manifest import parse_sections
 
     data = zip.read("META-INF/MANIFEST.MF")
     return parse_sections(data)
