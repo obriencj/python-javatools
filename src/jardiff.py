@@ -73,7 +73,6 @@ def cli_compare_dirs(options, leftd, rightd):
         if not fnmatches(("*.jar","*.sar","*.ear","*.war"), entry):
             # skip non-JARs. This is a terrible way to test for this,
             # but I am in a hurry.
-            print "skipping non-jar:", entry
             continue
 
         if fnmatches(options.ignore_jar, entry):
@@ -93,7 +92,7 @@ def cli_compare_dirs(options, leftd, rightd):
                 print "JAR Added:", entry
 
         elif event == SAME:
-            pass
+            continue
 
         elif event == DIFF:
             print "JAR Changed:", entry
