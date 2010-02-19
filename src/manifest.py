@@ -49,13 +49,17 @@ def store_item(k, v, stream):
         s.close()
 
         s = StringIO(k)
+
+        # first grab 71 (which is 72 after the trailing newline)
         stream.write(s.read(71))
 
-        k = s.read(71)
+        # now only 70 at a time, because we need a leading space and a
+        # trailing \n
+        k = s.read(70)
         while k:
             stream.write("\n ")
             stream.write(k)
-            k = s.read(71)
+            k = s.read(70)
         s.close()
 
     else:
