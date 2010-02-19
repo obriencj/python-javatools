@@ -221,6 +221,23 @@ def cli_create(options, rest):
     from os.path import exists, split
     from os import makedirs
 
+    if options.recursive:
+        entries = multi_generator(rest[1:])
+    else:
+        entries = single_generator(rest[1])
+
+    mf = Manifest()
+    
+    for name,chunks in entries:
+        sec = mf.append_section()
+        sec["Name"] = name
+
+        d = digests(chunks())
+        if d:
+            md5,sha1 = digests(chunks())
+            sec["SHA1-Digest"] = sha1
+            sec["MD5-Digest"] = md5
+
     output = sys.stdout
     if options.manifest:
         # we'll output to the manifest file if specified, and we'll
@@ -230,24 +247,6 @@ def cli_create(options, rest):
         if not exists(mfdir):
             makedirs(mfdir)
         output = open(options.manifest, "wt")
-
-    mf = Manifest()
-
-    if options.recursive:
-        entries = multi_generator(rest[1:])
-    else:
-        entries = single_generator(rest[1])
-    
-    for name,chunks in entries:
-
-        sec = mf.append_section()
-        sec["Name"] = name
-
-        d = digests(chunks())
-        if d:
-            md5,sha1 = digests(chunks())
-            sec["SHA1-Digest"] = sha1
-            sec["MD5-Digest"] = md5
 
     mf.store(output)
 
