@@ -29,17 +29,18 @@ class Manifest(object):
             store_section(sect, stream, "Name")
 
 
+
 def store_item(k, v, stream):
 
     """ The MANIFEST specification limits the width of individual
-    lines to 72 bytes (not including the terminating newlines). Any
-    key:value pair that would be longer must be split up over multiple
-    continuing lines """
+    lines to 72 bytes (including the terminating newlines). Any key
+    and value pair that would be longer must be split up over multiple
+    continuing lines"""
 
     from StringIO import StringIO
 
     v = v or ""
-    if len(k) + len(v) > 70:
+    if len(k) + len(v) > 69:
         s = StringIO()
         s.write(k)
         s.write(": ")
@@ -48,7 +49,7 @@ def store_item(k, v, stream):
         s.close()
 
         s = StringIO(k)
-        stream.write(s.read(72))
+        stream.write(s.read(71))
 
         k = s.read(71)
         while k:
@@ -130,6 +131,10 @@ except ImportError, err:
 
 
 def digests(chunks):
+
+    """ returns a base64 rep of the MD5 and SHA1 digests from the
+    chunks of data """
+
     from base64 import b64encode as b64
 
     hashes = [h() for h in _hashes_new]
@@ -166,23 +171,38 @@ def zipentry_chunk(zipfile, name, x=1024):
 
 
 
-def entry_generator(pathname):
+def directory_generator(dirname, trim=0):
     from os.path import isdir, join, sep, walk
+
+    def gather(collect, dirname, fnames):
+        for fname in fnames:
+            f = join(dirname, fname)
+            if not isdir(f):
+                collect.append(f)
+
+    collect = []
+    walk(dirname, gather, collect)
+    for f in collect:
+        yield f[trim:], file_chunk(f)
+
+
+
+def multi_generator(pathnames):
+    for pathname in pathnames:
+        for entry in directory_generator(pathname):
+            yield entry
+
+
+
+def single_generator(pathname):
+    from os.path import isdir, sep
     from zipfile import ZipFile
 
     if isdir(pathname):
-        def gather(collect, dirname, fnames):
-            for fname in fnames:
-                f = join(dirname, fname)
-                if not isdir(f):
-                    collect.append(f)
-        collect = []
-        walk(pathname, gather, collect)
-        l = len(pathname)
+        trim = len(pathname)
         if pathname[-1] != sep:
-            l += 1
-        for f in collect:
-            yield f[l:], file_chunk(f)
+            trim += 1
+        return directory_generator(pathname, trim)
 
     else:
         zf = ZipFile(pathname)
@@ -193,23 +213,39 @@ def entry_generator(pathname):
 
 
 def cli_create(options, rest):
+    from os.path import exists, split
+    from os import makedirs
 
     output = sys.stdout
     if options.manifest:
+        # we'll output to the manifest file if specified, and we'll
+        # even create parent directories for it, if necessary
+
+        mfdir = split(options.manifest)[0]
+        if not exists(mfdir):
+            makedirs(mfdir)
         output = open(options.manifest, "wt")
 
     mf = Manifest()
+
+    if options.recursive:
+        entries = multi_generator(rest[1:])
+    else:
+        entries = single_generator(rest[1])
     
-    fileset = rest[1]
-    for name,chunks in entry_generator(fileset):
-        md5,sha1 = digests(chunks())
+    for name,chunks in entries:
 
         sec = mf.append_section()
         sec["Name"] = name
-        sec["SHA1-Digest"] = sha1
-        sec["MD5-Digest"] = md5
+
+        d = digests(chunks())
+        if d:
+            md5,sha1 = digests(chunks())
+            sec["SHA1-Digest"] = sha1
+            sec["MD5-Digest"] = md5
 
     mf.store(output)
+
     if options.manifest:
         output.close()
 
@@ -235,6 +271,7 @@ def create_optparser():
     
     parse.add_option("-v", "--verify", action="store_true")
     parse.add_option("-c", "--create", action="store_true")
+    parse.add_option("-r", "--recursive", action="store_true")
     parse.add_option("-m", "--manifest", action="store", default=None,
                      help="manifest file, default is stdout for create"
                      " or the argument-relative META-INF/MANIFEST.MF"
