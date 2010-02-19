@@ -188,9 +188,13 @@ def directory_generator(dirname, trim=0):
 
 
 def multi_generator(pathnames):
+    from os.path import isdir
     for pathname in pathnames:
-        for entry in directory_generator(pathname):
-            yield entry
+        if isdir(pathname):
+            for entry in directory_generator(pathname):
+                yield entry
+        else:
+            yield pathname, file_chunk(pathname)
 
 
 
@@ -202,7 +206,8 @@ def single_generator(pathname):
         trim = len(pathname)
         if pathname[-1] != sep:
             trim += 1
-        return directory_generator(pathname, trim)
+        for entry in directory_generator(pathname, trim):
+            yield entry
 
     else:
         zf = ZipFile(pathname)
