@@ -1,5 +1,9 @@
 """
 
+Module for reading and writing MANIFEST.MF files.
+
+http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#JAR%20Manifest
+
 """
 
 
@@ -7,26 +11,93 @@ import sys
 
 
 
-class Manifest(object):
+class ManifestSection(dict):
+    
+    primary_key = "Name"
 
-    def __init__(self):
-        self.main_section = { "Manifest-Version": "1.0" }
-        self.sub_sections = []
 
-    def append_section(self):
-        sect = {}
-        self.sub_sections.append(sect)
-        return sect
+    def __init__(self, name=None):
+        dict.__init__(self)
+        self[self.primary_key] = name
 
-    def load(self, stream):
-        sections = parse_sections(stream)
-        self.main_section = sections[0]
-        self.sub_sections = sections[1:]
+
+    def __setitem__(self, k, v):
+        # our keys should always be strings, as should our values
+
+        k = str(k)
+        if len(k) > 69:
+            raise Exception("key too long for Manifest")
+        else:
+            dict.__setitem__(self, k, str(v))
+
+
+    def primary(self):
+        return self.get(self.primary_key)
+
+    
+    def load(self, items):
+        for k,vals in items:
+            self[k] = "".join(vals)
+
 
     def store(self, stream):
-        store_section(self.main_section, stream, "Manifest-Version")
-        for sect in self.sub_sections:
-            store_section(sect, stream, "Name")
+        # when written to a stream, the primary key must be the first
+        # written
+
+        prim = self.primary_key
+
+        keys = sorted(self.keys())
+        keys.remove(prim)
+
+        store_item(prim, self[prim], stream)
+        
+        for k in keys:
+            store_item(k, self[k], stream)
+
+        stream.write("\n")
+
+
+
+class Manifest(ManifestSection):
+
+    primary_key = "Manifest-Version"
+
+    def __init__(self, version="1.0"):
+        ManifestSection.__init__(self, version)
+        self.sub_sections = {}
+
+
+    def create_section(self, name):
+
+        """ create and return a new sub-section of this manifest, with
+        the given Name attribute """
+
+        sect = ManifestSection(name)
+        self.sub_sections[name] = sect
+        return sect
+
+
+    def parse(self, data):
+        
+        """ populate instance with values and sub-sections from data
+        in a stream or a string"""
+
+        sections = parse_sections(stream)
+        self.load(sections.next())
+
+        for section in sections:
+            ms = ManifestSection(None)
+            ms.load(section)
+            self.sub_sections[ms.primary()] = ms
+
+
+    def store(self, stream):
+
+        """ write Manifest to a stream """
+
+        ManifestSection.store(self, stream)
+        for k,sect in sorted(self.sub_sections.items()):
+            sect.store(stream)
 
 
 
@@ -36,6 +107,15 @@ def store_item(k, v, stream):
     lines to 72 bytes (including the terminating newlines). Any key
     and value pair that would be longer must be split up over multiple
     continuing lines"""
+
+    # technically, there's an issue here. The spec doesn't allow for
+    # the key string to be broken up with a line continuation: that is
+    # to say that the key and the separator colon and space must all
+    # be on a single line, and only the value may be broken up. It
+    # would be most appropriate to fix this by putting some wrapping
+    # methods on the Manifest class so that the sections aren't just
+    # plain dictionaries (and thus so we can raise an exception when a
+    # too-large key is given)
 
     from StringIO import StringIO
 
@@ -71,55 +151,46 @@ def store_item(k, v, stream):
 
 
 
-def store_section(sect, stream, head):
-    store_item(head, sect[head], stream)
-
-    for k,v in sect.items():
-        if k != head:
-            store_item(k, v, stream)
-
-    stream.write("\n")
-
-
-
 def parse_sections(data):
-
-    """ Parse a string or a stream into a sequence of key:value
-    sections as specified in the JAR specification. Returns a list of
-    dicts """
 
     from StringIO import StringIO
     
     if not data:
-        return tuple()
+        return
     
     if isinstance(data, str):
         data = StringIO(data)
-        
-    sects = []
+
     curr = None
-    cont_key = None
 
     for line in data:
+
+        # TODO: need to look into whether this is wrong. White space
+        # might need to be preserved.
         sl = line.strip()
         
         if not sl:
-            curr = None
+            if curr:
+                yield curr
+                curr = None
 
         elif line[0] == ' ':
-            prev = curr[cont_key]
-            curr[cont_key] = prev + sl
+            # continuation
+            if curr is None:
+                raise Exception("malformed Manifest, bad continuation")
+
+            else:
+                curr[-1][1].append(sl)
 
         else:
-            if not curr:
-                curr = {}
-                sects.append(curr)
+            if curr is None:
+                curr = []
         
             k,v = sl.split(':', 1)
-            cont_key = k
-            curr[k] = v[1:]
+            curr.append( (k, [v[1:]]) )
     
-    return sects
+    if curr:
+        yield curr
 
 
 
@@ -152,6 +223,10 @@ def digests(chunks):
 
 
 def file_chunk(filename, x=1024):
+
+    """ returns a generator function which when called will emit
+    x-sized chunks of filename's contents""" 
+
     def chunks():
         fd = open(filename, "rb")
         buf = fd.read(x)
@@ -164,6 +239,10 @@ def file_chunk(filename, x=1024):
 
 
 def zipentry_chunk(zipfile, name, x=1024):
+
+    """ returns a generator function which when called will emit
+    x-sized chunks of the named entry in the zipfile object"""
+
     def chunks():
         fd = zipfile.open(name)
         buf = fd.read(x)
@@ -191,7 +270,14 @@ def directory_generator(dirname, trim=0):
 
 
 
-def multi_generator(pathnames):
+def multi_path_generator(pathnames):
+
+    """ emits name,chunkgen pairs for all of the files found under the
+    list of pathnames given. This is recursive, so directories will
+    have their contents emitted. chunkgen is a generator that can be
+    iterated over to obtain the contents of the file in multiple parts
+    """
+
     from os.path import isdir
     for pathname in pathnames:
         if isdir(pathname):
@@ -202,7 +288,14 @@ def multi_generator(pathnames):
 
 
 
-def single_generator(pathname):
+def single_path_generator(pathname):
+
+    """ emits name,chunkgen pairs for the given file at pathname. If
+    pathname is a directory, will act recursively and will emit for
+    each file in the directory tree chunkgen is a generator that can
+    be iterated over to obtain the contents of the file in multiple
+    parts """
+
     from os.path import isdir, sep
     from zipfile import ZipFile
 
@@ -226,15 +319,14 @@ def cli_create(options, rest):
     from os import makedirs
 
     if options.recursive:
-        entries = multi_generator(rest[1:])
+        entries = multi_path_generator(rest[1:])
     else:
-        entries = single_generator(rest[1])
+        entries = single_path_generator(rest[1])
 
     mf = Manifest()
     
     for name,chunks in entries:
-        sec = mf.append_section()
-        sec["Name"] = name
+        sec = mf.create_section(name)
 
         d = digests(chunks())
         if d:
@@ -243,6 +335,7 @@ def cli_create(options, rest):
             sec["MD5-Digest"] = md5
 
     output = sys.stdout
+
     if options.manifest:
         # we'll output to the manifest file if specified, and we'll
         # even create parent directories for it, if necessary
@@ -256,6 +349,14 @@ def cli_create(options, rest):
 
     if options.manifest:
         output.close()
+
+
+
+def cli_verify(options, rest):
+    # TODO: read in the manifest, and then verify the digests for every
+    # file listed.
+
+    pass
 
 
 
