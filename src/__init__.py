@@ -15,17 +15,6 @@ author: Christopher O'Brien  <obriencj@gmail.com>
 
 
 
-# Q: What is "funpack" ?
-#
-# A: Any function that performs some unpacking from a buffer, then
-#    returns both the unpacked data or structure, and a buffer that
-#    points past the last consumed byte in unpacking. "Forward
-#    Unpack". Alternately, any method which updated the structure of
-#    the instance by unpacking data from the buffer, then returns the
-#    forwarded buffer.
-
-
-
 # debugging mode
 if False:
     def debug(*args):
@@ -33,6 +22,12 @@ if False:
 else:
     def debug(*args):
         pass
+
+
+
+# the four bytes at the start of every class file
+JAVA_CLASS_MAGIC = (0xCA, 0xFE, 0xBA, 0xBE)
+JAVA_CLASS_MAGIC_STR = "\xca\xfe\xba\xbe"
 
 
 
@@ -81,6 +76,7 @@ class NoPoolException(Exception):
     pass
 
 
+
 class UnpackException(Exception):
 
     """ raised when there is not enough data to unpack the expected
@@ -92,6 +88,7 @@ class UnpackException(Exception):
         self.bytes_present = present
         Exception.__init__("format %r requires %i bytes, only %i present" %
                            (format, wanted, present))
+
         
         
 class Unimplemented(Exception):
@@ -110,14 +107,44 @@ def memoized_getter(fun):
     called, and returns that result thereafter rather than re-running
     the method """
 
-    cfn = "_" + fun.func_name
+    #cfn = "_" + fun.func_name
+    #def memd(self):
+    #    v = getattr(self, cfn, fun)
+    #    if v is fun:
+    #        v = fun(self)
+    #        setattr(self, cfn, v)
+    #    return v
+
+    storage = [fun]
     def memd(self):
-        v = getattr(self, cfn, fun)
+        v = storage[0]
         if v is fun:
             v = fun(self)
-            setattr(self, cfn, v)
+            storage[0] = v
         return v
+
     memd.func_name = fun.func_name
+    memd.__doc__ = fun.__doc__
+    memd.original_func = fun
+
+    return memd
+
+
+
+def memoized_method(fun):
+
+    storage = {}
+    def memd(self, *args):
+        v = storage.get(args, fun)
+        if v is fun:
+            v = fun(self, *args)
+            storage[args] = v
+        return v
+
+    memd.func_name = fun.func_name
+    memd.__doc__ = fun.__doc__
+    memd.original_func = fun
+
     return memd
 
 
@@ -126,23 +153,23 @@ class JavaConstantPool(object):
     
     """ A constants pool """
     
+
     def __init__(self):
-        self.consts = tuple()
+        self.consts = []
 
 
-    def funpack(self, buff):
+
+    def unpack(self, unpacker):
  
-        """ forward and unpack a constant pool structure from
-        buff. Modifies the internal structure of this instance, and
-        returns the forwarded buffer."""
+        """ Unpacks the constant pool from an unpacker stream """
 
         debug("unpacking constant pool")
         
-        (count,), buff = _funpack(">H", buff)
+        (count,) = unpacker.unpack(">H")
         
         # first item is never present in the actual data buffer, but
         # the count number acts like it would be.
-        items = [None,]
+        items = [(None,None), ]
         count -= 1
         
         # two const types will "consume" an item count, but no data
@@ -157,7 +184,7 @@ class JavaConstantPool(object):
 
             else:
                 debug("unpacking const item %i of %i" % (i+1, count))
-                item, buff = _funpack_const_item(buff)
+                item = _unpack_const_item(unpacker)
                 items.append(item)
 
                 # if this item was a long or double, skip the next
@@ -165,85 +192,111 @@ class JavaConstantPool(object):
                 if item[0] in (CONST_Long, CONST_Double):
                     hackpass = True
 
-        self.consts = tuple(items)
-        return buff
+        self.consts = items
+
 
 
     def get_const(self, index):
+
+        """ returns the type and value of the constant at index """
+
         return self.consts[index]
 
 
-    def get_const_val(self, index):
 
-        """ returns the value from the const pool. For simple types,
-        this will be a single value indicating the constant. For more
-        complex types, such as fieldref, methodref, etc, this will
-        return a tuple. """
+    def deref_const(self, index):
 
-        tv = self.get_const(index)
-        if not tv:
-            return None
+        """ returns the dereferenced value from the const pool. For
+        simple types, this will be a single value indicating the
+        constant. For more complex types, such as fieldref, methodref,
+        etc, this will return a tuple."""
 
-        t,v = tv
+        t,v = self.consts[index]
         
-        if t in (CONST_Utf8, CONST_Integer, CONST_Float):
-            return v
-
-        elif t in (CONST_Long, CONST_Double):
+        if t in (CONST_Utf8, CONST_Integer, CONST_Float,
+                 CONST_Long, CONST_Double):
             return v
 
         elif t in (CONST_Class, CONST_String):
-            return self.get_const_val(v)
+            return self.deref_const(v)
         
         elif t in (CONST_Fieldref, CONST_Methodref,
                    CONST_InterfaceMethodref, CONST_NameAndType):
-            return tuple([self.get_const_val(i) for i in v])
+            return tuple([self.deref_const(i) for i in v])
     
         else:
             raise Unimplemented("Unknown constant pool type %i" % t)
+
     
 
+    def constants(self):
+
+        """ sequence of tuples (index, type, dereferenced value) of
+        the constant pool entries. """
+
+        for i in xrange(1, len(self.consts)):
+            t,v = self.consts[i]            
+            if t:
+                yield (i, t, self.deref_const(i))
+    
+
+
+    def pretty_constants(self):
+
+        """ the sequence of tuples (index, pretty type, dereferenced
+        value) of the constant pool entries."""
+
+        for i in xrange(1, len(self.consts)):
+            t,v = self.pretty_const(i)
+            if t:
+                yield (i, t, v)
+
+
+
+    def pretty_const(self, index):
+        
+        """ a tuple of the pretty type and val, or (None, None) for
+        invalid indexes (such as the second part of a long or double
+        value) """
+
+        t,v = self.consts[index]
+        if not t:
+            return None,None
+        else:
+            return _pretty_const_type_val(t,v)
+
+
+
     def pretty_const_comment(self, index):
-        t,v = self.get_const(index)
+        t,v = self.consts[index]
 
         if t == CONST_String:
-            return "\"%s\"" % repr(self.get_const_val(v))[1:-1]
+            return "\"%s\"" % repr(self.deref_const(v))[1:-1]
 
         elif t == CONST_Class:
-            return self.get_const_val(v)
+            return self.deref_const(v)
 
         elif t in (CONST_Fieldref, CONST_Methodref,
                    CONST_InterfaceMethodref):
 
             nat = self.pretty_const_comment(v[1])
-            return "%s.%s" % (self.get_const_val(v[0]), nat)
+            return "%s.%s" % (self.deref_const(v[0]), nat)
 
         elif t == CONST_NameAndType:
-            a,b = (self.get_const_val(i) for i in v)
+            a,b = (self.deref_const(i) for i in v)
             return "%s:%s" % (a,b)
 
         else:
             return ""
 
 
-    def pretty_const_type_val(self, index):
-        
-        """ a tuple of the pretty type and val, or (None,None) for
-        invalid indexes (such as the second part of a long or double
-        value) """
-
-        tv = self.get_const(index)
-        if not (tv and tv[0]):
-            return None,None
-        else:
-            return _pretty_const_type_val(*tv)
-
-
 
 class JavaAttributes(object):
 
     """ attributes table, as used in class, member, and code
-    structures """
+    structures. Requires access to a JavaConstantPool instance for
+    many of its methods to work correctly. """
+
 
     def __init__(self, cpool=None):
         self.attributes = tuple()
@@ -255,95 +308,119 @@ class JavaAttributes(object):
         self.cpool = cpool
 
 
-    def funpack(self, buff):
+
+    def unpack(self, unpacker):
         
-        """ Forward and unpack an attributes table from a
-        buffer. Modifies the structure of this instance, and returns
-        the forwarded buffer """
+        """ Unpack an attributes table from an unpacker
+        stream. Modifies the structure of this instance. """
 
         debug("unpacking attributes")
 
-        (count,), buff = _funpack(">H", buff)
+        (count,) = unpacker.unpack(">H")
         items = []
 
         for i in xrange(0, count):
-            debug("unpacking attribute %i of %i" % (i, count))
+            debug("unpacking attribute %i of %i" % (i+1, count))
 
-            (name, size,), buff = _funpack(">HI", buff)
-            data = buffer(buff, 0, size)
-            buff = buffer(buff, size)
+            (name, size) = unpacker.unpack(">HI")
+
+            debug("attribute '%s', %i bytes" % (name, size))
+            data = unpacker.read(size)
+
             items.append( (name, data) )
 
         self.attributes = tuple(items)
-        return buff
 
 
-    @memoized_getter
+
     def get_attributes_as_map(self):
+
+        """ Requires a JavaConstantPool """
+
         if not self.cpool:
             raise NoPoolException("cannot dereference attribute keys")
 
-        cval = self.cpool.get_const_val
+        cval = self.cpool.deref_const
         pairs = ((cval(i),v) for (i,v) in self.attributes)
         return dict(pairs)
 
 
+
     def get_attribute(self, name):
+
+        """ Requires a JavaConstantPool """
+
         return self.get_attributes_as_map().get(name)
 
 
 
 class JavaClassInfo(JavaConstantPool, JavaAttributes):
 
-    """ Information from a disassembled Java class file """
+    """ Information from a disassembled Java class file. """
 
     def __init__(self):
         JavaConstantPool.__init__(self)
         JavaAttributes.__init__(self)
 
-        self.magic = 0
-        self.version = (0,0)
+        self.magic = JAVA_CLASS_MAGIC
+        self.version = (0, 0)
         self.access_flags = 0
+        self.this_ref = 0
+        self.super_ref = 0
         self.interfaces = tuple()
         self.fields = tuple()
         self.methods = tuple()
 
 
-    def funpack(self, buff):
 
-        """ Forwards and unpacks a Java class from a buffer. Updates
-        the structure of this instance, and returns the forwarded
-        buffer """
+    def unpack(self, unpacker, magic=None):
+
+        """ Unpacks a Java class from an unpacker stream. Updates the
+        structure of this instance.
+
+        If the unpacker has already had the magic header read off of
+        it, the read value may be passed via the optional magic
+        parameter and it will not attempt to read the value again. """
 
         debug("unpacking class info")
 
-        self.magic, buff = _funpack(">BBBB", buff)
+        # only unpack the magic bytes if it wasn't specified
+        magic = magic or unpacker.unpack(">BBBB")
+
+        if isinstance(magic, str) or isinstance(magic, buffer):
+            magic = tuple(ord(m) for m in magic)
+        else:
+            magic = tuple(magic)
+
+        if magic != JAVA_CLASS_MAGIC:
+            raise Exception("not a Java class file")
+
+        self.magic = magic
 
         # unpack (minor,major), store as (major, minor)
-        self.version, buff = _funpack(">HH", buff)
-        self.version = self.version[::-1]
+        self.version = unpacker.unpack(">HH")[::-1]
 
-        buff = JavaConstantPool.funpack(self, buff)
+        JavaConstantPool.unpack(self, unpacker)
 
-        (self.access_flags,), buff = _funpack(">H", buff)
-        (self.this_ref,), buff = _funpack(">H", buff)
-        (self.super_ref,), buff = _funpack(">H", buff)
+        (a, b, c) = unpacker.unpack(">HHH")
+        self.access_flags = a
+        self.this_ref = b
+        self.super_ref = c
 
         debug("unpacking interfaces")
-        (count,),buff = _funpack(">H", buff)
-        self.interfaces, buff = _funpack(">%iH" % count, buff)
+        (count,) = unpacker.unpack(">H")
+        self.interfaces = unpacker.unpack(">%iH" % count)
         
         debug("unpacking fields")
-        self.fields, buff = _funpack_array(JavaMemberInfo, buff,
-                                           self, is_method=False)
+        self.fields = _unpack_objects(unpacker, JavaMemberInfo,
+                                      self, is_method=False)
         
         debug("unpacking methods")
-        self.methods, buff = _funpack_array(JavaMemberInfo, buff,
-                                            self, is_method=True)
+        self.methods = _unpack_objects(unpacker, JavaMemberInfo,
+                                       self, is_method=True)
 
-        buff = JavaAttributes.funpack(self, buff)
-        
-        return buff
+        JavaAttributes.unpack(self, unpacker)
+
 
 
     def get_field_by_name(self, name):
@@ -353,8 +430,10 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         return None
 
 
+
     def get_methods_by_name(self, name):
         return [m for m in self.methods if m.get_name() == name]
+
 
 
     def get_method_by_name_type(self, name, *argtypes):
@@ -363,6 +442,7 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
             if m.get_identifier() == id:
                 return m
         return None
+
 
 
     def get_major_version(self):
@@ -406,7 +486,7 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
 
 
     def get_this(self):
-        return self.get_const_val(self.this_ref)
+        return self.deref_const(self.this_ref)
 
 
     def is_deprecated(self):
@@ -414,45 +494,35 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
 
 
     def get_super(self):
-        return self.get_const_val(self.super_ref)
+        return self.deref_const(self.super_ref)
 
 
-    @memoized_getter
     def get_interfaces(self):
-        return tuple([self.get_const_val(i) for i in self.interfaces])
+        return tuple([self.deref_const(i) for i in self.interfaces])
 
 
-    @memoized_getter
     def get_sourcefile_ref(self):
         (r,) = _unpack(">H", self.get_attribute("SourceFile"))
         return r
 
 
-    @memoized_getter
     def get_sourcefile(self):
-        return self.get_const_val(self.get_sourcefile_ref())
+        return self.deref_const(self.get_sourcefile_ref())
 
 
-    @memoized_getter
     def get_source_debug_extension(self):
         buff = self.get_attribute("SourceDebugExtension")
-        if buff is None:
-            return None
-
-        return str(buff)
+        return (buff and str(buff)) or None
 
 
-    @memoized_getter
     def get_innerclasses(self):
         buff = self.get_attribute("InnerClasses")
         if buff is None:
             return None
         
-        inners, buff = _funpack_array(JavaInnerClassInfo, buff, self)
-        return inners
+        return _unpack_objects(Unpacker(buff), JavaInnerClassInfo, self)
 
 
-    @memoized_getter
     def get_signature(self):
         buff = self.get_attribute("Signature")
         if buff is None:
@@ -461,19 +531,18 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         # type index
         (ti,) = _unpack(">H", buff)
 
-        return self.get_const_val(ti)
+        return self.deref_const(ti)
 
 
-    @memoized_getter
     def get_enclosingmethod(self):
         buff = self.get_attribute("EnclosingMethod")
         if buff is None:
             return None
 
         # class index, method index
-        (ci,mi) = _unpack(">HH", buff)
-        enc_class = self.get_const_val(ci)
-        enc_meth,enc_type = self.get_const_val(mi)
+        (ci, mi) = _unpack(">HH", buff)
+        enc_class = self.deref_const(ci)
+        enc_meth,enc_type = self.deref_const(mi)
 
         return "%s.%s%s" % (enc_class, enc_meth, enc_type)
 
@@ -535,44 +604,40 @@ class JavaMemberInfo(JavaAttributes):
 
     """ A field or method of a java class """
 
+
     def __init__(self, cpool, is_method=False):
+
         JavaAttributes.__init__(self, cpool)
 
         self.access_flags = 0
         self.name_ref = 0
         self.descriptor_ref = 0
-
         self.is_method = is_method
 
 
-    def funpack(self, buff):
-
-        """ Forwards and unpacks a method or field member from a
-        buffer. Updates the internal structure of this instance, and
-        returns the forwarded buffer. """
+    def unpack(self, unpacker):
 
         debug("unpacking member info")
 
-        (a, b, c), buff = _funpack(">HHH", buff)
+        (a, b, c) = unpacker.unpack(">HHH")
 
         self.access_flags = a
         self.name_ref = b
         self.descriptor_ref = c
-        buff = JavaAttributes.funpack(self, buff)
 
-        return buff
+        JavaAttributes.unpack(self, unpacker)
 
 
     def get_name(self):
         if not self.cpool:
             raise NoPoolException("cannot get Name ref")
-        return self.cpool.get_const_val(self.name_ref)
+        return self.cpool.deref_const(self.name_ref)
 
 
     def get_descriptor(self):
         if not self.cpool:
             raise NoPoolException("cannot get Descriptor ref")
-        return self.cpool.get_const_val(self.descriptor_ref)
+        return self.cpool.deref_const(self.descriptor_ref)
 
 
     def is_public(self):
@@ -640,7 +705,6 @@ class JavaMemberInfo(JavaAttributes):
         return bool(self.get_attribute("Deprecated"))
 
 
-    @memoized_getter
     def get_code(self):
         buff = self.get_attribute("Code")
         if buff is None:
@@ -650,12 +714,11 @@ class JavaMemberInfo(JavaAttributes):
             raise NoPoolException("cannot unpack Code")
 
         code = JavaCodeInfo(self.cpool)
-        buff = code.funpack(buff)
+        code.unpack(Unpacker(buff))
 
         return code
 
 
-    @memoized_getter
     def get_exceptions(self):
 
         """ a tuple class names for the exception types this method
@@ -665,13 +728,10 @@ class JavaMemberInfo(JavaAttributes):
         if buff is None:
             return ()
 
-        (count,), buff = _funpack(">H", buff)
-        excps, buff = _funpack(">%iH" % count, buff)
-
-        return tuple([self.cpool.get_const_val(e) for e in excps])
+        excps = _unpack_array(Unpacker(buff), ">H")
+        return tuple([self.cpool.deref_const(e) for e in excps])
 
 
-    @memoized_getter
     def get_constantvalue(self):
 
         """ the constant pool index for this field, or None if this is
@@ -685,7 +745,7 @@ class JavaMemberInfo(JavaAttributes):
         return cval_ref
 
 
-    def get_const_val(self):
+    def deref_const(self):
 
         """ the value at in the constant pool at the
         get_constantvalue() index """
@@ -694,10 +754,9 @@ class JavaMemberInfo(JavaAttributes):
         if index is None:
             return None
         else:
-            return self.cpool.get_const_val(index)
+            return self.cpool.deref_const(index)
 
 
-    @memoized_getter
     def get_type_descriptor(self):
 
         """ the type for a field, or the return type for a method """
@@ -705,7 +764,6 @@ class JavaMemberInfo(JavaAttributes):
         return _typeseq(self.get_descriptor())[-1]
 
 
-    @memoized_getter
     def get_arg_type_descriptors(self):
 
         """ the parameter type list for a method, or None for a field
@@ -818,11 +876,15 @@ class JavaMemberInfo(JavaAttributes):
         return [_pretty_class(e) for e in self.get_exceptions()]
 
 
-    @memoized_getter
     def get_identifier(self):
 
-        """ for methods this is the return type, the name and the
-        argument descriptor. For fields it is simply the name"""
+        """ For methods this is the return type, the name and the
+        argument descriptor. For fields it is simply the name.
+
+        The return-type of methods is attached to the identifier due
+        to the existance of bridge methods, which will technically
+        allow two methods with the same name and argument type list,
+        but with different return type. """
 
         id = self.get_name()
 
@@ -847,7 +909,7 @@ class JavaCodeInfo(JavaAttributes):
         self.exceptions = tuple()
 
 
-    def funpack(self, buff):
+    def unpack(self, unpacker):
 
         """ Forwards and unpacks a code block from a buffer. Updates
         the internal structure of this instance, and returns the
@@ -855,22 +917,17 @@ class JavaCodeInfo(JavaAttributes):
 
         debug("unpacking code info")
 
-        (a,b,c), buff = _funpack(">HHI", buff)
+        (a, b, c) = unpacker.unpack(">HHI")
         
         self.max_stack = a
         self.max_locals = b
-        self.code = buffer(buff, 0, c)
-        buff = buffer(buff, c)
+        self.code = unpacker.read(c)
 
-        excps, buff = _funpack_array(JavaExceptionInfo, buff, self)
-        self.exceptions = excps
+        self.exceptions = _unpack_objects(unpacker, JavaExceptionInfo, self)
 
-        buff = JavaAttributes.funpack(self, buff)
-
-        return buff
+        JavaAttributes.unpack(self, unpacker)
 
     
-    @memoized_getter
     def get_linenumbertable(self):
 
         """  a sequence of (code_offset, line_number) pairs """
@@ -879,17 +936,9 @@ class JavaCodeInfo(JavaAttributes):
         if buff is None:
             return None
 
-        lnt = []
-        (count,), buff = _funpack(">H", buff)
-        for i in xrange(0, count):
-            item, buff = _funpack(">HH", buff)
-            lnt.append(item)
-
-        lnt = tuple(lnt)
-        return lnt
+        return _unpack_array(Unpacker(buff), ">HH")
 
 
-    @memoized_getter
     def get_localvariabletable(self):
         
         """ a sequence of (code_offset, length, name_index,
@@ -899,17 +948,9 @@ class JavaCodeInfo(JavaAttributes):
         if buff is None:
             return None
 
-        lvt = []
-        (count,), buff = _funpack(">H", buff)
-        for i in xrange(0, count):
-            item, buff = _funpack(">HHHHH", buff)
-            lvt.append(item)
-
-        lvt = tuple(lvt)
-        return lvt
+        return _unpack_array(Unpacker(buff), ">HHHHH")
 
 
-    @memoized_getter
     def get_localvariabletypetable(self):
         
         """ a sequence of (code_offset, length, name_index,
@@ -919,14 +960,7 @@ class JavaCodeInfo(JavaAttributes):
         if buff is None:
             return None
 
-        lvt = []
-        (count,), buff = _funpack(">H", buff)
-        for i in xrange(0, count):
-            item, buff = _funpack(">HHHHH", buff)
-            lvt.append(item)
-
-        lvt = tuple(lvt)
-        return lvt
+        return _unpack_array(Unpacker(buff), ">HHHHH")
 
 
     def get_line_for_offset(self, code_offset):
@@ -944,7 +978,6 @@ class JavaCodeInfo(JavaAttributes):
         return prev
 
 
-    @memoized_getter
     def disassemble(self):
         import javaclass.opcodes as opcodes
         return opcodes.disassemble(self.code)
@@ -967,24 +1000,22 @@ class JavaExceptionInfo(object):
         self.catchx_type_ref = 0
 
 
-    def funpack(self, buff):
+    def unpack(self, unpacker):
 
         """ Forwards and unpacks an exception handler entry in an
         exception table from buff. Updates the internal structure of
         this instance and returns the forwarded buffer """
 
-        (a,b,c,d), buff = _funpack(">HHHH", buff)
+        (a, b, c, d) = unpacker.unpack(">HHHH")
 
         self.start_pc = a
         self.end_pc = b
         self.handler_pc = c
         self.catch_type_ref = d
 
-        return buff
-
 
     def get_catch_type(self):
-        return self.cpool.get_const_val(self.catch_type_ref)
+        return self.cpool.deref_const(self.catch_type_ref)
 
 
     def pretty_catch_type(self):
@@ -995,7 +1026,6 @@ class JavaExceptionInfo(object):
             return "any"
 
 
-    @memoized_getter
     def __cmp_tuple(self):
         return (self.start_pc, self.end_pc,
                 self.handler_pc, self.get_catch_type())
@@ -1024,19 +1054,17 @@ class JavaInnerClassInfo(object):
         self.access_flags = 0
 
 
-    def funpack(self, buff):
-        (a,b,c,d), buff = _funpack(">HHHH", buff)
+    def unpack(self, unpacker):
+        (a, b, c, d) = unpacker.unpack(">HHHH")
         
         self.inner_info_ref = a
         self.outer_info_ref = b
         self.name_ref = c
         self.access_flags = d
 
-        return buff
-
 
     def get_name(self):
-        return self.cpool.get_const_val(self.name_ref)
+        return self.cpool.deref_const(self.name_ref)
 
 
 
@@ -1051,7 +1079,9 @@ _platforms = ( ((45, 0), (45, 3), "1.0.2"),
                ((47, 0), (47, 65535), "1.3"),
                ((48, 0), (48, 65535), "1.4"),
                ((49, 0), (49, 65535), "1.5"),
-               ((50, 0), (50, 65535), "1.6") )
+               ((50, 0), (50, 65535), "1.6"),
+               ((51, 0), (51, 65535), "1.7"),
+               ((52, 0), (52, 65535), "1.8") )
 
 
 
@@ -1072,44 +1102,59 @@ def platform_from_version(major, minor):
 # Utility functions for the constants pool
 
 
+def _unpack(fmt, data):
+    return Unpacker(data).unpack(fmt)
 
-def _funpack_const_item(buff):
+
+
+def _unpack_objects(unpacker, atype, *params, **kwds):
+    (count,) = unpacker.unpack(">H")
+    return unpacker.unpack_objects(count, atype, *params, **kwds)
+
+
+
+def _unpack_array(unpacker, fmt):
+    (count,) = unpacker.unpack(">H")
+    return unpacker.unpack_array(count, fmt)
+
+
+
+def _unpack_const_item(unpacker):
 
     """ unpack a constant pool item, which will consist of a type byte
     (see the CONST_ values in this module) and a value of the
     appropriate type """
 
-    (typecode,),  buff = _funpack(">B", buff)
+    (typecode,) = unpacker.unpack(">B")
 
     if typecode == CONST_Utf8:
-        (slen,), buff = _funpack(">H", buff)
-        val = buff[:slen]
-        buff = buffer(buff, slen)
+        (slen,) = unpacker.unpack(">H")
+        val = unpacker.read(slen)
     
     elif typecode == CONST_Integer:
-        (val,), buff = _funpack(">i", buff)
+        (val,) = unpacker.unpack(">i")
 
     elif typecode == CONST_Float:
-        (val,), buff = _funpack(">f", buff)
+        (val,) = unpacker.unpack(">f")
 
     elif typecode == CONST_Long:
-        (val,), buff = _funpack(">q", buff)
+        (val,) = unpacker.unpack(">q")
 
     elif typecode == CONST_Double:
-        (val,), buff = _funpack(">d", buff)
+        (val,) = unpacker.unpack(">d")
 
     elif typecode in (CONST_Class, CONST_String):
-        (val,), buff = _funpack(">H", buff)
+        (val,) = unpacker.unpack(">H")
 
     elif typecode in (CONST_Fieldref, CONST_Methodref,
                   CONST_InterfaceMethodref, CONST_NameAndType):
-        val, buff = _funpack(">HH", buff)
+        val = unpacker.unpack(">HH")
 
     else:
         raise Unimplemented("unknown constant type %r" % type)
 
     debug("const %s\t%s;" % _pretty_const_type_val(typecode,val))
-    return (typecode, val), buff
+    return (typecode, val)
 
 
 
@@ -1239,7 +1284,7 @@ def _pretty_class(s):
 
 #
 # Utility functions for unpacking shapes of binary data from a
-# buffer. The _funpack function is particularly important.
+# buffer.
 
 
 def _struct_class():
@@ -1251,7 +1296,7 @@ def _struct_class():
 
     import struct
 
-    class DummyStruct(object):
+    class Struct(object):
         def __init__(self, fmt):
             self.fmt = fmt
             self.size = struct.calcsize(fmt)
@@ -1260,72 +1305,81 @@ def _struct_class():
         def unpack(self, buff):
             return struct.unpack(self.fmt, buff)
 
+    # if the struct module has a Struct class, use that. Otherwise,
+    # use the DummyStruct class
+
     if hasattr(struct, "Struct"):
         return getattr(struct, "Struct")
     else:
-        return DummyStruct
-
-
-MyStruct = _struct_class()
+        return Struct
 
 
 
-def _compile(fmt):
-
-    """ just a cache of Struct instances """
-
-    sfmt = _compile.cache.get(fmt, None)
-    if not sfmt:
-        sfmt = MyStruct(fmt)
-        _compile.cache[fmt] = sfmt
-    return sfmt
-
-_compile.cache = {}
+Struct = _struct_class()
 
 
 
-def _unpack(fmt, buff):
-
-    """ returns a tuple of unpacked data. Behaves almost identical to
-    struct.unpack but is more lenient towards too-long data """
-
-    return _funpack(fmt, buff)[0]
+class Unpacker(object):
 
 
+    def __init__(self, data):
+        from StringIO import StringIO
 
-def _funpack(fmt, buff):
+        self._cache = {}
+        
+        if isinstance(data, str) or isinstance(data, buffer):
+            self.stream = StringIO(data)
+        elif hasattr(data, "read"):
+            self.stream = data
+        else:
+            raise TypeError("Unpacker requires a string, buffer,"
+                            " or object with a read method")
+
+
+    def _compile(self, fmt):
+        sfmt = self._cache.get(fmt, None)
+        if not sfmt:
+            sfmt = Struct(fmt)
+            self._cache[fmt] = sfmt
+        return sfmt
+
+
+    def unpack(self, fmt):
+        sfmt = self._compile(fmt)
+        size = sfmt.size
+        buff = self.stream.read(size)
+        if len(buff) < size:
+            raise UnpackException(fmt, size, len(buff))
+        
+        val = sfmt.unpack(buff)
+        return val
+
+
+    def unpack_array_gen(self, count, fmt):
+        for i in xrange(0, count):
+            yield self.unpack(fmt)
+
+
+    def unpack_array(self, count, fmt):
+        return tuple(self.unpack_array_gen(count, fmt))
     
-    """ forward and unpack. returns a tuple of the unpacked data
-    (which is itself a tuple) and a buffer advanced past the bytes
-    used to unpack said data """
-    
-    sfmt = _compile(fmt)
 
-    if len(buff) < sfmt.size:
-        raise UnpackException(fmt, sfmt.size, len(buff))
-
-    pbuff = buffer(buff, 0, sfmt.size)
-    val = sfmt.unpack(pbuff)
-    debug("unpacked %r: %r" % (fmt, val))
-
-    return val, buffer(buff, sfmt.size)
+    def unpack_objects_gen(self, count, atype, *params, **kwds):
+        for i in xrange(0, count):
+            o = atype(*params, **kwds)
+            o.unpack(self)
+            yield o
 
 
+    def unpack_objects(self, count, atype, *params, **kwds):
+        return tuple(self.unpack_objects_gen(count, atype, *params, **kwds))
 
-def _funpack_array(atype, buff, *params, **kwds):
-    debug("funpack typed array")
 
-    (count,), buff = _funpack(">H", buff)
-
-    items = []
-    for i in xrange(0, count):
-        debug("unpacking typed item %i of %i" % (i+1, count))
-
-        o  = atype(*params, **kwds)
-        buff = o.funpack(buff)
-        items.append(o)
-
-    return tuple(items), buff
+    def read(self, i):
+        buff = self.stream.read(i)
+        if len(buff) < i:
+            raise UnpackException(None, i, len(buff))
+        return buff
 
 
 
@@ -1340,33 +1394,38 @@ def is_class(buff):
     it is a Java class file. Returns False if the magic numbers do not
     match, or for any errors. """
 
-    head = _unpack(">BBBB", buff)
-    #print "0x%x 0x%x 0x%x 0x%x" % head
-    return head == (0xCA, 0xFE, 0xBA, 0xBE)
+    return _unpack(">BBBB", buff) == JAVA_CLASS_MAGIC
 
 
 
-def funpack_class(buff):
+def is_class_file(filename):
+    fd = open(filename, "rb")
+    c = is_class(fd.read(4))
+    fd.close()
+    return c == JAVA_CLASS_MAGIC_STR
 
-    """ forwards and unpacks a Java class from buff. Returns a tuple
-    of a JavaClassInfo and the advanced buffer """
 
-    if not is_class(buff):
-        raise Exception("not a Java class file")
+
+def unpack_class(data, magic=None):
+
+    """ unpacks a Java class from data, which can be a string, a
+    buffer, or a stream supporting the read method. Returns a
+    populated JavaClassInfo instance.
+
+    If data is a stream which has already been confirmed to be a java
+    class, it may have had the first four bytes read from it
+    already. In this case, pass those bytes as a str or tuple and the
+    unpacker will not attempt to read them again.
+    """
+
+    unpacker = Unpacker(data)
+
+    magic = magic or unpacker.unpack(">BBBB")
 
     o = JavaClassInfo()
-    return o, o.funpack(buff)
+    o.unpack(unpacker, magic=magic)
 
-
-
-def unpack_class(buff):
-
-    """ returns a newly allocated JavaClassInfo object populated with
-    the data unpacked from the passed buffer """
-
-    info, buff = funpack_class(buff)
-    # ignore the forwarded buff
-    return info
+    return o
 
 
 
@@ -1376,10 +1435,10 @@ def unpack_classfile(filename):
     the data unpacked from the specified file """
 
     fd = open(filename, "rb")
-    data = fd.read()
+    ci = unpack_class(fd)
     fd.close()
     
-    return unpack_class(data)
+    return ci
 
 
 

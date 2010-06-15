@@ -57,8 +57,10 @@ class SuperChange(GenericChange):
         change_tests field with the left and right data, and collects
         the instances in self.changes """
 
+        l,r = self.ldata, self.rdata
+
         if not self.changes:
-            self.changes = [test(ldata,rdata) for test in self.change_tests]
+            self.changes = [test(l,r) for test in self.change_tests]
         
             
     def is_change(self):

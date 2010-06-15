@@ -51,9 +51,9 @@ def has_const_arg(code):
 
 
 def _unpack(frmt, bc, offset=0):
-    from javaclass import _compile
+    from javaclass import Struct
 
-    sfmt = _compile(frmt)
+    sfmt = Struct(frmt)
 
     buff = buffer(bc, offset, sfmt.size)
     

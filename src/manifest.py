@@ -82,7 +82,7 @@ class Manifest(ManifestSection):
         """ populate instance with values and sub-sections from data
         in a stream or a string"""
 
-        sections = parse_sections(stream)
+        sections = parse_sections(data)
         self.load(sections.next())
 
         for section in sections:
@@ -158,7 +158,7 @@ def parse_sections(data):
     if not data:
         return
     
-    if isinstance(data, str):
+    if isinstance(data, str) or isinstance(data, buffer):
         data = StringIO(data)
 
     curr = None

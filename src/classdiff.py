@@ -30,183 +30,216 @@ RIGHT = "right"
 BOTH = "both"
 
 
-class ClassNameChange(GenericChange):
-    label = "Class name"
+# class ClassNameChange(GenericChange):
+#     label = "Class name"
 
-    def is_change(self):
-        return self.ldata.get_this() != self.rdata.get_this()
-
-
-class ClassVersionChange(GenericChange):
-    label = "Java class verison"
-
-    def is_change(self):
-        return self.ldata.version != self.rdata.version
-
-    def is_ignored(self, o):
-        lver, rver = self.ldata.version, self.rdata.version
-        return ((o.ignore_version_up and lver < rver) or
-                (o.ignore_version_down and lver > rver))
+#     def is_change(self):
+#         return self.ldata.get_this() != self.rdata.get_this()
 
 
-class ClassPlatformChange(GenericChange):
-    label = "Java platform"
+# class ClassVersionChange(GenericChange):
+#     label = "Java class verison"
 
-    def is_change(self):
-        return self.ldata.get_platform() != self.rdata.get_platform()
+#     def is_change(self):
+#         return self.ldata.version != self.rdata.version
 
-    def is_ignored(self, o):
-        lver, rver = self.ldata.version, self.rdata.version
-        return ((o.ignore_version_up and lver < rver) or
-                (o.ignore_version_down and lver > rver))
-
-
-class ClassSuperclassChange(GenericChange):
-    label = "Superclass"
-
-    def is_change(self):
-        return self.ldata.get_super() != self.rdata.get_super()
+#     def is_ignored(self, o):
+#         lver, rver = self.ldata.version, self.rdata.version
+#         return ((o.ignore_version_up and lver < rver) or
+#                 (o.ignore_version_down and lver > rver))
 
 
-class ClassInterfacesChange(GenericChange):
-    label = "Interfaces"
+# class ClassPlatformChange(GenericChange):
+#     label = "Java platform"
 
-    def is_change(self):
-        li = set(self.ldata.get_interfaces())
-        ri = set(self.rdata.get_interfaces())
-        return li != ri
+#     def is_change(self):
+#         return self.ldata.get_platform() != self.rdata.get_platform()
+
+#     def is_ignored(self, o):
+#         lver, rver = self.ldata.version, self.rdata.version
+#         return ((o.ignore_version_up and lver < rver) or
+#                 (o.ignore_version_down and lver > rver))
+
+
+# class ClassSuperclassChange(GenericChange):
+#     label = "Superclass"
+
+#     def is_change(self):
+#         return self.ldata.get_super() != self.rdata.get_super()
+
+
+# class ClassInterfacesChange(GenericChange):
+#     label = "Interfaces"
+
+#     def is_change(self):
+#         li = set(self.ldata.get_interfaces())
+#         ri = set(self.rdata.get_interfaces())
+#         return li != ri
     
 
-class ClassAccessflagsChange(GenericChange):
-    label = "Access flags"
+# class ClassAccessflagsChange(GenericChange):
+#     label = "Access flags"
 
-    def is_change(self):
-        return self.ldata.access_flags != self.rdata.access_flags
-
-
-class ClassDeprecationChange(GenericChange):
-    label = "Deprecation"
-
-    def is_change(self):
-        return self.ldata.is_deprecated() != self.rdata.is_deprecated()
-
-    def is_ignored(self, o):
-        return o.ignore_deprecated
+#     def is_change(self):
+#         return self.ldata.access_flags != self.rdata.access_flags
 
 
-class ClassInfoChange(SuperChange):
-    label = "Class information"
+# class ClassDeprecationChange(GenericChange):
+#     label = "Deprecation"
 
-    change_tests = (ClassNameChange,
-                    ClassVersionChange,
-                    ClassPlatformChange,
-                    ClassSuperclassChange,
-                    ClassInterfacesChange,
-                    ClassAccessflagsChange,
-                    ClassDeprecationChange)
+#     def is_change(self):
+#         return self.ldata.is_deprecated() != self.rdata.is_deprecated()
+
+#     def is_ignored(self, o):
+#         return o.ignore_deprecated
 
 
+# class ClassInfoChange(SuperChange):
+#     label = "Class information"
 
-class ClassMembersChange(GenericChange):
-    label = "Members"
-
-class MemberAdded(GenericChange):
-    label = "Member added"
-
-class MemberRemoved(GenericChange):
-    label = "Member removed"
-
-class MemberSuperChange(SuperChange):
-    label = "Member changed"
+#     change_tests = (ClassNameChange,
+#                     ClassVersionChange,
+#                     ClassPlatformChange,
+#                     ClassSuperclassChange,
+#                     ClassInterfacesChange,
+#                     ClassAccessflagsChange,
+#                     ClassDeprecationChange)
 
 
 
-class ClassMethodsChange(ClassMembersChange):
-    label = "Methods"
+# class ClassMembersChange(GenericChange):
+#     label = "Members"
 
-class MethodAdded(MemberAdded):
-    label = "Method added"
+# class MemberAdded(GenericChange):
+#     label = "Member added"
 
-class MethodRemoved(MemberRemoved):
-    label = "Method removed"
+# class MemberRemoved(GenericChange):
+#     label = "Member removed"
 
-
-class MethodNameChange(GenericChange):
-    label = "Method name"
-
-
-class MethodTypeChange(GenericChange):
-    label = "Method type"
-
-
-class MethodParametersChange(GenericChange):
-    label = "Method parameters"
-
-
-class MethodAccessflagsChange(GenericChange):
-    label = "Method accessflags"
-
-
-class MethodExceptionsChange(GenericChange):
-    label = "Method exceptions"
-
-
-class MethodCodeChange(SuperChange):
-    label = "Method code"
-
-    change_tests = (CodeAbsoluteChange,
-                    CodeRelativeChange,
-                    CodeStackChange,
-                    CodeLocalsChange,
-                    CodeExceptionChange,
-                    CodeConstantsChange,
-                    CodeBodyChange)
-
-
-class MethodChange(MemberSuperChange):
-    label = "Method changed"
-
-    change_tests = (MethodNameChange,
-                    MethodTypeChange,
-                    MethodParametersChange,
-                    MethodAccessflagsChange,
-                    MethodExceptionsChange,
-                    MethodAbstractChange,
-                    MethodCodeChange)
+# class MemberSuperChange(SuperChange):
+#     label = "Member changed"
 
 
 
-class ClassFieldsChange(ClassMembersChange):
-    label = "Fields"
+# class CodeAbsoluteChange(GenericChange):
+#     label = "Absolute line numbers"
 
 
-class FieldAdded(MemberAdded):
-    label = "Field added"
-
-class FieldRemoved(MemberRemoved):
-    label = "Field removed"
+# class CodeRelativeChange(GenericChange):
+#     label = "Relative line numbers"
 
 
-class FieldNameChange(GenericChange):
-    label = "Field name"
-
-class FieldTypeChange(GenericChange):
-    label = "Field type"
-
-class FieldAccessflagsChange(GenericChange):
-    label = "Field accessflags"
-
-class FieldConstvalueChange(GenericChange):
-    label = "Field constvalue"
+# class CodeStackChange(GenericChange):
+#     label = "Stack size"
 
 
-class FieldChange(MemberSuperChange):
-    label = "Field changed"
+# class CodeLocalsChange(GenericChange):
+#     label = "Locals"
 
-    change_tests = (FieldNameChange,
-                    FieldTypeChange,
-                    FieldAccessflagsChange,
-                    FieldConstvalueChange)
+
+# class CodeExceptionChange(GenericChange):
+#     label = "Exception table"
+
+
+# class CodeConstantsChange(GenericChange):
+#     label = "Code constants"
+
+
+# class CodeBodyChange(GenericChange):
+#     label = "Code body"
+
+
+
+# class ClassMethodsChange(ClassMembersChange):
+#     label = "Methods"
+
+# class MethodAdded(MemberAdded):
+#     label = "Method added"
+
+# class MethodRemoved(MemberRemoved):
+#     label = "Method removed"
+
+
+# class MethodNameChange(GenericChange):
+#     label = "Method name"
+
+
+# class MethodTypeChange(GenericChange):
+#     label = "Method type"
+
+
+# class MethodParametersChange(GenericChange):
+#     label = "Method parameters"
+
+
+# class MethodAccessflagsChange(GenericChange):
+#     label = "Method accessflags"
+
+
+# class MethodAbstractChange(GenericChange):
+#     label = "Method abstract"
+
+
+# class MethodExceptionsChange(GenericChange):
+#     label = "Method exceptions"
+
+
+# class MethodCodeChange(SuperChange):
+#     label = "Method code"
+
+#     change_tests = (CodeAbsoluteChange,
+#                     CodeRelativeChange,
+#                     CodeStackChange,
+#                     CodeLocalsChange,
+#                     CodeExceptionChange,
+#                     CodeConstantsChange,
+#                     CodeBodyChange)
+
+
+# class MethodChange(MemberSuperChange):
+#     label = "Method changed"
+
+#     change_tests = (MethodNameChange,
+#                     MethodTypeChange,
+#                     MethodParametersChange,
+#                     MethodAccessflagsChange,
+#                     MethodExceptionsChange,
+#                     MethodAbstractChange,
+#                     MethodCodeChange)
+
+
+
+# class ClassFieldsChange(ClassMembersChange):
+#     label = "Fields"
+
+
+# class FieldAdded(MemberAdded):
+#     label = "Field added"
+
+# class FieldRemoved(MemberRemoved):
+#     label = "Field removed"
+
+
+# class FieldNameChange(GenericChange):
+#     label = "Field name"
+
+# class FieldTypeChange(GenericChange):
+#     label = "Field type"
+
+# class FieldAccessflagsChange(GenericChange):
+#     label = "Field accessflags"
+
+# class FieldConstvalueChange(GenericChange):
+#     label = "Field constvalue"
+
+
+# class FieldChange(MemberSuperChange):
+#     label = "Field changed"
+
+#     change_tests = (FieldNameChange,
+#                     FieldTypeChange,
+#                     FieldAccessflagsChange,
+#                     FieldConstvalueChange)
 
 
 

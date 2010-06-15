@@ -47,6 +47,7 @@ def cli_manifest_info(options, zip):
     print
 
 
+
 def zip_entry_rollup(zip):
     
     """ returns a tuple of (files, dirs, size_uncompressed,
@@ -82,18 +83,94 @@ def cli_zip_info(options, zip):
 
 
 
+def get_jar_class_info_gen(zip):
+    from javaclass import is_class, unpack_class
+
+    for i in zip.infolist():
+        if i.filename[-6] == '.class':
+            buff = i.read()
+            if is_class(buff):
+                yield unpack_class(buff)
+            del buff
+
+
+
+def get_jar_class_infos(zip):
+    
+    """ A sequence of ClassInfo instances representing the classes
+    available in the given JAR. zip should be a ZipFile instance. """
+
+    return tuple(get_jar_class_info_gen(zip))
+
+
+
+def get_class_infos_provides(class_infos):
+
+    return [info.pretty_this() for info in class_infos]
+
+
+
+def get_class_infos_requires(class_infos):
+
+    from classinfo import get_class_info_requires
+
+    deps = []
+
+    for info in class_infos:
+        deps.extend(get_class_info_requires(info))
+    
+    return set(deps)
+
+
+
+def cli_get_class_infos(options, zip):
+    ci = options.get_attr("classes", None):
+    if not ci:
+        options.classes = get_jar_class_info(zip)
+    return ci
+
+
+
+def cli_provides(options, zip):
+
+    for i in get_jar_provides(cli_get_class_infos(options, zip)):
+        print i
+
+    return 0
+
+
+
+def cli_requires(options, zip):
+
+    for i in get_jar_requires(cli_get_class_infos(options, zip)):
+        print i
+
+    return 0
+
+
+
 def cli_zipfile(options, zip):
     ret = 0
 
     # zip information (compression, etc)
-    ret = ret or cli_zip_info(options, zip)
+    if options.zip:
+        ret = ret or cli_zip_info(options, zip)
 
     # manifest information
-    ret = ret or cli_manifest_info(options, zip)
+    if options.manifest:
+        ret = ret or cli_manifest_info(options, zip)
 
     # signature information
     # contained classes
     # contained non-classes
+
+    # classes provided
+    if options.provides:
+        ret = ret or cli_provides(options, zip)
+
+    # classes required
+    if options.requires:
+        ret = ret or cli_requires(options, zip)
 
     return ret
 

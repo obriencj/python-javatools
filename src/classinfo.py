@@ -18,6 +18,17 @@ PRIVATE = 7
 
 
 
+def get_class_info_requires(info):
+    from javaclass import CONST_Class
+
+    deps = []
+    for t,v in info.pretty_constants():
+        if t is CONST_Class:
+            deps.append(v)
+    return set(deps)
+
+
+
 def should_show(options, member):
 
     """ whether to show a member by its access flags and the show
@@ -47,7 +58,7 @@ def print_field(options, field):
     if options.verbose:
         cv = field.get_constantvalue()
         if cv is not None:
-            t,v = field.cpool.pretty_const_type_val(cv)
+            t,v = field.cpool.pretty_const(cv)
             if t:
                 print "  Constant value:", t, v
         print
@@ -120,7 +131,7 @@ def print_method(options, method):
 
     if options.locals and code:
         if method.cpool:
-            cval = method.cpool.get_const_val
+            cval = method.cpool.deref_const
         else:
             cval = str
 
@@ -176,8 +187,13 @@ def print_class(options, classfile):
 
     if options.constpool:
         print "  Constant pool:"
+
+        # we don't use the info.pretty_constants() generator here
+        # because we actually want numbers for the entries, and that
+        # generator skips them.
+        
         for i in xrange(1, len(info.consts)):
-            t,v = info.pretty_const_type_val(i)
+            t,v = info.pretty_const(i)
             if t:
                 # skipping the None consts, which would be the entries
                 # comprising the second half of a long or double value
