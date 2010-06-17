@@ -25,15 +25,15 @@ def fnmatches(pattern_list, entry):
 
 
 def cli_compare_jars(options, left, right):
-    import javaclass, zipdelta
+
     from classdiff import cli_classes_info
     from zipfile import ZipFile
-
-    from zipdelta import LEFT, RIGHT, SAME, DIFF
+    from javaclass import is_class, unpack_class, JAVA_CLASS_MAGIC
+    from zipdelta import compare_zips, LEFT, RIGHT, SAME, DIFF
 
     leftz, rightz = ZipFile(left, 'r'), ZipFile(right, 'r')
 
-    for event,entry in zipdelta.compare_zips(leftz, rightz):
+    for event,entry in compare_zips(leftz, rightz):
         if fnmatches(options.ignore_content, entry):
             # ignoring this entry
             continue
@@ -51,17 +51,24 @@ def cli_compare_jars(options, left, right):
             pass
 
         elif event == DIFF:
-            leftd, rightd = leftz.read(entry), rightz.read(entry)
+            # found a file that is in both JARs, but is not identical.
+            # let's check if they are both class files, and if so, we
+            # will attempt to discover a summary of changes.
 
-            if javaclass.is_class(leftd) and javaclass.is_class(rightd):
+            leftfd, rightfd = leftz.open(entry), rightz.open(entry)
+
+            if is_class(leftfd) and is_class(rightfd):
                 print "Changed class:", entry
 
-                lefti = javaclass.unpack_class(leftd)
-                righti = javaclass.unpack_class(rightd)
+                lefti = unpack_class(leftfd, magic=JAVA_CLASS_MAGIC)
+                righti = unpack_class(rightfd, magic=JAVA_CLASS_MAGIC)
                 cli_classes_info(options, lefti, righti)
 
             else:
                 print "Changed file:", entry
+            
+            leftfd.close()
+            rightfd.close()
 
 
 

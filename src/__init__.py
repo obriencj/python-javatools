@@ -431,17 +431,55 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
 
 
 
+    def _get_methods_by_name_gen(self, name):
+        return (m for m in self.methods if m.get_name() == name)
+
+
+
     def get_methods_by_name(self, name):
-        return [m for m in self.methods if m.get_name() == name]
+        return tuple(self._get_methods_by_name_gen(name))
 
 
 
-    def get_method_by_name_type(self, name, *argtypes):
-        id = "%s(%s)" % (name, ",".join(argtypes))
-        for m in self.methods:
-            if m.get_identifier() == id:
+    def get_method(self, name, arg_types=()):
+
+        """ returns the method matching the name and having argument
+        type descriptors matching those in arg_types. This does not
+        return any bridge methods. """
+
+        for m in self._get_methods_by_name_gen(name):
+            if ((not m.is_bridge) and
+                m.get_arg_type_descriptors() == arg_types):
                 return m
         return None
+
+
+
+    def _get_method_bridges_gen(self, name, arg_types=()):
+        for m in self._get_methods_by_name_gen(name):
+            if (m.is_bridge and
+                m.get_arg_type_descriptors() == arg_types):
+                yield m
+
+
+    def get_method_bridges(self, name, arg_types=()):
+        
+        """ returns a tuple of bridge methods found that adapt the
+        return types of a named method and having argument type
+        descriptors matching those in arg_types. """
+        
+        # I am note entirely certain if a class will generate more
+        # than one synthetic bridge method to adapt the return type. I
+        # know it will generate one at least if someone subclasses and
+        # overrides the method to return a more specific type. If
+        # someone were to then subclass again with an even MORE
+        # specific type, I am not sure if only one bridge would be
+        # generated (adapting to the first super's type) or two
+        # (adapting to the first super's type, and another to the
+        # original type). I will need to research such insane
+        # conditions.
+
+        return tuple(self._get_method_bridges_gen(self,name,arg_types))
 
 
 
@@ -547,25 +585,28 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         return "%s.%s%s" % (enc_class, enc_meth, enc_type)
 
 
-    def pretty_access_flags(self):
-        n = []
-
+    def _pretty_access_flags_gen(self):
         if self.is_public():
-            n.append("public")
+            yield "public"
         if self.is_final():
-            n.append("final")
+            yield "final"
         if self.is_interface():
-            n.append("interface")
+            yield "interface"
         if self.is_abstract():
-            n.append("abstract")
+            yield "abstract"
         #if self.is_super():
-        #    n.append("super")
+        #    yield "super"
         if self.is_annotation():
-            n.append("annotation")
+            yield "annotation"
         if self.is_enum():
-            n.append("enum")
+            yield "enum"
 
-        return tuple(n)
+
+    def pretty_access_flags(self):
+        
+        """ tuple of the pretty access flag names """
+
+        return tuple(self._pretty_access_flags_gen())
 
 
     def pretty_this(self):
@@ -747,8 +788,8 @@ class JavaMemberInfo(JavaAttributes):
 
     def deref_const(self):
 
-        """ the value at in the constant pool at the
-        get_constantvalue() index """
+        """ the value in the constant pool at the get_constantvalue()
+        index """
 
         index = self.get_constantvalue()
         if index is None:
@@ -759,18 +800,20 @@ class JavaMemberInfo(JavaAttributes):
 
     def get_type_descriptor(self):
 
-        """ the type for a field, or the return type for a method """
+        """ the type descriptor for a field, or the return type
+        descriptor for a method. Type descriptors are shorthand
+        identifiers for the builtin java types. """
         
         return _typeseq(self.get_descriptor())[-1]
 
 
     def get_arg_type_descriptors(self):
 
-        """ the parameter type list for a method, or None for a field
-        """
+        """ The parameter type descriptor list for a method, or None
+        for a field.  Type descriptors are shorthand identifiers for
+        the builtin java types."""
 
         if not self.is_method:
-            # hey, we're not a method, so we don't have args
             return None
 
         tp = _typeseq(self.get_descriptor())
@@ -780,15 +823,22 @@ class JavaMemberInfo(JavaAttributes):
 
 
     def pretty_type(self):
+
+        """ The pretty version of get_type_descriptor. """
+
         return _pretty_type(self.get_type_descriptor())
 
 
     def pretty_arg_types(self):
+
+        """ The pretty version of get_art_type_descriptors. Returns
+        None for non-methods. """
+
         if not self.is_method:
             return None
 
-        pt = [_pretty_type(t) for t in self.get_arg_type_descriptors()]
-        return "(%s)" % ",".join(pt)
+        types = self.get_arg_type_descriptors()
+        return "(%s)" % ",".join(_pretty_type(t) for t in types)
 
 
     def pretty_descriptor(self):
@@ -823,50 +873,51 @@ class JavaMemberInfo(JavaAttributes):
         return " ".join(x)
 
 
-    def pretty_access_flags(self):
-
-        """ sequence of the keywords determined from the access flags"""
-
-        n = []
+    def _pretty_access_flags_gen(self):
 
         if self.is_public():
-            n.append("public")
+            yield "public"
         if self.is_private():
-            n.append("private")
+            yield "private"
         if self.is_protected():
-            n.append("protected")
+            yield "protected"
         if self.is_static():
-            n.append("static")
+            yield "static"
         if self.is_final():
-            n.append("final")
+            yield "final"
         if self.is_strict():
-            n.append("strict")
+            yield "strict"
         if self.is_native():
-            n.append("native")
+            yield "native"
         if self.is_abstract():
-            n.append("abstract")
+            yield "abstract"
         if self.is_enum():
-            n.append("enum")
+            yield "enum"
 
         #if self.is_synthetic():
-        #    n.append("synthetic")
+        #    yield "synthetic"
 
         if self.is_method:
             if self.is_synchronized():
-                n.append("synchronized")
+                yield "synchronized"
 
             #if self.is_bridge():
-            #    n.append("bridge")
+            #    yield "bridge"
             #if self.is_varargs():
-            #    n.append("varargs")
+            #    yield "varargs"
 
         else:
             if self.is_transient():
-                n.append("transient")
+                yield "transient"
             if self.is_volatile():
-                n.append("volatile")
+                yield "volatile"
 
-        return tuple(n)
+
+    def pretty_access_flags(self):
+
+        """ tuple of the keywords determined from the access flags"""
+
+        return tuple(self._pretty_access_flags_gen())
 
 
     def pretty_exceptions(self):
@@ -878,8 +929,9 @@ class JavaMemberInfo(JavaAttributes):
 
     def get_identifier(self):
 
-        """ For methods this is the return type, the name and the
-        argument descriptor. For fields it is simply the name.
+        """  For methods this  is the  return type,  the name  and the
+        (non-pretty) argument descriptor. For  fields it is simply the
+        name.
 
         The return-type of methods is attached to the identifier due
         to the existance of bridge methods, which will technically
@@ -964,6 +1016,9 @@ class JavaCodeInfo(JavaAttributes):
 
 
     def get_line_for_offset(self, code_offset):
+
+        """ returns the line number given a code offset """
+
         lnt = self.get_linenumbertable()
 
         prev = -1
@@ -979,6 +1034,10 @@ class JavaCodeInfo(JavaAttributes):
 
 
     def disassemble(self):
+        
+        """ disassembles the underlying bytecode instructions and
+        generates a sequence of (offset, code, args) tuples"""
+
         import javaclass.opcodes as opcodes
         return opcodes.disassemble(self.code)
 
@@ -1319,13 +1378,32 @@ Struct = _struct_class()
 
 
 
+_struct_cache = {}
+
+def compile_struct(fmt):
+
+    """ returns a Struct instance compiled from fmt. If fmt has
+    already been compiled, it will return the previously compiled
+    Struct instance. """
+
+    sfmt = _struct_cache.get(fmt, None)
+    if not sfmt:
+        debug("compiling struct format %r" % fmt)
+        sfmt = Struct(fmt)
+        _struct_cache[fmt] = sfmt
+    return sfmt
+
+
+
 class Unpacker(object):
+
+
+    """ Wraps a stream (or creates a stream for a string or buffer)
+    and advances along it while unpacking structures from it. """
 
 
     def __init__(self, data):
         from StringIO import StringIO
-
-        self._cache = {}
         
         if isinstance(data, str) or isinstance(data, buffer):
             self.stream = StringIO(data)
@@ -1336,16 +1414,8 @@ class Unpacker(object):
                             " or object with a read method")
 
 
-    def _compile(self, fmt):
-        sfmt = self._cache.get(fmt, None)
-        if not sfmt:
-            sfmt = Struct(fmt)
-            self._cache[fmt] = sfmt
-        return sfmt
-
-
     def unpack(self, fmt):
-        sfmt = self._compile(fmt)
+        sfmt = compile_struct(fmt)
         size = sfmt.size
         buff = self.stream.read(size)
         if len(buff) < size:
@@ -1361,6 +1431,10 @@ class Unpacker(object):
 
 
     def unpack_array(self, count, fmt):
+
+        """ unpacks fmt count times and returns the tuple of results
+        """
+
         return tuple(self.unpack_array_gen(count, fmt))
     
 
@@ -1372,6 +1446,11 @@ class Unpacker(object):
 
 
     def unpack_objects(self, count, atype, *params, **kwds):
+
+        """ instanciates count atypes by calling it with the given params and
+        keywords, then calls the instance's unpack method, passing
+        this unpacker as the only argument. """
+
         return tuple(self.unpack_objects_gen(count, atype, *params, **kwds))
 
 
@@ -1382,19 +1461,29 @@ class Unpacker(object):
         return buff
 
 
+    def close(self):
+        if hasattr(self.stream, "close"):
+            self.stream.close()
+
+
 
 #
 # Functions for dealing with buffers and files
 
 
 
-def is_class(buff):
+def is_class(data):
 
-    """ checks that the data buffer has the magic numbers indicating
-    it is a Java class file. Returns False if the magic numbers do not
+    """ checks that the data (which is a string, buffer, or a stream
+    supporting the read method) has the magic numbers indicating it is
+    a Java class file. Returns False if the magic numbers do not
     match, or for any errors. """
 
-    return _unpack(">BBBB", buff) == JAVA_CLASS_MAGIC
+    unpacker = Unpacker(data)
+    try:
+        return unpacker.unpack(">BBBB") == JAVA_CLASS_MAGIC
+    except:
+        return False
 
 
 
