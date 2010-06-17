@@ -124,7 +124,7 @@ def get_class_infos_requires(class_infos):
 
 
 def cli_get_class_infos(options, zip):
-    ci = options.get_attr("classes", None):
+    ci = hasattr(options, "classes") and getattr(options, "classes") or None
     if not ci:
         options.classes = get_jar_class_info(zip)
     return ci
