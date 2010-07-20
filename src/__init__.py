@@ -225,7 +225,7 @@ class JavaConstantPool(object):
             return tuple([self.deref_const(i) for i in v])
     
         else:
-            raise Unimplemented("Unknown constant pool type %i" % t)
+            raise Unimplemented("Unknown constant pool type %r" % t)
 
     
 
@@ -324,7 +324,7 @@ class JavaAttributes(object):
 
             (name, size) = unpacker.unpack(">HI")
 
-            debug("attribute '%s', %i bytes" % (name, size))
+            debug("attribute #%s, %i bytes" % (name, size))
             data = unpacker.read(size)
 
             items.append( (name, data) )
@@ -770,7 +770,7 @@ class JavaMemberInfo(JavaAttributes):
             return ()
 
         excps = _unpack_array(Unpacker(buff), ">H")
-        return tuple([self.cpool.deref_const(e) for e in excps])
+        return tuple([self.cpool.deref_const(e[0]) for e in excps])
 
 
     def get_constantvalue(self):
@@ -1061,9 +1061,10 @@ class JavaExceptionInfo(object):
 
     def unpack(self, unpacker):
 
-        """ Forwards and unpacks an exception handler entry in an
-        exception table from buff. Updates the internal structure of
-        this instance and returns the forwarded buffer """
+        """ unpacks an exception handler entry in an exception
+        table. Updates the internal structure of this instance """
+
+        debug("unpacking Exception info")
 
         (a, b, c, d) = unpacker.unpack(">HHHH")
 
@@ -1074,7 +1075,10 @@ class JavaExceptionInfo(object):
 
 
     def get_catch_type(self):
-        return self.cpool.deref_const(self.catch_type_ref)
+        if self.catch_type_ref:
+            return self.cpool.deref_const(self.catch_type_ref)
+        else:
+            return None
 
 
     def pretty_catch_type(self):
@@ -1114,6 +1118,9 @@ class JavaInnerClassInfo(object):
 
 
     def unpack(self, unpacker):
+
+        debug("unpacking JavaInnerClass")
+
         (a, b, c, d) = unpacker.unpack(">HHHH")
         
         self.inner_info_ref = a
@@ -1330,7 +1337,7 @@ def _pretty_type(s):
     elif tc == "[":
         return "%s[]" % _pretty_type(s[1:])
     else:
-        raise Unimplemented("unknown type, %s" % tc)
+        raise Unimplemented("unknown type, %r" % tc)
         
 
 

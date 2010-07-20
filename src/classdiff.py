@@ -368,7 +368,7 @@ def _cli_compare_field(options, left, right):
             (",".join(left.pretty_access_flags()),
              ",".join(right.pretty_access_flags()))
         
-    if left.get_const_val() != right.get_const_val():
+    if left.deref_const() != right.deref_const():
         yield "constant value changed"
 
 
@@ -494,8 +494,8 @@ def _cli_compare_code(options, left, right):
 
             if opcodes.has_const_arg(l[1]):
                 largs, rargs = list(largs), list(rargs)
-                largs[0] = left.cpool.get_const_val(largs[0])
-                rargs[0] = right.cpool.get_const_val(rargs[0])
+                largs[0] = left.cpool.deref_const(largs[0])
+                rargs[0] = right.cpool.deref_const(rargs[0])
 
             if largs != rargs:
                 code_vals_change = True
