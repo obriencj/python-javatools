@@ -95,7 +95,7 @@ class Unimplemented(Exception):
 
     """ raised when something unexpected happens, which usually
     indicates part of the classfile specification that wasn't
-    implemented in this module yet """
+    implemented in this module yet"""
 
     pass
 
@@ -105,7 +105,7 @@ def memoized_getter(fun):
 
     """ Decorator. Records the result of a method the first time it is
     called, and returns that result thereafter rather than re-running
-    the method """
+    the method"""
 
     #cfn = "_" + fun.func_name
     #def memd(self):
@@ -412,12 +412,12 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         self.interfaces = unpacker.unpack(">%iH" % count)
         
         debug("unpacking fields")
-        self.fields = _unpack_objects(unpacker, JavaMemberInfo,
-                                      self, is_method=False)
+        self.fields = _unpack_objs(unpacker, JavaMemberInfo,
+                                   self, is_method=False)
         
         debug("unpacking methods")
-        self.methods = _unpack_objects(unpacker, JavaMemberInfo,
-                                       self, is_method=True)
+        self.methods = _unpack_objs(unpacker, JavaMemberInfo,
+                                    self, is_method=True)
 
         JavaAttributes.unpack(self, unpacker)
 
@@ -558,7 +558,7 @@ class JavaClassInfo(JavaConstantPool, JavaAttributes):
         if buff is None:
             return None
         
-        return _unpack_objects(Unpacker(buff), JavaInnerClassInfo, self)
+        return _unpack_objs(Unpacker(buff), JavaInnerClassInfo, self)
 
 
     def get_signature(self):
@@ -858,7 +858,8 @@ class JavaMemberInfo(JavaAttributes):
             if "/" in n:
                 n = n[n.rfind("/")+1:]
 
-            # we pretend that there's no return type, even though it's V
+            # we pretend that there's no return type, even though it's
+            # V for constructors
             p = None
 
         if a:
@@ -933,16 +934,19 @@ class JavaMemberInfo(JavaAttributes):
         (non-pretty) argument descriptor. For  fields it is simply the
         name.
 
-        The return-type of methods is attached to the identifier due
-        to the existance of bridge methods, which will technically
-        allow two methods with the same name and argument type list,
-        but with different return type. """
+        The return-type of methods is attached to the identifier when
+        it is a bridge method, which can technically allow two methods
+        with the same name and argument type list, but with different
+        return type."""
 
         id = self.get_name()
 
         if self.is_method:
             args = ",".join(self.get_arg_type_descriptors())
-            id = "%s(%s):%s" % (id, args,self.get_descriptor())
+            if self.is_bridge():
+                id = "%s(%s):%s" % (id, args,self.get_descriptor())
+            else:
+                id = "%s(%s)" % (id, args)
 
         return id
 
@@ -963,9 +967,8 @@ class JavaCodeInfo(JavaAttributes):
 
     def unpack(self, unpacker):
 
-        """ Forwards and unpacks a code block from a buffer. Updates
-        the internal structure of this instance, and returns the
-        forwarded buffer """
+        """ unpacks a code block from a buffer. Updates the internal
+        structure of this instance """
 
         debug("unpacking code info")
 
@@ -975,7 +978,7 @@ class JavaCodeInfo(JavaAttributes):
         self.max_locals = b
         self.code = unpacker.read(c)
 
-        self.exceptions = _unpack_objects(unpacker, JavaExceptionInfo, self)
+        self.exceptions = _unpack_objs(unpacker, JavaExceptionInfo, self)
 
         JavaAttributes.unpack(self, unpacker)
 
@@ -989,6 +992,22 @@ class JavaCodeInfo(JavaAttributes):
             return None
 
         return _unpack_array(Unpacker(buff), ">HH")
+
+
+
+    def get_relativelinenumbertable(self):
+
+        """ a sequence of (code_offset, line_number) pairs. Similar to
+        the get_linenumbertable method, but the line numbers start at
+        0 (they are relative to the method, not to the class file) """
+        
+        lnt = self.get_linenumbertable()
+        if lnt:
+            lineoff = lnt[0][1]
+            return [(o,l-lineoff) for (o,l) in lnt]
+        else:
+            return tuple()
+        
 
 
     def get_localvariabletable(self):
@@ -1173,13 +1192,23 @@ def _unpack(fmt, data):
 
 
 
-def _unpack_objects(unpacker, atype, *params, **kwds):
+def _unpack_objs(unpacker, atype, *params, **kwds):
+
+    """ The common pattern is to have a count and then that many times
+    of an object. The unpacker class doesn't presume to know the count
+    type, so this function gets the count first"""
+    
     (count,) = unpacker.unpack(">H")
     return unpacker.unpack_objects(count, atype, *params, **kwds)
 
 
 
 def _unpack_array(unpacker, fmt):
+
+    """ The common pattern is to have a count and then that many times
+    of an object. The unpacker class doesn't presume to know the count
+    type, so this function gets the count first"""
+    
     (count,) = unpacker.unpack(">H")
     return unpacker.unpack_array(count, fmt)
 
@@ -1213,7 +1242,7 @@ def _unpack_const_item(unpacker):
         (val,) = unpacker.unpack(">H")
 
     elif typecode in (CONST_Fieldref, CONST_Methodref,
-                  CONST_InterfaceMethodref, CONST_NameAndType):
+                      CONST_InterfaceMethodref, CONST_NameAndType):
         val = unpacker.unpack(">HH")
 
     else:
@@ -1510,9 +1539,8 @@ def unpack_class(data, magic=None):
 
     If data is a stream which has already been confirmed to be a java
     class, it may have had the first four bytes read from it
-    already. In this case, pass those bytes as a str or tuple and the
-    unpacker will not attempt to read them again.
-    """
+    already. In this case, pass those magic bytes as a str or tuple
+    and the unpacker will not attempt to read them again.  """
 
     unpacker = Unpacker(data)
 
