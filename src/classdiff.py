@@ -948,6 +948,10 @@ def options_magic(options):
         options.ignore_platform_up = True
         options.ignore_platform_down = True
 
+    if options.verbose:
+        options.show_unchanged = True
+        options.show_ignored = True
+
 
 
 # def old_cli_classes_info(options, left_i, right_i):
@@ -1013,11 +1017,9 @@ def cli(options, rest):
 def create_optparser():
     from optparse import OptionParser
 
-    parse = OptionParser()
+    parse = OptionParser("%prog <options> <old_classfile> <new_classfile>")
 
-    #parse.add_option("--verbosity", action="store", type="int")
-    #parse.add_option("-v", dest="verbosity", action="increment")
-
+    parse.add_option("-v", dest="verbose", action="store_true")
     parse.add_option("--show-ignored", action="store_true")
     parse.add_option("--show-unchanged", action="store_true")
 
