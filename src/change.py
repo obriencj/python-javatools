@@ -1,15 +1,30 @@
 """
 
-Some abstraction of the changes.
+Some abstraction of changes. Useful for the classdiff and jardiff
+modules.
 
 author: Christopher O'Brien  <obriencj@gmail.com>
 
 """
 
 
+
+import sys
+
+
+def _indent(stream, indent, indentstr, *msgs):
+    for x in xrange(0,indent):
+        stream.write(indentstr)
+    for x in msgs:
+        stream.write(x)
+    stream.write("\n")
+
+
+
 class Change(object):
 
     label = "Change"
+
 
     def __init__(self, ldata, rdata):
         self.ldata = ldata
@@ -17,22 +32,46 @@ class Change(object):
         self.description = None
         self.changed = False
 
+
     def check(self):
         pass
+
 
     def is_change(self):
         return self.changed
 
+
     def is_ignored(self, options):
         return False
+
 
     def get_description(self):
         return self.description or \
                (self.label + (" unchanged", " changed")[self.is_change()])
 
+
     def get_subchanges(self):
         return tuple()
 
+
+    def write(self, options, indent=0, indentstr="  ", out=sys.stdout):
+        if self.is_change():
+            if self.is_ignored(options):
+                if getattr(options, "show_ignored", False):
+                    _indent(out,indent,indentstr,
+                            self.get_description(),
+                            " [IGNORED]")
+            else:
+                _indent(out,indent,indentstr,
+                        self.get_description())
+                
+        elif getattr(options, "show_unchanged", False):
+            _indent(out,indent,indentstr,
+                    self.get_description())
+
+        for sub in self.get_subchanges():
+            sub.write(options, indent+1, indentstr, out)
+        
 
 
 class GenericChange(Change):

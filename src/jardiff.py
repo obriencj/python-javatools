@@ -26,7 +26,7 @@ def fnmatches(pattern_list, entry):
 
 def cli_compare_jars(options, left, right):
 
-    from classdiff import cli_classes_info
+    from classdiff import cli_classes_diff
     from zipfile import ZipFile
     from javaclass import is_class, unpack_class, JAVA_CLASS_MAGIC
     from zipdelta import compare_zips, LEFT, RIGHT, SAME, DIFF
@@ -62,7 +62,7 @@ def cli_compare_jars(options, left, right):
 
                 lefti = unpack_class(leftfd, magic=JAVA_CLASS_MAGIC)
                 righti = unpack_class(rightfd, magic=JAVA_CLASS_MAGIC)
-                cli_classes_info(options, lefti, righti)
+                cli_classes_diff(options, lefti, righti)
 
             else:
                 print "Changed file:", entry
