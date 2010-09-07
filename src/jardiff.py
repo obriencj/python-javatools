@@ -15,6 +15,86 @@ import sys
 
 
 
+from change import Change, SuperChange
+from classdiff import JavaClassChange
+
+
+
+class JarTypeChange(Change):
+    # exploded vs. zipped and compression level
+    pass
+
+
+
+class JarManifestChange(Change):
+    # only the main section attributes
+    pass
+
+
+
+class JarSignatureChange(Change):
+    # presence and name of signatures
+    pass
+
+
+
+class JarContentAdded(Change):
+    # A file or directory was added to a JAR
+    pass
+
+
+
+class JarContentRemoved(Change):
+    # A file or directory was removed from a JAR
+    pass
+
+
+
+class JarContentChange(Change):
+    # a file or directory changed between JARs
+    pass
+
+
+
+class JarClassAdded(JarContentAdded):
+    # file was added, and it was a java class
+    pass
+
+
+
+class JarClassRemoved(JarContentRemoved):
+    # a file was removed, and it was a class
+    pass
+
+
+
+class JarClassChange(JarContentChange, JavaClassChange):
+    # a file was changed, and it was a class
+    pass
+
+
+
+class JarContentsChange(SuperChange):
+    label = "JAR Contents"
+
+
+    def collect_impl(self):
+        # run down the tree of left and right. Either may be a
+        # directory or a zip file.
+
+
+
+class JavaJarChange(SuperChange):
+    label = "Java JAR"
+
+    change_types = (JarTypeChange,
+                    JarManifestChange,
+                    JarCompressionChange,
+                    JarSignatureChange,
+                    JarContentsChange)
+
+
+
 def fnmatches(pattern_list, entry):
     from fnmatch import fnmatch
     for pattern in pattern_list:
@@ -107,7 +187,8 @@ def cli_compare_dirs(options, leftd, rightd):
 
         # print an empty line, for legibility
         print
-            
+        
+
 
 def cli(options, rest):
     from classdiff import options_magic

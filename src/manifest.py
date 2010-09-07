@@ -210,7 +210,7 @@ def digests(chunks):
     """ returns a base64 rep of the MD5 and SHA1 digests from the
     chunks of data """
 
-    from base64 import b64encode as b64
+    from base64 import b64encode
 
     hashes = [h() for h in _hashes_new]
     
@@ -218,7 +218,7 @@ def digests(chunks):
         for h in hashes:
             h.update(chunk)
 
-    return [b64(h.digest()) for h in hashes]
+    return [b64encode(h.digest()) for h in hashes]
 
 
 

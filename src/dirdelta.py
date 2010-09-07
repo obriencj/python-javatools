@@ -13,6 +13,7 @@ SAME = "same"
 BOTH = SAME # meh, synonyms
 
 
+
 def compare(left, right):
 
     """ generator emiting pairs indicating the contents of the left

@@ -19,7 +19,7 @@ def compare(left, right, lprefix=None, rprefix=None):
 
 def compare_zips(left, right, lprefix=None, rprefix=None):
 
-    ll, rl = left.namelist(), right.namelist()
+    ll, rl = set(left.namelist()), set(right.namelist())
 
     if lprefix or rprefix:
         # TODO: implement prefix skipping
@@ -65,16 +65,20 @@ def _different(left, right, f):
 
 
 
+def _chunk(stream, size=10240):
+    d = stream.read(size)
+    while d:
+        yield d
+        d = stream.read(size)
+
+
+
 def _deep_different(left, right, f):
-
-    # TODO: something like extract both, check byte-for-byte. If we're
-    # here we know that they're the same length and have the same CRC
-    # already, but we ought to be damn sure.
-
-    # and this appears to be the only actual way to do this with the
-    # zipfile ZipFile object API. wow.
-
-    return left.read(f) != right.read(f)
+    from itertools import izip_longest
+    for l,r in izip_longest(_chunk(left), _chunk(right)):
+        if l != r:
+            return True
+    return False
 
 
 
