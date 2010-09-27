@@ -11,8 +11,7 @@ from dirdelta import LEFT, RIGHT, DIFF, SAME
 
 
 def compare(left, right, lprefix=None, rprefix=None):
-    from zipfile import ZipFile
-    return compare_zips(ZipFile(left, 'r'), ZipFile(right, 'r'),
+    return compare_zips(ZipFile(left), ZipFile(right),
                         lprefix=lprefix, rprefix=rprefix)
 
 
@@ -88,8 +87,7 @@ def collect_compare(left, right):
 
 
 def collect_compare_into(left, right, added, removed, altered, same):
-    from zipfile import ZipFile
-    lz, rz = ZipFile(left, "r"), ZipFile(right, "r")
+    lz, rz = ZipFile(left), ZipFile(right)
     return collect_compare_zips_into(lz, rz, added, removed, altered, same)
 
 
@@ -151,6 +149,112 @@ def is_zipfile(f):
     return ret
 
 
+
+def is_exploded(f):
+    import os.path
+    return os.path.isdir(f)
+
+
+
+def _crc32(fname):
+    import zlib
+
+    fd = open(fname, 'rb')
+    c = 0
+    for chunk in _chunk(fd):
+        c = zlib.crc32(chunk, c)
+    fd.close()
+
+    return c
+
+
+
+def _walk_populate(data, dirname, fnames):
+
+    from zipfile import ZipInfo
+    import os.path
+
+    members, skip = data
+
+    # we need to chop off the original dirname, which will be the
+    # relative path to the directory of the exploded jar file.
+    if not skip:
+        skip = len(dirname)
+        data[1] = skip
+    nicedir = dirname[skip:]
+    
+    for f in fnames:
+        df = os.path.join(dirname, f)
+
+        if os.path.islink(df):
+            pass
+        
+        elif os.path.isdir(df):
+            i = ZipInfo()
+            i.filename = os.path.join(nicedir, f, "")
+            i.file_size = 0
+            i.CRC = 0
+            members[i.filename] = i
+                
+        elif os.path.isfile(df):
+            i = ZipInfo()
+            i.filename = os.path.join(nicedir, f)
+            i.file_size = os.path.getsize(df)
+            i.CRC = _crc32(df)
+            members[i.filename] = i
+            
+        else:
+            pass
+
+
+
+class ExplodedZipFile(object):
+
+    """ A directory wrapped up to look like a ZipFile. It only
+    populates the filename, file_size, and CRC fields of the child
+    ZipInfo members."""
+
+    def __init__(self, pathname):
+        self.fn = pathname
+        self.members = None
+        self.refresh()
+
+
+    def refresh(self):
+        from os.path import walk
+        
+        members = {}
+        walk(self.fn, walk_populate, [members, 0])
+        self.members = members
+        
+
+    def getinfo(self, name):
+        return self.members.get(name)
+
+
+    def namelist(self):
+        return sorted(self.members.keys())
+
+
+    def open(self, name, mode='rb'):
+        return open(os.path.join(self.fn, name), mode)
+
+
+
+
+def ZipFile(fn):
+
+    """ returns either a zipfile.ZipFile instance, or an
+    ExplodedZipFile instance"""
+    
+    import zipfile
+    
+    if is_exploded(fn):
+        return ExplodedZipFile(fn)
+    elif is_zipfile(fn):
+        return zipfile.ZipFile(fn, "r")
+
+    
 
 #
 # The end.

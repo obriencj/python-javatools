@@ -40,14 +40,30 @@ class JarSignatureChange(Change):
 
 class JarContentAdded(Change):
     # A file or directory was added to a JAR
-    pass
+
+    def is_change(self):
+        return True
+
+
+    def is_ignored(self, options):
+        # todo: check against the ignored pattern
+        # todo: check against ignored empty directories
+        return False
 
 
 
 class JarContentRemoved(Change):
     # A file or directory was removed from a JAR
-    pass
 
+    def is_change(self):
+        return True
+
+
+    def is_ignored(self, options):
+        # todo: check against the ignored pattern
+        # todo: check against ignored empty directories
+        return False
+    
 
 
 class JarContentChange(Change):
@@ -63,13 +79,13 @@ class JarClassAdded(JarContentAdded):
 
 
 class JarClassRemoved(JarContentRemoved):
-    # a file was removed, and it was a class
+    # a file was removed, and it was a java class
     pass
 
 
 
 class JarClassChange(JarContentChange, JavaClassChange):
-    # a file was changed, and it was a class
+    # a file was changed, and it was a java class
     pass
 
 
