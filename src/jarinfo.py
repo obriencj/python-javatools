@@ -178,16 +178,16 @@ def cli_zipfile(options, zip):
 
 
 def cli(options, rest):
-    from zipfile import ZipFile, BadZipfile
+    from zipdelta import ZipFile
 
     ret = 0
 
     for fn in rest[1:]:
         try:
-            zip = ZipFile(fn, "r")
-            nret = cli_zipfile(options, zip)
+            zf = ZipFile(fn, "r")
+            nret = cli_zipfile(options, zf)
 
-        except BadZipfile, bad:
+        except Exception, bad:
             print bad
             nret = -1
 

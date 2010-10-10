@@ -97,7 +97,7 @@ class JarContentsChange(SuperChange):
     def collect_impl(self):
         # run down the tree of left and right. Either may be a
         # directory or a zip file.
-
+        pass
 
 
 class JavaJarChange(SuperChange):

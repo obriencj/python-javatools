@@ -193,6 +193,7 @@ def _walk_populate(data, dirname, fnames):
             i = ZipInfo()
             i.filename = os.path.join(nicedir, f, "")
             i.file_size = 0
+            i.compress_size = 0
             i.CRC = 0
             members[i.filename] = i
                 
@@ -200,6 +201,7 @@ def _walk_populate(data, dirname, fnames):
             i = ZipInfo()
             i.filename = os.path.join(nicedir, f)
             i.file_size = os.path.getsize(df)
+            i.compress_size = i.file_size
             i.CRC = _crc32(df)
             members[i.filename] = i
             
@@ -240,6 +242,12 @@ class ExplodedZipFile(object):
         return open(os.path.join(self.fn, name), mode)
 
 
+    def read(self, name):
+        fd = self.open(name)
+        data = fd.read()
+        fd.close()
+        return data
+
 
 
 def ZipFile(fn):
@@ -253,8 +261,10 @@ def ZipFile(fn):
         return ExplodedZipFile(fn)
     elif is_zipfile(fn):
         return zipfile.ZipFile(fn, "r")
-
+    else:
+        raise Exception("cannot treat as an archive: %r" % fn)
     
+
 
 #
 # The end.
