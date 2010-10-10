@@ -11,14 +11,20 @@ output identical to the variations of javap as included with most SDKs.
 
 == Scripts Installed ==
 
+
+classinfo
+
+  similar to the javap utility included with most JVMs
+
+
 classdiff
 
   attempts to find differences between two Java class files
 
 
-classinfo
+jarinfo
 
-  similar to the javap utility included with most JVMs
+  prints information about a JAR
 
 
 jardiff
@@ -26,6 +32,17 @@ jardiff
   prints the deltas between the contents of a JAR, and runs classdiff
   on differing Java class files contained in the JARs
 
+
+manifest
+
+  creates and verifies class checksum manifests
+
+
+distdiff
+
+  attempts to find differences between two distributions,
+  deep-checking any JARs or Java class files found in either
+  directory.
 
 
 == Contact ==

@@ -14,6 +14,16 @@ BOTH = SAME # meh, synonyms
 
 
 
+
+def fnmatches(entry, *pattern_list):
+    from fnmatch import fnmatch
+    for pattern in pattern_list:
+        if pattern and fnmatch(entry, pattern):
+            return True
+    return False
+
+
+
 def compare(left, right):
 
     """ generator emiting pairs indicating the contents of the left

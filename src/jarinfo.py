@@ -126,7 +126,7 @@ def get_class_infos_requires(class_infos):
 def cli_get_class_infos(options, zip):
     ci = getattr(options, "classes", None)
     if not ci:
-        ci = get_jar_class_info(zip)
+        ci = get_jar_class_infos(zip)
         options.classes = ci
     return ci
 
@@ -134,7 +134,7 @@ def cli_get_class_infos(options, zip):
 
 def cli_provides(options, zip):
 
-    for i in get_jar_provides(cli_get_class_infos(options, zip)):
+    for i in get_class_infos_provides(cli_get_class_infos(options, zip)):
         print i
 
     return 0
@@ -143,7 +143,7 @@ def cli_provides(options, zip):
 
 def cli_requires(options, zip):
 
-    for i in get_jar_requires(cli_get_class_infos(options, zip)):
+    for i in get_class_infos_requires(cli_get_class_infos(options, zip)):
         print i
 
     return 0
@@ -184,8 +184,7 @@ def cli(options, rest):
 
     for fn in rest[1:]:
         try:
-            zf = ZipFile(fn, "r")
-            nret = cli_zipfile(options, zf)
+            nret = cli_zipfile(options, ZipFile(fn))
 
         except Exception, bad:
             print bad

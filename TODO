@@ -9,14 +9,11 @@
 
 - make jardiff understand META-INF magic files
 
-- make jardiff work transparently with exploded jars (dirdelta and
-  zipdelta need to work together)
-
 - give jardiff a meaningful return code
 
-- an class or class-member attribute discovery script
+- a class or class-member attribute discovery script
 
-- switch to using logging instead of print statements for output
+- switch to using logging instead of print statements for output (bad idea?)
 
 - dependency discovery ie: given a class or set of classes generate
   the list of classes and members expected
@@ -31,5 +28,6 @@
   (possibly recursively) from discoverable locations (JAVA_HOME,
   CLASSPATH, etc) and output missing deps
 
+- figure out how Jar signing works, and write a verify utility
 
 #

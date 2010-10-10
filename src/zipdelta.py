@@ -10,19 +10,15 @@ from dirdelta import LEFT, RIGHT, DIFF, SAME
 
 
 
-def compare(left, right, lprefix=None, rprefix=None):
-    return compare_zips(ZipFile(left), ZipFile(right),
-                        lprefix=lprefix, rprefix=rprefix)
+def compare(left, right):
+
+    return compare_zips(ZipFile(left), ZipFile(right))
 
 
 
-def compare_zips(left, right, lprefix=None, rprefix=None):
+def compare_zips(left, right):
 
     ll, rl = set(left.namelist()), set(right.namelist())
-
-    if lprefix or rprefix:
-        # TODO: implement prefix skipping
-        pass
 
     for f in ll:
         if f in rl:
@@ -226,7 +222,7 @@ class ExplodedZipFile(object):
         from os.path import walk
         
         members = {}
-        walk(self.fn, walk_populate, [members, 0])
+        walk(self.fn, _walk_populate, [members, 0])
         self.members = members
         
 
@@ -239,7 +235,8 @@ class ExplodedZipFile(object):
 
 
     def open(self, name, mode='rb'):
-        return open(os.path.join(self.fn, name), mode)
+        from os.path import join
+        return open(join(self.fn, name), mode)
 
 
     def read(self, name):
@@ -253,7 +250,8 @@ class ExplodedZipFile(object):
 def ZipFile(fn):
 
     """ returns either a zipfile.ZipFile instance, or an
-    ExplodedZipFile instance"""
+    ExplodedZipFile instance, depending on whether fn is the name of a
+    valid zip file, or a directory. """
     
     import zipfile
     

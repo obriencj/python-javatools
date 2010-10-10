@@ -14,6 +14,7 @@ author: Christopher O'Brien  <obriencj@gmail.com>
 
 import sys
 from change import Change, GenericChange, SuperChange
+from change import yield_sorted_by_type
 
 
 
@@ -197,7 +198,6 @@ class ClassMembersChange(SuperChange):
 
 
     
-
 class CodeAbsoluteChange(GenericChange):
     label = "Absolute line numbers"
 
@@ -484,6 +484,10 @@ class ClassFieldsChange(ClassMembersChange):
     member_changed = FieldChange
 
 
+    @yield_sorted_by_type(FieldAdded, FieldRemoved, FieldChange)
+    def collect_impl(self):
+        return super(ClassFieldsChange, self).collect_impl()
+
     def __init__(self, lclass, rclass):
         ClassMembersChange.__init__(self, lclass.fields, rclass.fields)
 
@@ -505,6 +509,11 @@ class ClassMethodsChange(ClassMembersChange):
     member_added = MethodAdded
     member_removed = MethodRemoved
     member_changed = MethodChange
+
+
+    @yield_sorted_by_type(MethodAdded, MethodRemoved, MethodChange)
+    def collect_impl(self):
+        return super(ClassMethodsChange, self).collect_impl()
 
 
     def __init__(self,lclass,rclass):
@@ -573,6 +582,7 @@ def options_magic(options):
 
 
 def cli_classes_diff(options, left, right):
+    options_magic(options)
 
     delta = JavaClassChange(left, right)
     delta.check()
@@ -587,15 +597,12 @@ def cli_classes_diff(options, left, right):
 
 
 def cli(options, rest):
-    import javaclass
+    from javaclass import unpack_classfile
 
-    options_magic(options)
+    left = unpack_classfile(rest[1])
+    right = unpack_classfile(rest[2])
 
-    left_f, right_f = rest[1:3]
-    left_i = javaclass.unpack_classfile(left_f)
-    right_i = javaclass.unpack_classfile(right_f)
-    
-    return cli_classes_diff(options, left_i, right_i)
+    return cli_classes_diff(options, left, right)
 
 
 

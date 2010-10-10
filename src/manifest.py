@@ -11,6 +11,15 @@ import sys
 
 
 
+from change import Change
+
+
+
+class ManifestChange(Change):
+    label = "Manifest"
+
+
+
 class ManifestSection(dict):
     
     primary_key = "Name"

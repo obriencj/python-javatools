@@ -21,6 +21,47 @@ def _indent(stream, indent, indentstr, *msgs):
 
 
 
+def yield_sorted_by_type(*typelist):
+    """ a useful decorator for the collect_impl method of SuperChange
+    subclasses. Caches the yielded changes, and re-emits them
+    collected by their type. The order of the types can be specified
+    by listing the types as arguments to this decorator. Unlisted
+    types will be yielded last in no guaranteed order.
+
+    Grouping happens by exact type match only. Inheritance is not
+    taken into consideration for grouping. """
+
+    def decorate(fun):
+        cache = {}
+
+        def decorated(*args,**kwds):
+            # gather the emitted values by type
+            for val in fun(*args, **kwds):
+                key = val.__class__
+                cl = cache.get(key, None)
+                if not cl:
+                    cl = list()
+                    cache[key] = cl
+                cl.append(val)
+
+            # emit what we've gethered
+            for t in typelist:
+                for val in cache.get(t, ()):
+                    yield val
+                del cache[t]
+
+            # emit the leftovers
+            for t,tl in cache.values():
+                for val in tl:
+                    yield val
+
+        decorated.__doc__ = fun.__doc__
+        decorated.func_name = fun.func_name
+        decorated.func_doc = fun.func_doc
+        return decorated
+
+
+
 class Change(object):
 
     label = "Change"
