@@ -70,7 +70,10 @@ def _chunk(stream, size=10240):
 
 def _deep_different(left, right, f):
     from itertools import izip_longest
-    for l,r in izip_longest(_chunk(left), _chunk(right)):
+    lfd = left.open(f)
+    rfd = right.open(f)
+
+    for l,r in izip_longest(_chunk(lfd), _chunk(rfd)):
         if l != r:
             return True
     return False

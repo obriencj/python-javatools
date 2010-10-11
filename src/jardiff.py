@@ -26,6 +26,8 @@ from dirdelta import fnmatches
 class JarTypeChange(GenericChange):
     # exploded vs. zipped and compression level
 
+    label = "Jar type"
+
     def fn_data(self, c):
         return c.__class__.__name__
     
@@ -36,8 +38,14 @@ class JarContentChange(Change):
 
     label = "Jar Content Changed"
     
+
+    def __init__(self, lzip, rzip, entry):
+        Change.__init__(self, lzip, rzip)
+        self.entry = entry
+
+
     def get_description(self):
-        return "%s: %s" % (self.label, self.ldata)
+        return "%s: %s" % (self.label, self.entry)
 
 
     def is_change(self):
@@ -45,8 +53,7 @@ class JarContentChange(Change):
 
 
     def is_ignored(self, options):
-        if options.ignore_patterns:
-            return fnmatches(options.ignore_patterns, self.ldata)
+        return fnmatches(self.entry, *options.ignore_content)
 
         return False
 
@@ -58,13 +65,8 @@ class JarContentAdded(JarContentChange):
     label = "Jar Content Added"
 
 
-    def get_description(self):
-        return "%s: %s" % (self.label, self.rdata)
-
-
     def is_ignored(self, options):
-        if options.ignore_patterns:
-            return fnmatches(options.ignore_patterns, self.rdata)
+        return fnmatches(self.entry, *options.ignore_content)
 
         # todo: check against ignored empty directories
         return False
@@ -78,8 +80,7 @@ class JarContentRemoved(JarContentChange):
 
 
     def is_ignored(self, options):
-        if options.ignore_patterns:
-            return fnmatches(options.ignore_patterns, self.ldata)
+        return fnmatches(self.entry, *options.ignore_content)
 
         # todo: check against ignored empty directories
         return False
@@ -96,13 +97,51 @@ class JarClassRemoved(JarContentRemoved):
 
 
 
-class JarClassChange(JavaClassChange, JarContentChange):
+class JarClassChange(SuperChange, JarContentChange):
     label = "Java Class Changed"
 
+    
+    def __init__(self, ldata, rdata, entry):
+        JarContentChange.__init__(self, ldata, rdata, entry)
 
 
-class JarManifestChange(ManifestChange, JarContentChange):
+    def collect_impl(self):
+        from javaclass import unpack_class
+        lfd = self.ldata.open(self.entry)
+        rfd = self.rdata.open(self.entry)
+        
+        linfo = unpack_class(lfd)
+        rinfo = unpack_class(rfd)
+
+        lfd.close()
+        rfd.close()
+
+        yield JavaClassChange(linfo, rinfo)
+
+
+
+class JarManifestChange(SuperChange, JarContentChange):
     label = "Jar Manifest Changed"
+
+    
+    def __init__(self, ldata, rdata, entry):
+        JarContentChange.__init__(self, ldata, rdata, entry)
+
+
+    def collect_impl(self):
+        from manifest import Manifest
+        
+        lfd = self.ldata.open(self.entry)
+        rfd = self.rdata.open(self.entry)
+        
+        lm, rm = Manifest(), Manifest()
+        lm.parse(lfd)
+        rm.parse(rfd)
+
+        lfd.close()
+        rfd.close()
+
+        yield ManifestChange(lm, rm)
 
 
 
@@ -135,10 +174,8 @@ class JarContentsChange(SuperChange):
                           JarClassAdded,
                           JarClassRemoved,
                           JarClassChange)
-    def changes_impl(self):
+    def collect_impl(self):
         from zipdelta import compare_zips, LEFT, RIGHT, DIFF, SAME
-        from javaclass import is_class, unpack_class
-        from manifest import Manifest
 
         left, right = self.ldata, self.rdata
 
@@ -147,65 +184,37 @@ class JarContentsChange(SuperChange):
                 pass
 
             elif event == DIFF:
-                lfd = left.open(entry)
-                rfd = right.open(entry)
-
-                delta = None
-
                 if entry == "META-INF/MANIFEST.MF":
-                    # special case to catch MANIFEST
-
-                    lm, rm = Manifest(), Manifest()
-                    lm.parse(lfd)
-                    rm.parse(rfd)
-                    delta = JarManifestChange(lm, rm)
+                    yield JarManifestChange(left, right, entry)
                 
-                elif fnmatches(("*.RSA","*.DSA","*.SF"), entry):
-                    # special case to catch signatures
+                elif fnmatches(entry, "*.RSA", "*.DSA", "*.SF"):
+                    yield JarSignatureChange(left, right, entry)
 
-                    delta = JarSignatureChange(entry, entry)
-
+                elif fnmatches(entry, "*.class"):
+                    yield JarClassChange(left, right, entry)
+                    
                 else:
-                    # try it as a java class, otherwise just call it a
-                    # file and be done with it
-                    
-                    ljc = unpack_class(lfd)
-                    rjc = unpack_class(rfd)
-                    
-                    if ljc and rjc:
-                        delta = JarClassChange(ljc, rjc)
-                    else:
-                        delta = JarContentChange(entry, entry)
-
-                lfd.close()
-                rfd.close()
-                yield delta
+                    yield JarContentChange(left, right, entry)
 
             elif event == LEFT:
-                if fnmatches(("*.RSA","*.DSA","*.SF"), entry):
-                    yield JarSignatureRemoved(entry, None)
+                if fnmatches(entry, "*.RSA", "*.DSA", "*.SF"):
+                    yield JarSignatureRemoved(left, right, entry)
+
+                elif fnmatches(entry, "*.class"):
+                    yield JarClassRemoved(left, right, entry)
 
                 else:
-                    fd = left.open(entry)
-                    jc = unpack_class(fd)
-                    fd.close()
-                    if jc:
-                        yield JarClassRemoved(jc, None)
-                    else:
-                        yield JarContentRemoved(entry, None) 
+                    yield JarContentRemoved(left, right, entry) 
                 
             elif event == RIGHT:
-                if fnmatches(("*.RSA","*.DSA","*.SF"), entry):
-                    yield JarSignatureAdded(None, entry)
+                if fnmatches(entry, "*.RSA","*.DSA","*.SF"):
+                    yield JarSignatureAdded(left, right, entry)
+
+                elif fnmatches(entry, "*.class"):
+                    yield JarClassAdded(left, right, entry)
 
                 else:
-                    fd = left.open(entry)
-                    jc = unpack_class(fd)
-                    fd.close()
-                    if jc:
-                        yield JarClassAdded(None, jc)
-                    else:
-                        yield JarContentAdded(None, entry)
+                    yield JarContentAdded(left, right, entry)
 
 
 
@@ -214,54 +223,6 @@ class JarChange(SuperChange):
 
     change_types = (JarTypeChange,
                     JarContentsChange)
-
-
-
-def cli_compare_jars(options, left, right):
-
-    from classdiff import cli_classes_diff
-    from zipfile import ZipFile
-    from javaclass import is_class, unpack_class, JAVA_CLASS_MAGIC
-    from zipdelta import compare_zips, LEFT, RIGHT, SAME, DIFF
-
-    leftz, rightz = ZipFile(left, 'r'), ZipFile(right, 'r')
-
-    for event,entry in compare_zips(leftz, rightz):
-        if fnmatches(options.ignore_content, entry):
-            # ignoring this entry
-            continue
-
-        if event == LEFT:
-            print "Removed file:", entry
-
-        elif event == RIGHT:
-            print "Added file:", entry
-
-        elif event == SAME:
-            # let's not bother to print the lack of a change, that's
-            # just silly.
-
-            pass
-
-        elif event == DIFF:
-            # found a file that is in both JARs, but is not identical.
-            # let's check if they are both class files, and if so, we
-            # will attempt to discover a summary of changes.
-
-            leftfd, rightfd = leftz.open(entry), rightz.open(entry)
-
-            if is_class(leftfd) and is_class(rightfd):
-                print "Changed class:", entry
-
-                lefti = unpack_class(leftfd, magic=JAVA_CLASS_MAGIC)
-                righti = unpack_class(rightfd, magic=JAVA_CLASS_MAGIC)
-                cli_classes_diff(options, lefti, righti)
-
-            else:
-                print "Changed file:", entry
-            
-            leftfd.close()
-            rightfd.close()
 
 
 
@@ -298,10 +259,7 @@ def create_optparser():
     from classdiff import create_optparser
     parser = create_optparser()
 
-    parser.add_option("--ignore-jar", action="append", default=[])
     parser.add_option("--ignore-content", action="append", default=[])
-    parser.add_option("--ignore-jar-added", action="store_true")
-    parser.add_option("--ignore-jar-removed", action="store_true")
 
     return parser
 

@@ -126,11 +126,11 @@ class MemberSuperChange(SuperChange):
     
     """ basis for FieldChange and MethodChange """
     
-    label = "Member changed"
+    label = "Member"
 
 
     def get_description(self):
-        return "%s %s" % (self.label, self.ldata.pretty_descriptor())
+        return "%s: %s" % (self.label, self.ldata.pretty_descriptor())
 
 
 
@@ -146,7 +146,7 @@ class MemberAdded(Change):
 
 
     def get_description(self):
-        return "%s %s" % (self.label, self.rdata.pretty_descriptor())
+        return "%s: %s" % (self.label, self.rdata.pretty_descriptor())
 
 
 
@@ -162,7 +162,7 @@ class MemberRemoved(Change):
 
 
     def get_description(self):
-        return "%s %s" % (self.label, self.ldata.pretty_descriptor())
+        return "%s: %s" % (self.label, self.ldata.pretty_descriptor())
 
 
 
@@ -177,7 +177,7 @@ class ClassMembersChange(SuperChange):
     member_changed = MemberSuperChange
 
     
-    def changes_impl(self):
+    def collect_impl(self):
         li = {}
         
         for member in self.ldata:
@@ -451,7 +451,7 @@ class FieldConstvalueChange(GenericChange):
 
 
     def fn_data(self, c):
-        return c.deref_const()
+        return c.deref_constantvalue()
 
 
 
@@ -526,7 +526,7 @@ class ClassConstantPoolChange(GenericChange):
 
 
     def fn_data(self, c):
-        return c.consts
+        return c.cpool.consts
 
 
     def is_ignored(self, options):

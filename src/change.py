@@ -38,17 +38,16 @@ def yield_sorted_by_type(*typelist):
             # gather the emitted values by type
             for val in fun(*args, **kwds):
                 key = val.__class__
-                cl = cache.get(key, None)
-                if not cl:
-                    cl = list()
-                    cache[key] = cl
-                cl.append(val)
+                tl = cache.get(key, None)
+                if not tl:
+                    tl = list()
+                    cache[key] = tl
+                tl.append(val)
 
             # emit what we've gethered
             for t in typelist:
-                for val in cache.get(t, ()):
+                for val in cache.pop(t, ()):
                     yield val
-                del cache[t]
 
             # emit the leftovers
             for t,tl in cache.values():
@@ -59,6 +58,7 @@ def yield_sorted_by_type(*typelist):
         decorated.func_name = fun.func_name
         decorated.func_doc = fun.func_doc
         return decorated
+    return decorate
 
 
 
@@ -185,7 +185,7 @@ class SuperChange(GenericChange):
         self.changes = ()
 
 
-    def changes_impl(self):
+    def collect_impl(self):
         """ instanciates each of the entries in in the overriden
         change_types field with the left and right data, and collects
         the instances in self.changes """
@@ -199,7 +199,7 @@ class SuperChange(GenericChange):
         if any member of those checks shows as a change, will return
         True,None """
 
-        self.changes = tuple(self.changes_impl())
+        self.changes = tuple(self.collect_impl())
         
         c = False
         for change in self.changes:

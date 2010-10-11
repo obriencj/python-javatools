@@ -191,9 +191,10 @@ def print_class(options, classfile):
         # we don't use the info.pretty_constants() generator here
         # because we actually want numbers for the entries, and that
         # generator skips them.
-        
-        for i in xrange(1, len(info.consts)):
-            t,v = info.pretty_const(i)
+        cpool = info.cpool
+
+        for i in xrange(1, len(cpool.consts)):
+            t,v = cpool.pretty_const(i)
             if t:
                 # skipping the None consts, which would be the entries
                 # comprising the second half of a long or double value
