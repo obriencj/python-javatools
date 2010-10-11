@@ -9,9 +9,6 @@ author: Christopher O'Brien  <obriencj@gmail.com>
 
 
 
-import sys
-
-
 def _indent(stream, indent, indentstr, *msgs):
     for x in xrange(0,indent):
         stream.write(indentstr)
@@ -95,7 +92,16 @@ class Change(object):
         return tuple()
 
 
-    def write(self, options, indent=0, indentstr="  ", out=sys.stdout):
+    def write(self, options, indent=0, indentstr="  ", outstream=None):
+        import sys
+
+        out = outstream
+        if not out:
+            if options.output:
+                out = open(options.output, "wt")
+            else:
+                out = sys.stdout
+
         if self.is_change():
             if self.is_ignored(options):
                 if getattr(options, "show_ignored", False):
@@ -112,6 +118,9 @@ class Change(object):
 
         for sub in self.get_subchanges():
             sub.write(options, indent+1, indentstr, out)
+
+        if not outstream and options.output:
+            out.close()
         
 
 

@@ -238,7 +238,8 @@ def cli_jars_diff(options, left, right):
     delta = JarChange(left, right)
     delta.check()
 
-    delta.write(options)
+    if not options.silent:
+        delta.write(options)
 
     if (not delta.is_change()) or delta.is_ignored(options):
         return 0

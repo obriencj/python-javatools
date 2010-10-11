@@ -587,7 +587,8 @@ def cli_classes_diff(options, left, right):
     delta = JavaClassChange(left, right)
     delta.check()
 
-    delta.write(options)
+    if not options.silent:
+        delta.write(options)
 
     if (not delta.is_change()) or delta.is_ignored(options):
         return 0
@@ -610,6 +611,9 @@ def create_optparser():
     from optparse import OptionParser
 
     parse = OptionParser("%prog <options> <old_classfile> <new_classfile>")
+
+    parse.add_option("-q", dest="silent", action="store_true")
+    parse.add_option("-o", dest="output", action="store")
 
     parse.add_option("-v", dest="verbose", action="store_true")
     parse.add_option("--show-ignored", action="store_true")
