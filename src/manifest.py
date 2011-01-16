@@ -318,8 +318,18 @@ def single_path_generator(pathname):
     else:
         zf = ZipFile(pathname)
         for f in zf.namelist():
-            yield f, zipentry_chunk(zf, f)
+            if f[-1] != '/':
+                yield f, zipentry_chunk(zf, f)
         zf.close()
+
+
+
+def fnmatches(fn, patternlist):
+    from fnmatch import fnmatch
+    for p in patternlist:
+        if fnmatch(fn, p):
+            return p
+    return False
 
 
 
@@ -334,14 +344,19 @@ def cli_create(options, rest):
 
     mf = Manifest()
     
+    ignores = options.ignore
+
     for name,chunks in entries:
+
+        # skip the stuff that we were told to ignore
+        if ignores and fnmatches(name, ignores):
+            continue
+
         sec = mf.create_section(name)
 
-        d = digests(chunks())
-        if d:
-            md5,sha1 = digests(chunks())
-            sec["SHA1-Digest"] = sha1
-            sec["MD5-Digest"] = md5
+        md5,sha1 = digests(chunks())
+        sec["SHA1-Digest"] = sha1
+        sec["MD5-Digest"] = md5
 
     output = sys.stdout
 
@@ -394,6 +409,10 @@ def create_optparser():
                      help="manifest file, default is stdout for create"
                      " or the argument-relative META-INF/MANIFEST.MF"
                      " for verify.")
+    parse.add_option("-i", "--ignore", action="append",
+                     default=["META-INF/*"],
+                     help="patterns to ignore when creating or checking"
+                     " files")
 
     return parse
 
