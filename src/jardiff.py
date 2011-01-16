@@ -180,6 +180,8 @@ class JarContentsChange(SuperChange):
         left, right = self.ldata, self.rdata
 
         for event,entry in compare_zips(self.ldata, self.rdata):
+            print event, entry
+            
             if event == SAME:
                 pass
 
@@ -223,6 +225,14 @@ class JarChange(SuperChange):
 
     change_types = (JarTypeChange,
                     JarContentsChange)
+
+
+    def check(self):
+        print "entering JarChange.check()"
+        SuperChange.check(self)
+        self.ldata.close()
+        self.rdata.close()
+        print "leaving JarChange.check()"
 
 
 

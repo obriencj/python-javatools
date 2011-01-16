@@ -36,19 +36,37 @@ def compare(left, right):
     dc = dircmp(left, right, ignore=[])
     return _gen_from_dircmp(dc, len(left), len(right))
     
+    
 
 
 def _gen_from_dircmp(dc, ltrim, rtrim):
-    from os.path import join 
+    from os.path import isdir, join
+    from os import walk
     
     for f in dc.left_only:
-        yield (LEFT, join(dc.left[ltrim:], f))
+        fp = join(dc.left, f)
+        if isdir(fp):
+            for r,d,fs in walk(fp):
+                r = r[ltrim:]
+                for f in fs:
+                    print r, f
+                    yield(LEFT, join(r, f))
+        else:
+            yield (LEFT, fp[ltrim:]) #join(dc.left[ltrim:], f))
         
     for f in dc.right_only:
-        yield (RIGHT, join(dc.right[rtrim:], f))
+        fp = join(dc.right, f)
+        if isdir(fp):
+            for r,d,fs in walk(fp):
+                r = r[rtrim:]
+                for f in fs:
+                    print r, f
+                    yield(RIGHT, join(r, f))
+        else:
+            yield (RIGHT, fp[rtrim:]) #join(dc.right[rtrim:], f))
 
     for f in dc.diff_files:
-        yield (DIFF, join(dc.right[ltrim:], f))
+        yield (DIFF, join(dc.right[rtrim:], f))
 
     for f in dc.same_files:
         yield (BOTH, join(dc.left[ltrim:], f))
