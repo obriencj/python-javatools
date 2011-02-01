@@ -15,7 +15,7 @@ import sys
 
 
 
-from change import Change, GenericChange, SuperChange
+from change import Change, GenericChange, SuperChange, Addition, Removal
 from change import yield_sorted_by_type
 from classdiff import JavaClassChange
 from manifest import ManifestChange
@@ -59,7 +59,7 @@ class JarContentChange(Change):
 
 
 
-class JarContentAdded(JarContentChange):
+class JarContentAdded(JarContentChange, Addition):
     # A file or directory was added to a JAR
 
     label = "Jar Content Added"
@@ -73,7 +73,7 @@ class JarContentAdded(JarContentChange):
 
 
 
-class JarContentRemoved(JarContentChange):
+class JarContentRemoved(JarContentChange, Removal):
     # A file or directory was removed from a JAR
 
     label = "Jar Content Removed"
@@ -147,6 +147,9 @@ class JarManifestChange(SuperChange, JarContentChange):
 
 class JarSignatureChange(JarContentChange):
     label = "Jar Signature Data Changed"
+
+    def is_ignored(self, options):
+        return True
 
 
 
@@ -228,11 +231,11 @@ class JarChange(SuperChange):
 
 
     def check(self):
-        print "entering JarChange.check()"
+        #print "entering JarChange.check()"
         SuperChange.check(self)
         self.ldata.close()
         self.rdata.close()
-        print "leaving JarChange.check()"
+        #print "leaving JarChange.check()"
 
 
 

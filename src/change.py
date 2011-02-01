@@ -69,6 +69,12 @@ class Change(object):
         self.rdata = rdata
         self.description = None
         self.changed = False
+        self.entry = None
+
+
+    def clear(self):
+        del self.ldata
+        del self.rdata
 
 
     def check(self):
@@ -121,7 +127,20 @@ class Change(object):
 
         if not outstream and options.output:
             out.close()
-        
+
+
+
+class Removal(Change):
+
+    def is_change(self):
+        return True
+
+
+
+class Addition(Change):
+    
+    def is_change(self):
+        return True
 
 
 class GenericChange(Change):
@@ -194,6 +213,13 @@ class SuperChange(GenericChange):
         self.changes = ()
 
 
+    def clear(self):
+        GenericChange.clear(self)
+        for c in self.changes:
+            c.clear()
+        del self.changes
+
+
     def collect_impl(self):
         """ instanciates each of the entries in in the overriden
         change_types field with the left and right data, and collects
@@ -226,6 +252,48 @@ class SuperChange(GenericChange):
 
     def get_subchanges(self):
         return self.changes
+
+
+
+class SquashedChange(Change):
+
+    """ For when you want to keep just the overall data from a change,
+    including whether it was ignored, but want to discard the more
+    in-depth information. """
+
+    def __init__(self, change, is_change, is_ignored):
+        self.label = change.label
+        self.description = change.get_description()
+        self.changed = is_change
+        self.ignored = is_ignored
+        self.origclass = type(change)
+        self.entry = getattr(change, "entry", None)
+
+    def is_ignored(self, options):
+        return self.ignored
+
+    def is_change(self):
+        return self.is_change
+
+
+
+class SquashedRemoval(SquashedChange, Removal):
+    pass
+
+
+
+class SquashedAddition(SquashedChange, Addition):
+    pass
+
+
+
+def squash(change, is_change, is_ignored):
+    if isinstance(change, Removal):
+        return SquashedRemoval(change, is_change, is_ignored)
+    elif isinstance(change, Addition):
+        return SquashedAddition(change, is_change, is_ignored)
+    else:
+        return SquashedChange(change, is_change, is_ignored)
 
 
 

@@ -575,7 +575,9 @@ class JavaClassInfo(JavaAttributes):
         if buff is None:
             return None
         
-        return _unpack_objs(Unpacker(buff), JavaInnerClassInfo, self.cpool)
+        up = Unpacker(buff)
+        objs = _unpack_objs(up, JavaInnerClassInfo, self.cpool)
+        up.close()
 
 
 
@@ -802,8 +804,12 @@ class JavaMemberInfo(JavaAttributes):
         if buff is None:
             return None
 
+        up = Unpacker(buff)
+
         code = JavaCodeInfo(self.cpool)
-        code.unpack(Unpacker(buff))
+        code.unpack(up)
+
+        up.close()
 
         return code
 
@@ -818,7 +824,10 @@ class JavaMemberInfo(JavaAttributes):
         if buff is None:
             return ()
 
-        excps = _unpack_array(Unpacker(buff), ">H")
+        up = Unpacker(buff)
+        excps = _unpack_array(up, ">H")
+        up.close()
+
         return tuple([self.deref_const(e[0]) for e in excps])
 
 
@@ -1065,7 +1074,11 @@ class JavaCodeInfo(JavaAttributes):
         if buff is None:
             return None
 
-        return _unpack_array(Unpacker(buff), ">HH")
+        up = Unpacker(buff)
+        ret = _unpack_array(up, ">HH")
+        up.close()
+
+        return ret
 
 
 
@@ -1093,7 +1106,11 @@ class JavaCodeInfo(JavaAttributes):
         if buff is None:
             return None
 
-        return _unpack_array(Unpacker(buff), ">HHHHH")
+        up = Unpacker(buff)
+        ret = _unpack_array(up, ">HHHHH")
+        up.close()
+        return ret
+    
 
 
     def get_localvariabletypetable(self):
@@ -1105,7 +1122,10 @@ class JavaCodeInfo(JavaAttributes):
         if buff is None:
             return None
 
-        return _unpack_array(Unpacker(buff), ">HHHHH")
+        up = Unpacker(buff)
+        ret = _unpack_array(up, ">HHHHH")
+        up.close()
+        return ret
 
 
     def get_line_for_offset(self, code_offset):
@@ -1262,7 +1282,10 @@ def platform_from_version(major, minor):
 
 
 def _unpack(fmt, data):
-    return Unpacker(data).unpack(fmt)
+    up = Unpacker(data)
+    ret = up.unpack(fmt)
+    up.close()
+    return ret
 
 
 
@@ -1574,7 +1597,7 @@ class Unpacker(object):
     def close(self):
         if hasattr(self.stream, "close"):
             self.stream.close()
-
+        del self.stream
 
 
 #
@@ -1589,9 +1612,12 @@ def is_class(data):
     a Java class file. Returns False if the magic numbers do not
     match, or for any errors. """
 
-    unpacker = Unpacker(data)
     try:
-        return unpacker.unpack(">BBBB") == JAVA_CLASS_MAGIC
+        unpacker = Unpacker(data)
+        magic = unpacker.unpack(">BBBB")
+        unpacker.close()
+        return magic == JAVA_CLASS_MAGIC
+
     except:
         return False
 
@@ -1624,6 +1650,8 @@ def unpack_class(data, magic=None):
     
     o = JavaClassInfo()
     o.unpack(unpacker, magic=magic)
+
+    unpacker.close()
 
     return o
 
