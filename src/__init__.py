@@ -694,6 +694,18 @@ class JavaMemberInfo(JavaAttributes):
 
 
 
+    def get_signature(self):
+        buff = self.get_attribute("Signature")
+        if buff is None:
+            return None
+
+        # type index
+        (ti,) = _unpack(">H", buff)
+
+        return self.deref_const(ti)
+
+
+
     def unpack(self, unpacker):
 
         debug("unpacking member info")

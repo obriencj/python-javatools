@@ -109,6 +109,15 @@ class ClassDeprecationChange(GenericChange):
 
 
 
+class ClassSignatureChange(GenericChange):
+    label = "Generics Signature"
+
+
+    def fn_data(self, c):
+        return c.get_signature()
+
+
+
 class ClassInfoChange(SuperChange):
     label = "Class information"
 
@@ -118,7 +127,8 @@ class ClassInfoChange(SuperChange):
                     ClassSuperclassChange,
                     ClassInterfacesChange,
                     ClassAccessflagsChange,
-                    ClassDeprecationChange)
+                    ClassDeprecationChange,
+                    ClassSignatureChange)
 
 
 
@@ -324,6 +334,15 @@ class MethodTypeChange(GenericChange):
         
 
 
+class MethodSignatureChange(GenericChange):
+    label = "Method Generic Signature"
+
+
+    def fn_data(self, c):
+        return c.get_signature()
+
+
+
 class MethodParametersChange(GenericChange):
     label = "Method parameters"
 
@@ -403,6 +422,7 @@ class MethodChange(MemberSuperChange):
 
     change_types = (MethodNameChange,
                     MethodTypeChange,
+                    MethodSignatureChange,
                     MethodParametersChange,
                     MethodAccessflagsChange,
                     MethodExceptionsChange,
@@ -430,6 +450,15 @@ class FieldTypeChange(GenericChange):
 
     def fn_pretty(self, c):
         return c.pretty_type()
+
+
+
+class FieldSignatureChange(GenericChange):
+    label = "Field Generic Signature"
+
+
+    def fn_data(self, c):
+        return c.get_signature()
 
 
 
@@ -461,6 +490,7 @@ class FieldChange(MemberSuperChange):
 
     change_types = (FieldNameChange,
                     FieldTypeChange,
+                    FieldSignatureChange,
                     FieldAccessflagsChange,
                     FieldConstvalueChange)
 
