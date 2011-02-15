@@ -1227,6 +1227,9 @@ class JavaExceptionInfo(object):
         return self.__cmp_tuple() == other.__cmp_tuple()
 
 
+    def __str__(self):
+        return "(%s)" % ",".join(self.__cmp_tuple())
+
 
 
 class JavaInnerClassInfo(object):
