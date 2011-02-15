@@ -53,7 +53,7 @@ def print_field(options, field):
     print "%s;" % field.pretty_descriptor()
 
     if options.sigs:
-        print "  Signature:", field.get_descriptor()
+        print "  Signature:", field.get_signature()
 
     if options.verbose:
         cv = field.get_constantvalue()
@@ -74,7 +74,7 @@ def print_method(options, method):
     print "%s;" % method.pretty_descriptor()
 
     if options.sigs:
-        print "  Signature:", method.get_descriptor()
+        print "  Signature:", method.get_signature()
 
     code = method.get_code()
     if options.disassemble and code:

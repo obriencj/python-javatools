@@ -300,7 +300,6 @@ class JavaAttributes(object):
 
     def __init__(self):
         self.attributes = tuple()
-        self.attr_map = None
 
 
 
@@ -329,7 +328,6 @@ class JavaAttributes(object):
 
 
     def get_attributes_as_map(self, cpool):
-
         cval = cpool.deref_const
         pairs = ((cval(i),v) for (i,v) in self.attributes)
         return dict(pairs)
@@ -1473,6 +1471,8 @@ def _pretty_type(s):
         return "double"
     elif tc == "F":
         return "float"
+    elif tc == "T":
+        return "generic " + s[1:]
     elif tc == "L":
         return _pretty_class(s[1:-1])
     elif tc == "[":
