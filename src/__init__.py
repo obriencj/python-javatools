@@ -43,6 +43,7 @@ CONST_Fieldref = 9
 CONST_Methodref = 10
 CONST_InterfaceMethodref = 11
 CONST_NameAndType = 12
+CONST_ModuleIdInfo = 13
 
 
 
@@ -62,9 +63,10 @@ ACC_NATIVE = 0x0100
 ACC_INTERFACE = 0x0200
 ACC_ABSTRACT = 0x0400
 ACC_STRICT = 0x0800
-ACC_SYNTHETIC = 0x1000        
+ACC_SYNTHETIC = 0x1000
 ACC_ANNOTATION = 0x2000
 ACC_ENUM = 0x4000
+ACC_MODULE = 0x8000
 
 
 
@@ -221,7 +223,8 @@ class JavaConstantPool(object):
             return self.deref_const(v)
         
         elif t in (CONST_Fieldref, CONST_Methodref,
-                   CONST_InterfaceMethodref, CONST_NameAndType):
+                   CONST_InterfaceMethodref, CONST_NameAndType,
+                   CONST_ModuleIdInfo):
             return tuple([self.deref_const(i) for i in v])
     
         else:
@@ -285,6 +288,10 @@ class JavaConstantPool(object):
         elif t == CONST_NameAndType:
             a,b = (self.deref_const(i) for i in v)
             return "%s:%s" % (a,b)
+
+        elif t == CONT_ModuleIdInfo:
+            a,b = (self.deref_const(i) for i in v)
+            return "%s version %s" % (a,b)
 
         else:
             return ""
@@ -704,6 +711,17 @@ class JavaMemberInfo(JavaAttributes):
 
 
 
+    def get_module(self):
+        buff = self.get_attribute("Module")
+        if buff is None:
+            return None
+
+        (ti,) = _unpack(">H", buff)
+
+        return self.deref_const(ti)
+
+
+
     def unpack(self, unpacker):
 
         debug("unpacking member info")
@@ -801,6 +819,11 @@ class JavaMemberInfo(JavaAttributes):
 
     def is_enum(self):
         return self.access_flags & ACC_ENUM
+
+
+
+    def is_module(self):
+        return self.access_flags & ACC_MODULE
 
 
 
@@ -950,7 +973,7 @@ class JavaMemberInfo(JavaAttributes):
 
 
 
-    def _pretty_access_flags_gen(self):
+    def _pretty_access_flags_gen(self, all=False):
 
         if self.is_public():
             yield "public"
@@ -970,18 +993,20 @@ class JavaMemberInfo(JavaAttributes):
             yield "abstract"
         if self.is_enum():
             yield "enum"
+        if self.is_module():
+            yield "module"
 
-        #if self.is_synthetic():
-        #    yield "synthetic"
+        if all and self.is_synthetic():
+            yield "synthetic"
 
         if self.is_method:
             if self.is_synchronized():
                 yield "synchronized"
-
-            #if self.is_bridge():
-            #    yield "bridge"
-            #if self.is_varargs():
-            #    yield "varargs"
+                
+            if all and self.is_bridge():
+                yield "bridge"
+            if all and self.is_varargs():
+                yield "varargs"
 
         else:
             if self.is_transient():
@@ -991,11 +1016,11 @@ class JavaMemberInfo(JavaAttributes):
 
 
 
-    def pretty_access_flags(self):
+    def pretty_access_flags(self, all=False, forclass=True):
 
         """ tuple of the keywords determined from the access flags"""
 
-        return tuple(self._pretty_access_flags_gen())
+        return tuple(self._pretty_access_flags_gen(all))
 
 
 
@@ -1352,7 +1377,8 @@ def _unpack_const_item(unpacker):
         (val,) = unpacker.unpack(">H")
 
     elif typecode in (CONST_Fieldref, CONST_Methodref,
-                      CONST_InterfaceMethodref, CONST_NameAndType):
+                      CONST_InterfaceMethodref, CONST_NameAndType,
+                      CONST_ModuleIdInfo):
         val = unpacker.unpack(">HH")
 
     else:
@@ -1397,6 +1423,9 @@ def _pretty_const_type_val(typecode, val):
     elif typecode == CONST_NameAndType:
         typestr = "NameAndType"
         val = "#%i:#%i" % val
+    elif typecode == CONST_ModuleIdInfo:
+        typestr = "ModuleIdInfo"
+        val = "#%i #%i" % val
     else:
         raise Unimplemented("unknown type, %r", typecode)
     
