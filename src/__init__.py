@@ -1425,7 +1425,7 @@ def _pretty_const_type_val(typecode, val):
         val = "#%i:#%i" % val
     elif typecode == CONST_ModuleIdInfo:
         typestr = "ModuleIdInfo"
-        val = "#%i #%i" % val
+        val = "#%i@#%i" % val
     else:
         raise Unimplemented("unknown type, %r", typecode)
     
