@@ -35,21 +35,33 @@ def _op(name, val, format=None, const=False, consume=0, produce=0):
 
 
 def get_opcode_by_name(name):
+
+    """ get the integer opcode by its name """
+
     return _optable[name.lower()][1]
 
 
 
 def get_opname_by_code(code):
+
+    """ get the name of an opcode """
+
     return _optable[code][0]
 
 
 
 def get_arg_format(code):
+
+    """ get the format of arguments to this opcode """
+
     return _optable[code][2]
 
 
 
 def has_const_arg(code):
+
+    """ which arg is a const for this opcode """
+    
     return _optable[code][5]
 
 
@@ -106,17 +118,11 @@ def _unpack_wide(bc, offset):
     code = ord(bc[offset])
 
     if code == OP_iinc:
-        # 0x84
-
-        # iinc
         return _unpack(">BHh", bc, offset)
 
     elif code in (OP_iload, OP_fload, OP_aload, OP_lload, OP_dload,
                   OP_istore, OP_fstore, OP_astore, OP_lstore,
                   OP_dstore, OP_ret):
-
-        # ( 0x15, 0x17, 0x19, 0x16, 0x18, 0x36, 0x38, 0x3a, 0x37,
-        #   0x39, 0xa9 )
 
         return _unpack(">BH", bc, offset)
 

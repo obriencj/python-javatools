@@ -10,6 +10,10 @@ author: Christopher O'Brien  <obriencj@gmail.com>
 
 
 def _indent(stream, indent, indentstr, *msgs):
+
+    """ utility for use in writing change messages to a stream, using
+    indentation to denote superchange children """
+
     for x in xrange(0,indent):
         stream.write(indentstr)
     for x in msgs:
@@ -86,6 +90,10 @@ class Change(object):
 
 
     def is_ignored(self, options):
+        
+        """ is this change ignorable, given parameters on the options
+        object. """
+
         return False
 
 
@@ -99,6 +107,14 @@ class Change(object):
 
 
     def write(self, options, indent=0, indentstr="  ", outstream=None):
+
+        """ pring human-readable information about this change,
+        including whether it was ignorable, etc. The options object
+        provides parameters meaningful to individual change
+        implementations. If outstream is None, the 'output' attribute
+        of options may reference a file by name which will be opened
+        for writing, or sys.stdout will be used. """
+
         import sys
 
         out = outstream
@@ -132,21 +148,27 @@ class Change(object):
 
 class Removal(Change):
 
+    """ Something was removed """
+
     def is_change(self):
         return True
+
 
 
 
 class Addition(Change):
     
+    """ Something was added """
+
     def is_change(self):
         return True
+
 
 
 class GenericChange(Change):
     
     """ A generalized test for a single change on two objects: a left
-    and a right """
+    and a right. Subclasses should override the label and the check_impl """
 
     label = "Generic Change"
 
@@ -157,11 +179,15 @@ class GenericChange(Change):
 
 
     def fn_data(self, c):
-        return None
+        
+        """ Get the data to be used in fn_differ from c. By default,
+        this method is the identity """
+
+        return c
 
 
     def fn_pretty(self, c):
-        return self.fn_data(c)
+        return str(self.fn_data(c))
 
 
     def fn_differ(self, ld, rd):
@@ -288,6 +314,10 @@ class SquashedAddition(SquashedChange, Addition):
 
 
 def squash(change, is_change, is_ignored):
+
+    """ squashes the in-depth information of a change to a simplified
+    (and less memory-intensive) form """
+
     if isinstance(change, Removal):
         return SquashedRemoval(change, is_change, is_ignored)
     elif isinstance(change, Addition):

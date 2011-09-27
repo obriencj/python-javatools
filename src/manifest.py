@@ -375,6 +375,30 @@ def cli_create(options, rest):
         output.close()
 
 
+def cli_query(options, rest):
+    from zipfile import ZipFile
+
+    if(len(rest) != 2):
+        print "Please specify a single JAR to query"
+        return 1
+
+    zf = ZipFile(rest[1])
+    mf = Manifest()
+    mf.parse(zf.read("META-INF/MANIFEST.MF"))
+
+    for q in options.query:
+        s = q.split(':', 1)
+        if(len(s) > 1):
+            mfs = mf.sub_sections.get(s[0])
+            if mfs:
+                print q, "=", mfs.get(s[1])
+            else:
+                print q, ": No such section"
+            
+        else:
+            print q, "=", mf.get(s[0])
+
+
 
 def cli_verify(options, rest):
     # TODO: read in the manifest, and then verify the digests for every
@@ -388,10 +412,15 @@ def cli(options, rest):
     if options.verify:
         pass
         #return cli_verify(options, rest)
+
     elif options.create:
         return cli_create(options, rest)
+
+    elif options.query:
+        return cli_query(options, rest)
+
     else:
-        print "specify one of --verify or --create"
+        print "specify one of --verify, --query, or --create"
         return 0
 
 
@@ -404,6 +433,9 @@ def create_optparser():
     
     parse.add_option("-v", "--verify", action="store_true")
     parse.add_option("-c", "--create", action="store_true")
+    parse.add_option("-q", "--query", action="append",
+                     default=[],
+                     help="Query the manifest for keys")
     parse.add_option("-r", "--recursive", action="store_true")
     parse.add_option("-m", "--manifest", action="store", default=None,
                      help="manifest file, default is stdout for create"
