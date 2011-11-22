@@ -42,8 +42,11 @@ def compare(left, right):
 def _gen_from_dircmp(dc, ltrim, rtrim):
     from os.path import isdir, join
     from os import walk
+
+    left_only = dc.left_only
+    left_only.sort()
     
-    for f in dc.left_only:
+    for f in left_only:
         fp = join(dc.left, f)
         if isdir(fp):
             for r,d,fs in walk(fp):
@@ -54,7 +57,10 @@ def _gen_from_dircmp(dc, ltrim, rtrim):
         else:
             yield (LEFT, fp[ltrim:]) #join(dc.left[ltrim:], f))
         
-    for f in dc.right_only:
+    right_only = dc.right_only
+    right_only.sort()
+
+    for f in right_only:
         fp = join(dc.right, f)
         if isdir(fp):
             for r,d,fs in walk(fp):
@@ -65,13 +71,21 @@ def _gen_from_dircmp(dc, ltrim, rtrim):
         else:
             yield (RIGHT, fp[rtrim:]) #join(dc.right[rtrim:], f))
 
-    for f in dc.diff_files:
+    diff_files = dc.diff_files
+    diff_files.sort()
+
+    for f in diff_files:
         yield (DIFF, join(dc.right[rtrim:], f))
 
-    for f in dc.same_files:
+    same_files = dc.same_files
+    same_files.sort()
+
+    for f in same_files:
         yield (BOTH, join(dc.left[ltrim:], f))
 
-    for sub in dc.subdirs.values():
+    subdirs = dc.subdirs.values()
+    subdirs.sort()
+    for sub in subdirs:
         for event in _gen_from_dircmp(sub, ltrim, rtrim):
             yield event
 

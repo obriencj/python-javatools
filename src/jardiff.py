@@ -183,7 +183,7 @@ class JarContentsChange(SuperChange):
         left, right = self.ldata, self.rdata
 
         for event,entry in compare_zips(self.ldata, self.rdata):
-            print event, entry
+            #print event, entry
             
             if event == SAME:
                 pass

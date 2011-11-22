@@ -67,8 +67,9 @@ INSTRUCTION_BASE = """
 """
 
 
+
 def append_node(state, index):
-    print "append_node", state, index
+    #print "append_node", state, index
 
     doc = state.ownerDocument
     node = doc.createElement("node")
@@ -78,8 +79,9 @@ def append_node(state, index):
     return node
 
 
+
 def append_transition(node, name, targetname):
-    print "append_transition", node, name, targetname
+    #print "append_transition", node, name, targetname
     
     doc = node.ownerDocument
     trans = doc.createElement("transition")
@@ -90,8 +92,9 @@ def append_transition(node, name, targetname):
     return trans
 
 
+
 def append_action(node, nodeclass):
-    print "append_action", node, nodeclass
+    #print "append_action", node, nodeclass
 
     doc = node.ownerDocument
     act = doc.createElement("action")
@@ -103,20 +106,78 @@ def append_action(node, nodeclass):
 
 
 
-def copyfile(fn, orig, patchdir):
+def chunks(stream, x=(1024*64)):
+    buf = stream.read(x)
+    while buf:
+        yield buf
+        buf = stream.read(x)
+
+
+
+def sha256sum(fn):
+    from hashlib import sha256
+
+    fd = open(fn, "rb")
+    cs = sha256()
+
+    for chunk in chunks(fd):
+        cs.update(chunk)
+    fd.close()
+
+    return cs.hexdigest()
+
+
+
+def copyfile(fn, orig, patchdir, squash=None,
+             pathsquash=None, pathsquashed=None):
+
     from shutil import copy
 
     print "copy file %s from %s into %s" % (fn, orig, patchdir)
 
     a, b = os.path.split(fn)
 
+    orig_fn = os.path.join(orig, fn)
     dest = os.path.join(patchdir, a)
     dest_fn = os.path.join(patchdir, a, b)
+    ret = os.path.join("#{patchFolder}", a, b)
 
-    mkdirp(dest)
-    copy(os.path.join(orig, fn), dest)
+    if pathsquash is not None:
+        ps = None
+        for k in pathsquash:
+            if fn.startswith(k):
+                ps = fn[len(k):]
+                break
 
-    return os.path.join("#{patchFolder}", a, b)
+        if ps:
+            check = pathsquashed.get(ps)
+            if check:
+                print "path squashing file %s as a copy of %s" % (fn, check)
+                return check
+            else:
+                pathsquashed[ps] = ret
+                mkdirp(dest)
+                copy(orig_fn, dest)
+                return ret
+
+    if squash is None:
+        mkdirp(dest)
+        copy(orig_fn, dest)
+        return ret
+
+    else:
+        squashkey = sha256sum(orig_fn)
+        squashed = squash.get(squashkey)
+        
+        if squashed:
+            print "sha256 squashing file %s as a copy of %s" % (fn, squashed)
+            return squashed
+
+        else:
+            squash[squashkey] = ret
+            mkdirp(dest)
+            copy(orig_fn, dest)
+            return ret
 
 
 
@@ -181,6 +242,31 @@ def sieve_changes(delta, options, copies, removals, patches):
 
 
 
+def repath(pathmap, pathstr):
+    found = ""
+    for key in pathmap.keys():
+        if pathstr.startswith(key):
+            if len(key) > len(found):
+                found = key
+    
+    if found:
+        return pathmap[found] + "/" + pathstr[len(found):]
+    else:
+        return pathstr
+
+
+
+def sort_by_entry(changeset):
+    tmp = {}
+    for c in changeset:
+        tmp[c.entry] = c
+    keys = tmp.keys()
+    keys.sort()
+    for k in keys:
+        yield tmp[k]
+
+
+
 def generate_patch(delta, options):
 
     from xml.dom.minidom import parseString
@@ -189,28 +275,43 @@ def generate_patch(delta, options):
     copies, removals, patches = [], [], []
     sieve_changes(delta, options, copies, removals, patches)
 
+    pathmap = options.pathmap
+
     doc = parseString(INSTRUCTION_BASE)
     state = xml.xpath.Evaluate("/process-definition/super-state", doc)[0]
     end = xml.xpath.Evaluate("node[@name='complete']", state)[0]
     end.parentNode.removeChild(end)
 
-    print doc
-    print state
-    print end
+    #print doc
+    #print state
+    #print end
 
     index = 1
 
     patchdir = options.patch_dir
     
-    for change in copies:
-        tmp = copyfile(change.entry, delta.rdata, patchdir)
+    squash = None
+    if options.squash_256:
+        squash = {}
+
+    spaths = None
+    spmap = None
+    if options.squash_path:
+        spaths = options.squash_path
+        spmap = {}
+
+    for change in sort_by_entry(copies):
+        tmp = copyfile(change.entry, delta.rdata, patchdir,
+                       squash, spaths, spmap)
+
+        fn = repath(pathmap, change.entry)
 
         node = append_node(state, index)
         act = append_action(node, BackupAndReplaceFile)
         
         o = doc.createElement("originalFileLocation")
         act.appendChild(o)
-        t = doc.createTextNode(change.entry)
+        t = doc.createTextNode(fn)
         o.appendChild(t)
 
         o = doc.createElement("replacementFileLocation")
@@ -219,23 +320,25 @@ def generate_patch(delta, options):
         o.appendChild(t)
 
         index = index + 1
-        append_transition(act, "originalFileNotFound", index)
-        append_transition(act, "success", index)
+        append_transition(node, "originalFileNotFound", index)
+        append_transition(node, "success", index)
 
-    for change in removals:
+    for change in sort_by_entry(removals):
         node = append_node(state, index)
         act = append_action(node, Notification)
+        fn = repath(pathmap, change.entry)
 
         o = doc.createElement("notification")
         act.appendChild(o)
-        t = doc.createTextNode("Remove the old file " + change.entry)
+        t = doc.createTextNode("Remove the old file " + fn)
         o.appendChild(t)
         
         index = index + 1
         append_transition(node, "success", index)
 
-    for change in patches:
+    for change in sort_by_entry(patches):
         tmp = copypatch(change.entry, delta.ldata, delta.rdata, patchdir)
+        fn = repath(pathmap, change.entry)
 
         node = append_node(state, index)
         act = append_action(node, Notification)
@@ -244,7 +347,7 @@ def generate_patch(delta, options):
         act.appendChild(o)
         t = doc.createTextNode("Use the original file " + tmp + ".orig and"
                                " the patched file " + tmp + ".patched to"
-                               " update your file " + change.entry)
+                               " update your file " + fn)
         o.appendChild(t)
 
         index = index + 1
@@ -262,8 +365,22 @@ def generate_patch(delta, options):
 
 
 
+def options_magic(options):
+    import distdiff
+
+    distdiff.options_magic(options)
+
+    pathmap = {}
+    for m in options.path_map:
+        k,v = m.split(":",1)
+        pathmap[k] = v
+
+    options.pathmap = pathmap
+
+
+
 def cli(options, rest):
-    from distdiff import DistReport, options_magic
+    from distdiff import DistReport
 
     options_magic(options)
 
@@ -289,6 +406,12 @@ def create_optparser():
     parser = create_optparser()
 
     parser.add_option("--patch-dir", action="store", default="patch")
+    parser.add_option("--path-map", action="append", default=[])
+
+    parser.add_option("--squash-256", action="store_true",
+                      default=False)
+
+    parser.add_option("--squash-path", action="append", default=[])
 
     return parser
 
