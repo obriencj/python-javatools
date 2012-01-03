@@ -230,7 +230,8 @@ def sieve_changes(delta, options, copies, removals, patches):
             removals.append(change)
 
         elif issubclass(change.origclass, distdiff.DistContentChange):
-            if fnmatches(change.entry, "*.xml", "*.sh", "*.bat", "*.conf"):
+            if fnmatches(change.entry, "*.xml", "*.sh", "*.bat",
+                         "*.conf", "*.properties", "*.ini"):
                 patches.append(change)
             else:
                 copies.append(change)
