@@ -28,6 +28,6 @@
   (possibly recursively) from discoverable locations (JAVA_HOME,
   CLASSPATH, etc) and output missing deps
 
-- figure out how Jar signing works, and write a verify utility
+- write a jarsign verifier, and add signature information to jarinfo
 
 #

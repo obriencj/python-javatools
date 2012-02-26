@@ -213,6 +213,9 @@ class JavaConstantPool(object):
         constant. For more complex types, such as fieldref, methodref,
         etc, this will return a tuple."""
 
+        if not index:
+            raise Exception("Requested const 0")
+
         t,v = self.consts[index]
         
         if t in (CONST_Utf8, CONST_Integer, CONST_Float,
@@ -289,7 +292,7 @@ class JavaConstantPool(object):
             a,b = (self.deref_const(i) for i in v)
             return "%s:%s" % (a,b)
 
-        elif t == CONT_ModuleIdInfo:
+        elif t == CONST_ModuleIdInfo:
             a,b = (self.deref_const(i) for i in v)
             return "%s version %s" % (a,b)
 
@@ -559,13 +562,21 @@ class JavaClassInfo(JavaAttributes):
 
 
     def get_sourcefile_ref(self):
-        (r,) = _unpack(">H", self.get_attribute("SourceFile"))
+        buff = self.get_attribute("SourceFile")
+        if buff is None:
+            return 0
+
+        (r,) = _unpack(">H", buff)
         return r
 
 
 
     def get_sourcefile(self):
-        return self.deref_const(self.get_sourcefile_ref())
+        sfref = self.get_sourcefile_ref()
+        if sfref:
+            return self.deref_const(sfref)
+        else:
+            return None
 
 
 
@@ -600,15 +611,30 @@ class JavaClassInfo(JavaAttributes):
 
     def get_enclosingmethod(self):
         buff = self.get_attribute("EnclosingMethod")
+
+        # TODO:
+        # Running across classes with data in this attribute like
+        # 00 06 00 00
+        # which would be the 6th const for the class name, and the
+        # zero-th (INVALID) const for method. Maybe this is static
+        # inner classes?
+
         if buff is None:
             return None
 
         # class index, method index
         (ci, mi) = _unpack(">HH", buff)
-        enc_class = self.deref_const(ci)
-        enc_meth,enc_type = self.deref_const(mi)
 
-        return "%s.%s%s" % (enc_class, enc_meth, enc_type)
+        if ci and mi:
+            enc_class = self.deref_const(ci)
+            enc_meth,enc_type = self.deref_const(mi)
+            return "%s.%s%s" % (enc_class, enc_meth, enc_type)
+
+        elif ci:
+            return self.deref_const(ci)
+
+        else:
+            return None
 
 
 

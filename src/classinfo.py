@@ -12,6 +12,7 @@ import sys
 
 
 
+HEADER = 0
 PUBLIC = 1
 PACKAGE = 3
 PRIVATE = 7
@@ -125,9 +126,11 @@ def print_method(options, method):
             print "  Varargs: true"
 
     if options.lines and code:
-        print "  LineNumberTable:"
-        for (o,l) in method.get_code().get_linenumbertable():
-            print "   line %i: %i" % (l,o)
+        lnt = method.get_code().get_linenumbertable()
+        if lnt:
+            print "  LineNumberTable:"
+            for (o,l) in lnt:
+                print "   line %i: %i" % (l,o)
 
     if options.locals and code:
         if method.cpool:
@@ -164,15 +167,16 @@ def print_method(options, method):
 
 
 
-def print_class(options, classfile):
-    from javaclass import unpack_classfile, platform_from_version
+def cli_print_classinfo(options, info):
+    from javaclass import platform_from_version
 
-    info = unpack_classfile(classfile)
+    sourcefile = info.get_sourcefile()
+    if sourcefile:
+        print "Compiled from \"%s\"" % sourcefile
 
-    print "Compiled from \"%s\"" % info.get_sourcefile()
     print info.pretty_descriptor(),
 
-    if options.verbose:
+    if options.verbose or options.show == HEADER:
         print
         if info.get_sourcefile():
             print "  SourceFile: \"%s\"" % info.get_sourcefile()
@@ -201,6 +205,9 @@ def print_class(options, classfile):
                 print "const #%i = %s\t%s;" % (i,t,v)
         print
         
+    if options.show == HEADER:
+        return
+
     print "{"
 
     for field in info.fields:
@@ -214,6 +221,16 @@ def print_class(options, classfile):
     print "}"
     print
 
+    return 0
+
+
+
+def cli_print_class(options, classfile):
+    from javaclass import unpack_classfile
+
+    info = unpack_classfile(classfile)
+    return cli_print_classinfo(options, info)
+
 
 
 def create_optparser():
@@ -221,16 +238,20 @@ def create_optparser():
 
     p = OptionParser("%prog <options> <classfiles>")
 
-    p.add_option("--public", dest="show",
-                 action="store_const", default=PUBLIC, const=PUBLIC,
-                 help="show only public members")
+    p.add_option("--header", dest="show",
+                 action="store_const", default=PUBLIC, const=HEADER,
+                 help="show just the class header, no members")
 
-    p.add_option("--private", dest="show",
-                 action="store_const", const=PRIVATE,
-                 help="show public and protected members")
+    p.add_option("--public", dest="show",
+                 action="store_const", const=PUBLIC,
+                 help="show only public members")
 
     p.add_option("--package", dest="show",
                  action="store_const", const=PACKAGE,
+                 help="show public and protected members")
+
+    p.add_option("--private", dest="show",
+                 action="store_const", const=PRIVATE,
                  help="show all members")
 
     p.add_option("-l", dest="lines", action="store_true",
@@ -272,7 +293,7 @@ def cli(options, rest):
                          options.sigs)
 
     for f in rest[1:]:
-        print_class(options, f)
+        cli_print_class(options, f)
         
     return 0
 
