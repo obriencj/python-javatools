@@ -129,7 +129,7 @@ def store_item(k, v, stream):
     from StringIO import StringIO
 
     v = v or ""
-    if len(k) + len(v) > 69:
+    if len(k) + len(v) > 68:
         s = StringIO()
         s.write(k)
         s.write(": ")
@@ -139,16 +139,16 @@ def store_item(k, v, stream):
 
         s = StringIO(k)
 
-        # first grab 71 (which is 72 after the trailing newline)
-        stream.write(s.read(71))
+        # first grab 70 (which is 72 after the trailing newline)
+        stream.write(s.read(70))
 
-        # now only 70 at a time, because we need a leading space and a
+        # now only 69 at a time, because we need a leading space and a
         # trailing \n
-        k = s.read(70)
+        k = s.read(69)
         while k:
             stream.write("\n ")
             stream.write(k)
-            k = s.read(70)
+            k = s.read(69)
         s.close()
 
     else:
@@ -162,6 +162,14 @@ def store_item(k, v, stream):
 
 def parse_sections(data):
 
+    """ yields one section at a time in the form
+
+    [ (key, [val...]), ... ]
+
+    where key is a string and val... is a list of string values to be
+    concatenated together
+    """
+
     from StringIO import StringIO
     
     if not data:
@@ -174,22 +182,24 @@ def parse_sections(data):
 
     for line in data:
 
-        # TODO: need to look into whether this is wrong. White space
-        # might need to be preserved.
-        sl = line.strip()
+        # Run into a few MANIFEST with \0 in them, oddly
+        sl = line.replace('\0','')
+
+        # Trim off the ending CRLF, CR, or LF
+        sl = sl.splitlines()[0]
         
         if not sl:
             if curr:
                 yield curr
                 curr = None
 
-        elif line[0] == ' ':
+        elif sl[0] == ' ':
             # continuation
             if curr is None:
                 raise Exception("malformed Manifest, bad continuation")
 
             else:
-                curr[-1][1].append(sl)
+                curr[-1][1].append(sl[1:])
 
         else:
             if curr is None:
