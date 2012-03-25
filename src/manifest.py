@@ -34,7 +34,7 @@ class ManifestSection(dict):
         # our keys should always be strings, as should our values
 
         k = str(k)
-        if len(k) > 69:
+        if len(k) > 68:
             raise Exception("key too long for Manifest")
         else:
             dict.__setitem__(self, k, str(v))
@@ -117,18 +117,14 @@ def store_item(k, v, stream):
     and value pair that would be longer must be split up over multiple
     continuing lines"""
 
-    # technically, there's an issue here. The spec doesn't allow for
-    # the key string to be broken up with a line continuation: that is
-    # to say that the key and the separator colon and space must all
-    # be on a single line, and only the value may be broken up. It
-    # would be most appropriate to fix this by putting some wrapping
-    # methods on the Manifest class so that the sections aren't just
-    # plain dictionaries (and thus so we can raise an exception when a
-    # too-large key is given)
-
     from StringIO import StringIO
 
+    k = k or ""
     v = v or ""
+
+    if not (0 < len(k) < 69):
+        raise Exception("Invalid key length: %i" % len(k))
+
     if len(k) + len(v) > 68:
         s = StringIO()
         s.write(k)
@@ -164,10 +160,13 @@ def parse_sections(data):
 
     """ yields one section at a time in the form
 
-    [ (key, [val...]), ... ]
+    [ (key, [val, ...]), ... ]
 
-    where key is a string and val... is a list of string values to be
-    concatenated together
+    where key is a string and val is a string representing a single
+    line of any value associated with the key. Multiple vals may be
+    present if the value is long enough to require line continuations
+    in which case simply concatenate the vals together to get the full
+    value.
     """
 
     from StringIO import StringIO
@@ -178,60 +177,61 @@ def parse_sections(data):
     if isinstance(data, str) or isinstance(data, buffer):
         data = StringIO(data)
 
+    # our current section
     curr = None
 
     for line in data:
 
-        # Run into a few MANIFEST with \0 in them, oddly
+        # Clean up the line
         sl = line.replace('\0','')
-
-        # Trim off the ending CRLF, CR, or LF
         sl = sl.splitlines()[0]
         
         if not sl:
+            # blank line means end of current section (if any)
             if curr:
                 yield curr
                 curr = None
 
         elif sl[0] == ' ':
-            # continuation
+            # line beginning with a space means a continuation
             if curr is None:
                 raise Exception("malformed Manifest, bad continuation")
-
             else:
                 curr[-1][1].append(sl[1:])
 
         else:
+            # otherwise the beginning of a new k:v pair
             if curr is None:
-                curr = []
+                curr = list()
         
             k,v = sl.split(':', 1)
-            curr.append( (k, [v[1:]]) )
+            curr.append( (k, [v[1:],]) )
     
     if curr:
         yield curr
 
 
 
-_hashes_new = ()
+_MD5 = None
+_SHA1 = None
 
 try:
     import hashlib
-    _hashes_new = (hashlib.md5, hashlib.sha1)
+    _MD5, _SHA1 = (hashlib.md5, hashlib.sha1)
 except ImportError, err:
     from Crypto.Hash import MD5, SHA
-    _hashes_new = (MD5.new, SHA.new)
+    _MD5, _SHA1 = (MD5.new, SHA.new)
     
 
 
-def digests(chunks):
+def digest_chunks(chunks):
 
     """ returns a base64 rep of the MD5 and SHA1 digests from the
     chunks of data """
 
     from base64 import b64encode
 
-    hashes = [h() for h in _hashes_new]
+    hashes = (_MD5(), _SHA1())
     
     for chunk in chunks:
         for h in hashes:
@@ -241,7 +241,7 @@ def digests(chunks):
 
 
 
-def file_chunk(filename, x=1024):
+def file_chunk(filename, x=2**14):
 
     """ returns a generator function which when called will emit
     x-sized chunks of filename's contents""" 
@@ -257,7 +257,7 @@ def file_chunk(filename, x=1024):
 
 
 
-def zipentry_chunk(zipfile, name, x=1024):
+def zipentry_chunk(zipfile, name, x=2**14):
 
     """ returns a generator function which when called will emit
     x-sized chunks of the named entry in the zipfile object"""
@@ -282,7 +282,7 @@ def directory_generator(dirname, trim=0):
             if not isdir(f):
                 collect.append(f)
 
-    collect = []
+    collect = list()
     walk(dirname, gather, collect)
     for f in collect:
         yield f[trim:], file_chunk(f)
@@ -291,10 +291,11 @@ def directory_generator(dirname, trim=0):
 
 def multi_path_generator(pathnames):
 
-    """ emits name,chunkgen pairs for all of the files found under the
+    """ yields (name,chunkgen) for all of the files found under the
     list of pathnames given. This is recursive, so directories will
-    have their contents emitted. chunkgen is a generator that can be
-    iterated over to obtain the contents of the file in multiple parts
+    have their contents emitted. chunkgen is a function that can
+    called and iterated over to obtain the contents of the file in
+    multiple reads.
     """
 
     from os.path import isdir
@@ -364,7 +365,7 @@ def cli_create(options, rest):
 
         sec = mf.create_section(name)
 
-        md5,sha1 = digests(chunks())
+        md5,sha1 = digest_chunks(chunks())
         sec["SHA1-Digest"] = sha1
         sec["MD5-Digest"] = md5
 
@@ -383,6 +384,7 @@ def cli_create(options, rest):
 
     if options.manifest:
         output.close()
+
 
 
 def cli_query(options, rest):
@@ -413,15 +415,15 @@ def cli_query(options, rest):
 def cli_verify(options, rest):
     # TODO: read in the manifest, and then verify the digests for every
     # file listed.
-
-    pass
+    
+    print "NYI"
+    return 0
 
 
 
 def cli(options, rest):
     if options.verify:
-        pass
-        #return cli_verify(options, rest)
+        return cli_verify(options, rest)
 
     elif options.create:
         return cli_create(options, rest)
