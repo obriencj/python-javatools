@@ -249,8 +249,8 @@ class JavaConstantPool(object):
 
     def pretty_constants(self):
 
-        """ the sequence of tuples (index, pretty type, dereferenced
-        value) of the constant pool entries."""
+        """ the sequence of tuples (index, pretty type, value) of the
+        constant pool entries."""
 
         for i in xrange(1, len(self.consts)):
             t,v = self.pretty_const(i)
@@ -273,11 +273,11 @@ class JavaConstantPool(object):
 
 
 
-    def pretty_const_comment(self, index):
+    def pretty_deref_const(self, index):
         t,v = self.consts[index]
 
         if t == CONST_String:
-            return "\"%s\"" % repr(self.deref_const(v))[1:-1]
+            return "%s" % repr(self.deref_const(v))[1:-1]
 
         elif t == CONST_Class:
             return self.deref_const(v)
@@ -285,7 +285,7 @@ class JavaConstantPool(object):
         elif t in (CONST_Fieldref, CONST_Methodref,
                    CONST_InterfaceMethodref):
 
-            nat = self.pretty_const_comment(v[1])
+            nat = self.pretty_deref_const(v[1])
             return "%s.%s" % (self.deref_const(v[0]), nat)
 
         elif t == CONST_NameAndType:
@@ -675,7 +675,7 @@ class JavaClassInfo(JavaAttributes):
 
 
     def pretty_interfaces(self):
-        return [_pretty_class(t) for t in self.get_interfaces()]
+        return tuple(_pretty_class(t) for t in self.get_interfaces())
 
     
 
@@ -935,7 +935,7 @@ class JavaMemberInfo(JavaAttributes):
         the builtin java types."""
 
         if not self.is_method:
-            return None
+            return tuple()
 
         tp = _typeseq(self.get_descriptor())
         tp = _typeseq(tp[0][1:-1])
@@ -954,14 +954,14 @@ class JavaMemberInfo(JavaAttributes):
 
     def pretty_arg_types(self):
 
-        """ The pretty version of get_art_type_descriptors. Returns
-        None for non-methods. """
+        """ The pretty version of get_arg_type_descriptors. Returns
+        () for non-methods """
 
         if not self.is_method:
-            return None
+            return tuple()
 
         types = self.get_arg_type_descriptors()
-        return "(%s)" % ",".join(_pretty_type(t) for t in types)
+        return tuple(_pretty_type(t) for t in types)
 
 
 
@@ -973,7 +973,7 @@ class JavaMemberInfo(JavaAttributes):
         f = " ".join(self.pretty_access_flags())
         p = self.pretty_type()
         n = self.get_name()
-        a = self.pretty_arg_types()
+        a = ",".join(self.pretty_arg_types())
         t = ",".join(self.pretty_exceptions())
         
         if n == "<init>":
@@ -988,7 +988,7 @@ class JavaMemberInfo(JavaAttributes):
 
         if a:
             # stick the name and args together so there's no space
-            n = n+a
+            n = "%s(%s)" % (n, a)
 
         if t:
             # assemble any throws as necessary
@@ -1054,7 +1054,7 @@ class JavaMemberInfo(JavaAttributes):
 
         """ sequence of pretty names for get_exceptions() """
 
-        return [_pretty_class(e) for e in self.get_exceptions()]
+        return tuple(_pretty_class(e) for e in self.get_exceptions())
 
 
 

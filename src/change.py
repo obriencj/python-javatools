@@ -106,43 +106,93 @@ class Change(object):
         return tuple()
 
 
-    def write(self, options, indent=0, indentstr="  ", outstream=None):
+    def simplify(self, options=None):
+        simple = {
+            "class": type(self).__name__,
+            "is_change": self.is_change(),
+            "description": self.get_description(),
+            "label": self.label,
+            }
 
-        """ pring human-readable information about this change,
+        if options:
+            simple["is_ignored"] = self.is_ignored(options)
+
+        if isinstance(self, Addition):
+            simple["is_addition"] = True
+
+        if isinstance(self, Removal):
+            simple["is_removal"] = True
+
+        if self.entry:
+            simple["entry"] = self.entry
+
+        # build a list of sub-changes honoring show-ignored and show-unchanged
+        subs = list()
+        for s in self.get_subchanges():
+            if s.is_change():
+                if options and s.is_ignored(options):
+                    if getattr(options, "show_ignored", False):
+                        subs.append(s)
+                else:
+                    subs.append(s)
+            elif options and getattr(options, "show_unchanged", False):
+                subs.append(s)
+
+        if subs:
+            simple["children"] = [s.simplify(options) for s in subs]
+
+        return simple
+
+
+    def write(self, options):
+        import sys
+
+        out = sys.stdout
+        if options.output:
+            out = open(options.output, "wt")
+
+        if options.json:
+            self._write_json(options, out)
+        else:
+            self._write(options, 0, "  ", out)
+
+        if options.output:
+            out.close()
+
+
+    def _write_json(self, options, outstream):
+        from json import dump
+        simple = self.simplify(options)
+        simple["runtime_options"] = options.__dict__
+        dump(simple, outstream, sort_keys=True, indent=2)
+        
+
+    def _write(self, options, indent, indentstr, outstream):
+
+        """ print human-readable information about this change,
         including whether it was ignorable, etc. The options object
         provides parameters meaningful to individual change
         implementations. If outstream is None, the 'output' attribute
         of options may reference a file by name which will be opened
         for writing, or sys.stdout will be used. """
 
-        import sys
-
-        out = outstream
-        if not out:
-            if options.output:
-                out = open(options.output, "wt")
-            else:
-                out = sys.stdout
-
         if self.is_change():
             if self.is_ignored(options):
                 if getattr(options, "show_ignored", False):
-                    _indent(out,indent,indentstr,
+                    _indent(outstream,indent,indentstr,
                             self.get_description(),
                             " [IGNORED]")
             else:
-                _indent(out,indent,indentstr,
+                _indent(outstream,indent,indentstr,
                         self.get_description())
                 
         elif getattr(options, "show_unchanged", False):
-            _indent(out,indent,indentstr,
+            _indent(outstream,indent,indentstr,
                     self.get_description())
 
         for sub in self.get_subchanges():
-            sub.write(options, indent+1, indentstr, out)
+            sub._write(options, indent+1, indentstr, outstream)
 
-        if not outstream and options.output:
-            out.close()
 
 
 
@@ -152,7 +202,6 @@ class Removal(Change):
 
     def is_change(self):
         return True
-
 
 
 
@@ -187,11 +236,31 @@ class GenericChange(Change):
 
 
     def fn_pretty(self, c):
-        return str(self.fn_data(c))
+        return self.fn_data(c)
+
+    
+    def fn_pretty_desc(self, c):
+        return self.fn_pretty(c)
 
 
     def fn_differ(self, ld, rd):
         return ld != rd
+
+
+    def pretty_ldata(self):
+        return self.fn_pretty(self.ldata)
+
+
+    def pretty_rdata(self):
+        return self.fn_pretty(self.rdata)
+
+
+    def pretty_ldata_desc(self):
+        return self.fn_pretty_desc(self.ldata)
+
+
+    def pretty_rdata_desc(self):
+        return self.fn_pretty_desc(self.rdata)
 
 
     def check_impl(self):
@@ -207,8 +276,8 @@ class GenericChange(Change):
         
         l, r = self.fn_data(self.ldata), self.fn_data(self.rdata)
         if self.fn_differ(l, r):
-            l, r = self.fn_pretty(self.ldata), self.fn_pretty(self.rdata)
-            return True, "%s changed: %r to %r" % (self.label, l, r)
+            l, r = self.pretty_ldata_desc(), self.pretty_rdata_desc()
+            return True, "%s changed: %s to %s" % (self.label, l, r)
         else:
             return False, None
 
@@ -221,6 +290,16 @@ class GenericChange(Change):
         changed, msg = self.check_impl()
         self.changed = changed
         self.description = msg
+
+
+    def simplify(self, options=None):
+        simple = Change.simplify(self, options)
+
+        l,r = self.pretty_ldata(), self.pretty_rdata()
+        simple["old_data"] = l
+        simple["new_data"] = r
+        
+        return simple
 
 
 
@@ -280,6 +359,10 @@ class SuperChange(GenericChange):
         return self.changes
 
 
+    def simplify(self, options=None):
+        return Change.simplify(self, options)
+
+
 
 class SquashedChange(Change):
 
@@ -300,6 +383,11 @@ class SquashedChange(Change):
 
     def is_change(self):
         return self.is_change
+
+    def simplify(self, options=None):
+        simple = Change.simplify(options)
+        simple["original_class"] = self.origclass.__name__
+        return simple
 
 
 

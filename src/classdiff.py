@@ -14,6 +14,7 @@ author: Christopher O'Brien  <obriencj@gmail.com>
 
 import sys
 from change import Change, GenericChange, SuperChange
+from change import Addition, Removal
 from change import yield_sorted_by_type
 
 
@@ -77,10 +78,11 @@ class ClassSuperclassChange(GenericChange):
 class ClassInterfacesChange(GenericChange):
     label = "Interfaces"
 
-
     def fn_data(self, c):
         return set(c.get_interfaces())
-    
+
+    def fn_pretty(self, c):
+        return c.pretty_interfaces()
 
 
 class ClassAccessflagsChange(GenericChange):
@@ -144,15 +146,11 @@ class MemberSuperChange(SuperChange):
 
 
 
-class MemberAdded(Change):
+class MemberAdded(Addition):
     
     """ basis for FieldAdded and MethodAdded """
     
     label = "Member added"
-
-
-    def is_change(self):
-        return True
 
 
     def get_description(self):
@@ -160,15 +158,11 @@ class MemberAdded(Change):
 
 
 
-class MemberRemoved(Change):
+class MemberRemoved(Removal):
     
     """ basis for FieldChange and MethodChange """
     
     label = "Member removed"
-
-
-    def is_change(self):
-        return True
 
 
     def get_description(self):
@@ -265,6 +259,19 @@ class CodeConstantsChange(GenericChange):
     label = "Code constants"
 
 
+    def fn_pretty(self, c):
+        import opcodes
+        
+        pr = list()
+        for offset,code,args in c.disassemble():
+            if opcodes.has_const_arg(code):
+                name = opcodes.get_opname_by_code(code)
+                data = c.cpool.pretty_deref_const(args[0])
+                pr.append([offset, name, data])
+                
+        return pr
+
+
     def check_impl(self):
         import opcodes
         
@@ -272,12 +279,12 @@ class CodeConstantsChange(GenericChange):
 
         if len(left.code) != len(right.code):
             # code body change, can't determine constants
-            return False, None
+            return True, None
         
         for l,r in zip(left.disassemble(), right.disassemble()):
             if not ((l[0] == r[0]) and (l[1] == r[1])):
                 # code body change, can't determine constants
-                return False, None
+                return True, None
             
             largs,rargs = l[2], r[2]
             if opcodes.has_const_arg(l[1]):
@@ -295,6 +302,17 @@ class CodeConstantsChange(GenericChange):
 class CodeBodyChange(GenericChange):
     label = "Code body"
 
+
+    def fn_pretty(self, c):
+        import opcodes
+        
+        pr = list()
+        for offset,code,args in c.disassemble():
+            name = opcodes.get_opname_by_code(code)
+            pr.append([offset, name, args])
+                
+        return pr
+    
 
     def check_impl(self):
         left,right = self.ldata,self.rdata
@@ -352,7 +370,7 @@ class MethodParametersChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        return ",".join(c.pretty_arg_types())
+        return c.pretty_arg_types()
 
     
 
@@ -365,7 +383,7 @@ class MethodAccessflagsChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        return ",".join(c.pretty_access_flags())
+        return c.pretty_access_flags()
 
 
 
@@ -387,7 +405,7 @@ class MethodExceptionsChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        return ",".join(c.pretty_exceptions())
+        return c.pretty_exceptions()
         
 
 
@@ -471,6 +489,10 @@ class FieldAccessflagsChange(GenericChange):
 
 
     def fn_pretty(self, c):
+        return c.pretty_access_flags()
+
+
+    def fn_pretty_desc(self, c):
         return ",".join(c.pretty_access_flags())
 
 
@@ -480,6 +502,10 @@ class FieldConstvalueChange(GenericChange):
 
 
     def fn_data(self, c):
+        return c.deref_constantvalue()
+
+
+    def fn_pretty(self, c):
         return c.deref_constantvalue()
 
 
@@ -559,6 +585,15 @@ class ClassConstantPoolChange(GenericChange):
         return c.cpool.consts
 
 
+    def fn_pretty(self, c):
+        data = list()
+        for i in xrange(1, len(c.cpool.consts)):
+            t,v = c.cpool.pretty_const(i)
+            if t:
+                data.append( [i, t, v] )
+        return tuple(data)
+
+
     def is_ignored(self, options):
         return options.ignore_pool
 
@@ -616,8 +651,10 @@ def cli_classes_diff(options, left, right):
 
     delta = JavaClassChange(left, right)
     delta.check()
-
+        
     if not options.silent:
+        # will do either normal or json output and will use the -o option if
+        # it was specified
         delta.write(options)
 
     if (not delta.is_change()) or delta.is_ignored(options):
@@ -642,26 +679,27 @@ def create_optparser():
 
     parse = OptionParser("%prog <options> <old_classfile> <new_classfile>")
 
-    parse.add_option("-q", dest="silent", action="store_true")
+    parse.add_option("-q", dest="silent", action="store_true", default=False)
     parse.add_option("-o", dest="output", action="store")
+    parse.add_option("--json", action="store_true", default=False)
 
-    parse.add_option("-v", dest="verbose", action="store_true")
-    parse.add_option("--show-ignored", action="store_true")
-    parse.add_option("--show-unchanged", action="store_true")
+    parse.add_option("-v", dest="verbose", action="store_true", default=False)
+    parse.add_option("--show-ignored", action="store_true", default=False)
+    parse.add_option("--show-unchanged", action="store_true", default=False)
 
     parse.add_option("--ignore", action="store", default="")
-    parse.add_option("--ignore-version", action="store_true")
-    parse.add_option("--ignore-version-up", action="store_true")
-    parse.add_option("--ignore-version-down", action="store_true")
-    parse.add_option("--ignore-platform", action="store_true")
-    parse.add_option("--ignore-platform-up", action="store_true")
-    parse.add_option("--ignore-platform-down", action="store_true")
-    parse.add_option("--ignore-lines", action="store_true")
-    parse.add_option("--ignore-absolute-lines", action="store_true")
-    parse.add_option("--ignore-relative-lines", action="store_true")
-    parse.add_option("--ignore-deprecated", action="store_true")
-    parse.add_option("--ignore-added", action="store_true")
-    parse.add_option("--ignore-pool", action="store_true")
+    parse.add_option("--ignore-version", action="store_true", default=False)
+    parse.add_option("--ignore-version-up", action="store_true", default=False)
+    parse.add_option("--ignore-version-down", action="store_true", default=False)
+    parse.add_option("--ignore-platform", action="store_true", default=False)
+    parse.add_option("--ignore-platform-up", action="store_true", default=False)
+    parse.add_option("--ignore-platform-down", action="store_true", default=False)
+    parse.add_option("--ignore-lines", action="store_true", default=False)
+    parse.add_option("--ignore-absolute-lines", action="store_true", default=False)
+    parse.add_option("--ignore-relative-lines", action="store_true", default=False)
+    parse.add_option("--ignore-deprecated", action="store_true", default=False)
+    parse.add_option("--ignore-added", action="store_true", default=False)
+    parse.add_option("--ignore-pool", action="store_true", default=False)
 
     return parse
     
