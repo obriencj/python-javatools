@@ -254,6 +254,10 @@ class CodeExceptionChange(GenericChange):
         return c.exceptions
 
 
+    def fn_pretty(self, c):
+        return repr(c.exceptions)
+
+
 
 class CodeConstantsChange(GenericChange):
     label = "Code constants"

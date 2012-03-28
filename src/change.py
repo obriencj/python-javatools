@@ -382,10 +382,10 @@ class SquashedChange(Change):
         return self.ignored
 
     def is_change(self):
-        return self.is_change
+        return self.changed
 
     def simplify(self, options=None):
-        simple = Change.simplify(options)
+        simple = Change.simplify(self, options)
         simple["original_class"] = self.origclass.__name__
         return simple
 

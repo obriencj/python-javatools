@@ -52,7 +52,7 @@ def _gen_from_dircmp(dc, ltrim, rtrim):
             for r,d,fs in walk(fp):
                 r = r[ltrim:]
                 for f in fs:
-                    print r, f
+                    #print r, f
                     yield(LEFT, join(r, f))
         else:
             yield (LEFT, fp[ltrim:]) #join(dc.left[ltrim:], f))
@@ -66,7 +66,7 @@ def _gen_from_dircmp(dc, ltrim, rtrim):
             for r,d,fs in walk(fp):
                 r = r[rtrim:]
                 for f in fs:
-                    print r, f
+                    #print r, f
                     yield(RIGHT, join(r, f))
         else:
             yield (RIGHT, fp[rtrim:]) #join(dc.right[rtrim:], f))

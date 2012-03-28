@@ -221,17 +221,22 @@ class DistReport(DistChange):
         opts = self.options
         reportdir = getattr(opts, "report_dir", None)
 
+        extension = ("json", "txt")[not opts.json]
+
         if reportdir:
             d,f = split(change.entry)
             od = join(reportdir, d)
 
             if not exists(od):
                 makedirs(od)
-                
-            f = "%s.report" % f
-            fd = open(join(od, f), "wt")
-            change.write(opts, outstream=fd)
-            fd.close()
+            
+            f = "%s.report.%s" % (f, extension)
+
+            # hackish, worth reconsidering use of options in write
+            oldout = opts.output
+            opts.output = join(od, f)
+            change.write(opts)
+            opts.output = oldout
 
 
 
