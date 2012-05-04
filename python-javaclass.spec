@@ -21,18 +21,20 @@ JAR-based distributions
 %setup -q
 
 %build
-%{__python} setup.py build
+%{__python2} setup.py build
 
 %install
 rm -rf %{buildroot}
-%{__python} setup.py install --record=INSTALLED --root %{buildroot}
+%{__python2} setup.py install --skip-build --root %{buildroot}
 
 %clean
 rm -rf %{buildroot}
 
 
-%files -f INSTALLED
+%files
 %defattr(-,root,root,-)
+%{python2_sitelib}/*
+%{_bindir}/*
 
 
 %changelog
