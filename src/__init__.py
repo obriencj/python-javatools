@@ -280,21 +280,36 @@ class JavaConstantPool(object):
             return "%s" % repr(self.deref_const(v))[1:-1]
 
         elif t == CONST_Class:
-            return self.deref_const(v)
+            return _pretty_class(self.deref_const(v))
 
-        elif t in (CONST_Fieldref, CONST_Methodref,
+        elif t == CONST_Fieldref:
+            cn = self.deref_const(v[0])
+            cn = _pretty_class(cn)
+
+            n,t = self.deref_const(v[1])
+
+            return "%s.%s:%s" % (cn, n, _pretty_type(t))
+
+        elif t in (CONST_Methodref,
                    CONST_InterfaceMethodref):
+            
+            cn = self.deref_const(v[0])
+            cn = _pretty_class(cn)
 
-            nat = self.pretty_deref_const(v[1])
-            return "%s.%s" % (self.deref_const(v[0]), nat)
+            n,t = self.deref_const(v[1])
+
+            args,ret = tuple(_pretty_typeseq(t))
+
+            return "%s.%s%s:%s" % (cn, n, args, ret)
 
         elif t == CONST_NameAndType:
             a,b = (self.deref_const(i) for i in v)
+            b = "".join([t for t in _pretty_typeseq(b)])
             return "%s:%s" % (a,b)
 
         elif t == CONST_ModuleIdInfo:
             a,b = (self.deref_const(i) for i in v)
-            return "%s version %s" % (a,b)
+            return "%s@%s" % (a,b)
 
         else:
             return ""
@@ -699,6 +714,44 @@ class JavaClassInfo(JavaAttributes):
 
 
 
+    def _get_provides(self, private=False):
+        me = self.pretty_this()
+        yield me
+
+        for field in self.fields:
+            if private or field.is_public():
+                yield "%s.%s" % (me, field.pretty_identifier())
+
+        for method in self.methods:
+            if private or method.is_public():
+                yield "%s.%s" % (me, method.pretty_identifier())
+
+
+
+    def _get_requires(self):
+        provided = set(self._get_provides(private=True))
+        cpool = self.cpool
+
+        # loop through the constant pool for API types
+        for i,t,v in cpool.constants():
+            if t in (CONST_Class, CONST_Fieldref,
+                     CONST_Methodref, CONST_InterfaceMethodref):
+                pv = cpool.pretty_deref_const(i)
+                if pv not in provided:
+                    yield pv
+
+
+
+    def get_provides(self):
+        return set(self._get_provides())
+
+
+
+    def get_requires(self):
+        return set(self._get_requires())
+
+
+
 class JavaMemberInfo(JavaAttributes):
 
     """ A field or method of a java class """
@@ -1074,11 +1127,21 @@ class JavaMemberInfo(JavaAttributes):
         if self.is_method:
             args = ",".join(self.get_arg_type_descriptors())
             if self.is_bridge():
-                id = "%s(%s):%s" % (id, args,self.get_descriptor())
+                id = "%s(%s):%s" % (id, args, self.get_descriptor())
             else:
                 id = "%s(%s)" % (id, args)
 
         return id
+
+
+
+    def pretty_identifier(self):
+        id = self.get_name()
+        if self.is_method:
+            args = ",".join(self.pretty_arg_types())
+            id = "%s(%s)" % (id, args)
+
+        return "%s:%s" % (id, self.pretty_type())
 
 
 

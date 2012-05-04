@@ -4,3 +4,5 @@ test
 tmp
 *~
 *.pyc
+*.gz
+*.tar

@@ -167,8 +167,41 @@ def print_method(options, method):
 
 
 
+def cli_api_provides(options, info):
+    print "class %s provides:" % info.pretty_this()
+
+    provides = list(info.get_provides())
+    provides.sort()
+
+    for provided in provides:
+        print " ", provided
+    print
+
+
+
+def cli_api_requires(options, info):
+    print "class %s requires:" % info.pretty_this()
+
+    requires = list(info.get_requires())
+    requires.sort()
+
+    for required in requires:
+        print " ", required
+    print
+
+
+
 def cli_print_classinfo(options, info):
     from javaclass import platform_from_version
+
+    if options.api_requires or options.api_provides:
+        if options.api_provides:
+            cli_api_provides(options, info)
+
+        if options.api_requires:
+            cli_api_requires(options, info)
+
+        return
 
     sourcefile = info.get_sourcefile()
     if sourcefile:
@@ -237,6 +270,14 @@ def create_optparser():
     from optparse import OptionParser
 
     p = OptionParser("%prog <options> <classfiles>")
+
+    p.add_option("--api-provides", dest="api_provides",
+                 action="store_true", default=False,
+                 help="Print only provided API information")
+    
+    p.add_option("--api-requires", dest="api_requires",
+                 action="store_true", default=False,
+                 help="Print only requires API information")
 
     p.add_option("--header", dest="show",
                  action="store_const", default=PUBLIC, const=HEADER,
