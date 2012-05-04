@@ -18,7 +18,7 @@ setup( name = "javaclass",
                   "scripts/jardiff",
                   "scripts/jarinfo",
                   "scripts/manifest",
-                  "scripts/patchgen",
+                  "scripts/distpatchgen",
                   ])
 
 

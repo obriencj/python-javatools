@@ -15,10 +15,9 @@ import sys
 
 
 
-from change import Change, GenericChange, SuperChange, Addition, Removal
+from change import Change, GenericChange
+from change import SuperChange, Addition, Removal
 from change import yield_sorted_by_type
-from classdiff import JavaClassChange
-from manifest import ManifestChange
 from dirdelta import fnmatches
 
 
@@ -29,8 +28,16 @@ class JarTypeChange(GenericChange):
     label = "Jar type"
 
     def fn_data(self, c):
-        return c.__class__.__name__
-    
+        # TODO: create some kind of menial zipinfo output showing type
+        # (exploded/zipped) and compression level
+
+        from os.path import isdir
+
+        if(isdir(c)):
+            return "exploded JAR"
+        else:
+            return "zipped JAR file"
+
 
 
 class JarContentChange(Change):
@@ -39,23 +46,21 @@ class JarContentChange(Change):
     label = "Jar Content Changed"
     
 
-    def __init__(self, lzip, rzip, entry):
+    def __init__(self, lzip, rzip, entry, is_change=True):
         Change.__init__(self, lzip, rzip)
         self.entry = entry
+        self.changed = is_change
 
 
     def get_description(self):
-        return "%s: %s" % (self.label, self.entry)
-
-
-    def is_change(self):
-        return True
+        if self.is_change():
+            return "Jar Content Changed: " + self.entry
+        else:
+            return "Jar Content Unchanged: " + self.entry
 
 
     def is_ignored(self, options):
-        return fnmatches(self.entry, *options.ignore_content)
-
-        return False
+        return fnmatches(self.entry, *options.ignore_jar_entry)
 
 
 
@@ -66,7 +71,7 @@ class JarContentAdded(JarContentChange, Addition):
 
 
     def is_ignored(self, options):
-        return fnmatches(self.entry, *options.ignore_content)
+        return fnmatches(self.entry, *options.ignore_jar_entry)
 
         # todo: check against ignored empty directories
         return False
@@ -80,7 +85,7 @@ class JarContentRemoved(JarContentChange, Removal):
 
 
     def is_ignored(self, options):
-        return fnmatches(self.entry, *options.ignore_content)
+        return fnmatches(self.entry, *options.ignore_jar_entry)
 
         # todo: check against ignored empty directories
         return False
@@ -101,12 +106,17 @@ class JarClassChange(SuperChange, JarContentChange):
     label = "Java Class Changed"
 
     
-    def __init__(self, ldata, rdata, entry):
-        JarContentChange.__init__(self, ldata, rdata, entry)
+    def __init__(self, ldata, rdata, entry, is_change=True):
+        JarContentChange.__init__(self, ldata, rdata, entry, is_change)
 
 
     def collect_impl(self):
         from javaclass import unpack_class
+        from classdiff import JavaClassChange
+
+        if not self.is_change():
+            return
+
         lfd = self.ldata.open(self.entry)
         rfd = self.rdata.open(self.entry)
         
@@ -124,13 +134,16 @@ class JarManifestChange(SuperChange, JarContentChange):
     label = "Jar Manifest Changed"
 
     
-    def __init__(self, ldata, rdata, entry):
-        JarContentChange.__init__(self, ldata, rdata, entry)
+    def __init__(self, ldata, rdata, entry, is_change=True):
+        JarContentChange.__init__(self, ldata, rdata, entry, is_change)
 
 
     def collect_impl(self):
-        from manifest import Manifest
+        from manifest import Manifest, ManifestChange
         
+        if not self.is_change():
+            return
+
         lfd = self.ldata.open(self.entry)
         rfd = self.rdata.open(self.entry)
         
@@ -148,9 +161,6 @@ class JarManifestChange(SuperChange, JarContentChange):
 class JarSignatureChange(JarContentChange):
     label = "Jar Signature Data Changed"
 
-    def is_ignored(self, options):
-        return True
-
 
 
 class JarSignatureAdded(JarContentAdded):
@@ -164,7 +174,14 @@ class JarSignatureRemoved(JarContentRemoved):
 
 
 class JarContentsChange(SuperChange):
+
     label = "JAR Contents"
+
+
+    def __init__(self, left_fn, right_fn):
+        SuperChange.__init__(self, left_fn, right_fn)
+        self.lzip = None
+        self.rzip = None
 
 
     @yield_sorted_by_type(JarManifestChange,
@@ -180,13 +197,31 @@ class JarContentsChange(SuperChange):
     def collect_impl(self):
         from zipdelta import compare_zips, LEFT, RIGHT, DIFF, SAME
 
-        left, right = self.ldata, self.rdata
+        # these are opened for the duration of check_impl
+        left, right = self.lzip, self.rzip
+        assert(left != None)
+        assert(right != None)
 
-        for event,entry in compare_zips(self.ldata, self.rdata):
+        for event,entry in compare_zips(left, right):
             #print event, entry
             
             if event == SAME:
-                pass
+
+                # TODO: should we split by file type to more specific
+                # types of (un)changes? For now just emit a content
+                # change with is_change set to False.
+                
+                if entry == "META-INF/MANIFEST.MF":
+                    yield JarManifestChange(left, right, entry, False)
+
+                elif fnmatches(entry, "*.RSA", "*.DSA", "*.SF"):
+                    yield JarSignatureChange(left, right, entry, False)
+
+                elif fnmatches(entry, "*.class"):
+                    yield JarClassChange(left, right, entry, False)
+                    
+                else:
+                    yield JarContentChange(left, right, entry, False)
 
             elif event == DIFF:
                 if entry == "META-INF/MANIFEST.MF":
@@ -222,6 +257,36 @@ class JarContentsChange(SuperChange):
                     yield JarContentAdded(left, right, entry)
 
 
+    def check_impl(self):
+
+        """ overridden to open the left and right zipfiles and to
+         provide all subchecks with an open ZipFile instance rather
+         than having them all open and close the ZipFile individually.
+         For the duration of the check (which calls collect_impl), the
+         attributes self.lzip and self.rzip will be available and used
+         as the ldata and rdata of all subchecks. """
+
+        # this makes it work on exploded archives
+        from zipdelta import ZipFile
+
+        lzip = ZipFile(self.ldata)
+        rzip = ZipFile(self.rdata)
+
+        self.lzip = lzip
+        self.rzip = rzip
+
+        ret = SuperChange.check_impl(self)
+
+        lzip.close()
+        rzip.close()
+
+        self.lzip = None
+        self.rzip = None
+
+        return ret
+
+
+
 
 class JarChange(SuperChange):
     label = "JAR"
@@ -230,12 +295,9 @@ class JarChange(SuperChange):
                     JarContentsChange)
 
 
-    def check(self):
-        #print "entering JarChange.check()"
-        SuperChange.check(self)
-        self.ldata.close()
-        self.rdata.close()
-        #print "leaving JarChange.check()"
+
+# ---- Begin jardiff CLI ----
+#
 
 
 
@@ -262,18 +324,16 @@ def cli_jars_diff(options, left, right):
 
 
 def cli(options, rest):
-    from zipdelta import ZipFile
-
     left, right = rest[1:3]
-    return cli_jars_diff(options, ZipFile(left), ZipFile(right))
+    return cli_jars_diff(options, left, right)
 
 
 
 def create_optparser():
-    from classdiff import create_optparser
-    parser = create_optparser()
+    import classdiff
+    parser = classdiff.create_optparser()
 
-    parser.add_option("--ignore-content", action="append", default=[])
+    parser.add_option("--ignore-jar-entry", action="append", default=[])
 
     return parser
 

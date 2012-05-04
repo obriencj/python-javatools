@@ -107,6 +107,10 @@ class Change(object):
 
 
     def simplify(self, options=None):
+
+        """ returns a dict describing a simple snapshot of this
+        change, and its children if any. """
+
         simple = {
             "class": type(self).__name__,
             "is_change": self.is_change(),
@@ -152,29 +156,33 @@ class Change(object):
             out = open(options.output, "wt")
 
         if options.json:
-            self._write_json(options, out)
+            self.write_json(options, out)
         else:
-            self._write(options, 0, "  ", out)
+            self.write(options, 0, "  ", out)
 
         if options.output:
             out.close()
 
 
-    def _write_json(self, options, outstream):
+    def write_json(self, options, outstream):
+
+        """ print JSON version of this change (from the simplify
+        method) to the stream """
+
         from json import dump
         simple = self.simplify(options)
         simple["runtime_options"] = options.__dict__
         dump(simple, outstream, sort_keys=True, indent=2)
         
 
-    def _write(self, options, indent, indentstr, outstream):
+    def write_cli(self, options, indent, indentstr, outstream):
 
         """ print human-readable information about this change,
         including whether it was ignorable, etc. The options object
         provides parameters meaningful to individual change
         implementations. If outstream is None, the 'output' attribute
         of options may reference a file by name which will be opened
-        for writing, or sys.stdout will be used. """
+        for writing, or sys.stdout will be used."""
 
         if self.is_change():
             if self.is_ignored(options):
@@ -191,8 +199,7 @@ class Change(object):
                     self.get_description())
 
         for sub in self.get_subchanges():
-            sub._write(options, indent+1, indentstr, outstream)
-
+            sub.write_cli(options, indent+1, indentstr, outstream)
 
 
 
@@ -236,30 +243,47 @@ class GenericChange(Change):
 
 
     def fn_pretty(self, c):
+        """ override to provide a way to show the pretty version of the
+        left or right data. Defaults to fn_data """
+
         return self.fn_data(c)
 
     
     def fn_pretty_desc(self, c):
+        """ override to provide a way to describe the data left or right
+        data. Defaults to fn_pretty """
+
         return self.fn_pretty(c)
 
 
     def fn_differ(self, ld, rd):
+        """ override to provide the check for whether ld and rd differ.
+        defaults to an equality check """
+
         return ld != rd
 
 
     def pretty_ldata(self):
+        """ returns fn_pretty of ldata """
+
         return self.fn_pretty(self.ldata)
 
 
     def pretty_rdata(self):
+        """ returns fn_pretty of rdata """
+
         return self.fn_pretty(self.rdata)
 
 
     def pretty_ldata_desc(self):
+        """ returns fn_pretty_desc of ldata """
+
         return self.fn_pretty_desc(self.ldata)
 
 
     def pretty_rdata_desc(self):
+        """ returns fn_pretty_desc of rdata """
+        
         return self.fn_pretty_desc(self.rdata)
 
 
@@ -295,9 +319,8 @@ class GenericChange(Change):
     def simplify(self, options=None):
         simple = Change.simplify(self, options)
 
-        l,r = self.pretty_ldata(), self.pretty_rdata()
-        simple["old_data"] = l
-        simple["new_data"] = r
+        simple["old_data"] = self.pretty_ldata()
+        simple["new_data"] = self.pretty_rdata()
         
         return simple
 

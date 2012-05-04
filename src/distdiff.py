@@ -54,14 +54,13 @@ class DistJarChange(SuperChange, DistContentChange):
 
 
     def collect_impl(self):
-        from zipdelta import ZipFile
         from jardiff import JarChange
         from os.path import join
 
         lf = join(self.ldata, self.entry)
         rf = join(self.rdata, self.entry)
 
-        yield JarChange(ZipFile(lf), ZipFile(rf))
+        yield JarChange(lf, rf)
     
 
 

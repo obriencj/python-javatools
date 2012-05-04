@@ -85,6 +85,7 @@ class ClassInterfacesChange(GenericChange):
         return c.pretty_interfaces()
 
 
+
 class ClassAccessflagsChange(GenericChange):
     label = "Access flags"
 
@@ -260,6 +261,21 @@ class CodeExceptionChange(GenericChange):
 
 
 class CodeConstantsChange(GenericChange):
+
+    """ This is a test to find instances where the individual opcodes
+    and arguments for a method's code may all be identical except
+    that ops which load from the constant pool may use a different
+    index. We will deref the constant index for both sides, and if all
+    of the constant values match then we can consider the code to be
+    equal.
+
+    The purpose of such a check is to find other-wise meaningless
+    constant pool reordering. If all uses of the pool result in the
+    same values, we don't really care if the pool is in a different
+    order between the old and new versions of a class.
+    """
+
+
     label = "Code constants"
 
 
@@ -304,6 +320,10 @@ class CodeConstantsChange(GenericChange):
 
 
 class CodeBodyChange(GenericChange):
+
+    """ The length or the opcodes or the arguments of the opcodes has
+    changed, signalling that the method body is different """
+
     label = "Code body"
 
 
@@ -392,11 +412,19 @@ class MethodAccessflagsChange(GenericChange):
 
 
 class MethodAbstractChange(GenericChange):
+
     label = "Method abstract"
 
 
     def fn_data(self, c):
         return (not c.get_code())
+
+
+    def fn_pretty_desc(self, c):
+        if fn_data(c):
+            return "Method is abstract"
+        else:
+            return "Method is concrete"
 
 
 
@@ -620,6 +648,11 @@ class JavaClassChange(SuperChange):
 
     def get_description(self):
         return "%s %s" % (self.label, self.ldata.pretty_descriptor())
+
+
+
+# ---- Begin classdiff CLI code ----
+#
 
 
 
