@@ -25,7 +25,7 @@ JAR-based distributions
 
 %install
 rm -rf %{buildroot}
-%{__python} setup.py install -01 --record=INSTALLED --root %{buildroot}
+%{__python} setup.py install --record=INSTALLED --root %{buildroot}
 
 %clean
 rm -rf %{buildroot}
