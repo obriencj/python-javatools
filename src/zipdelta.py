@@ -217,6 +217,7 @@ class ExplodedZipFile(object):
 
     def __init__(self, pathname):
         self.fn = pathname
+        self.filename = pathname
         self.members = None
         self.refresh()
 

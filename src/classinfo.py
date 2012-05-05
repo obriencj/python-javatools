@@ -19,17 +19,6 @@ PRIVATE = 7
 
 
 
-def get_class_info_requires(info):
-    from javaclass import CONST_Class
-
-    deps = []
-    for t,v in info.pretty_constants():
-        if t is CONST_Class:
-            deps.append(v)
-    return set(deps)
-
-
-
 def should_show(options, member):
 
     """ whether to show a member by its access flags and the show
@@ -194,7 +183,7 @@ def cli_api_requires(options, info):
 def cli_print_classinfo(options, info):
     from javaclass import platform_from_version
 
-    if options.api_requires or options.api_provides:
+    if options.api_provides or options.api_requires:
         if options.api_provides:
             cli_api_provides(options, info)
 

@@ -104,21 +104,21 @@ def get_jar_class_info_map(zipfile):
 
 
 def get_class_infos_provides(class_infos):
-
-    return [info.pretty_this() for info in class_infos]
+    prov = list()
+    for info in class_infos:
+        prov.extend(info._get_provides())
+    return set(prov)
 
 
 
 def get_class_infos_requires(class_infos):
-
-    from classinfo import get_class_info_requires
-
-    deps = []
-
+    deps = list()
     for info in class_infos:
-        deps.extend(get_class_info_requires(info))
-    
-    return set(deps)
+        deps.extend(info._get_requires())
+    deps = set(deps)
+
+    prov = get_class_infos_provides(class_infos)
+    return deps.difference(prov)
 
 
 
@@ -128,10 +128,18 @@ def cli_get_class_info_map(options, zipfile):
     zip, and store them for later use on options. This is a bit of a hack
     to use options to save state """
 
+    n = zipfile.filename
+
+    cn = getattr(options, "_classes_from_", None)
+    if cn != n:
+        options._classes_ = None
+
     ci = getattr(options, "_classes_", None)
     if not ci:
         ci = get_jar_class_info_map(zipfile)
         options._classes_ = ci
+        options._classes_from_ = n
+
     return ci
     
 
@@ -150,58 +158,68 @@ def cli_classes(options, zipfile):
         print
 
 
+
 def cli_provides(options, zipfile):
+    classinfos = cli_get_class_infos(options, zipfile)
+    provides = list(get_class_infos_provides(classinfos))
+    provides.sort()
+    
+    print "jar %s provides:" % zipfile.filename 
 
-    for i in get_class_infos_provides(cli_get_class_infos(options, zipfile)):
-        print i
-
-    return 0
+    for provided in provides:
+        print " ", provided
+    print
 
 
 
 def cli_requires(options, zipfile):
+    classinfos = cli_get_class_infos(options, zipfile)
+    requires = list(get_class_infos_requires(classinfos))
+    requires.sort()
 
-    for i in get_class_infos_requires(cli_get_class_infos(options, zipfile)):
-        print i
+    print "jar %s provides:" % zipfile.filename
 
-    return 0
+    for required in requires:
+        print " ", required
+    print
 
 
 
 def cli_zipfile(options, zipfile):
-    ret = 0
+
+    print "in cli_zipfile"
+
+    if options.api_provides or options.api_requires:
+        if options.api_provides:
+            cli_provides(options, zipfile)
+        if options.api_requires:
+            cli_requires(options, zipfile)
+        return
 
     # zip information (compression, etc)
     if options.zip:
-        ret = ret or cli_zip_info(options, zipfile)
+        cli_zip_info(options, zipfile)
 
     # manifest information
     if options.manifest:
-        ret = ret or cli_manifest_info(options, zipfile)
+        cli_manifest_info(options, zipfile)
 
     # signature information
+    # TODO
+
+    # contained non-classes
+    # TODO
 
     # contained classes
     if options.classes:
-        ret = ret or cli_classes(options, zipfile)
+        cli_classes(options, zipfile)
 
-    # contained non-classes
-        
-
-    # classes provided
-    if options.provides:
-        ret = ret or cli_provides(options, zipfile)
-
-    # classes required
-    if options.requires:
-        ret = ret or cli_requires(options, zipfile)
-
-    return ret
+    return
 
 
 
 def cli(options, rest):
-    from zipdelta import ZipFile
+    from zipfile import ZipFile
 
     # TODO: temporary yucky handling of magic options brought in from
     # the classinfo module's create_optparse.
@@ -212,18 +230,18 @@ def cli(options, rest):
         options.disassemble = True
         options.sigs = True
         options.constpool = True
-
+    
     options.indent = not(options.lines or
                          options.disassemble or
                          options.sigs)
-
-    ret = 0
-
+    
+    print rest
     for fn in rest[1:]:
-        nret = cli_zipfile(options, ZipFile(fn))
-        ret = ret or nret
+        zf = ZipFile(fn)
+        cli_zipfile(options, zf)
+        zf.close()
 
-    return ret
+    return 0
 
 
 
@@ -237,12 +255,6 @@ def create_optparser():
 
     p.add_option("--manifest", action="store_true", default=False,
                  help="print manifest information")
-
-    p.add_option("--provides", action="store_true", default=False,
-                 help="print provided class names")
-
-    p.add_option("--requires", action="store_true", default=False,
-                 help="print requirements for classes")
 
     p.add_option("--classes", action="store_true", default=False,
                  help="print information about contained classes")

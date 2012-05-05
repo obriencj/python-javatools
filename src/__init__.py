@@ -738,6 +738,19 @@ class JavaClassInfo(JavaAttributes):
                      CONST_Methodref, CONST_InterfaceMethodref):
                 pv = cpool.pretty_deref_const(i)
                 if pv not in provided:
+
+                    # TODO: annotation-generated classes can sometimes
+                    # emit binaries with constant pools that have
+                    # CONST_Class entries looking like type codes. eg:
+                    # [B which would be an array of bytes, but stored
+                    # as a CONST_Class, or [Ljava.lang.Object; which
+                    # means an array of java.lang.Object
+
+                    #if pv[0] == "[":
+                    #    print
+                    #    print "===", self.pretty_this(), pv, i, t, v
+                    #    print
+
                     yield pv
 
 
