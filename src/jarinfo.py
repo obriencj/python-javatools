@@ -103,10 +103,11 @@ def get_jar_class_info_map(zipfile):
 
 
 
-def get_class_infos_provides(class_infos):
+def get_class_infos_provides(class_infos, private=False):
     prov = list()
     for info in class_infos:
-        prov.extend(info._get_provides())
+        if private or info.is_public():
+            prov.extend(info._get_provides(private))
     return set(prov)
 
 
@@ -117,7 +118,8 @@ def get_class_infos_requires(class_infos):
         deps.extend(info._get_requires())
     deps = set(deps)
 
-    prov = get_class_infos_provides(class_infos)
+    # we set private to True here to resolve protected deps
+    prov = get_class_infos_provides(class_infos, True)
     return deps.difference(prov)
 
 
@@ -160,6 +162,8 @@ def cli_classes(options, zipfile):
 
 
 def cli_provides(options, zipfile):
+    from dirdelta import fnmatches
+
     classinfos = cli_get_class_infos(options, zipfile)
     provides = list(get_class_infos_provides(classinfos))
     provides.sort()
@@ -167,12 +171,15 @@ def cli_provides(options, zipfile):
     print "jar %s provides:" % zipfile.filename 
 
     for provided in provides:
-        print " ", provided
+        if not fnmatches(provides, *options.api_ignore):
+            print " ", provided
     print
 
 
 
 def cli_requires(options, zipfile):
+    from dirdelta import fnmatches
+
     classinfos = cli_get_class_infos(options, zipfile)
     requires = list(get_class_infos_requires(classinfos))
     requires.sort()
@@ -180,7 +187,8 @@ def cli_requires(options, zipfile):
     print "jar %s provides:" % zipfile.filename
 
     for required in requires:
-        print " ", required
+        if not fnmatches(provides, *options.api_ignore):
+            print " ", required
     print
 
 

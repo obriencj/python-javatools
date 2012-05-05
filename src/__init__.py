@@ -736,22 +736,27 @@ class JavaClassInfo(JavaAttributes):
         for i,t,v in cpool.constants():
             if t in (CONST_Class, CONST_Fieldref,
                      CONST_Methodref, CONST_InterfaceMethodref):
+
                 pv = cpool.pretty_deref_const(i)
-                if pv not in provided:
 
-                    # TODO: annotation-generated classes can sometimes
-                    # emit binaries with constant pools that have
-                    # CONST_Class entries looking like type codes. eg:
-                    # [B which would be an array of bytes, but stored
-                    # as a CONST_Class, or [Ljava.lang.Object; which
-                    # means an array of java.lang.Object
+                if pv[0] == "[":
+                    # sometimes when calling operations on an array
+                    # the type embeded in the cpool will be the array
+                    # type, not just the class type. Let's only gather
+                    # the types themselves and ignore the fact that
+                    # the class really wanted an array of them.
 
-                    #if pv[0] == "[":
-                    #    print
-                    #    print "===", self.pretty_this(), pv, i, t, v
-                    #    print
-
-                    yield pv
+                    for p in _flatten_array_types(pv):
+                        if p[0] == "L":
+                            # L is a prefix for class names. We don't
+                            # want to emit a requirement for basic
+                            # types like byte or String
+                            pv = _pretty_type(p)
+                            if pv not in provided:
+                                yield pv
+                else:
+                    if pv not in provided:
+                        yield pv
 
 
 
@@ -1617,6 +1622,19 @@ def _pretty_class(s):
     
     # well that's easy.
     return s.replace("/", ".")
+
+
+
+def _flatten_array_types(s):
+
+    """ returns a sequence of type codes. Any arrays in the original
+    will be flattened. Eg: [[B will become just B """
+
+    for i in s.split("["):
+        if not i:
+            continue
+        for t in _typeseq_iter(i):
+            yield t
 
 
 

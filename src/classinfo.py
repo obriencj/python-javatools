@@ -157,25 +157,31 @@ def print_method(options, method):
 
 
 def cli_api_provides(options, info):
+    from dirdelta import fnmatches
+
     print "class %s provides:" % info.pretty_this()
 
     provides = list(info.get_provides())
     provides.sort()
 
     for provided in provides:
-        print " ", provided
+        if not fnmatches(provided, *options.api_ignore):
+            print " ", provided
     print
 
 
 
 def cli_api_requires(options, info):
+    from dirdelta import fnmatches
+
     print "class %s requires:" % info.pretty_this()
 
     requires = list(info.get_requires())
     requires.sort()
 
     for required in requires:
-        print " ", required
+        if not fnmatches(required, *options.api_ignore):
+            print " ", required
     print
 
 
@@ -267,6 +273,11 @@ def create_optparser():
     p.add_option("--api-requires", dest="api_requires",
                  action="store_true", default=False,
                  help="Print only requires API information")
+
+    p.add_option("--api-ignore", dest="api_ignore",
+                 action="append", default=list(),
+                 help="globs of packages to not print in --api-provides"
+                 " or --api-requires modes")
 
     p.add_option("--header", dest="show",
                  action="store_const", default=PUBLIC, const=HEADER,

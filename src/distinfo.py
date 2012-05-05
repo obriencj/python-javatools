@@ -110,6 +110,8 @@ def get_dist_requires(dist):
 
 
 def cli_dist_api_provides(options, pathn):
+    from dirdelta import fnmatches
+
     dist = collect_dist(pathn)
     provides = list(get_dist_provides(dist))
     provides.sort()
@@ -117,12 +119,15 @@ def cli_dist_api_provides(options, pathn):
     print "distribution %s provides:" % pathn
 
     for provided in provides:
-        print " ", provided
+        if not fnmatches(provided, *options.api_ignore):
+            print " ", provided
     print
 
 
 
 def cli_dist_api_requires(options, pathn):
+    from dirdelta import fnmatches
+
     dist = collect_dist(pathn)
     requires = list(get_dist_requires(dist))
     requires.sort()
@@ -130,7 +135,8 @@ def cli_dist_api_requires(options, pathn):
     print "distribution %s requires:" % pathn
 
     for required in requires:
-        print " ", required
+        if not fnmatches(required, *options.api_ignore):
+            print " ", required
     print
 
 
