@@ -734,6 +734,8 @@ class JavaClassInfo(JavaAttributes):
 
         # loop through the constant pool for API types
         for i,t,v in cpool.constants():
+            pv = None
+
             if t in (CONST_Class, CONST_Fieldref,
                      CONST_Methodref, CONST_InterfaceMethodref):
 
@@ -744,19 +746,18 @@ class JavaClassInfo(JavaAttributes):
                     # the type embeded in the cpool will be the array
                     # type, not just the class type. Let's only gather
                     # the types themselves and ignore the fact that
-                    # the class really wanted an array of them.
+                    # the class really wanted an array of them.  In
+                    # the event that this was a method or field on the
+                    # array, we'll throw away that as well, and just
+                    # emit the type contained in the array.
+                    t,b = _next_argsig(buffer(pv))
+                    if t[1] == "L":
+                        pv = _pretty_type(t[1:])
+                    else:
+                        pv = None
 
-                    for p in _flatten_array_types(pv):
-                        if p[0] == "L":
-                            # L is a prefix for class names. We don't
-                            # want to emit a requirement for basic
-                            # types like byte or String
-                            pv = _pretty_type(p)
-                            if pv not in provided:
-                                yield pv
-                else:
-                    if pv not in provided:
-                        yield pv
+                if pv and (pv not in provided):
+                    yield pv
 
 
 
@@ -1563,7 +1564,7 @@ def _next_argsig(buff):
         i = s.find(')')+1
         return s[:i],buffer(buff,i)
     else:
-        raise Unimplemented("_next_argsig is %r in %r" % (c, buff))
+        raise Unimplemented("_next_argsig is %r in %s" % (c, str(buff)))
 
 
 
@@ -1625,17 +1626,9 @@ def _pretty_class(s):
 
 
 
-def _flatten_array_types(s):
-
-    """ returns a sequence of type codes. Any arrays in the original
-    will be flattened. Eg: [[B will become just B """
-
-    for i in s.split("["):
-        if not i:
-            continue
-        for t in _typeseq_iter(i):
-            yield t
-
+def _clean_array_const(s):
+    t,b = _next_argsig(buffer(s))
+    return (t,str(b))
 
 
 #
