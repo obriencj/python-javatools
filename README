@@ -14,7 +14,8 @@ output identical to the variations of javap as included with most SDKs.
 
 classinfo
 
-  similar to the javap utility included with most JVMs
+  similar to the javap utility included with most JVMs. Also does
+  provides/requires tracking.
 
 
 classdiff
@@ -24,7 +25,8 @@ classdiff
 
 jarinfo
 
-  prints information about a JAR
+  prints information about a JAR. Also does provides/requires
+  tracking.
 
 
 jardiff
@@ -38,6 +40,12 @@ manifest
   creates and verifies class checksum manifests
 
 
+distinfo
+
+  prints information about a mixed multi-jar/class distribution, such
+  as provides/requires lists.
+
+
 distdiff
 
   attempts to find differences between two distributions,
@@ -49,3 +57,5 @@ distdiff
 
 
 author: Christopher O'Brien <obriencj@gmail.com>
+license: LGPL
+
