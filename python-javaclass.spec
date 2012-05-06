@@ -1,6 +1,6 @@
 Summary: Tools for inspecting and comparing binary Java class files
 Name: python-javaclass
-Version: 1.0
+Version: 1.1
 Release: 1
 License: LGPL
 Group: Application/System
@@ -33,11 +33,14 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
+%doc LICENSE README TODO
 %{python2_sitelib}/*
 %{_bindir}/*
 
-
 %changelog
+
+* Sun May 6 2012 Christopher O'Brien <obriencj@gmail.com> - 1.1-1
+- dependency features, license files
 
 * Fri Apr 27 2012 Christopher O'Brien <obriencj@gmail.com> - 1.0-1
 - Initial build.
