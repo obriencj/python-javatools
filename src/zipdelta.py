@@ -185,44 +185,38 @@ def _crc32(fname):
 
 
 
-def _walk_populate(data, dirname, fnames):
+def _collect_infos(dirname):
 
     from zipfile import ZipInfo
-    import os.path
+    from os.path import relpath, join, getsize, islink, isdir, isfile
+    from os import walk
 
-    members, skip = data
+    for r,d,fs in walk(dirname):
+        for f in fs:
+            relfn = relpath(join(r,f),dirname)
 
-    # we need to chop off the original dirname, which will be the
-    # relative path to the directory of the exploded jar file.
-    if not skip:
-        skip = len(dirname)
-        data[1] = skip
-    nicedir = dirname[skip:]
-    
-    for f in fnames:
-        df = os.path.join(dirname, f)
+            if islink(relfn):
+                pass
 
-        if os.path.islink(df):
-            pass
-        
-        elif os.path.isdir(df):
-            i = ZipInfo()
-            i.filename = os.path.join(nicedir, f, "")
-            i.file_size = 0
-            i.compress_size = 0
-            i.CRC = 0
-            members[i.filename] = i
+            elif isdir(df):
+                i = ZipInfo()
+                i.filename = join(relfn, "")
+                i.file_size = 0
+                i.compress_size = 0
+                i.CRC = 0
+                yield i.filename, i
                 
-        elif os.path.isfile(df):
-            i = ZipInfo()
-            i.filename = os.path.join(nicedir, f)
-            i.file_size = os.path.getsize(df)
-            i.compress_size = i.file_size
-            i.CRC = _crc32(df)
-            members[i.filename] = i
+            elif isfile(df):
+                i = ZipInfo()
+                i.filename = relfn
+                i.file_size = getsize(relfn)
+                i.compress_size = i.file_size
+                i.CRC = _crc32(relfn)
+                yield i.filename, i
             
-        else:
-            pass
+            else:
+                # TODO: is there any more special treatment?
+                pass
 
 
 
@@ -240,11 +234,7 @@ class ExplodedZipFile(object):
 
 
     def refresh(self):
-        from os.path import walk
-        
-        members = {}
-        walk(self.fn, _walk_populate, [members, 0])
-        self.members = members
+        self.members = dict(_collect_infos(self.fn))
         
 
     def getinfo(self, name):
@@ -253,6 +243,10 @@ class ExplodedZipFile(object):
 
     def namelist(self):
         return sorted(self.members.keys())
+
+
+    def infolist(self):
+        return self.members.values()
 
 
     def open(self, name, mode='rb'):
@@ -265,6 +259,10 @@ class ExplodedZipFile(object):
         data = fd.read()
         fd.close()
         return data
+
+
+    def close(self):
+        self.members = None
 
 
 
