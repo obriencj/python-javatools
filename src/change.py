@@ -387,10 +387,13 @@ class SuperChange(GenericChange):
             
 
     def is_ignored(self, options):
-        for change in self.changes:
-            if change.is_change() and not change.is_ignored(options):
-                return False
-        return True
+        if self.is_change():
+            for change in self.changes:
+                if change.is_change() and not change.is_ignored(options):
+                    return False
+            return True
+        else:
+            return False
 
 
     def get_subchanges(self):

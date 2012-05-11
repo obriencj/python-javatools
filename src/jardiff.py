@@ -53,7 +53,7 @@ class JarTypeChange(GenericChange):
 class JarContentChange(Change):
     # a file or directory changed between JARs
 
-    label = "Jar Content Changed"
+    label = "Jar Content"
     
 
     def __init__(self, lzip, rzip, entry, is_change=True):
@@ -116,7 +116,7 @@ class JarClassRemoved(JarContentRemoved):
 
 
 class JarClassChange(SuperChange, JarContentChange):
-    label = "Java Class Changed"
+    label = "Java Class"
 
     
     def __init__(self, ldata, rdata, entry, is_change=True):
@@ -142,9 +142,14 @@ class JarClassChange(SuperChange, JarContentChange):
         yield JavaClassChange(linfo, rinfo)
 
 
+    def is_ignored(self, options):
+        return (JarContentChange.is_ignored(self, options) or
+                SuperChange.is_ignored(self, options))
+
+
 
 class JarManifestChange(SuperChange, JarContentChange):
-    label = "Jar Manifest Changed"
+    label = "Jar Manifest"
 
     
     def __init__(self, ldata, rdata, entry, is_change=True):
@@ -172,7 +177,7 @@ class JarManifestChange(SuperChange, JarContentChange):
 
 
 class JarSignatureChange(JarContentChange):
-    label = "Jar Signature Data Changed"
+    label = "Jar Signature Data"
 
 
 

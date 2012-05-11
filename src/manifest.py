@@ -33,10 +33,6 @@ class ManifestSectionChange(GenericChange):
     label = "Manifest File Section"
 
 
-    def fn_data(self, c):
-        return dict((k,c[k]) for k in c.iterkeys())
-
-
     def get_description(self):
         m = self.ldata or self.rdata
         entry = m.primary()
