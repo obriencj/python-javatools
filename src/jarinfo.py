@@ -66,15 +66,14 @@ class JarInfo(object):
         
         for entry in self.get_classes():
             ci = self.get_classinfo(entry)
-            for sym in ci._get_requires():
+            for sym in ci.get_requires():
                 req.setdefault(sym, list()).append((REQ_BY_CLASS,entry))
-            for sym in ci._get_provides(private=False):
+            for sym in ci.get_provides(private=False):
                 prov.setdefault(sym, list()).append((PROV_BY_CLASS,entry))
-            for sym in ci._get_provides(private=True):
+            for sym in ci.get_provides(private=True):
                 p.add(sym)
 
-        r = set(req.iterkeys())        
-        req = dict((k,v) for k,v in req.iteritems() if k in r.difference(p))
+        req = dict((k,v) for k,v in req.iteritems() if k not in p)
 
         self._requires = req
         self._provides = prov

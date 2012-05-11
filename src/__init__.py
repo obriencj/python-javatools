@@ -398,6 +398,10 @@ class JavaClassInfo(JavaAttributes):
         self.fields = tuple()
         self.methods = tuple()
 
+        self._provides = None
+        self._provides_private = None
+        self._requires = None
+
 
 
     def deref_const(self, index):
@@ -744,7 +748,7 @@ class JavaClassInfo(JavaAttributes):
 
 
     def _get_requires(self):
-        provided = set(self._get_provides(private=True))
+        provided = set(self.get_provides(private=True))
         cpool = self.cpool
 
         # loop through the constant pool for API types
@@ -776,21 +780,35 @@ class JavaClassInfo(JavaAttributes):
 
 
 
-    def get_provides(self, ignored=[]):
+    def get_provides(self, ignored=[], private=False):
         from dirutils import fnmatches
-        d = set(self._get_provides())
+
+        if private:
+            if self._provides_private is None:
+                self._provides_private = set(self._get_provides(True))
+            provides = self._provides_private
+        else:
+            if self._provides is None:
+                self._provides = set(self._get_provides(False))
+            provides = self._provides
+
         if ignored:
-            d = filter(lambda n: not fnmatches(n, *ignored), d)
-        return d
+            provides = filter(lambda n: not fnmatches(n, *ignored), provides)
+        return provides
 
 
 
     def get_requires(self, ignored=[]):
         from dirutils import fnmatches
-        d = set(self._get_requires())
+
+        if self._requires is None:
+            self._requires = set(self._get_requires())
+
+        requires = self._requires
+
         if ignored:
-            d = filter(lambda n: not fnmatches(n, *ignored), d)
-        return d
+            requires = filter(lambda n: not fnmatches(n, *ignored), requires)
+        return requires
 
 
 
