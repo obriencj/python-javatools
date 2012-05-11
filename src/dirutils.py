@@ -52,13 +52,13 @@ def compare(left, right):
     from filecmp import dircmp
     
     dc = dircmp(left, right, ignore=[])
-    return _gen_from_dircmp(dc, len(left), len(right))
+    return _gen_from_dircmp(dc, left, right)
     
     
 
 
-def _gen_from_dircmp(dc, ltrim, rtrim):
-    from os.path import isdir, join
+def _gen_from_dircmp(dc, lpath, rpath):
+    from os.path import isdir, join, relpath
     from os import walk
 
     left_only = dc.left_only
@@ -68,12 +68,11 @@ def _gen_from_dircmp(dc, ltrim, rtrim):
         fp = join(dc.left, f)
         if isdir(fp):
             for r,d,fs in walk(fp):
-                r = r[ltrim:]
+                r = relpath(r, lpath)
                 for f in fs:
-                    #print r, f
                     yield(LEFT, join(r, f))
         else:
-            yield (LEFT, fp[ltrim:]) #join(dc.left[ltrim:], f))
+            yield (LEFT, relpath(fp, lpath))
         
     right_only = dc.right_only
     right_only.sort()
@@ -82,29 +81,28 @@ def _gen_from_dircmp(dc, ltrim, rtrim):
         fp = join(dc.right, f)
         if isdir(fp):
             for r,d,fs in walk(fp):
-                r = r[rtrim:]
+                r = relpath(r, rpath)
                 for f in fs:
-                    #print r, f
                     yield(RIGHT, join(r, f))
         else:
-            yield (RIGHT, fp[rtrim:]) #join(dc.right[rtrim:], f))
+            yield (RIGHT, relpath(fp, rpath))
 
     diff_files = dc.diff_files
     diff_files.sort()
 
     for f in diff_files:
-        yield (DIFF, join(dc.right[rtrim:], f))
+        yield (DIFF, join(relpath(dc.right, rpath), f))
 
     same_files = dc.same_files
     same_files.sort()
 
     for f in same_files:
-        yield (BOTH, join(dc.left[ltrim:], f))
+        yield (BOTH, join(relpath(dc.left, lpath), f))
 
     subdirs = dc.subdirs.values()
     subdirs.sort()
     for sub in subdirs:
-        for event in _gen_from_dircmp(sub, ltrim, rtrim):
+        for event in _gen_from_dircmp(sub, lpath, rpath):
             yield event
 
 
