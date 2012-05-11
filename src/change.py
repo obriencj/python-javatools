@@ -173,7 +173,7 @@ class Change(object):
         if options.json:
             self.write_json(options, out)
         else:
-            self.write(options, 0, "  ", out)
+            self.write_cli(options, 0, "  ", out)
 
         if options.output:
             out.close()

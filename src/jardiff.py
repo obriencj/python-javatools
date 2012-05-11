@@ -218,7 +218,7 @@ class JarContentsChange(SuperChange):
 
         for event,entry in compare_zips(left, right):
             #print event, entry
-            
+
             if event == SAME:
 
                 # TODO: should we split by file type to more specific

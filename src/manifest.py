@@ -25,12 +25,68 @@ license: LGPL
 
 
 
-from change import Change
+from change import GenericChange, SuperChange, Addition, Removal
 
 
 
-class ManifestChange(Change):
+class ManifestSectionChange(GenericChange):
+    label = "Manifest File Section"
+
+
+    def fn_data(self, c):
+        return dict((k,c[k]) for k in c.iterkeys())
+
+
+    def get_description(self):
+        m = self.ldata or self.rdata
+        entry = m.primary()
+        if self.is_change():
+            return "%s Changed: %s" % (self.label, entry)
+        else:
+            return "%s Unchanged: %s" % (self.label, entry)
+
+
+
+class ManifestSectionAdded(Addition):
+    label = "Manifest File Section Added"
+
+    def get_description(self):
+        return "%s: %s" % (self.label, self.rdata.primary())
+
+
+
+class ManifestSectionRemoved(Removal):
+    label = "Manifest File Section Removed"
+
+    def get_description(self):
+        return "%s: %s" % (self.label, self.ldata.primary())
+
+
+
+class ManifestMainChange(ManifestSectionChange):
+    label = "Manifest Main Section"
+
+
+
+
+class ManifestChange(SuperChange):
     label = "Manifest"
+
+    def collect_impl(self):
+        lm, rm = self.ldata, self.rdata
+        yield ManifestMainChange(lm, rm)
+
+        l_sections = set(lm.sub_sections.keys())
+        r_sections = set(rm.sub_sections.keys())
+
+        for s in l_sections.intersection(r_sections):
+            yield ManifestSectionChange(lm.sub_sections[s], rm.sub_sections[s])
+
+        for s in l_sections.difference(r_sections):
+            yield ManifestSectionRemoved(lm.sub_sections[s], None)
+
+        for s in r_sections.difference(l_sections):
+            yield ManifestSectionAdded(None, rm.sub_sections[s])
 
 
 
