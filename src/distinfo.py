@@ -84,6 +84,7 @@ class DistInfo(object):
                 req.setdefault(sym, list()).append((REQ_BY_JAR,entry,data))
             for sym,data in ji.get_provides().iteritems():
                 prov.setdefault(sym, list()).append((PROV_BY_JAR,entry,data))
+                p.add(sym)
             ji.close()
 
         for entry in self.get_classes():
