@@ -55,7 +55,6 @@ class JarContentChange(Change):
 
     label = "Jar Content"
     
-
     def __init__(self, lzip, rzip, entry, is_change=True):
         Change.__init__(self, lzip, rzip)
         self.entry = entry
@@ -64,9 +63,9 @@ class JarContentChange(Change):
 
     def get_description(self):
         if self.is_change():
-            return "Jar Content Changed: " + self.entry
+            return "%s Changed: %s" % (self.label, self.entry)
         else:
-            return "Jar Content Unchanged: " + self.entry
+            return "%s Unchanged: %s" % (self.label, self.entry)
 
 
     def is_ignored(self, options):
@@ -81,12 +80,8 @@ class JarContentAdded(JarContentChange, Addition):
     label = "Jar Content Added"
 
 
-    def is_ignored(self, options):
-        from dirutils import fnmatches
-        return fnmatches(self.entry, *options.ignore_jar_entry)
-
-        # todo: check against ignored empty directories
-        return False
+    def get_description(self):
+        return "%s: %s" % (self.label, self.entry)
 
 
 
@@ -96,12 +91,8 @@ class JarContentRemoved(JarContentChange, Removal):
     label = "Jar Content Removed"
 
 
-    def is_ignored(self, options):
-        from dirutils import fnmatches
-        return fnmatches(self.entry, *options.ignore_jar_entry)
-
-        # todo: check against ignored empty directories
-        return False
+    def get_description(self):
+        return "%s: %s" % (self.label, self.entry)
 
 
 
@@ -173,6 +164,11 @@ class JarManifestChange(SuperChange, JarContentChange):
         rfd.close()
 
         yield ManifestChange(lm, rm)
+
+
+    def is_ignored(self, options):
+        return options.ignore_jar_manifest
+
 
 
 
@@ -353,6 +349,10 @@ def create_optparser():
     parser = classdiff.create_optparser()
 
     parser.add_option("--ignore-jar-entry", action="append", default=[])
+
+    parser.add_option("--ignore-jar-manifest",
+                      action="store_true", default=False,
+                      help="Ignore changes to JAR manifests")
 
     return parser
 

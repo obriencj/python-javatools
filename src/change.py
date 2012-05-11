@@ -199,22 +199,31 @@ class Change(object):
         of options may reference a file by name which will be opened
         for writing, or sys.stdout will be used."""
 
+        show_unchanged = getattr(options, "show_unchanged", False)
+        show_ignored = getattr(options, "show_ignored", False)
+
+        show = False
+
         if self.is_change():
             if self.is_ignored(options):
-                if getattr(options, "show_ignored", False):
+                if show_ignored:
+                    show = True
                     _indent(outstream,indent,indentstr,
-                            self.get_description(),
-                            " [IGNORED]")
+                            self.get_description(), " [IGNORED]")
             else:
+                show = True
                 _indent(outstream,indent,indentstr,
                         self.get_description())
                 
-        elif getattr(options, "show_unchanged", False):
+        elif show_unchanged:
+            show = True
             _indent(outstream,indent,indentstr,
                     self.get_description())
 
-        for sub in self.get_subchanges():
-            sub.write_cli(options, indent+1, indentstr, outstream)
+        if show:
+            for sub in self.get_subchanges():
+                sub.write_cli(options, indent+1, indentstr, outstream)
+
 
 
 
