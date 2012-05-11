@@ -24,9 +24,6 @@ license: LGPL
 """
 
 
-import sys
-
-
 
 from change import Change
 
@@ -352,18 +349,10 @@ def single_path_generator(pathname):
 
 
 
-def fnmatches(fn, patternlist):
-    from fnmatch import fnmatch
-    for p in patternlist:
-        if fnmatch(fn, p):
-            return p
-    return False
-
-
-
 def cli_create(options, rest):
     from os.path import exists, split
     from os import makedirs
+    from dirutils import fnmatches
 
     if options.recursive:
         entries = multi_path_generator(rest[1:])
@@ -377,7 +366,7 @@ def cli_create(options, rest):
     for name,chunks in entries:
 
         # skip the stuff that we were told to ignore
-        if ignores and fnmatches(name, ignores):
+        if ignores and fnmatches(name, *ignores):
             continue
 
         sec = mf.create_section(name)
@@ -482,11 +471,6 @@ def create_optparser():
 def main(args):
     parser = create_optparser()
     return cli(*parser.parse_args(args))
-
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
 
 
 

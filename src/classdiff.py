@@ -27,7 +27,6 @@ license: LGPL
 
 
 
-import sys
 from change import Change, GenericChange, SuperChange
 from change import Addition, Removal
 from change import yield_sorted_by_type
@@ -760,11 +759,6 @@ def create_optparser():
 def main(args):
     parser = create_optparser()
     return cli(*parser.parse_args(args))
-
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
 
 
 

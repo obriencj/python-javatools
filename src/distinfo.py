@@ -29,170 +29,265 @@ DIST_CLASS = "class"
 
 
 
-JAR_PATTERNS = ( "*.ear",
-                 "*.jar",
-                 "*.rar",
-                 "*.sar",
-                 "*.war", )
+from jarinfo import REQ_BY_CLASS, PROV_BY_CLASS
+REQ_BY_JAR = "jar.requires"
+PROV_BY_JAR = "jar.provides"
+
+
+
+class DistInfo(object):
+
+
+    def __init__(self, base_path):
+        self.base_path = base_path
+
+        # a pair of strings useful for later reporting. Non-mandatory
+        self.product = None
+        self.version = None
+
+        # if the dist is a zip, we'll explode it into tmpdir
+        self.tmpdir = None
+
+        self._contents = None
+        self._requires = None
+        self._provides = None
+
+
+    def __del__(self):
+        self.close()
+        
+
+    def _working_path(self):
+        from os.path import isdir
+
+        if self.tmpdir:
+            return self.tmpdir
+
+        elif isdir(self.base_path):
+            return self.base_path
+
+        else:
+            self.tmpdir = tmpdir()
+            zipexpand(self.base_path, self.tmpdir)
+            return self.tmpdir
+
+
+    def _collect_requires_provides(self):
+        req = {}
+        prov = {}
+
+        p = set()
+
+        for entry in self.get_jars():
+            ji = self.get_jarinfo(entry)
+            for sym,data in ji.get_requires().iteritems():
+                req.setdefault(sym, list()).append((REQ_BY_JAR,entry,data))
+            for sym,data in ji.get_provides().iteritems():
+                prov.setdefault(sym, list()).append((PROV_BY_JAR,entry,data))
+            ji.close()
+
+        for entry in self.get_classes():
+            ci = self.get_classinfo(entry)
+            for sym in ci._get_requires():
+                req.setdefault(sym, list()).append((REQ_BY_CLASS,entry))
+            for sym in ci._get_provides(private=False):
+                prov.setdefault(sym, list()).append((PROV_BY_CLASS,entry))
+            for sym in ci._get_provides(private=True):
+                p.add(sym)
+
+        r = set(req.iterkeys())
+        req = dict((k,v) for k,v in req.iteritems() if k in r.difference(p))
+
+        self._requires = req
+        self._provides = prov
+
+
+    def get_requires(self, ignored=[]):
+        """ a map of requirements to what requires it. ignored is an
+        optional list of globbed patterns indicating packages,
+        classes, etc that shouldn't be included in the provides map"""
+
+        from dirutils import fnmatches
+
+        if self._requires is None:
+            self._collect_requires_provides()
+
+        d = self._requires
+        if ignored:
+            d = dict((k,v) for k,v in d.iteritems()
+                     if not fnmatches(k, *ignored))
+        return d
+
+
+    def get_provides(self, ignored=[]):
+        """ a map of provided classes and class members, and what
+        provides them. ignored is an optional list of globbed patterns
+        indicating packages, classes, etc that shouldn't be included
+        in the provides map"""
+
+        from dirutils import fnmatches
+
+        if self._provides is None:
+            self._collect_requires_provides()
+
+        d = self._provides
+        if ignored:
+            d = dict((k,v) for k,v in d.iteritems()
+                     if not fnmatches(k, *ignored))
+        return d
+
+
+    def get_jars(self):
+        """ sequence of entry names found in this distribution """
+
+        from jarinfo import JAR_PATTERNS
+        from dirutils import fnmatches
+
+        for entry in self.get_contents():
+            if fnmatches(entry, *JAR_PATTERNS):
+                yield entry
+
+
+    def get_jarinfo(self, entry):
+        from jarinfo import JarInfo
+        from os.path import join
+
+        return JarInfo(join(self.base_path,entry))
+
+
+    def get_classes(self):
+        """ sequence of entry names found in the distribution.  This
+        is only the collection of class files directly in the dist, it
+        does not include classes within JARs that are inthe dist."""
+
+        from dirutils import fnmatches
+
+        for entry in self.get_contents():
+            if fnmatches(entry, "*.class"):
+                yield entry
+
+
+    def get_classinfo(self, entry):
+        from javaclass import unpack_classfile
+        from os.path import join
+        
+        return unpack_classfile(join(self.base_path,entry))
+
+
+    def get_contents(self):
+        if self._contents is None:
+            self._contents = tuple(_collect_dist(self._working_path()))
+        return self._contents
+
+
+    def close(self):
+        """ if this was a zip'd distribution, any introspection
+        may have resulted in opening or creating temporary files.
+        Call close in order to clean up. """
+
+        if self.tmpdir:
+            rmdir(self.tmpdir)
+            self.tmpdir = None
+
+        self._contents = None
 
 
 
 def _collect_dist(pathn):
-    # walk down pathn looking for .class and .jar
-
-    from dirdelta import fnmatches
+    from os.path import join, relpath
     from os import walk
-    from os.path import isdir, join
-
-    if not isdir(pathn):
-        #TODO: support exploding dist zips
-        return
-
     for r,d,fs in walk(pathn):
         for f in fs:
-            if f.endswith(".class"):
-                yield (DIST_CLASS, join(r, f))
-            elif fnmatches(f, *JAR_PATTERNS):
-                yield (DIST_JAR, join(r, f))
+            yield relpath(join(r,f),pathn)
 
 
 
-def collect_dist(pathn):
-    return list(_collect_dist(pathn))
+#
+# --- CLI ---
 
 
 
-def get_dist_jar_class_infos(path):
-    from zipfile import ZipFile
-    from jarinfo import get_jar_class_info_map
+def cli_dist_provides(options, info):
+    print "distribution provides:"
 
-    zf = ZipFile(path)
-    cim = get_jar_class_info_map(zf)
-    zf.close()
-
-    return cim.values()
-
-
-
-def get_dist_jar_provides(path):
-    from jarinfo import get_class_infos_provides
-    return get_class_infos_provides(get_dist_jar_class_infos(path))    
-
-
-
-def get_dist_class_provides(path):
-    from javaclass import unpack_classfile
-
-    info = unpack_classfile(path)
-    return info.get_provides()
-
-
-
-def get_dist_jar_requires(path):
-    from jarinfo import get_class_infos_requires
-    return get_class_infos_requires(get_dist_jar_class_infos(path))    
-
-
-
-def get_dist_class_requires(path):
-    from javaclass import unpack_classfile
-
-    info = unpack_classfile(path)
-    return info.get_requires()
-
-
-
-def get_dist_provides(dist):
-    prov = list()
-    for ptype,path in dist:
-        if ptype == DIST_JAR:
-            prov.extend(get_dist_jar_provides(path))
-        elif ptype == DIST_CLASS:
-            prov.extend(get_dist_class_provides(path))
-    return set(prov)
-
-
-
-def get_dist_requires(dist):
-    deps = list()
-    for ptype,path in dist:
-        if ptype == DIST_JAR:
-            deps.extend(get_dist_jar_requires(path))
-        elif ptype == DIST_CLASS:
-            deps.extend(get_dist_class_requires(path))
-    deps = set(deps)
-
-    prov = get_dist_provides(dist)
-    return deps.difference(prov)
-
-
-
-def cli_dist_api_provides(options, pathn):
-    from dirdelta import fnmatches
-
-    dist = collect_dist(pathn)
-    provides = list(get_dist_provides(dist))
-    provides.sort()
-
-    print "distribution %s provides:" % pathn
-
-    for provided in provides:
-        if not fnmatches(provided, *options.api_ignore):
-            print " ", provided
+    for provided in sorted(info.get_provides(options.api_ignore)):
+        print " ", provided
     print
 
 
 
-def cli_dist_api_requires(options, pathn):
-    from dirdelta import fnmatches
+def cli_dist_requires(options, info):
+    print "distribution requires:"
 
-    dist = collect_dist(pathn)
-    requires = list(get_dist_requires(dist))
-    requires.sort()
-
-    print "distribution %s requires:" % pathn
-
-    for required in requires:
-        if not fnmatches(required, *options.api_ignore):
-            print " ", required
+    for required in sorted(info.get_requires(options.api_ignore)):
+        print " ", required
     print
+
+
+
+def cli_distinfo(options, info):
+
+    if options.dist_provides:
+        cli_dist_provides(options, info)
+
+    if options.dist_requires:
+        cli_dist_requires(options, info)
+
+    #TODO: simple things like listing JARs and non-JAR files
+
+
+
+def cli_distinfo_json(options, info):
+    from json import dump
+    from sys import stdout
+
+    data = {}
+
+    if options.dist_provides:
+        data["dist.provides"] = info.get_provides(options.api_ignore)
+
+    if options.dist_requires:
+        data["dist.requires"] = info.get_requires(options.api_ignore)
+
+    dump(data, stdout, sort_keys=True, indent=2)
 
 
 
 def cli(options, rest):
 
     pathn = rest[1]
+    info = DistInfo(pathn)
 
-    if options.api_provides or options.api_requires:
-        if options.api_provides:
-            cli_dist_api_provides(options, pathn)
-        if options.api_requires:
-            cli_dist_api_requires(options, pathn)
-        return
+    if options.json:
+        cli_distinfo_json(options, info)
+    else:
+        cli_distinfo(options, info)
 
-    #TODO: simple things like listing JARs and non-JAR files
-
+    info.close()
     return 0
 
 
 
 def create_optparser():
-    from jarinfo import create_optparser
+    import jarinfo
 
-    parser = create_optparser()
+    p = jarinfo.create_optparser()
 
-    return parser
+    p.add_option("--dist-provides", dest="dist_provides",
+                 action="store_true", default=False,
+                 help="API provides information at the distribution level")
+
+    p.add_option("--dist-requires", dest="dist_requires",
+                 action="store_true", default=False,
+                 help="API requires information at the distribution level")
+
+    return p
 
 
 
 def main(args):
     parser = create_optparser()
     return cli(*parser.parse_args(args))
-
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
 
 
 

@@ -26,14 +26,9 @@ licence: LGPL
 
 
 
-import sys
-
-
-
 from change import Change, GenericChange
 from change import SuperChange, Addition, Removal
 from change import yield_sorted_by_type
-from dirdelta import fnmatches
 
 
 
@@ -75,6 +70,7 @@ class JarContentChange(Change):
 
 
     def is_ignored(self, options):
+        from dirutils import fnmatches
         return fnmatches(self.entry, *options.ignore_jar_entry)
 
 
@@ -86,6 +82,7 @@ class JarContentAdded(JarContentChange, Addition):
 
 
     def is_ignored(self, options):
+        from dirutils import fnmatches
         return fnmatches(self.entry, *options.ignore_jar_entry)
 
         # todo: check against ignored empty directories
@@ -100,6 +97,7 @@ class JarContentRemoved(JarContentChange, Removal):
 
 
     def is_ignored(self, options):
+        from dirutils import fnmatches
         return fnmatches(self.entry, *options.ignore_jar_entry)
 
         # todo: check against ignored empty directories
@@ -210,7 +208,8 @@ class JarContentsChange(SuperChange):
                           JarClassRemoved,
                           JarClassChange)
     def collect_impl(self):
-        from zipdelta import compare_zips, LEFT, RIGHT, DIFF, SAME
+        from ziputils import compare_zips, LEFT, RIGHT, DIFF, SAME
+        from dirutils import fnmatches
 
         # these are opened for the duration of check_impl
         left, right = self.lzip, self.rzip
@@ -282,7 +281,7 @@ class JarContentsChange(SuperChange):
          as the ldata and rdata of all subchecks. """
 
         # this makes it work on exploded archives
-        from zipdelta import ZipFile
+        from ziputils import ZipFile
 
         lzip = ZipFile(self.ldata)
         rzip = ZipFile(self.rdata)
@@ -357,11 +356,6 @@ def create_optparser():
 def main(args):
     parser = create_optparser()
     return cli(*parser.parse_args(args))
-
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
 
 
 

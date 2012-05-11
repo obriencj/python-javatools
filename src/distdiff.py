@@ -26,11 +26,9 @@ license: LGPL
 """
 
 
-import sys
 from change import Change, GenericChange, SuperChange, Addition, Removal
 from change import squash
 from change import yield_sorted_by_type
-from dirdelta import fnmatches
 
 
 
@@ -48,6 +46,7 @@ class DistContentChange(Change):
 
 
     def is_ignored(self, options):
+        from dirutils import fnmatches
         return fnmatches(self.entry, *options.ignore_filenames)
 
 
@@ -124,15 +123,6 @@ class DistClassRemoved(DistContentRemoved):
 
 
 
-
-JAR_PATTERNS = ( "*.ear",
-                 "*.jar",
-                 "*.rar",
-                 "*.sar",
-                 "*.war", )
-
-
-
 class DistChange(SuperChange):
     label = "Distribution"
 
@@ -158,8 +148,9 @@ class DistChange(SuperChange):
                           DistContentRemoved,
                           DistContentChange)
     def collect_impl(self):
-        from dirdelta import compare, LEFT, RIGHT, SAME, DIFF
-        from dirdelta import fnmatches
+        from dirutils import compare, LEFT, RIGHT, SAME, DIFF
+        from dirutils import fnmatches
+        from jarinfo import JAR_PATTERNS
 
         ld, rd = self.ldata, self.rdata
         deep = not self.shallow
@@ -300,11 +291,6 @@ def create_optparser():
 def main(args):
     parser = create_optparser()
     return cli(*parser.parse_args(args))
-
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
 
 
 

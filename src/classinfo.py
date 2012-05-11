@@ -25,10 +25,6 @@ license: LGPL
 
 
 
-import sys
-
-
-
 HEADER = 0
 PUBLIC = 1
 PACKAGE = 3
@@ -174,31 +170,19 @@ def print_method(options, method):
 
 
 def cli_api_provides(options, info):
-    from dirdelta import fnmatches
-
     print "class %s provides:" % info.pretty_this()
 
-    provides = list(info.get_provides())
-    provides.sort()
-
-    for provided in provides:
-        if not fnmatches(provided, *options.api_ignore):
-            print " ", provided
+    for provided in sorted(info.get_provides(options.api_ignore)):
+        print " ", provided
     print
 
 
 
 def cli_api_requires(options, info):
-    from dirdelta import fnmatches
-
     print "class %s requires:" % info.pretty_this()
 
-    requires = list(info.get_requires())
-    requires.sort()
-
-    for required in requires:
-        if not fnmatches(required, *options.api_ignore):
-            print " ", required
+    for required in sorted(info.get_requires(options.api_ignore)):
+        print " ", required
     print
 
 
@@ -283,18 +267,18 @@ def create_optparser():
 
     p = OptionParser("%prog <options> <classfiles>")
 
-    p.add_option("--api-provides", dest="api_provides",
+    p.add_option("--class-provides", dest="class_provides",
                  action="store_true", default=False,
-                 help="Print only provided API information")
+                 help="API provides information at the class level")
     
-    p.add_option("--api-requires", dest="api_requires",
+    p.add_option("--class-requires", dest="class_requires",
                  action="store_true", default=False,
-                 help="Print only requires API information")
+                 help="API requires information at the class level")
 
     p.add_option("--api-ignore", dest="api_ignore",
                  action="append", default=list(),
-                 help="globs of packages to not print in --api-provides"
-                 " or --api-requires modes")
+                 help="globs of packages to not print in provides"
+                 " or requires modes")
 
     p.add_option("--header", dest="show",
                  action="store_const", default=PUBLIC, const=HEADER,
@@ -329,6 +313,11 @@ def create_optparser():
 
     p.add_option("--verbose", dest="verbose", action="store_true",
                  help="sets -locsp options and shows stack bounds")
+
+
+    p.add_option("--json", dest="json", action="store_true",
+                 help="output in JSON mode")
+
     
     return p
 
@@ -360,11 +349,6 @@ def cli(options, rest):
 def main(args):
     parser = create_optparser()
     return cli(*parser.parse_args(args))
-
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
 
 
 

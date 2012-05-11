@@ -23,31 +23,135 @@ license: LGPL
 """
 
 
+""" for reference by other modules """
+JAR_PATTERNS = ( "*.ear",
+                 "*.jar",
+                 "*.rar",
+                 "*.sar",
+                 "*.war", )
 
-import sys
+
+
+REQ_BY_CLASS = "class.requires"
+PROV_BY_CLASS = "class.provides"
 
 
 
-def get_manifest_info(zipfile):
+class JarInfo(object):
     
-    """ fetch the sections from the MANIFEST.MF file. Returns a list
-    of dicts representing all of the key:val sections in the
-    manifest. """
+    def __init__(self, filename=None, zipfile=None):
+        if not (filename or zipinfo):
+            raise TypeError("one of pathname or zipinfo must be specified")
 
-    from manifest import parse_sections
+        self.filename = filename
+        self.zipfile = zipfile
 
-    data = zipfile.read("META-INF/MANIFEST.MF")
-    return parse_sections(data)
+        self._requires = None
+        self._provides = None
+        
+
+    def __del__(self):
+        self.close()
+
+
+    def _collect_requires_provides(self):
+        req = {}
+        prov = {}
+
+        # we need to collect private provides in order to satisfy deps
+        # for things like anonymous inner classes, which have access
+        # to private members of their parents. This is only used to
+        # filter out false-positive requirements.
+        p = set()
+        
+        for entry in self.get_classes():
+            ci = self.get_classinfo(entry)
+            for sym in ci._get_requires():
+                req.setdefault(sym, list()).append((REQ_BY_CLASS,entry))
+            for sym in ci._get_provides(private=False):
+                prov.setdefault(sym, list()).append((PROV_BY_CLASS,entry))
+            for sym in ci._get_provides(private=True):
+                p.add(sym)
+
+        r = set(req.iterkeys())        
+        req = dict((k,v) for k,v in req.iteritems() if k in r.difference(p))
+
+        self._requires = req
+        self._provides = prov
+
+
+    def get_requires(self, ignored=[]):
+        from dirutils import fnmatches
+
+        if self._requires is None:
+            self._collect_requires_provides()
+
+        d = self._requires
+        if ignored:
+            d = dict((k,v) for k,v in d.iteritems()
+                     if not fnmatches(k, *ignored))
+        return d
+
+
+    def get_provides(self, ignored=[]):
+        from dirutils import fnmatches
+
+        if self._provides is None:
+            self._collect_requires_provides()
+
+        d = self._provides
+        if ignored:
+            d = dict((k,v) for k,v in d.iteritems()
+                     if not fnmatches(k, *ignored))
+        return d
+
+
+    def get_classes(self):
+        from dirutils import fnmatches
+        for n in self.get_zipfile().namelist():
+            if fnmatches(n, "*.class"):
+                yield n
+
+
+    def get_classinfo(self, entry):
+        from javaclass import unpack_class
+        cfd = self.get_zipfile().open(entry)
+        cinfo = unpack_class(cfd)
+        cfd.close()
+        return cinfo
+
+
+    def get_manifest(self):
+        """ fetch the sections from the MANIFEST.MF file. Returns a
+        list of dicts representing all of the key:val sections in the
+        manifest."""
+
+        from manifest import parse_sections
+        data = self.get_zipfile().read("META-INF/MANIFEST.MF")
+        return parse_sections(data)
+
+
+    def get_zipfile(self):
+        from ziputils import ZipFile
+        if self.zipfile is None:
+            self.zipfile = ZipFile(self.filename)
+        return self.zipfile
+
+
+    def close(self):
+        if self.zipfile:
+            self.zipfile.close()
+            self.zipfile = None
 
 
 
-def cli_manifest_info(options, zipfile):
-    mf = get_manifest_info(zipfile)
+def cli_jar_manifest_info(options, jarinfo):
+    mf = jarinfo.get_manifest()
 
     if not mf:
-        print "META-INFO/MANIFEST.MF not found"
-        return -1
-
+        print "Manifest not present."
+        print
+        return
 
     print "Manifest main section:"
     for k,v in sorted(mf[0].items()):
@@ -63,29 +167,11 @@ def cli_manifest_info(options, zipfile):
 
 
 
-def zip_entry_rollup(zipfile):
+def cli_jar_zip_info(options, jarinfo):
+    from ziputils import zip_entry_rollup
     
-    """ returns a tuple of (files, dirs, size_uncompressed,
-    size_compressed). files+dirs will equal len(zipfile.infolist) """
-    
-    files, dirs = 0, 0
-    total_c, total_u = 0, 0
-    
-    for i in zipfile.infolist():
-        if i.filename[-1] == '/':
-            # I wonder if there's a better detection method than this
-            dirs += 1
-        else:
-            files += 1
-            total_c += i.compress_size
-            total_u += i.file_size
-    
-    return files, dirs, total_c, total_u
+    zipfile = jarinfo.get_zipfile()
 
-
-
-def cli_zip_info(options, zipfile):
-    
     files, dirs, comp, uncomp = zip_entry_rollup(zipfile)
     prcnt = (float(comp)  / float(uncomp)) * 100
 
@@ -93,157 +179,95 @@ def cli_zip_info(options, zipfile):
     print "Uncompressed size is %i" % uncomp
     print "Compressed size is %i (%0.1f%%)" % (comp, prcnt)
     print
-    
-    return 0
 
 
 
-def get_jar_class_info_map(zipfile):
-    from javaclass import is_class, unpack_class
-
-    """ A map of entry names to ClassInfo instances representing the
-    classes available in the given JAR. zip should be a ZipFile
-    instance."""
-
-    ret = {}
-
-    for i in zipfile.infolist():
-        if i.filename.endswith('.class'):
-            buff = zipfile.read(i.filename)
-            if is_class(buff):
-                ret[i.filename] = unpack_class(buff)
-            del buff
-
-    return ret
-
-
-
-def get_class_infos_provides(class_infos, private=False):
-    prov = list()
-    for info in class_infos:
-        if private or info.is_public():
-            prov.extend(info._get_provides(private))
-    return set(prov)
-
-
-
-def get_class_infos_requires(class_infos):
-    deps = list()
-    for info in class_infos:
-        deps.extend(info._get_requires())
-    deps = set(deps)
-
-    # we set private to True here to resolve protected deps
-    prov = get_class_infos_provides(class_infos, True)
-    return deps.difference(prov)
-
-
-
-def cli_get_class_info_map(options, zipfile):
-
-    """ Collect the classinfo for the class files contained in the
-    zip, and store them for later use on options. This is a bit of a hack
-    to use options to save state """
-
-    n = zipfile.filename
-
-    cn = getattr(options, "_classes_from_", None)
-    if cn != n:
-        options._classes_ = None
-
-    ci = getattr(options, "_classes_", None)
-    if not ci:
-        ci = get_jar_class_info_map(zipfile)
-        options._classes_ = ci
-        options._classes_from_ = n
-
-    return ci
-    
-
-
-def cli_get_class_infos(options, zipfile):
-    return cli_get_class_info_map(options, zipfile).values()
-
-
-
-def cli_classes(options, zipfile):
+def cli_jar_classes(options, jarinfo):
     from classinfo import cli_print_classinfo
 
-    for k,ci in cli_get_class_info_map(options, zipfile).items():
-        print "Entry: ", k
+    for entry in jarinfo.get_classes():
+        ci = jarinfo.get_classinfo(entry)
+        print "Entry: ", entry
         cli_print_classinfo(options, ci)
         print
 
 
 
-def cli_provides(options, zipfile):
-    from dirdelta import fnmatches
-
-    classinfos = cli_get_class_infos(options, zipfile)
-    provides = list(get_class_infos_provides(classinfos))
-    provides.sort()
+def cli_jar_provides(options, jarinfo):
+    from dirutils import fnmatches
     
-    print "jar %s provides:" % zipfile.filename 
+    print "jar provides:"
 
-    for provided in provides:
-        if not fnmatches(provides, *options.api_ignore):
+    for provided in sorted(jarinfo.get_provides().iterkeys()):
+        if not fnmatches(provided, *options.api_ignore):
             print " ", provided
     print
 
 
 
-def cli_requires(options, zipfile):
-    from dirdelta import fnmatches
+def cli_jar_requires(options, jarinfo):
+    from dirutils import fnmatches
 
-    classinfos = cli_get_class_infos(options, zipfile)
-    requires = list(get_class_infos_requires(classinfos))
-    requires.sort()
+    print "jar requires:"
 
-    print "jar %s provides:" % zipfile.filename
-
-    for required in requires:
-        if not fnmatches(provides, *options.api_ignore):
+    for required in sorted(jarinfo.get_requires().iterkeys()):
+        if not fnmatches(required, *options.api_ignore):
             print " ", required
     print
 
 
 
-def cli_zipfile(options, zipfile):
+def cli_jarinfo(options, info):
+    from ziputils import zip_entry_rollup
 
-    print "in cli_zipfile"
-
-    if options.api_provides or options.api_requires:
-        if options.api_provides:
-            cli_provides(options, zipfile)
-        if options.api_requires:
-            cli_requires(options, zipfile)
-        return
-
-    # zip information (compression, etc)
     if options.zip:
-        cli_zip_info(options, zipfile)
+        cli_jar_zip_info(options, info)
 
-    # manifest information
     if options.manifest:
-        cli_manifest_info(options, zipfile)
+        cli_jar_manifest_info(options, info)
 
-    # signature information
-    # TODO
+    if options.jar_provides:
+        cli_jar_provides(options, info)
 
-    # contained non-classes
-    # TODO
+    if options.jar_requires:
+        cli_jar_requires(options, info)
 
-    # contained classes
     if options.classes:
-        cli_classes(options, zipfile)
+        cli_jar_classes(options, info)
 
-    return
+
+
+def cli_jarinfo_json(options, info):
+    from json import dump
+    from sys import stdout
+    from ziputils import zip_entry_rollup
+    from dirutils import fnmatches
+
+    data = {}
+
+    if options.jar_provides:
+        data["jar.provides"] = info.get_provides(options.api_ignore)
+
+    if options.jar_requires:
+        data["jar.requires"] = info.get_requires(options.api_ignore)
+
+    if options.zip:
+        zipfile = info.get_zipfile()
+        filec, dirc, totalc, totalu = zip_entry_rollup(zipfile)
+        prcnt = (float(totalc)  / float(totalu)) * 100
+
+        data["zip.type"] = zipfile.__class__.__name__
+        data["zip.file_count"] = filec
+        data["zip.dir_count" ] = dirc
+        data["zip.uncompressed_size"] = totalu
+        data["zip.compressed_size"] = totalc
+        data["zip.compress_percent"] = prcnt
+
+    dump(data, stdout, sort_keys=True, indent=2)
 
 
 
 def cli(options, rest):
-    from zipfile import ZipFile
-
     # TODO: temporary yucky handling of magic options brought in from
     # the classinfo module's create_optparse.
 
@@ -258,11 +282,15 @@ def cli(options, rest):
                          options.disassemble or
                          options.sigs)
     
-    print rest
     for fn in rest[1:]:
-        zf = ZipFile(fn)
-        cli_zipfile(options, zf)
-        zf.close()
+        ji = JarInfo(filename=fn)
+
+        if options.json:
+            cli_jarinfo_json(options, ji)
+        else:
+            cli_jarinfo(options, ji)
+
+        ji.close()
 
     return 0
 
@@ -282,6 +310,14 @@ def create_optparser():
     p.add_option("--classes", action="store_true", default=False,
                  help="print information about contained classes")
 
+    p.add_option("--jar-provides", dest="jar_provides",
+                 action="store_true", default=False,
+                 help="API provides information at the JAR level")
+
+    p.add_option("--jar-requires", dest="jar_requires",
+                 action="store_true", default=False,
+                 help="API requires information at the JAR level")
+
     return p
 
 
@@ -289,11 +325,6 @@ def create_optparser():
 def main(args):
     parser = create_optparser()
     return cli(*parser.parse_args(args))
-
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
 
 
 

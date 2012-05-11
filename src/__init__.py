@@ -776,13 +776,21 @@ class JavaClassInfo(JavaAttributes):
 
 
 
-    def get_provides(self):
-        return set(self._get_provides())
+    def get_provides(self, ignored=[]):
+        from dirutils import fnmatches
+        d = set(self._get_provides())
+        if ignored:
+            d = filter(lambda n: not fnmatches(n, *ignored), d)
+        return d
 
 
 
-    def get_requires(self):
-        return set(self._get_requires())
+    def get_requires(self, ignored=[]):
+        from dirutils import fnmatches
+        d = set(self._get_requires())
+        if ignored:
+            d = filter(lambda n: not fnmatches(n, *ignored), d)
+        return d
 
 
 

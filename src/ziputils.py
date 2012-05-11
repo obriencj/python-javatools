@@ -23,7 +23,7 @@ license: LGPL
 
 
 
-from dirdelta import LEFT, RIGHT, DIFF, SAME
+from dirutils import LEFT, RIGHT, DIFF, SAME
 
 
 
@@ -191,27 +191,28 @@ def _collect_infos(dirname):
     from os.path import relpath, join, getsize, islink, isdir, isfile
     from os import walk
 
-    for r,d,fs in walk(dirname):
+    for r,ds,fs in walk(dirname):
+        if not islink(r) and r != dirname:
+            i = ZipInfo()
+            i.filename = join(relpath(r,dirname), "")
+            i.file_size = 0
+            i.compress_size = 0
+            i.CRC = 0
+            yield i.filename, i
+
         for f in fs:
+            df = join(r,f)
             relfn = relpath(join(r,f),dirname)
 
-            if islink(relfn):
+            if islink(df):
                 pass
-
-            elif isdir(df):
-                i = ZipInfo()
-                i.filename = join(relfn, "")
-                i.file_size = 0
-                i.compress_size = 0
-                i.CRC = 0
-                yield i.filename, i
                 
             elif isfile(df):
                 i = ZipInfo()
                 i.filename = relfn
-                i.file_size = getsize(relfn)
+                i.file_size = getsize(df)
                 i.compress_size = i.file_size
-                i.CRC = _crc32(relfn)
+                i.CRC = _crc32(df)
                 yield i.filename, i
             
             else:
@@ -280,6 +281,27 @@ def ZipFile(fn):
         return zipfile.ZipFile(fn, "r")
     else:
         raise Exception("cannot treat as an archive: %r" % fn)
+
+
+
+def zip_entry_rollup(zipfile):
+    
+    """ returns a tuple of (files, dirs, size_uncompressed,
+    size_compressed). files+dirs will equal len(zipfile.infolist) """
+    
+    files, dirs = 0, 0
+    total_c, total_u = 0, 0
+    
+    for i in zipfile.infolist():
+        if i.filename[-1] == '/':
+            # I wonder if there's a better detection method than this
+            dirs += 1
+        else:
+            files += 1
+            total_c += i.compress_size
+            total_u += i.file_size
+    
+    return files, dirs, total_c, total_u
     
 
 

@@ -26,7 +26,6 @@ license: LGPL
 """
 
 
-import sys
 import os.path
 
 
@@ -236,7 +235,7 @@ Notification = pkg + ".NotificationActionHandler"
 
 
 def sieve_changes(delta, options, copies, removals, patches):
-    from dirdelta import fnmatches
+    from dirutils import fnmatches
     import distdiff
 
     for change in delta.get_subchanges():
@@ -444,11 +443,6 @@ def create_optparser():
 def main(args):
     parser = create_optparser()
     return cli(*parser.parse_args(args))
-
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
 
 
 
