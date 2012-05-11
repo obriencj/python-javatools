@@ -354,6 +354,10 @@ def create_optparser():
                       action="store_true", default=False,
                       help="Ignore changes to JAR manifests")
 
+    parser.add_option("--ignore-manifest-subsections",
+                      action="store_true", default=False,
+                      help="Ignore changes to a manifest's subsections")
+
     return parser
 
 

@@ -30,7 +30,7 @@ from change import GenericChange, SuperChange, Addition, Removal
 
 
 class ManifestSectionChange(GenericChange):
-    label = "Manifest File Section"
+    label = "Manifest Subsection"
 
 
     def get_description(self):
@@ -42,26 +42,35 @@ class ManifestSectionChange(GenericChange):
             return "%s Unchanged: %s" % (self.label, entry)
 
 
+    def is_ignored(self, options):
+        return getattr(options, "ignore_manifest_subsections", False)
 
-class ManifestSectionAdded(Addition):
-    label = "Manifest File Section Added"
+
+
+class ManifestSectionAdded(ManifestSectionChange, Addition):
+    label = "Manifest Subsection Added"
 
     def get_description(self):
         return "%s: %s" % (self.label, self.rdata.primary())
 
 
 
-class ManifestSectionRemoved(Removal):
-    label = "Manifest File Section Removed"
+class ManifestSectionRemoved(ManifestSectionChange, Removal):
+    label = "Manifest Subsection Removed"
 
     def get_description(self):
         return "%s: %s" % (self.label, self.ldata.primary())
 
 
 
-class ManifestMainChange(ManifestSectionChange):
+class ManifestMainChange(GenericChange):
     label = "Manifest Main Section"
 
+    def get_description(self):
+        if self.is_change():
+            return "%s has changed" % self.label
+        else:
+            return "%s is unchanged" % self.label
 
 
 
