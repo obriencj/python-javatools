@@ -33,7 +33,7 @@ from change import yield_sorted_by_type
 
 
 class DistContentChange(Change):
-    label = "Distributed Content Changed"
+    label = "Distributed Content"
 
 
     def __init__(self, ldir, rdir, entry):
@@ -42,7 +42,8 @@ class DistContentChange(Change):
     
 
     def get_description(self):
-        return "%s: %s" % (self.label, self.entry)
+        c = ("has changed","is unchanged")[not self.is_change()]
+        return "%s %s: %s" % (self.label, c, self.entry)
 
 
     def is_ignored(self, options):
@@ -54,10 +55,16 @@ class DistContentChange(Change):
 class DistContentAdded(DistContentChange, Addition):
     label = "Distributed Content Added"
     
+    def get_description(self):
+        return "%s: %s" % (self.label, self.entry)
+
 
 
 class DistContentRemoved(DistContentChange, Removal):
     label = "Distributed Content Removed"
+    
+    def get_description(self):
+        return "%s: %s" % (self.label, self.entry)
 
 
 
@@ -78,6 +85,10 @@ class DistJarChange(SuperChange, DistContentChange):
 
         yield JarChange(lf, rf)
     
+
+    def get_description(self):
+        return DistContentChange.get_description(self)
+
 
 
 class DistJarAdded(DistContentAdded):
@@ -110,6 +121,10 @@ class DistClassChange(SuperChange, DistContentChange):
         rinfo = unpack_classfile(rf)
 
         yield JavaClassChange(linfo, rinfo)
+    
+
+    def get_description(self):
+        return DistContentChange.get_description(self)
 
 
 

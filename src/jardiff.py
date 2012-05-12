@@ -62,10 +62,8 @@ class JarContentChange(Change):
 
 
     def get_description(self):
-        if self.is_change():
-            return "%s Changed: %s" % (self.label, self.entry)
-        else:
-            return "%s Unchanged: %s" % (self.label, self.entry)
+        c = ("has changed","is unchanged")[not self.is_change()]
+        return "%s %s: %s" % (self.label, c, self.entry)
 
 
     def is_ignored(self, options):
@@ -75,10 +73,7 @@ class JarContentChange(Change):
 
 
 class JarContentAdded(JarContentChange, Addition):
-    # A file or directory was added to a JAR
-
     label = "Jar Content Added"
-
 
     def get_description(self):
         return "%s: %s" % (self.label, self.entry)
@@ -86,10 +81,7 @@ class JarContentAdded(JarContentChange, Addition):
 
 
 class JarContentRemoved(JarContentChange, Removal):
-    # A file or directory was removed from a JAR
-
     label = "Jar Content Removed"
-
 
     def get_description(self):
         return "%s: %s" % (self.label, self.entry)
@@ -138,6 +130,11 @@ class JarClassChange(SuperChange, JarContentChange):
                 SuperChange.is_ignored(self, options))
 
 
+    def get_description(self):
+        return JarContentChange.get_description(self)
+
+
+
 
 class JarManifestChange(SuperChange, JarContentChange):
     label = "Jar Manifest"
@@ -175,15 +172,24 @@ class JarManifestChange(SuperChange, JarContentChange):
 class JarSignatureChange(JarContentChange):
     label = "Jar Signature Data"
 
+    def is_ignored(self, options):
+        return options.ignore_jar_signature
+
 
 
 class JarSignatureAdded(JarContentAdded):
     label = "Jar Signature Added"
 
+    def is_ignored(self, options):
+        return options.ignore_jar_signature
+
 
 
 class JarSignatureRemoved(JarContentRemoved):
     label = "Jar Signature Removed"
+
+    def is_ignored(self, options):
+        return options.ignore_jar_signature
 
 
 
@@ -357,6 +363,10 @@ def create_optparser():
     parser.add_option("--ignore-manifest-subsections",
                       action="store_true", default=False,
                       help="Ignore changes to a manifest's subsections")
+
+    parser.add_option("--ignore-jar-signature",
+                      action="store_true", default=False,
+                      help="Ignore JAR signing changes")
 
     return parser
 
