@@ -169,7 +169,7 @@ def print_method(options, method):
 
 
 
-def cli_api_provides(options, info):
+def cli_class_provides(options, info):
     print "class %s provides:" % info.pretty_this()
 
     for provided in sorted(info.get_provides(options.api_ignore)):
@@ -178,7 +178,7 @@ def cli_api_provides(options, info):
 
 
 
-def cli_api_requires(options, info):
+def cli_class_requires(options, info):
     print "class %s requires:" % info.pretty_this()
 
     for required in sorted(info.get_requires(options.api_ignore)):
@@ -190,13 +190,11 @@ def cli_api_requires(options, info):
 def cli_print_classinfo(options, info):
     from javaclass import platform_from_version
 
-    if options.api_provides or options.api_requires:
-        if options.api_provides:
-            cli_api_provides(options, info)
-
-        if options.api_requires:
-            cli_api_requires(options, info)
-
+    if options.class_provides or options.class_requires:
+        if options.class_provides:
+            cli_class_provides(options, info)
+        if options.class_requires:
+            cli_class_requires(options, info)
         return
 
     sourcefile = info.get_sourcefile()
