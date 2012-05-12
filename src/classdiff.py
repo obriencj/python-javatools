@@ -300,7 +300,7 @@ class CodeConstantsChange(GenericChange):
         for offset,code,args in c.disassemble():
             if opcodes.has_const_arg(code):
                 name = opcodes.get_opname_by_code(code)
-                data = c.cpool.pretty_deref_const(args[0])
+                data = safe_val(c.cpool.pretty_deref_const(args[0]))
                 pr.append([offset, name, data])
                 
         return pr
@@ -552,7 +552,7 @@ class FieldConstvalueChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        return c.deref_constantvalue()
+        return safe_val(c.deref_constantvalue())
 
 
 
@@ -632,10 +632,13 @@ class ClassConstantPoolChange(GenericChange):
 
 
     def fn_pretty(self, c):
+        from javaclass import CONST_Utf8
+
         data = list()
         for i in xrange(1, len(c.cpool.consts)):
             t,v = c.cpool.pretty_const(i)
             if t:
+                v = safe_val(v)
                 data.append( [i, t, v] )
         return tuple(data)
 
@@ -662,6 +665,14 @@ class JavaClassChange(SuperChange):
 
     def get_description(self):
         return "%s %s" % (self.label, self.ldata.pretty_descriptor())
+
+
+
+def safe_val(val):
+    if isinstance(val, buffer):
+        return ("[non-UTF8 constant data not shown]",)
+    else:
+        return val
 
 
 

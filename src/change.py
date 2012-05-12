@@ -187,6 +187,7 @@ class Change(object):
         from json import dump
         simple = self.simplify(options)
         simple["runtime_options"] = options.__dict__
+
         dump(simple, outstream, sort_keys=True, indent=2)
         
 

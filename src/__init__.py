@@ -1509,6 +1509,12 @@ def _unpack_const_item(unpacker):
     if typecode == CONST_Utf8:
         (slen,) = unpacker.unpack(">H")
         val = unpacker.read(slen)
+        try:
+            val.decode("utf8")
+        except UnicodeDecodeError, ude:
+            # TODO: we could move to a later Python and emit bytes()
+            # instead of a buffer
+            val = buffer(val)        
     
     elif typecode == CONST_Integer:
         (val,) = unpacker.unpack(">i")
@@ -1533,7 +1539,7 @@ def _unpack_const_item(unpacker):
     else:
         raise Unimplemented("unknown constant type %r" % type)
 
-    debug("const %s\t%s;" % _pretty_const_type_val(typecode,val))
+    #debug("const %s\t%s;" % _pretty_const_type_val(typecode,val))
     return (typecode, val)
 
 
