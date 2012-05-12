@@ -232,6 +232,7 @@ class DistReport(DistChange):
             i = change.is_ignored(options)
 
             squashed.append(squash(change, c, i))
+
             self.report(change)
 
             change.clear()
@@ -278,8 +279,10 @@ def options_magic(options):
 
 
 def cli(options, rest):
-    options_magic(options)
+    from sys import stderr
 
+    options_magic(options)
+    
     left, right = rest[1:3]
 
     if options.report_dir:
@@ -299,14 +302,30 @@ def cli(options, rest):
 
 
 
+def create_optiongroup(parser):
+    from optparse import OptionGroup
+
+    og = OptionGroup(parser, "Distribution Checking Options")
+
+    og.add_option("--ignore-filenames", action="append", default=[])
+
+    return og
+
+
+
 def create_optparser():
-    from jardiff import create_optparser
+    from optparse import OptionParser
+    from jardiff import jardiff_optiongroup
+    from classdiff import classdiff_optiongroup
+    
+    parser = OptionParser(usage="%prod [options] old_dist new_dist")
 
-    parser = create_optparser()
-
-    parser.add_option("--ignore-filenames", action="append", default=[])
     parser.add_option("--shallow", action="store_true", default=False)
     parser.add_option("--report-dir", action="store", default=None)
+
+    parser.add_group(create_optiongroup(parser))
+    parser.add_group(jardiff_optiongroup(parser))
+    parser.add_group(classdiff_optiongroup(parser)
 
     return parser
 

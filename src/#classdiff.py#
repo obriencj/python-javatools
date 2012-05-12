@@ -669,8 +669,6 @@ class JavaClassChange(SuperChange):
 
 
 def safe_val(val):
-    # this shouldn't be triggered any longer. Leaving in just in case
-    # I need to further finagle Java's modified-utf-8 string storage.
     if isinstance(val, buffer):
         return ("[non-UTF8 constant data not shown]",)
     else:
@@ -757,6 +755,20 @@ def create_optiongroup(parser):
     og.add_option("--ignore-pool", action="store_true", default=False)
 
     return og
+
+
+
+
+def opt_cb_ignores(option, opt_str, value, parser):
+    
+    # turn a --ignore list into the individual ignore flags
+    ign = (i.strip() for i in value.split(","))
+    for i in (i.replace("-","_") for i in ign if i):
+        iopt = parser.get_option("--ignore-"+i)
+        if iopt:
+            iopt.process(opt_str, None, parser.values, parser)
+
+        setattr(options, "ignore_"+i, True)
 
 
 

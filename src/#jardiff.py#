@@ -375,7 +375,6 @@ def create_optiongroup(parser):
 
 def create_optparser():
     from optparse import OptionParser
-
     from jardiff import jardiff_optiongroup
 
     parser = OptionParser(usage="%prod [options] old_jar new_jar")
