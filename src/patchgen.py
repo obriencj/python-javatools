@@ -30,7 +30,17 @@ import os.path
 
 
 
-INSTRUCTION_BASE = """
+CONFIG_PATTERN = (
+    "*.bat",
+    "*.conf",
+    "*.ini",
+    "*.properties",
+    "*.sh",
+    "*.xml")
+
+
+
+INSTRUCTION_BASE = '''
 <process-definition name="process">
   <start-state>
     <transition to="main_process/pre_1" />
@@ -86,7 +96,7 @@ INSTRUCTION_BASE = """
   <end-state name="end" />
   
 </process-definition>
-"""
+'''
 
 
 
@@ -239,6 +249,10 @@ def sieve_changes(delta, options, copies, removals, patches):
     import distdiff
 
     for change in delta.get_subchanges():
+        if not change.is_change():
+            print "skipping unchanged", change.get_description()
+            continue
+
         if change.is_ignored(options):
             print "sieving ignored change", change.get_description()
             continue
@@ -252,8 +266,7 @@ def sieve_changes(delta, options, copies, removals, patches):
             removals.append(change)
 
         elif issubclass(change.origclass, distdiff.DistContentChange):
-            if fnmatches(change.entry, "*.xml", "*.sh", "*.bat",
-                         "*.conf", "*.properties", "*.ini"):
+            if fnmatches(change.entry, *CONFIG_PATTERN):
                 patches.append(change)
             else:
                 copies.append(change)

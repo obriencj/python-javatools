@@ -87,7 +87,7 @@ class Change(object):
         self.ldata = ldata
         self.rdata = rdata
         self.description = None
-        self.changed = False
+        self.changed = True
         self.entry = None
 
 

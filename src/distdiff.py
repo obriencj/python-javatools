@@ -36,9 +36,10 @@ class DistContentChange(Change):
     label = "Distributed Content"
 
 
-    def __init__(self, ldir, rdir, entry):
+    def __init__(self, ldir, rdir, entry, change=True):
         Change.__init__(self, ldir, rdir)
         self.entry = entry
+        self.changed = change
     
 
     def get_description(self):
@@ -72,8 +73,8 @@ class DistJarChange(SuperChange, DistContentChange):
     label = "Distributed JAR"
 
 
-    def __init__(self, ldata, rdata, entry):
-        DistContentChange.__init__(self, ldata, rdata, entry)
+    def __init__(self, ldata, rdata, entry, change=True):
+        DistContentChange.__init__(self, ldata, rdata, entry, change)
 
 
     def collect_impl(self):
@@ -83,7 +84,8 @@ class DistJarChange(SuperChange, DistContentChange):
         lf = join(self.ldata, self.entry)
         rf = join(self.rdata, self.entry)
 
-        yield JarChange(lf, rf)
+        if self.is_change():
+            yield JarChange(lf, rf)
     
 
     def get_description(self):
@@ -105,8 +107,8 @@ class DistClassChange(SuperChange, DistContentChange):
     label = "Distributed Java Class"
 
 
-    def __init__(self, ldata, rdata, entry):
-        DistContentChange.__init__(self, ldata, rdata, entry)
+    def __init__(self, ldata, rdata, entry, change=True):
+        DistContentChange.__init__(self, ldata, rdata, entry, change)
 
 
     def collect_impl(self):
@@ -120,7 +122,8 @@ class DistClassChange(SuperChange, DistContentChange):
         linfo = unpack_classfile(lf)
         rinfo = unpack_classfile(rf)
 
-        yield JavaClassChange(linfo, rinfo)
+        if self.is_change():
+            yield JavaClassChange(linfo, rinfo)
     
 
     def get_description(self):
@@ -178,6 +181,8 @@ class DistChange(SuperChange):
                     yield DistJarAdded(ld, rd, entry)
                 elif event == DIFF:
                     yield DistJarChange(ld, rd, entry)
+                elif event == SAME:
+                    yield DistJarChange(ld, rd, entry, False)
 
             elif deep and fnmatches(entry, "*.class"):
                 if event == LEFT:
@@ -186,6 +191,8 @@ class DistChange(SuperChange):
                     yield DistClassAdded(ld, rd, entry)
                 elif event == DIFF:
                     yield DistClassChange(ld, rd, entry)
+                elif event == SAME:
+                    yield DistClassChange(ld, rd, entry, False)
 
             else:
                 if event == LEFT:
@@ -194,6 +201,8 @@ class DistChange(SuperChange):
                     yield DistContentAdded(ld, rd, entry)
                 elif event == DIFF:
                     yield DistContentChange(ld, rd, entry)
+                elif event == SAME:
+                    yield DistContentChange(ld, rd, entry, False)
 
 
 

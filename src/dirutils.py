@@ -56,7 +56,6 @@ def compare(left, right):
     
     
 
-
 def _gen_from_dircmp(dc, lpath, rpath):
     from os.path import isdir, join, relpath
     from os import walk
