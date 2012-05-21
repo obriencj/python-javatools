@@ -669,6 +669,8 @@ class JavaClassChange(SuperChange):
 
 
 def safe_val(val):
+    # this shouldn't be triggered any longer. Leaving in just in case
+    # I need to further finagle Java's modified-utf-8 string storage.
     if isinstance(val, buffer):
         return ("[non-UTF8 constant data not shown]",)
     else:
