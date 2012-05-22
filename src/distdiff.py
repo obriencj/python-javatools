@@ -320,8 +320,8 @@ def create_optparser():
     parser.add_option_group(general_optgroup(parser))
     parser.add_option_group(distdiff_optgroup(parser))
     parser.add_option_group(jardiff_optgroup(parser))
-    parser.add_option_group(classdiff_optgroup(parser)
-
+    parser.add_option_group(classdiff_optgroup(parser))
+    
     return parser
 
 
