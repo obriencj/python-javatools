@@ -272,16 +272,10 @@ class DistReport(DistChange):
 
 
 
-def options_magic(options):
-    from jardiff import options_magic
-    return options_magic(options)
+def cli(parser, options, rest):
 
-
-
-def cli(options, rest):
-    from sys import stderr
-
-    options_magic(options)
+    if len(rest) != 3:
+        parser.error("wrong number of arguments.")
     
     left, right = rest[1:3]
 
@@ -302,7 +296,7 @@ def cli(options, rest):
 
 
 
-def create_optiongroup(parser):
+def distdiff_optgroup(parser):
     from optparse import OptionGroup
 
     og = OptionGroup(parser, "Distribution Checking Options")
@@ -315,17 +309,18 @@ def create_optiongroup(parser):
 
 def create_optparser():
     from optparse import OptionParser
-    from jardiff import jardiff_optiongroup
-    from classdiff import classdiff_optiongroup
+    from jardiff import jardiff_optgroup
+    from classdiff import classdiff_optgroup, general_optgroup
     
-    parser = OptionParser(usage="%prod [options] old_dist new_dist")
+    parser = OptionParser(usage="%prod [OPTIONS] OLD_DIST NEW_DIST")
 
     parser.add_option("--shallow", action="store_true", default=False)
     parser.add_option("--report-dir", action="store", default=None)
 
-    parser.add_group(create_optiongroup(parser))
-    parser.add_group(jardiff_optiongroup(parser))
-    parser.add_group(classdiff_optiongroup(parser)
+    parser.add_option_group(general_optgroup(parser))
+    parser.add_option_group(distdiff_optgroup(parser))
+    parser.add_option_group(jardiff_optgroup(parser))
+    parser.add_option_group(classdiff_optgroup(parser)
 
     return parser
 
@@ -333,7 +328,7 @@ def create_optparser():
 
 def main(args):
     parser = create_optparser()
-    return cli(*parser.parse_args(args))
+    return cli(parser, *parser.parse_args(args))
 
 
 

@@ -322,15 +322,7 @@ class JarChange(SuperChange):
 
 
 
-def options_magic(options):
-    from classdiff import options_magic
-    return options_magic(options)
-
-
-
 def cli_jars_diff(options, left, right):
-    options_magic(options)
-
     delta = JarChange(left, right)
     delta.check()
 
@@ -344,13 +336,16 @@ def cli_jars_diff(options, left, right):
 
 
 
-def cli(options, rest):
+def cli(parser, options, rest):
+    if len(rest) != 3:
+        parser.error("wrong number of arguments.")
+
     left, right = rest[1:3]
     return cli_jars_diff(options, left, right)
 
 
 
-def create_optiongroup(parser):
+def create_optgroup(parser):
     from optparse import OptionGroup
 
     og = OptionGroup(parser, "JAR Checking Options")
@@ -375,13 +370,13 @@ def create_optiongroup(parser):
 
 def create_optparser():
     from optparse import OptionParser
+    from classdiff import general_optgroup, classdiff_optgroup
 
-    from jardiff import jardiff_optiongroup
+    parser = OptionParser(usage="%prod [OPTIONS] OLD_JAR NEW_JAR")
 
-    parser = OptionParser(usage="%prod [options] old_jar new_jar")
-
-    parser.add_group(create_optiongroup(parser))
-    parser.add_group(jardiff_optiongroup(parser))
+    parser.add_option_group(general_optgroup(parser))
+    parser.add_option_group(jardiff_optgroup(parser))
+    parser.add_option_group(classdiff_optgroup(parser))
 
     return parser
 
@@ -389,7 +384,7 @@ def create_optparser():
 
 def main(args):
     parser = create_optparser()
-    return cli(*parser.parse_args(args))
+    return cli(parser, *parser.parse_args(args))
 
 
 

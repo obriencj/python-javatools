@@ -680,39 +680,10 @@ def safe_val(val):
 
 # ---- Begin classdiff CLI code ----
 #
-
-
-
-def options_magic(options):
-
-    # turn a --ignore list into the individual ignore flags
-    ign = (i.strip() for i in options.ignore.split(","))
-    for i in (i.replace("-","_") for i in ign if i):
-        setattr(options, "ignore_"+i, True)
     
-    # lines or --ignore-lines is a shortcut for ignoring both absolute
-    # and relative line number changes
-    if options.ignore_lines:
-        options.ignore_absolute_lines = True
-        options.ignore_relative_lines = True
-
-    if options.ignore_version:
-        options.ignore_version_up = True
-        options.ignore_version_down = True
-
-    if options.ignore_platform:
-        options.ignore_platform_up = True
-        options.ignore_platform_down = True
-
-    if options.verbose:
-        options.show_unchanged = True
-        options.show_ignored = True
-
 
 
 def cli_classes_diff(options, left, right):
-    options_magic(options)
-
     delta = JavaClassChange(left, right)
     delta.check()
         
@@ -728,8 +699,11 @@ def cli_classes_diff(options, left, right):
     
 
 
-def cli(options, rest):
+def cli(parser, options, rest):
     from javaclass import unpack_classfile
+    
+    if len(rest) != 3:
+        parser.error("wrong number of arguments.")
 
     left = unpack_classfile(rest[1])
     right = unpack_classfile(rest[2])
@@ -738,52 +712,120 @@ def cli(options, rest):
 
 
 
-def create_optiongroup(parser):
+def classdiff_optgroup(parser):
     from optparse import OptionGroup
 
-    og = OptionGroup(parser, "Class Checking Options")
+    g = OptionGroup(parser, "Class Checking Options")
 
-    og.add_option("--ignore-version", action="store_true", default=False)
-    og.add_option("--ignore-version-up", action="store_true", default=False)
-    og.add_option("--ignore-version-down", action="store_true", default=False)
-    og.add_option("--ignore-platform", action="store_true", default=False)
-    og.add_option("--ignore-platform-up", action="store_true", default=False)
-    og.add_option("--ignore-platform-down", action="store_true", default=False)
-    og.add_option("--ignore-lines", action="store_true", default=False)
-    og.add_option("--ignore-absolute-lines", action="store_true", default=False)
-    og.add_option("--ignore-relative-lines", action="store_true", default=False)
-    og.add_option("--ignore-deprecated", action="store_true", default=False)
-    og.add_option("--ignore-added", action="store_true", default=False)
-    og.add_option("--ignore-pool", action="store_true", default=False)
+    g.add_option("--ignore-version-up", action="store_true", default=False)
+    g.add_option("--ignore-version-down", action="store_true", default=False)
+    g.add_option("--ignore-platform-up", action="store_true", default=False)
+    g.add_option("--ignore-platform-down", action="store_true", default=False)
+    g.add_option("--ignore-absolute-lines", action="store_true", default=False)
+    g.add_option("--ignore-relative-lines", action="store_true", default=False)
+    g.add_option("--ignore-deprecated", action="store_true", default=False)
+    g.add_option("--ignore-added", action="store_true", default=False)
+    g.add_option("--ignore-pool", action="store_true", default=False)
 
-    return og
+    g.add_option("--ignore-lines",
+                 help="ignore relative and absolute line-number changes",
+                 action="callback", callback=_opt_cb_ign_lines)
 
+    g.add_option("--ignore-platform",
+                 help="ignore platform changes",
+                 action="callback", callback=_opt_cb_ign_platform)
+
+    g.add_option("--ignore-version",
+                 help="ignore version changes",
+                 action="callback", callback=_opt_cb_ign_version)
+
+    return g
+
+
+
+def _opt_cb_ignore(options, opt_str, value, parser):
+    options.ignore = value
+
+    if not value:
+        return
+
+    ign = (i.strip() for i in value.split(","))
+    for i in (i for i in ign if i):
+        opt = parser.get_option("--ignore-"+i.replace("_","-"))
+        if opt:
+            # we do it this way in order to trigger other callback
+            # options
+            opt.process(opt_str, value, options, parser)
+
+
+def _opt_cb_ign_lines(options, opt_str, value, parser):
+    options.ignore_lines = True
+    options.ignore_absolute_lines = True
+    options.ignore_relative_lines = True
+
+
+def _opt_cb_ign_version(options, opt_str, value, parser):
+    options.ignore_version = True
+    options.ignore_version_up = True
+    options.ignore_version_down = True
+
+
+def _opt_cb_ign_platform(options, opt_str, value, parser):
+    options.ignore_platform = True
+    options.ignore_platform_up = True
+    options.ignore_platform_down = True
+
+
+def _opt_cb_verbose(options, opt_str, value, parser):
+    options.verbose = True
+    options.show_unchanged = True
+    options.show_ignored = True
+
+
+
+def general_optgroup(parser):
+    from optparse import OptionGroup
+
+    g = OptionGroup(parser, "General Options")
+
+    g.add_option("-q", "--quiet", dest="silent",
+                 action="store_true", default=False)
+    
+    g.add_option("-v", "--verbose",
+                 action="callback", callback=_opt_cb_verbose)
+    
+    g.add_option("-o", "--output", dest="output",
+                 action="store", default=None)
+    
+    g.add_option("-j", "--json", dest="json",
+                 action="store_true", default=False)
+    
+    g.add_option("--show-ignored", action="store_true", default=False)
+    g.add_option("--show-unchanged", action="store_true", default=False)
+    
+    g.add_option("--ignore", action="callback", type="str",
+                 help="comma-separated list of ignores",
+                 callback=_opt_cb_ignore)
+
+    return g
 
 
 
 def create_optparser():
     from optparse import OptionParser
 
-    parse = OptionParser("%prog <options> <old_classfile> <new_classfile>")
+    parser = OptionParser("%prog [OPTIONS] OLD_CLASS NEW_CLASS")
 
-    parse.add_option("-q", "--quiet", dest="silent",
-                     action="store_true", default=False)
-    parse.add_option("-o", "--output", dest="output", action="store")
-    parse.add_option("--json", action="store_true", default=False)
-    parse.add_option("-v", "--verbose", dest="verbose",
-                     action="store_true", default=False)
-    parse.add_option("--show-ignored", action="store_true", default=False)
-    parse.add_option("--show-unchanged", action="store_true", default=False)
+    parser.add_option_group(general_optgroup(parser))
+    parser.add_option_group(classdiff_optgroup(parser))
 
-    parse.add_option("--ignore", action="store", default="")
-
-    return parse
+    return parser
     
 
 
 def main(args):
     parser = create_optparser()
-    return cli(*parser.parse_args(args))
+    return cli(parser, *parser.parse_args(args))
 
 
 
