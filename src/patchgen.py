@@ -415,8 +415,11 @@ def options_magic(options):
 
 
 
-def cli(options, rest):
+def cli(parser, options, rest):
     from distdiff import DistReport
+
+    if len(rest) != 3:
+        parser.error("incorrect number of arguments.")
 
     options_magic(options)
 
@@ -439,6 +442,7 @@ def cli(options, rest):
 
 def create_optparser():
     from distdiff import create_optparser
+
     parser = create_optparser()
 
     parser.add_option("--patch-dir", action="store", default="patch")
@@ -455,7 +459,7 @@ def create_optparser():
 
 def main(args):
     parser = create_optparser()
-    return cli(*parser.parse_args(args))
+    return cli(parser, *parser.parse_args(args))
 
 
 

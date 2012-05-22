@@ -118,54 +118,6 @@ class Unimplemented(Exception):
 
 
 
-def memoized_getter(fun):
-
-    """ Decorator. Records the result of a method the first time it is
-    called, and returns that result thereafter rather than re-running
-    the method"""
-
-    #cfn = "_" + fun.func_name
-    #def memd(self):
-    #    v = getattr(self, cfn, fun)
-    #    if v is fun:
-    #        v = fun(self)
-    #        setattr(self, cfn, v)
-    #    return v
-
-    storage = [fun]
-    def memd(self):
-        v = storage[0]
-        if v is fun:
-            v = fun(self)
-            storage[0] = v
-        return v
-
-    memd.func_name = fun.func_name
-    memd.__doc__ = fun.__doc__
-    memd.original_func = fun
-
-    return memd
-
-
-
-def memoized_method(fun):
-
-    storage = {}
-    def memd(self, *args):
-        v = storage.get(args, fun)
-        if v is fun:
-            v = fun(self, *args)
-            storage[args] = v
-        return v
-
-    memd.func_name = fun.func_name
-    memd.__doc__ = fun.__doc__
-    memd.original_func = fun
-
-    return memd
-
-
-
 class JavaConstantPool(object):
     
     """ A constants pool """
