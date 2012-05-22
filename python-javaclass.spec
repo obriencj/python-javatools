@@ -45,12 +45,14 @@ rm -rf %{buildroot}
 
 %changelog
 
-* Fri May 11 2012 Christopher O'Brien <obriencj@gmail.com> - 1.2-1
+* Tue May 22 2012 Christopher O'Brien <obriencj@gmail.com> - 1.2-1
 - require python 2.6 and later rather than trying to fight with
   library alternatives
 - added classes to compartmentalize distinfo and jarinfo data
 - reworked dependency information into a dep tree rather than a simple
   list
+- rework options into groups
+- fix for modified-utf8 in class constant pools
 
 * Sun May 6 2012 Christopher O'Brien <obriencj@gmail.com> - 1.1-1
 - dependency features, license files
