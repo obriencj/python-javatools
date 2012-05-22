@@ -27,7 +27,6 @@ license: LGPL
 
 
 from change import Change, GenericChange, SuperChange, Addition, Removal
-from change import squash
 from change import yield_sorted_by_type
 
 
@@ -90,6 +89,25 @@ class DistJarChange(SuperChange, DistContentChange):
 
     def get_description(self):
         return DistContentChange.get_description(self)
+
+
+
+class DistJarReport(DistJarChange):
+
+    def __init__(self, ldata, rdata, entry, options):
+        DistJarChange.__init__(self, ldata, rdata, entry, True)
+        self.options = options
+
+
+    def collect_impl(self):
+        from jardiff import JarReport
+        from os.path import join
+
+        lf = join(self.ldata, self.entry)
+        rf = join(self.rdata, self.entry)
+
+        if self.is_change():
+            yield JarReport(lf, rf, self.options)
 
 
 
@@ -218,22 +236,41 @@ class DistReport(DistChange):
         self.options = options
 
 
-    def check_impl(self):
-        squashed = list()
-        
-        overall_c = False
+    def collect_impl(self):
+        for c in DistChange.collect_impl(self):
+            if isinstance(c, DistJarChange):
+                if c.is_change():
+                    c = DistJarReport(c.ldata, c.rdata, c.entry, self.options)
+            yield c
 
+
+    def check_impl(self):
+        from change import squash
+        from os.path import join
+
+        squashed = list()
+        overall_c = False
         options = self.options
 
         for change in self.collect_impl():
 
-            change.check()
+            if isinstance(change, DistJarReport):
+                # hackish. To get the jar report into its own
+                # subdirectory.
+                olddir = options.report_dir
+                options.report_dir = join(olddir, change.entry)
+                change.check()
+                options.report_dir = olddir
+
+            else:
+                change.check()
+
+            self._report(change)
+
             c = change.is_change()
             i = change.is_ignored(options)
 
             squashed.append(squash(change, c, i))
-
-            self.report(change)
 
             change.clear()
             del change
@@ -246,7 +283,7 @@ class DistReport(DistChange):
         return overall_c, None
 
 
-    def report(self, change):
+    def _report(self, change):
         from os.path import exists, split, join
         from os import makedirs
 
@@ -258,7 +295,7 @@ class DistReport(DistChange):
         if reportdir:
             d,f = split(change.entry)
             od = join(reportdir, d)
-
+            
             if not exists(od):
                 makedirs(od)
             
@@ -272,12 +309,12 @@ class DistReport(DistChange):
 
 
 
-def cli(parser, options, rest):
+# ---- Begin distdiff CLI ----
+#
 
-    if len(rest) != 3:
-        parser.error("wrong number of arguments.")
-    
-    left, right = rest[1:3]
+
+
+def cli_dist_diff(options, left, right):
 
     if options.report_dir:
         delta = DistReport(left, right, options, options.shallow)
@@ -293,6 +330,15 @@ def cli(parser, options, rest):
         return 0
     else:
         return 1
+    
+
+
+def cli(parser, options, rest):
+    if len(rest) != 3:
+        parser.error("wrong number of arguments.")
+    
+    left, right = rest[1:3]
+    return cli_dist_diff(options, left, right)
 
 
 

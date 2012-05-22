@@ -743,7 +743,8 @@ def classdiff_optgroup(parser):
 
 
 
-def _opt_cb_ignore(options, opt_str, value, parser):
+def _opt_cb_ignore(opt, opt_str, value, parser):
+    options = parser.values
     options.ignore = value
 
     if not value:
@@ -751,32 +752,35 @@ def _opt_cb_ignore(options, opt_str, value, parser):
 
     ign = (i.strip() for i in value.split(","))
     for i in (i for i in ign if i):
-        opt = parser.get_option("--ignore-"+i.replace("_","-"))
-        if opt:
-            # we do it this way in order to trigger other callback
-            # options
-            opt.process(opt_str, value, options, parser)
+        iopt_str = "--ignore-"+i.replace("_","-")
+        iopt = parser.get_option(iopt_str)
+        if iopt:
+            iopt.process(opt_str, value, options, parser)
 
 
-def _opt_cb_ign_lines(options, opt_str, value, parser):
+def _opt_cb_ign_lines(opt, opt_str, value, parser):
+    options = parser.values
     options.ignore_lines = True
     options.ignore_absolute_lines = True
     options.ignore_relative_lines = True
 
 
-def _opt_cb_ign_version(options, opt_str, value, parser):
+def _opt_cb_ign_version(opt, opt_str, value, parser):
+    options = parser.values
     options.ignore_version = True
     options.ignore_version_up = True
     options.ignore_version_down = True
 
 
-def _opt_cb_ign_platform(options, opt_str, value, parser):
+def _opt_cb_ign_platform(opt, opt_str, value, parser):
+    options = parser.values
     options.ignore_platform = True
     options.ignore_platform_up = True
     options.ignore_platform_down = True
 
 
-def _opt_cb_verbose(options, opt_str, value, parser):
+def _opt_cb_verbose(opt, opt_str, value, parser):
+    options = parser.values
     options.verbose = True
     options.show_unchanged = True
     options.show_ignored = True
@@ -803,7 +807,7 @@ def general_optgroup(parser):
     g.add_option("--show-ignored", action="store_true", default=False)
     g.add_option("--show-unchanged", action="store_true", default=False)
     
-    g.add_option("--ignore", action="callback", type="str",
+    g.add_option("--ignore", action="callback", type="string",
                  help="comma-separated list of ignores",
                  callback=_opt_cb_ignore)
 

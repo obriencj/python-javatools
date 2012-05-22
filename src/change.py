@@ -440,6 +440,9 @@ class SquashedChange(Change):
         simple["original_class"] = self.origclass.__name__
         return simple
 
+    def clear(self):
+        pass
+
 
 
 class SquashedRemoval(SquashedChange, Removal):

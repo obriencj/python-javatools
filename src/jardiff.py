@@ -308,12 +308,103 @@ class JarContentsChange(SuperChange):
 
 
 
-
 class JarChange(SuperChange):
     label = "JAR"
 
     change_types = (JarTypeChange,
                     JarContentsChange)
+
+
+
+class JarContentsReport(JarContentsChange):
+
+
+    def __init__(self, left_fn, right_fn, options):
+        JarContentsChange.__init__(self, left_fn, right_fn)
+        self.options = options
+
+
+
+    def check_impl(self):
+        from change import squash
+        from ziputils import ZipFile
+
+        self.lzip = ZipFile(self.ldata)
+        self.rzip = ZipFile(self.rdata)
+
+        squashed = list()
+        overall_c = False
+        options = self.options
+
+        for change in self.collect_impl():
+            change.check()
+            c = change.is_change()
+            i = change.is_ignored(options)
+
+            if isinstance(change, JarClassChange):
+                squashed.append(squash(change, c, i))
+                self._report(change)
+                change.clear()
+                del change
+            else:
+                squashed.append(change)
+            
+            overall_c = overall_c or c
+
+        self.change = overall_c
+        self.changes = tuple(squashed)
+
+        self.lzip.close()
+        self.rzip.close()
+        self.lzip = None
+        self.rzip = None
+        
+        return overall_c, None
+
+
+
+    def _report(self, change):
+        from os.path import exists, split, join
+        from os import makedirs
+
+        opts = self.options
+        reportdir = getattr(opts, "report_dir", None)
+
+        extension = ("json", "txt")[not opts.json]
+        
+        if reportdir:
+            d,f = split(change.entry)
+            od = join(reportdir, d)
+
+            if not exists(od):
+                makedirs(od)
+
+            f = "%s.report.%s" % (f, extension)
+
+            oldout = opts.output
+            opts.output = join(od, f)
+            change.write(opts)
+            opts.output = oldout        
+
+
+
+class JarReport(JarChange):
+    
+    """ This class has side-effects. Running the check method with the
+    reportdir options set to True will cause the deep checks to be
+    written to file in that directory """
+
+
+    def __init__(self, l, r, options):
+        JarChange.__init__(self, l, r)
+        self.options = options
+
+
+    def collect_impl(self):
+        for c in JarChange.collect_impl(self):
+            if isinstance(c, JarContentsChange):
+                c = JarContentsReport(c.ldata, c.rdata, self.options)
+        yield c
 
 
 
@@ -323,7 +414,12 @@ class JarChange(SuperChange):
 
 
 def cli_jars_diff(options, left, right):
-    delta = JarChange(left, right)
+
+    if options.report_dir:
+        delta = JarReport(left, right, options)
+    else:
+        delta = JarChange(left, right)
+
     delta.check()
 
     if not options.silent:
@@ -345,7 +441,7 @@ def cli(parser, options, rest):
 
 
 
-def create_optgroup(parser):
+def jardiff_optgroup(parser):
     from optparse import OptionGroup
 
     og = OptionGroup(parser, "JAR Checking Options")
@@ -374,6 +470,8 @@ def create_optparser():
 
     parser = OptionParser(usage="%prod [OPTIONS] OLD_JAR NEW_JAR")
 
+    parser.add_option("--report-dir", action="store", default=None)
+    
     parser.add_option_group(general_optgroup(parser))
     parser.add_option_group(jardiff_optgroup(parser))
     parser.add_option_group(classdiff_optgroup(parser))

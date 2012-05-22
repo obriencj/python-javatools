@@ -195,7 +195,7 @@ class JavaConstantPool(object):
         elif t in (CONST_Fieldref, CONST_Methodref,
                    CONST_InterfaceMethodref, CONST_NameAndType,
                    CONST_ModuleIdInfo):
-            return tuple([self.deref_const(i) for i in v])
+            return tuple(self.deref_const(i) for i in v)
     
         else:
             raise Unimplemented("Unknown constant pool type %r" % t)
@@ -1466,7 +1466,6 @@ def _unpack_const_item(unpacker):
         except UnicodeDecodeError, ude:
             # easiest hack to handle java's modified utf-8 encoding
             val = val.replace("\xC0\x80", "\00").decode("utf8")
-        val = str(val)
     
     elif typecode == CONST_Integer:
         (val,) = unpacker.unpack(">i")
@@ -1500,7 +1499,10 @@ def _pretty_const_type_val(typecode, val):
 
     if typecode == CONST_Utf8:
         typestr = "Utf8" # formerly Asciz, which was considered Java bug
-        val = repr(val)[1:-1] # trim off the surrounding quotes
+        if isinstance(val, unicode):
+            val = repr(val)[2:-1] # trim off the surrounding u"" (HACK)
+        else:
+            val = repr(val)[1:-1] # trim off the surrounding "" (HACK)
     elif typecode == CONST_Integer:
         typestr = "int"
     elif typecode == CONST_Float:
@@ -1568,7 +1570,7 @@ def _next_argsig(buff):
 
 
 def _typeseq_iter(s):
-    buff = buffer(s)
+    buff = buffer(str(s))
     while buff:
         t,buff = _next_argsig(buff)
         yield t
