@@ -1,14 +1,10 @@
 - move the pretty_* methods out of __init__.py and into classinfo.py or
   some-such.
 
-- expand the verbosity of classdiff
-
 - perhaps diff-like opcode output for method code? That would be a bit
   of an undertaking; would it be at all worth it?
 
 - make jardiff understand META-INF magic files
-
-- give jardiff a meaningful return code
 
 - a class or class-member attribute discovery script
 
@@ -25,6 +21,12 @@
 - html/js wrapper for *diff tools using the --json outputs. Maybe
   using jquery? Some kind of nice human readable and interactive
   report display
+
+- classinfo --json support
+
+- move JarChange to use a JarInfo instance rather than path name
+
+- move DistChange to use a DistInfo instance rather than path name
 
 - pomdiff? maven-repo-diff?
 
