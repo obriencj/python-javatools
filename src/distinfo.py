@@ -253,7 +253,7 @@ def cli_distinfo_json(options, info):
 
 
 
-def cli(options, rest):
+def cli(parser, options, rest):
 
     pathn = rest[1]
     info = DistInfo(pathn)
@@ -268,26 +268,44 @@ def cli(options, rest):
 
 
 
-def create_optparser():
-    import jarinfo
+def distinfo_optgroup(parser):
+    from optparser import OptionGroup
 
-    p = jarinfo.create_optparser()
+    g = OptionGroup(parser, "Distribution Info Options")
 
-    p.add_option("--dist-provides", dest="dist_provides",
+    g.add_option("--dist-provides", dest="dist_provides",
                  action="store_true", default=False,
                  help="API provides information at the distribution level")
 
-    p.add_option("--dist-requires", dest="dist_requires",
+    g.add_option("--dist-requires", dest="dist_requires",
                  action="store_true", default=False,
-                 help="API requires information at the distribution level")
+                 help="API requires information at the distribution level")    
 
-    return p
+    return g
+
+
+
+def create_optparser():
+    from optparser import OptionGroup
+    from jarinfo import jarinfo_optgroup
+    from classinfo import classinfo_optgroup
+    
+    parser = OptionParser("%prog [OPTIONS] DISTRIBUTION")
+
+    parser.add_option("--json", dest="json", action="store_true",
+                      help="output in JSON mode")
+
+    parser.add_option_group(distinfo_optgroup(parser))
+    parser.add_option_group(jarinfo_optgroup(parser))
+    parser.add_option_group(classinfo_optgroup(parser))
+
+    return parser
 
 
 
 def main(args):
     parser = create_optparser()
-    return cli(*parser.parse_args(args))
+    return cli(parser, *parser.parse_args(args))
 
 
 

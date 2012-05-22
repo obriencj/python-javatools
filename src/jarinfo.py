@@ -266,11 +266,9 @@ def cli_jarinfo_json(options, info):
 
 
 
-def cli(options, rest):
-    # TODO: temporary yucky handling of magic options brought in from
-    # the classinfo module's create_optparse.
-
+def cli(parser, options, rest):
     if options.verbose:
+        options.zip = True
         options.lines = True
         options.locals = True
         options.disassemble = True
@@ -295,10 +293,10 @@ def cli(options, rest):
 
 
 
-def create_optparser():
-    import classinfo
+def jarinfo_optgroup(parser):
+    from optparser import OptionGroup
 
-    p = classinfo.create_optparser()
+    g = OptionGroup(parser, "JAR Info Options")
     
     p.add_option("--zip", action="store_true", default=False,
                  help="print zip information")
@@ -306,7 +304,7 @@ def create_optparser():
     p.add_option("--manifest", action="store_true", default=False,
                  help="print manifest information")
 
-    p.add_option("--classes", action="store_true", default=False,
+    p.add_option("--jar-classes", action="store_true", default=False,
                  help="print information about contained classes")
 
     p.add_option("--jar-provides", dest="jar_provides",
@@ -317,13 +315,29 @@ def create_optparser():
                  action="store_true", default=False,
                  help="API requires information at the JAR level")
 
-    return p
+    return g
+
+
+
+def create_optparser():
+    from optparser import OptionParser
+    from classinfo import classinfo_optgroup
+
+    parser = OptionParser("%prog [OPTIONS] JARFILE")
+
+    parser.add_option("--json", dest="json", action="store_true",
+                      help="output in JSON mode")
+
+    parser.add_option_group(jarinfo_optgroup(parser))
+    parser.add_option_group(classinfo_optgroup(parser))
+
+    return parser
 
 
 
 def main(args):
     parser = create_optparser()
-    return cli(*parser.parse_args(args))
+    return cli(parser, *parser.parse_args(args))
 
 
 

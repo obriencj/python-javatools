@@ -260,68 +260,7 @@ def cli_print_class(options, classfile):
 
 
 
-def create_optparser():
-    from optparse import OptionParser
-
-    p = OptionParser("%prog <options> <classfiles>")
-
-    p.add_option("--class-provides", dest="class_provides",
-                 action="store_true", default=False,
-                 help="API provides information at the class level")
-    
-    p.add_option("--class-requires", dest="class_requires",
-                 action="store_true", default=False,
-                 help="API requires information at the class level")
-
-    p.add_option("--api-ignore", dest="api_ignore",
-                 action="append", default=list(),
-                 help="globs of packages to not print in provides"
-                 " or requires modes")
-
-    p.add_option("--header", dest="show",
-                 action="store_const", default=PUBLIC, const=HEADER,
-                 help="show just the class header, no members")
-
-    p.add_option("--public", dest="show",
-                 action="store_const", const=PUBLIC,
-                 help="show only public members")
-
-    p.add_option("--package", dest="show",
-                 action="store_const", const=PACKAGE,
-                 help="show public and protected members")
-
-    p.add_option("--private", dest="show",
-                 action="store_const", const=PRIVATE,
-                 help="show all members")
-
-    p.add_option("-l", dest="lines", action="store_true",
-                 help="show the line number table")
-
-    p.add_option("-o", dest="locals", action="store_true",
-                 help="show the local variable tables")
-
-    p.add_option("-c", dest="disassemble", action="store_true",
-                 help="disassemble method code")
-
-    p.add_option("-s", dest="sigs", action="store_true",
-                 help="show internal type signatures")
-
-    p.add_option("-p", dest="constpool", action="store_true",
-                 help="show the constants pool")
-
-    p.add_option("--verbose", dest="verbose", action="store_true",
-                 help="sets -locsp options and shows stack bounds")
-
-
-    p.add_option("--json", dest="json", action="store_true",
-                 help="output in JSON mode")
-
-    
-    return p
-
-
-
-def cli(options, rest):
+def cli(parser, options, rest):
 
     if options.verbose:
         # verbose also sets all of the following options
@@ -344,9 +283,76 @@ def cli(options, rest):
 
 
 
+def classinfo_optgroup(parser):
+    from optparse import OptionGroup
+
+    g = OptionGroup(parser, "Class Info Options")
+
+    g.add_option("--class-provides", dest="class_provides",
+                 action="store_true", default=False,
+                 help="API provides information at the class level")
+    
+    g.add_option("--class-requires", dest="class_requires",
+                 action="store_true", default=False,
+                 help="API requires information at the class level")
+
+    g.add_option("--api-ignore", dest="api_ignore",
+                 action="append", default=list(),
+                 help="globs of packages to not print in provides"
+                 " or requires modes")
+
+    g.add_option("--header", dest="show",
+                 action="store_const", default=PUBLIC, const=HEADER,
+                 help="show just the class header, no members")
+
+    g.add_option("--public", dest="show",
+                 action="store_const", const=PUBLIC,
+                 help="show only public members")
+
+    g.add_option("--package", dest="show",
+                 action="store_const", const=PACKAGE,
+                 help="show public and protected members")
+
+    g.add_option("--private", dest="show",
+                 action="store_const", const=PRIVATE,
+                 help="show all members")
+
+    g.add_option("-l", dest="lines", action="store_true",
+                 help="show the line number table")
+
+    g.add_option("-o", dest="locals", action="store_true",
+                 help="show the local variable tables")
+
+    g.add_option("-c", dest="disassemble", action="store_true",
+                 help="disassemble method code")
+
+    g.add_option("-s", dest="sigs", action="store_true",
+                 help="show internal type signatures")
+
+    g.add_option("-p", dest="constpool", action="store_true",
+                 help="show the constants pool")
+
+    g.add_option("--verbose", dest="verbose", action="store_true",
+                 help="sets -locsp options and shows stack bounds")
+    
+    return g
+
+
+
+def create_optparser():
+    from optparse import OptionParser
+
+    parser = OptionParser("%prog <options> <classfiles>")
+
+    parser.add_option_group(classinfo_optgroup(parser))
+    
+    return parser
+
+
+
 def main(args):
     parser = create_optparser()
-    return cli(*parser.parse_args(args))
+    return cli(parser, *parser.parse_args(args))
 
 
 

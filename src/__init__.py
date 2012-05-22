@@ -1510,10 +1510,11 @@ def _unpack_const_item(unpacker):
         (slen,) = unpacker.unpack(">H")
         val = unpacker.read(slen)
         try:
-            val.decode("utf8")
+            val = val.decode("utf8")
         except UnicodeDecodeError, ude:
             # easiest hack to handle java's modified utf-8 encoding
             val = val.replace("\xC0\x80", "\00").decode("utf8")
+        val = str(val)
     
     elif typecode == CONST_Integer:
         (val,) = unpacker.unpack(">i")
@@ -1547,7 +1548,7 @@ def _pretty_const_type_val(typecode, val):
 
     if typecode == CONST_Utf8:
         typestr = "Utf8" # formerly Asciz, which was considered Java bug
-        val = repr(val)[1:-1]
+        val = repr(val)[1:-1] # trim off the surrounding quotes
     elif typecode == CONST_Integer:
         typestr = "int"
     elif typecode == CONST_Float:
