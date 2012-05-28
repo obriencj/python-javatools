@@ -61,6 +61,14 @@ class JarContentChange(Change):
         self.changed = is_change
 
 
+    def open_left(self):
+        return self.ldata.open(self.entry)
+
+
+    def open_right(self):
+        return self.rdata.open(self.entry)
+
+
     def get_description(self):
         c = ("has changed","is unchanged")[not self.is_change()]
         return "%s %s: %s" % (self.label, c, self.entry)
@@ -103,6 +111,7 @@ class JarClassChange(SuperChange, JarContentChange):
 
     
     def __init__(self, ldata, rdata, entry, is_change=True):
+        SuperChange.__init__(self, ldata, rdata)
         JarContentChange.__init__(self, ldata, rdata, entry, is_change)
 
 
@@ -113,14 +122,9 @@ class JarClassChange(SuperChange, JarContentChange):
         if not self.is_change():
             return
 
-        lfd = self.ldata.open(self.entry)
-        rfd = self.rdata.open(self.entry)
-        
-        linfo = unpack_class(lfd)
-        rinfo = unpack_class(rfd)
-
-        lfd.close()
-        rfd.close()
+        with self.open_left() as lfd, self.open_right() as rfd:
+            linfo = unpack_class(lfd)
+            rinfo = unpack_class(rfd)
 
         yield JavaClassChange(linfo, rinfo)
 
@@ -135,12 +139,35 @@ class JarClassChange(SuperChange, JarContentChange):
 
 
 
+class JarClassReport(JarClassChange):
+    
+    def __init__(self, l, r, entry, reporter):
+        JarClassChange.__init__(self, l, r, entry)
+        self.reporter = reporter
+
+
+    def collect_impl(self):
+        from javaclass import unpack_class
+        from classdiff import JavaClassReport
+
+        if not self.is_change():
+            return
+        
+        with self.open_left() as l, self.open_right() as r:
+            linfo = unpack_class(l)
+            rinfo = unpack_class(r)
+
+        yield JavaClassReport(linfo, rinfo, self.reporter)
+
+
+
 
 class JarManifestChange(SuperChange, JarContentChange):
     label = "Jar Manifest"
 
     
     def __init__(self, ldata, rdata, entry, is_change=True):
+        SuperChange.__init__(self, ldata, rdata)
         JarContentChange.__init__(self, ldata, rdata, entry, is_change)
 
 
@@ -150,15 +177,10 @@ class JarManifestChange(SuperChange, JarContentChange):
         if not self.is_change():
             return
 
-        lfd = self.ldata.open(self.entry)
-        rfd = self.rdata.open(self.entry)
-        
         lm, rm = Manifest(), Manifest()
-        lm.parse(lfd)
-        rm.parse(rfd)
-
-        lfd.close()
-        rfd.close()
+        with self.open_left() as l, self.open_right() as r:
+            lm.parse(l)
+            rm.parse(r)
 
         yield ManifestChange(lm, rm)
 
@@ -319,72 +341,64 @@ class JarChange(SuperChange):
 class JarContentsReport(JarContentsChange):
 
 
-    def __init__(self, left_fn, right_fn, options):
+    def __init__(self, left_fn, right_fn, reporter):
         JarContentsChange.__init__(self, left_fn, right_fn)
-        self.options = options
+        self.reporter = reporter
+
+
+    def collect_impl(self):
+        # a filter on the collect_impl of JarContentsChange which
+        # replaces JarClassChange instances with a JarClassReport
+        # instance instead.
+
+        from os.path import join, split
+        
+        for c in JarContentsChange.collect_impl(self):
+            if isinstance(c, JarClassChange):
+                if c.is_change():
+                    a,b = split(c.entry)
+                    newbase = join(self.reporter.entry, a)
+                    nr = self.reporter.subreporter(newbase, b)
+                    c = JarClassReport(c.ldata, c.rdata, c.entry, nr)
+            yield c
 
 
 
     def check_impl(self):
+        # overridden to immediately squash class reports, to save on
+        # memory usage.
+
         from change import squash
         from ziputils import ZipFile
-
-        self.lzip = ZipFile(self.ldata)
-        self.rzip = ZipFile(self.rdata)
-
-        squashed = list()
-        overall_c = False
-        options = self.options
-
+        
+        lzip = ZipFile(self.ldata)
+        rzip = ZipFile(self.rdata)
+        
+        self.lzip = lzip
+        self.rzip = rzip
+        
+        changes = list()
+        options = self.reporter.options
+        
+        c = False
         for change in self.collect_impl():
             change.check()
-            c = change.is_change()
-            i = change.is_ignored(options)
-
-            if isinstance(change, JarClassChange):
-                squashed.append(squash(change, c, i))
-                self._report(change)
-                change.clear()
-                del change
-            else:
-                squashed.append(change)
+            c = c or change.is_change()
             
-            overall_c = overall_c or c
-
-        self.change = overall_c
-        self.changes = tuple(squashed)
-
-        self.lzip.close()
-        self.rzip.close()
+            if isinstance(change, JarClassReport):
+                changes.append(squash(change, options=options))
+                change.clear()
+            else:
+                changes.append(change)
+        
+        lzip.close()
+        rzip.close()
+        
         self.lzip = None
         self.rzip = None
         
-        return overall_c, None
-
-
-
-    def _report(self, change):
-        from os.path import exists, split, join
-        from os import makedirs
-
-        opts = self.options
-        reportdir = getattr(opts, "report_dir", None)
-
-        extension = ("json", "txt")[not opts.json]
-        
-        if reportdir:
-            d,f = split(change.entry)
-            od = join(reportdir, d)
-
-            if not exists(od):
-                makedirs(od)
-
-            f = "%s.report.%s" % (f, extension)
-
-            oldout = opts.output
-            opts.output = join(od, f)
-            change.write(opts)
-            opts.output = oldout        
+        self.changes = changes
+        return c, None
 
 
 
@@ -395,16 +409,24 @@ class JarReport(JarChange):
     written to file in that directory """
 
 
-    def __init__(self, l, r, options):
+    def __init__(self, l, r, reporter):
         JarChange.__init__(self, l, r)
-        self.options = options
+        self.reporter = reporter
 
 
     def collect_impl(self):
         for c in JarChange.collect_impl(self):
             if isinstance(c, JarContentsChange):
-                c = JarContentsReport(c.ldata, c.rdata, self.options)
+                c = JarContentsReport(c.ldata, c.rdata, self.reporter)
         yield c
+
+
+    def check(self):
+        # do the actual checking
+        JarChange.check(self)
+
+        # write to file
+        self.reporter.run(self)
 
 
 
@@ -413,17 +435,36 @@ class JarReport(JarChange):
 
 
 
-def cli_jars_diff(options, left, right):
+def cli_jars_diff(parser, options, left, right):
+    from report import Reporter, JSONReportFormat, TextReportFormat
 
-    if options.report_dir:
-        delta = JarReport(left, right, options)
+    reports = set(option.reports)
+    if reports:
+        rdir = options.report_dir or "./"
+        rpt = Reporter(rdir, "jardiff", options)
+
+        for fmt in reports:
+            if fmt == "json":
+                rpt.add_report_format(JSONReportFormat())
+            elif fmt in ("txt", "text"):
+                rpt.add_report_format(TextReportFormat())
+            else:
+                parser.error("unknown report format: %s" % fmt)
+
+        delta = JarReport(left, right, rpt)
+
     else:
         delta = JarChange(left, right)
 
     delta.check()
 
     if not options.silent:
-        delta.write(options)
+        rpt = Reporter(None, None, options)
+        if options.json:
+            rpt.add_report_format(JSONReportFormat())
+        else:
+            rpt.add_report_format(TextReportFormat())
+        rpt.run(delta)
 
     if (not delta.is_change()) or delta.is_ignored(options):
         return 0
@@ -437,7 +478,7 @@ def cli(parser, options, rest):
         parser.error("wrong number of arguments.")
 
     left, right = rest[1:3]
-    return cli_jars_diff(options, left, right)
+    return cli_jars_diff(parser, options, left, right)
 
 
 

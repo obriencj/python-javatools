@@ -1705,6 +1705,14 @@ class Unpacker(object):
                             " or object with a read method")
 
 
+    def __enter__(self):
+        return self
+
+
+    def __exit__(self):
+        self.close()
+
+
     def unpack(self, fmt):
         sfmt = compile_struct(fmt)
         size = sfmt.size

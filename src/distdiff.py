@@ -31,6 +31,24 @@ from change import yield_sorted_by_type
 
 
 
+# glob patterns used to trigger a DistTextChange
+TEXT_PATTERNS = (
+    "*.bat",
+    "*.cert",
+    "*.cfg",
+    "*.conf",
+    "*.dtd",
+    "*.html",
+    "*.ini",
+    "*.properties",
+    "*.sh",
+    "*.text",
+    "*.txt",
+    "*.xml",
+)
+
+
+
 class DistContentChange(Change):
     label = "Distributed Content"
 
@@ -39,6 +57,25 @@ class DistContentChange(Change):
         Change.__init__(self, ldir, rdir)
         self.entry = entry
         self.changed = change
+        self.lineending = False
+    
+
+    def left_fn(self):
+        from os.path import join
+        return join(self.ldata, self.entry)
+
+
+    def right_fn(self):
+        from os.path import join
+        return join(self.rdata, self.entry)
+
+
+    def open_left(self, mode="rt"):
+        return open(self.left_fn(), mode)
+
+
+    def open_right(self, mode="rt"):
+        return open(self.right_fn(), mode)
     
 
     def get_description(self):
@@ -68,11 +105,70 @@ class DistContentRemoved(DistContentChange, Removal):
 
 
 
+class DistTextChange(DistContentChange):
+    label = "Distributed Text"
+
+
+    def __init__(self, l, r, entry, change=True):
+        DistContentChange.__init__(self, l, r, entry, change)
+        self.lineending = False
+
+
+    def check(self):
+        from dirutils import fnmatches
+        from itertools import izip_longest
+
+        # We already know whether the file has changed or not, from
+        # when it was created by the DistChange
+        if not self.is_change():
+            return
+
+        # if the file matches what we would consider a text file,
+        # check if the only difference is in the trailing whitespace,
+        # and if so, set lineending to true so we can optionally
+        # ignore the change later.
+        with open(self.left_fn()) as lf, open(self.right_fn()) as rf:
+            for li,ri in izip_longest(lf, rf, fillvalue=""):
+                if li.rstrip() != ri.rstrip():
+                    break
+            else:
+                # we went through every line, and they were all equal
+                # when stripped of their trailing whitespace
+                self.lineending = True
+
+        return DistContentChange.check(self)
+
+
+    def is_ignored(self, options):
+        return (DistContentChange.is_ignored(self, options) or
+                (self.lineending and options.ignore_trailing_whitespace))
+
+
+
+class DistManifestChange(DistContentChange):
+    label = "Distributed Manifest"
+    
+
+    def collect_impl(self):
+        from manifest import Manifest, ManifestChange
+
+        if not self.is_change():
+            return
+        
+        lm, rm = Manifest(), Manifest()
+        lm.parse_file(self.left_fn())
+        rm.parse_file(self.right_fn())
+
+        yield ManifestChange(lm, rm)        
+
+
+
 class DistJarChange(SuperChange, DistContentChange):
     label = "Distributed JAR"
 
 
     def __init__(self, ldata, rdata, entry, change=True):
+        SuperChange.__init__(self, ldata, rdata)
         DistContentChange.__init__(self, ldata, rdata, entry, change)
 
 
@@ -94,9 +190,9 @@ class DistJarChange(SuperChange, DistContentChange):
 
 class DistJarReport(DistJarChange):
 
-    def __init__(self, ldata, rdata, entry, options):
+    def __init__(self, ldata, rdata, entry, reporter):
         DistJarChange.__init__(self, ldata, rdata, entry, True)
-        self.options = options
+        self.reporter = reporter
 
 
     def collect_impl(self):
@@ -107,7 +203,7 @@ class DistJarReport(DistJarChange):
         rf = join(self.rdata, self.entry)
 
         if self.is_change():
-            yield JarReport(lf, rf, self.options)
+            yield JarReport(lf, rf, self.reporter)
 
 
 
@@ -126,6 +222,7 @@ class DistClassChange(SuperChange, DistContentChange):
 
 
     def __init__(self, ldata, rdata, entry, change=True):
+        SuperChange.__init__(self, ldata, rdata)
         DistContentChange.__init__(self, ldata, rdata, entry, change)
 
 
@@ -146,6 +243,29 @@ class DistClassChange(SuperChange, DistContentChange):
 
     def get_description(self):
         return DistContentChange.get_description(self)
+
+
+
+class DistClassReport(DistClassChange):
+
+    def __init__(self, l, r, entry, reporter):
+        DistClassChange.__init__(self, l, r, entry, True)
+        self.reporter = reporter
+
+
+    def collect_impl(self):
+        from javaclass import unpack_classfile
+        from classdiff import JavaClassReport
+        from os.path import join
+
+        lf = join(self.ldata, self.entry)
+        rf = join(self.rdata, self.entry)
+
+        linfo = unpack_classfile(lf)
+        rinfo = unpack_classfile(rf)
+
+        if self.is_change():
+            yield JavaClassReport(linfo, rinfo, self.reporter)
 
 
 
@@ -212,6 +332,26 @@ class DistChange(SuperChange):
                 elif event == SAME:
                     yield DistClassChange(ld, rd, entry, False)
 
+            elif fnmatches(entry, *TEXT_PATTERNS):
+                if event == LEFT:
+                    yield DistContentRemoved(ld, rd, entry)
+                elif event == RIGHT:
+                    yield DistContentAdded(ld, rd, entry)
+                elif event == DIFF:
+                    yield DistTextChange(ld, rd, entry)
+                elif event == SAME:
+                    yield DistTextChange(ld, rd, entry, False)
+
+            elif fnmatches(entry, "*/MANIFEST.MF"):
+                if event == LEFT:
+                    yield DistContentRemoved(ld, rd, entry)
+                elif event == RIGHT:
+                    yield DistContentAdded(ld, rd, entry)
+                elif event == DIFF:
+                    yield DistManifestChange(ld, rd, entry)
+                elif event == SAME:
+                    yield DistManifestChange(ld, rd, entry, False)
+
             else:
                 if event == LEFT:
                     yield DistContentRemoved(ld, rd, entry)
@@ -229,83 +369,60 @@ class DistReport(DistChange):
     """ This class has side-effects. Running the check method with the
     reportdir option set to True will cause the deep checks to be
     written to file in that directory """
-    
 
-    def __init__(self, l, r, options, shallow=False):
+
+    def __init__(self, l, r, reporter, shallow=False):
         DistChange.__init__(self, l, r, shallow)
-        self.options = options
+        self.reporter = reporter
 
 
     def collect_impl(self):
+        from os.path import split
+
         for c in DistChange.collect_impl(self):
             if isinstance(c, DistJarChange):
                 if c.is_change():
-                    c = DistJarReport(c.ldata, c.rdata, c.entry, self.options)
+                    nr = self.reporter.subreporter(*split(c.entry))
+                    c = DistJarReport(c.ldata, c.rdata, c.entry, nr)
+            elif isinstance(c, DistClassChange):
+                if c.is_change():
+                    nr = self.reporter.subreporter(*split(c.entry))
+                    c = DistClassReport(c.ldata, c.rdata, c.entry, nr)
             yield c
 
 
+
     def check_impl(self):
+        # overridden to immediately squash jar and class reports, to
+        # save on memory usage.
+
         from change import squash
-        from os.path import join
 
-        squashed = list()
-        overall_c = False
-        options = self.options
+        changes = list()
+        options = self.reporter.options
 
+        c = False
         for change in self.collect_impl():
+            change.check()
+            c = c or change.is_change()
 
-            if isinstance(change, DistJarReport):
-                # hackish. To get the jar report into its own
-                # subdirectory.
-                olddir = options.report_dir
-                options.report_dir = join(olddir, change.entry)
-                change.check()
-                options.report_dir = olddir
-
+            if isinstance(change, (DistJarReport, DistClassReport)):
+                changes.append(squash(change, options=options))
+                change.clear()
             else:
-                change.check()
+                changes.append(change)
 
-            self._report(change)
-
-            c = change.is_change()
-            i = change.is_ignored(options)
-
-            squashed.append(squash(change, c, i))
-
-            change.clear()
-            del change
-
-            overall_c = overall_c or c
-
-        self.change = overall_c
-        self.changes = tuple(squashed)
-
-        return overall_c, None
+        self.changes = changes
+        return c, None
 
 
-    def _report(self, change):
-        from os.path import exists, split, join
-        from os import makedirs
 
-        opts = self.options
-        reportdir = getattr(opts, "report_dir", None)
+    def check(self):
+        # do the actual checking
+        DistChange.check(self)
 
-        extension = ("json", "txt")[not opts.json]
-
-        if reportdir:
-            d,f = split(change.entry)
-            od = join(reportdir, d)
-            
-            if not exists(od):
-                makedirs(od)
-            
-            f = "%s.report.%s" % (f, extension)
-
-            # hackish, worth reconsidering use of options in write
-            oldout = opts.output
-            opts.output = join(od, f)
-            change.write(opts)
-            opts.output = oldout
+        # write to file
+        self.reporter.run(self)
 
 
 
@@ -314,17 +431,44 @@ class DistReport(DistChange):
 
 
 
-def cli_dist_diff(options, left, right):
+def cli_dist_diff(parser, options, left, right):
+    from report import Reporter, JSONReportFormat, TextReportFormat
+    from sys import stdout
 
-    if options.report_dir:
-        delta = DistReport(left, right, options, options.shallow)
+    reports = set(options.reports)
+    if reports:
+        rdir = options.report_dir or "./"
+        rpt = Reporter(rdir, "distdiff", options)
+
+        for fmt in reports:
+            if fmt == "json":
+                rpt.add_report_format(JSONReportFormat())
+            elif fmt in ("txt", "text"):
+                rpt.add_report_format(TextReportFormat())
+            else:
+                parser.error("unknown report format: %s" % fmt)
+
+        delta = DistReport(left, right, rpt, options.shallow)
+
     else:
         delta = DistChange(left, right, options.shallow)
 
     delta.check()
 
     if not options.silent:
-        delta.write(options)
+        out = stdout
+        if options.output:
+            out = open(options.output, "wt")
+
+        rpt = Reporter(None, None, options)
+        if options.json:
+            rpt.add_report_format(JSONReportFormat())
+        else:
+            rpt.add_report_format(TextReportFormat())
+        rpt.run(delta, out)
+
+        if options.output:
+            out.close()
     
     if (not delta.is_change()) or delta.is_ignored(options):
         return 0
@@ -338,7 +482,7 @@ def cli(parser, options, rest):
         parser.error("wrong number of arguments.")
     
     left, right = rest[1:3]
-    return cli_dist_diff(options, left, right)
+    return cli_dist_diff(parser, options, left, right)
 
 
 
@@ -348,6 +492,9 @@ def distdiff_optgroup(parser):
     og = OptionGroup(parser, "Distribution Checking Options")
 
     og.add_option("--ignore-filenames", action="append", default=[])
+    og.add_option("--ignore-trailing-whitespace",
+                  action="store_true", default=False,
+                  help="ignore trailing whitespace when comparing text files")
 
     return og
 
@@ -361,7 +508,6 @@ def create_optparser():
     parser = OptionParser(usage="%prod [OPTIONS] OLD_DIST NEW_DIST")
 
     parser.add_option("--shallow", action="store_true", default=False)
-    parser.add_option("--report-dir", action="store", default=None)
 
     parser.add_option_group(general_optgroup(parser))
     parser.add_option_group(distdiff_optgroup(parser))

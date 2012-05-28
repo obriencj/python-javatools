@@ -26,6 +26,11 @@ license: LGPL
 """
 
 
+# TODO: This whole thing feels like a hack. We need to see if there is
+# a better way to give JON instructions on upgrading an AS instance.
+
+
+
 import os.path
 
 
@@ -163,16 +168,17 @@ def sha256sum(fn):
 def copyfile(fn, orig, patchdir, squash=None,
              pathsquash=None, pathsquashed=None):
 
+    from os.path import join, split
     from shutil import copy
 
     print "copy file %s from %s into %s" % (fn, orig, patchdir)
 
-    a, b = os.path.split(fn)
+    a, b = split(fn)
 
-    orig_fn = os.path.join(orig, fn)
-    dest = os.path.join(patchdir, a)
-    dest_fn = os.path.join(patchdir, a, b)
-    ret = os.path.join("#{patchFolder}", a, b)
+    orig_fn = join(orig, fn)
+    dest = join(patchdir, a)
+    dest_fn = join(patchdir, a, b)
+    ret = join("#{patchFolder}", a, b)
 
     if pathsquash is not None:
         ps = None
@@ -215,25 +221,28 @@ def copyfile(fn, orig, patchdir, squash=None,
 
 def copypatch(fn, orig, patched, patchdir):
     from shutil import copy
+    from os.path import join, split
 
-    print "copy patch %s from %s into %s" % (fn, orig, patchdir)
+    a, b = split(fn)
 
-    a, b = os.path.split(fn)
+    dest = join(patchdir, "config-patches", a)
+    dest_fn = join(dest, b)
 
-    dest = os.path.join(patchdir, "config-patches", a)
-    dest_fn = os.path.join(dest, b)
+    print "copy patch %s into %s" % (fn, patchdir)
 
     mkdirp(dest)
-    copy(os.path.join(orig, fn),  "%s.orig" % dest_fn)
-    copy(os.path.join(patched, fn), "%s.patched" % dest_fn)
 
-    return os.path.join("#{patchFolder}", "config-patches", fn)
+    copy(join(orig, fn),  "%s.orig" % dest_fn)
+    copy(join(patched, fn), "%s.patched" % dest_fn)
+
+    return join("#{patchFolder}", "config-patches", fn)
 
 
 
 def mkdirp(dirname):
+    from os.path import exists
     from os import makedirs
-    if not os.path.exists(dirname):
+    if not exists(dirname):
         makedirs(dirname)
 
 
@@ -245,10 +254,11 @@ Notification = pkg + ".NotificationActionHandler"
 
 
 def sieve_changes(delta, options, copies, removals, patches):
+    from change import SquashedChange
     from dirutils import fnmatches
     import distdiff
 
-    for change in delta.get_subchanges():
+    for change in delta.collect():
         if not change.is_change():
             print "skipping unchanged", change.get_description()
             continue
@@ -257,28 +267,33 @@ def sieve_changes(delta, options, copies, removals, patches):
             print "sieving ignored change", change.get_description()
             continue
 
-        if issubclass(change.origclass, (distdiff.DistContentAdded,
-                                         distdiff.DistJarChange,
-                                         distdiff.DistClassChange)):
+        changetype = type(change)
+        if isinstance(change, SquashedChange):
+            changetype = change.origclass
+
+        if issubclass(changetype, (distdiff.DistContentAdded,
+                                   distdiff.DistJarChange,
+                                   distdiff.DistClassChange)):
             copies.append(change)
 
-        elif issubclass(change.origclass, distdiff.DistContentRemoved):
+        elif issubclass(changetype, distdiff.DistContentRemoved):
             removals.append(change)
 
-        elif issubclass(change.origclass, distdiff.DistContentChange):
+        elif issubclass(changetype, distdiff.DistContentChange):
             if fnmatches(change.entry, *CONFIG_PATTERN):
                 patches.append(change)
             else:
                 copies.append(change)
 
         else:
-            pass
+            print "unhandled change type %s" % changetype
 
     return copies, removals, patches
 
 
 
 def repath(pathmap, pathstr):
+    from os.path import join
     found = ""
     for key in pathmap.keys():
         if pathstr.startswith(key):
@@ -286,7 +301,7 @@ def repath(pathmap, pathstr):
                 found = key
     
     if found:
-        return pathmap[found] + "/" + pathstr[len(found):]
+        return pathmap[found] + pathstr[len(found):]
     else:
         return pathstr
 
@@ -305,6 +320,7 @@ def sort_by_entry(changeset):
 
 def generate_patch(delta, options):
 
+    from os.path import join
     from xml.dom.minidom import parseString
     import xml.xpath
     
@@ -394,7 +410,7 @@ def generate_patch(delta, options):
     state.appendChild(end)
 
     # write the doc to file
-    tmp = os.path.join(patchdir, "install-instructions.xml")
+    tmp = join(patchdir, "install-instructions.xml")
     fd = open(tmp, "wb")
     doc.writexml(fd)
     fd.close()
@@ -402,10 +418,6 @@ def generate_patch(delta, options):
 
 
 def options_magic(options):
-    import distdiff
-
-    distdiff.options_magic(options)
-
     pathmap = {}
     for m in options.path_map:
         k,v = m.split(":",1)
@@ -415,34 +427,51 @@ def options_magic(options):
 
 
 
-def cli(parser, options, rest):
+def cli_patchgen(parser, options, left, right):
     from distdiff import DistReport
+    from report import Reporter, JSONReportFormat, TextReportFormat
 
-    if len(rest) != 3:
-        parser.error("incorrect number of arguments.")
+    rdir = options.report_dir or "./"
+    rpt = Reporter(rdir, "patchgen", options)
 
-    options_magic(options)
-
-    left, right = rest[1:3]
-    
-    mkdirp(options.patch_dir)
-
-    print "creating DistReport"
-    delta = DistReport(left, right, options)
+    reports = set(options.reports)
+    if reports:
+        for fmt in reports:
+            if fmt == "json":
+                rpt.add_report_format(JSONReportFormat())
+            elif fmt in ("txt", "text"):
+                rpt.add_report_format(TextReportFormat())
+            else:
+                parser.error("unknown report format: %s" % fmt)
 
     print "running DistReport.check"
+    delta = DistReport(left, right, rpt, options.shallow)
     delta.check()
 
     print "generating patch"
+    mkdirp(options.patch_dir)
     generate_patch(delta, options)
 
     print "done"
 
 
 
+def cli(parser, options, rest):
+    if len(rest) != 3:
+        parser.error("wrong number of arguments.")
+
+    # TODO: fix these options
+    options_magic(options)
+    left, right = rest[1:3]
+
+    return cli_patchgen(parser, options, left, right)
+
+
+
 def create_optparser():
     from distdiff import create_optparser
 
+    # TODO Bring this in line with the other option sets
     parser = create_optparser()
 
     parser.add_option("--patch-dir", action="store", default="patch")

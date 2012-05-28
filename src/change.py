@@ -24,19 +24,6 @@ license: LGPL
 
 
 
-def _indent(stream, indent, indentstr, *msgs):
-
-    """ utility for use in writing change messages to a stream, using
-    indentation to denote superchange children """
-
-    for x in xrange(0,indent):
-        stream.write(indentstr)
-    for x in msgs:
-        stream.write(x)
-    stream.write("\n")
-
-
-
 def yield_sorted_by_type(*typelist):
     """ a useful decorator for the collect_impl method of SuperChange
     subclasses. Caches the yielded changes, and re-emits them
@@ -66,7 +53,7 @@ def yield_sorted_by_type(*typelist):
                     yield val
 
             # emit the leftovers
-            for t,tl in cache.values():
+            for tl in cache.values():
                 for val in tl:
                     yield val
 
@@ -92,12 +79,20 @@ class Change(object):
 
 
     def clear(self):
-        del self.ldata
-        del self.rdata
+        self.ldata = None
+        self.rdata = None
 
 
     def check(self):
         pass
+
+
+    def get_ldata(self):
+        return self.ldata
+
+
+    def get_rdata(self):
+        return self.rdata
 
 
     def is_change(self):
@@ -117,7 +112,7 @@ class Change(object):
                (self.label + (" unchanged", " changed")[self.is_change()])
 
 
-    def get_subchanges(self):
+    def collect(self):
         return tuple()
 
 
@@ -145,85 +140,17 @@ class Change(object):
         if self.entry:
             simple["entry"] = self.entry
 
-        # build a list of sub-changes honoring show-ignored and show-unchanged
-        subs = list()
-        for s in self.get_subchanges():
-            if s.is_change():
-                if options and s.is_ignored(options):
-                    if getattr(options, "show_ignored", False):
-                        subs.append(s)
-                else:
-                    subs.append(s)
-            elif options and getattr(options, "show_unchanged", False):
-                subs.append(s)
-
-        if subs:
-            simple["children"] = [s.simplify(options) for s in subs]
-
         return simple
 
 
-    def write(self, options):
-        import sys
 
-        out = sys.stdout
-        if options.output:
-            out = open(options.output, "wt")
-
-        if options.json:
-            self.write_json(options, out)
-        else:
-            self.write_cli(options, 0, "  ", out)
-
-        if options.output:
-            out.close()
+    def squash_children(self):
+        pass
 
 
-    def write_json(self, options, outstream):
 
-        """ print JSON version of this change (from the simplify
-        method) to the stream """
-
-        from json import dump
-        simple = self.simplify(options)
-        simple["runtime_options"] = options.__dict__
-
-        dump(simple, outstream, sort_keys=True, indent=2)
-        
-
-    def write_cli(self, options, indent, indentstr, outstream):
-
-        """ print human-readable information about this change,
-        including whether it was ignorable, etc. The options object
-        provides parameters meaningful to individual change
-        implementations. If outstream is None, the 'output' attribute
-        of options may reference a file by name which will be opened
-        for writing, or sys.stdout will be used."""
-
-        show_unchanged = getattr(options, "show_unchanged", False)
-        show_ignored = getattr(options, "show_ignored", False)
-
-        show = False
-
-        if self.is_change():
-            if self.is_ignored(options):
-                if show_ignored:
-                    show = True
-                    _indent(outstream,indent,indentstr,
-                            self.get_description(), " [IGNORED]")
-            else:
-                show = True
-                _indent(outstream,indent,indentstr,
-                        self.get_description())
-                
-        elif show_unchanged:
-            show = True
-            _indent(outstream,indent,indentstr,
-                    self.get_description())
-
-        if show:
-            for sub in self.get_subchanges():
-                sub.write_cli(options, indent+1, indentstr, outstream)
+    def report(self, reporter):
+        pass
 
 
 
@@ -288,6 +215,18 @@ class GenericChange(Change):
         return ld != rd
 
 
+    def get_ldata(self):
+        """ returns fn_data of ldata """
+
+        return self.fn_data(self.ldata)
+
+
+    def get_rdata(self):
+        """ returns fn_data of rdata """
+
+        return self.fn_data(self.rdata)
+
+
     def pretty_ldata(self):
         """ returns fn_pretty of ldata """
 
@@ -323,7 +262,7 @@ class GenericChange(Change):
         constructed using self.fn_pretty to create human-readable
         versions of the data that changed. """
         
-        l, r = self.fn_data(self.ldata), self.fn_data(self.rdata)
+        l, r = self.get_ldata(), self.get_rdata()
         if self.fn_differ(l, r):
             l, r = self.pretty_ldata_desc(), self.pretty_rdata_desc()
             return True, "%s changed: %s to %s" % (self.label, l, r)
@@ -344,8 +283,13 @@ class GenericChange(Change):
     def simplify(self, options=None):
         simple = Change.simplify(self, options)
 
-        simple["old_data"] = self.pretty_ldata()
-        simple["new_data"] = self.pretty_rdata()
+        ld = self.pretty_ldata()
+        if ld is not None:
+            simple["old_data"] = ld
+
+        rd = self.pretty_rdata()
+        if rd is not None:
+            simple["new_data"] = rd
         
         return simple
 
@@ -358,28 +302,41 @@ class SuperChange(GenericChange):
     label = "Super Change"
 
     # override with change classes
-    change_types = ()
+    change_types = tuple()
 
 
     def __init__(self, ldata, rdata):
         GenericChange.__init__(self, ldata, rdata)
-        self.changes = ()
+        self.changes = tuple()
+
+
+    def fn_pretty(self, c):
+        return None
 
 
     def clear(self):
         GenericChange.clear(self)
+
         for c in self.changes:
             c.clear()
-        del self.changes
+        self.changes = tuple()
 
 
     def collect_impl(self):
         """ instanciates each of the entries in in the overriden
-        change_types field with the left and right data, and collects
-        the instances in self.changes """
+        change_types field with the left and right data """
         
         l, r = self.ldata, self.rdata
         return (c(l,r) for c in self.change_types)
+
+
+    def collect(self):
+        """ calls collect_impl and stores the results as the child
+        changes of this super-change """
+
+        if not self.changes:
+            self.changes = tuple(self.collect_impl())
+        return self.changes
 
 
     def check_impl(self):
@@ -387,10 +344,8 @@ class SuperChange(GenericChange):
         if any member of those checks shows as a change, will return
         True,None """
 
-        self.changes = tuple(self.collect_impl())
-        
         c = False
-        for change in self.changes:
+        for change in self.collect():
             change.check()
             c = c or change.is_change()
         return c, None
@@ -398,7 +353,7 @@ class SuperChange(GenericChange):
 
     def is_ignored(self, options):
         if self.is_change():
-            for change in self.changes:
+            for change in self.collect():
                 if change.is_change() and not change.is_ignored(options):
                     return False
             return True
@@ -406,12 +361,43 @@ class SuperChange(GenericChange):
             return False
 
 
-    def get_subchanges(self):
-        return self.changes
-
-
     def simplify(self, options=None):
-        return Change.simplify(self, options)
+        data = GenericChange.simplify(self, options)
+
+        # build a list of sub-changes honoring show-ignored and
+        # show-unchanged
+
+        show_ignored = False
+        show_unchanged = False
+
+        if options:
+            show_ignore = getattr(options, "show_ignored", show_ignored)
+            show_unchanged = getattr(options, "show_unchanged", show_unchanged)
+
+        subs = list()
+        for s in self.collect():
+            if s.is_change():
+                if not s.is_ignored(options) or show_ignored:
+                    subs.append(s)
+            elif show_unchanged:
+                subs.append(s)
+
+        data["children"] = tuple(s.simplify(options) for s in subs)
+        return data
+
+
+    def squash_children(self, options):
+
+        """ reduces the memory footprint of this super-change by
+        converting all child changes into squashed changes """
+
+        subs = (squash(c, options=options) for c in self.collect())
+
+        oldsubs = self.changes
+        self.changes = tuple(subs)
+
+        for change in oldsubs:
+            change.clear()
 
 
 
@@ -421,10 +407,10 @@ class SquashedChange(Change):
     including whether it was ignored, but want to discard the more
     in-depth information. """
 
-    def __init__(self, change, is_change, is_ignored):
+    def __init__(self, change, is_ignored=False):
         self.label = change.label
         self.description = change.get_description()
-        self.changed = is_change
+        self.changed = change.is_change()
         self.ignored = is_ignored
         self.origclass = type(change)
         self.entry = getattr(change, "entry", None)
@@ -455,17 +441,20 @@ class SquashedAddition(SquashedChange, Addition):
 
 
 
-def squash(change, is_change, is_ignored):
+def squash(change, is_ignored=False, options=None):
 
     """ squashes the in-depth information of a change to a simplified
     (and less memory-intensive) form """
 
+    if options:
+        is_ignored = change.is_ignored(options)
+
     if isinstance(change, Removal):
-        return SquashedRemoval(change, is_change, is_ignored)
+        return SquashedRemoval(change, is_ignored)
     elif isinstance(change, Addition):
-        return SquashedAddition(change, is_change, is_ignored)
+        return SquashedAddition(change, is_ignored)
     else:
-        return SquashedChange(change, is_change, is_ignored)
+        return SquashedChange(change, is_ignored)
 
 
 

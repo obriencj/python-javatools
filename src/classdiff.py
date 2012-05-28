@@ -300,7 +300,7 @@ class CodeConstantsChange(GenericChange):
         for offset,code,args in c.disassemble():
             if opcodes.has_const_arg(code):
                 name = opcodes.get_opname_by_code(code)
-                data = safe_val(c.cpool.pretty_deref_const(args[0]))
+                data = c.cpool.pretty_deref_const(args[0])
                 pr.append([offset, name, data])
                 
         return pr
@@ -552,7 +552,7 @@ class FieldConstvalueChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        return safe_val(c.deref_constantvalue())
+        return repr(c.deref_constantvalue())
 
 
 
@@ -615,7 +615,7 @@ class ClassMethodsChange(ClassMembersChange):
 
     @yield_sorted_by_type(MethodAdded, MethodRemoved, MethodChange)
     def collect_impl(self):
-        return super(ClassMethodsChange, self).collect_impl()
+        return ClassMembersChange.collect_impl(self)
 
 
     def __init__(self,lclass,rclass):
@@ -632,13 +632,10 @@ class ClassConstantPoolChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        from javaclass import CONST_Utf8
-
         data = list()
         for i in xrange(1, len(c.cpool.consts)):
             t,v = c.cpool.pretty_const(i)
             if t:
-                v = safe_val(v)
                 data.append( [i, t, v] )
         return tuple(data)
 
@@ -668,35 +665,61 @@ class JavaClassChange(SuperChange):
 
 
 
-def safe_val(val):
-    # this shouldn't be triggered any longer. Leaving in just in case
-    # I need to further finagle Java's modified-utf-8 string storage.
-    if isinstance(val, buffer):
-        return ("[non-UTF8 constant data not shown]",)
-    else:
-        return val
+class JavaClassReport(JavaClassChange):
+    
+
+    def __init__(self, l, r, reporter):
+        JavaClassChange.__init__(self, l, r)
+        self.reporter = reporter
+
+
+    def check(self):
+        JavaClassChange.check(self)
+        self.reporter.run(self)
 
 
 
 # ---- Begin classdiff CLI code ----
 #
-    
 
 
-def cli_classes_diff(options, left, right):
-    delta = JavaClassChange(left, right)
+
+def cli_classes_diff(parser, options, left, right):
+    from report import Reporter, JSONReportFormat, TextReportFormat
+
+    reports = set(options.reports)
+    if reports:
+        rdir = options.report_dir or "./"
+        rpt = Reporter(rdir, "classdiff", options)
+
+        for fmt in reports:
+            if  fmt == "json":
+                rpt.add_report_format(JSONReportFormat())
+            elif fmt in ("txt", "text"):
+                rpt.add_report_format(TextReportFormat())
+            else:
+                parser.error("unknown report format: %s" % fmt)
+
+        delta = JavaClassReport(left, right, report)
+
+    else:
+        delta = JavaClassChange(left, right)
+
     delta.check()
-        
+
     if not options.silent:
-        # will do either normal or json output and will use the -o option if
-        # it was specified
-        delta.write(options)
+        rpt = Reporter(None, None, options)
+        if options.json:
+            rpt.add_report_format(JSONReportFormat())
+        else:
+            rpt.add_report_format(TextReportFormat())
+        rpt.run(delta)
 
     if (not delta.is_change()) or delta.is_ignored(options):
         return 0
     else:
         return 1
-    
+
 
 
 def cli(parser, options, rest):
@@ -708,7 +731,7 @@ def cli(parser, options, rest):
     left = unpack_classfile(rest[1])
     right = unpack_classfile(rest[2])
 
-    return cli_classes_diff(options, left, right)
+    return cli_classes_diff(parser, options, left, right)
 
 
 
@@ -810,6 +833,10 @@ def general_optgroup(parser):
     g.add_option("--ignore", action="callback", type="string",
                  help="comma-separated list of ignores",
                  callback=_opt_cb_ignore)
+
+    parser.add_option("--report-dir", action="store", default=None)
+    parser.add_option("--report", action="append",
+                      dest="reports", default=list())
 
     return g
 

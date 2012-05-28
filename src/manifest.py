@@ -161,6 +161,11 @@ class Manifest(ManifestSection):
         return sect
 
 
+    def parse_file(self, filename):
+        with open(filename, "rt") as stream:
+            self.parse(stream)
+    
+
     def parse(self, data):
         
         """ populate instance with values and sub-sections from data
