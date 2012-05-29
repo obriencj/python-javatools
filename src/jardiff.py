@@ -161,7 +161,6 @@ class JarClassReport(JarClassChange):
 
 
 
-
 class JarManifestChange(SuperChange, JarContentChange):
     label = "Jar Manifest"
 
@@ -183,11 +182,6 @@ class JarManifestChange(SuperChange, JarContentChange):
             rm.parse(r)
 
         yield ManifestChange(lm, rm)
-
-
-    def is_ignored(self, options):
-        return options.ignore_jar_manifest
-
 
 
 
@@ -438,7 +432,7 @@ class JarReport(JarChange):
 def cli_jars_diff(parser, options, left, right):
     from report import Reporter, JSONReportFormat, TextReportFormat
 
-    reports = set(option.reports)
+    reports = set(options.reports)
     if reports:
         rdir = options.report_dir or "./"
         rpt = Reporter(rdir, "jardiff", options)
@@ -489,17 +483,17 @@ def jardiff_optgroup(parser):
 
     og.add_option("--ignore-jar-entry", action="append", default=[])
 
-    og.add_option("--ignore-jar-manifest",
-                  action="store_true", default=False,
-                  help="Ignore changes to JAR manifests")
-
-    og.add_option("--ignore-manifest-subsections",
-                  action="store_true", default=False,
-                  help="Ignore changes to a manifest's subsections")
-
     og.add_option("--ignore-jar-signature",
                   action="store_true", default=False,
                   help="Ignore JAR signing changes")
+
+    og.add_option("--ignore-manifest",
+                  action="store_true", default=False,
+                  help="Ignore changes to manifests")
+
+    og.add_option("--ignore-manifest-subsections",
+                  action="store_true", default=False,
+                  help="Ignore changes to manifest subsections")
 
     return og
 
@@ -510,8 +504,6 @@ def create_optparser():
     from classdiff import general_optgroup, classdiff_optgroup
 
     parser = OptionParser(usage="%prod [OPTIONS] OLD_JAR NEW_JAR")
-
-    parser.add_option("--report-dir", action="store", default=None)
     
     parser.add_option_group(general_optgroup(parser))
     parser.add_option_group(jardiff_optgroup(parser))

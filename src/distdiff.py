@@ -332,7 +332,7 @@ class DistChange(SuperChange):
                 elif event == SAME:
                     yield DistClassChange(ld, rd, entry, False)
 
-            elif fnmatches(entry, *TEXT_PATTERNS):
+            elif deep and fnmatches(entry, *TEXT_PATTERNS):
                 if event == LEFT:
                     yield DistContentRemoved(ld, rd, entry)
                 elif event == RIGHT:
@@ -342,7 +342,7 @@ class DistChange(SuperChange):
                 elif event == SAME:
                     yield DistTextChange(ld, rd, entry, False)
 
-            elif fnmatches(entry, "*/MANIFEST.MF"):
+            elif deep and fnmatches(entry, "*/MANIFEST.MF"):
                 if event == LEFT:
                     yield DistContentRemoved(ld, rd, entry)
                 elif event == RIGHT:

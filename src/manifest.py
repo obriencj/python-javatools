@@ -94,6 +94,10 @@ class ManifestChange(SuperChange):
             yield ManifestSectionAdded(None, rm.sub_sections[s])
 
 
+    def is_ignored(self, options):
+        return getattr(options, "ignore_manifest", False)
+
+
 
 class ManifestSection(dict):
     
