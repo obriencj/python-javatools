@@ -661,7 +661,7 @@ class JavaClassChange(SuperChange):
 
 
     def get_description(self):
-        return "%s %s" % (self.label, self.ldata.pretty_descriptor())
+        return "%s %s" % (self.label, self.ldata.pretty_this())
 
 
 
@@ -700,7 +700,7 @@ def cli_classes_diff(parser, options, left, right):
             else:
                 parser.error("unknown report format: %s" % fmt)
 
-        delta = JavaClassReport(left, right, report)
+        delta = JavaClassReport(left, right, rpt)
 
     else:
         delta = JavaClassChange(left, right)

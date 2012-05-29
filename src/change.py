@@ -144,17 +144,6 @@ class Change(object):
 
 
 
-    def squash_children(self):
-        pass
-
-
-
-    def report(self, reporter):
-        pass
-
-
-
-
 class Removal(Change):
 
     """ Something was removed """
@@ -371,13 +360,13 @@ class SuperChange(GenericChange):
         show_unchanged = False
 
         if options:
-            show_ignore = getattr(options, "show_ignored", show_ignored)
+            show_ignored = getattr(options, "show_ignored", show_ignored)
             show_unchanged = getattr(options, "show_unchanged", show_unchanged)
 
         subs = list()
         for s in self.collect():
             if s.is_change():
-                if not s.is_ignored(options) or show_ignored:
+                if show_ignored or not s.is_ignored(options):
                     subs.append(s)
             elif show_unchanged:
                 subs.append(s)
