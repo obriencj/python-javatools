@@ -477,6 +477,11 @@ class JavaClassInfo(JavaAttributes):
 
 
 
+    def get_version(self):
+        return self.version
+
+
+
     def get_major_version(self):
         return self.version[0]
 
@@ -644,9 +649,9 @@ class JavaClassInfo(JavaAttributes):
 
     def pretty_access_flags(self):
         
-        """ tuple of the pretty access flag names """
+        """ generator of the pretty access flag names """
 
-        return tuple(self._pretty_access_flags_gen())
+        return self._pretty_access_flags_gen()
 
 
 
@@ -661,7 +666,7 @@ class JavaClassInfo(JavaAttributes):
 
 
     def pretty_interfaces(self):
-        return tuple(_pretty_class(t) for t in self.get_interfaces())
+        return (_pretty_class(t) for t in self.get_interfaces())
 
     
 
@@ -1109,9 +1114,9 @@ class JavaMemberInfo(JavaAttributes):
 
     def pretty_access_flags(self, all=False, forclass=True):
 
-        """ tuple of the keywords determined from the access flags"""
+        """ generator of the keywords determined from the access flags"""
 
-        return tuple(self._pretty_access_flags_gen(all))
+        return self._pretty_access_flags_gen(all)
 
 
 

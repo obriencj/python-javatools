@@ -632,12 +632,7 @@ class ClassConstantPoolChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        data = list()
-        for i in xrange(1, len(c.cpool.consts)):
-            t,v = c.cpool.pretty_const(i)
-            if t:
-                data.append( [i, t, v] )
-        return tuple(data)
+        return tuple(c.cpool.pretty_constants())
 
 
     def is_ignored(self, options):

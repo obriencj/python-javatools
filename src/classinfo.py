@@ -217,7 +217,7 @@ def cli_print_classinfo(options, info):
         print "  Platform:", platform
 
     if options.constpool:
-        print "  Constant pool:"
+        print "  Constants pool:"
 
         # we don't use the info.pretty_constants() generator here
         # because we actually want numbers for the entries, and that
@@ -260,6 +260,100 @@ def cli_print_class(options, classfile):
 
 
 
+def cli_simplify_field(options, field, into=None):
+    if into is None:
+        into = dict()
+
+    into["name"] = field.get_name()
+    into["type"] = field.pretty_type()
+    into["signature"] = field.get_signature()
+    into["access_flags"] = tuple(field.pretty_access_flags())
+    into["deprecated"] = field.is_deprecated()
+
+    cv = field.get_constantvalue()
+    if cv is not None:
+        t,v = field.cpool.pretty_const(cv)
+        if t:
+            into["constant_value"] = (t,v)
+
+    return into
+
+
+
+def cli_simplify_method(options, method, into=None):
+    if into is None:
+        into = dict()
+
+    into["name"] = method.get_name()
+    into["type"] = method.pretty_type()
+    into["arg_types"] = method.pretty_arg_types()
+    into["signature"] = method.get_signature()
+    into["accessflags"] = tuple(method.pretty_access_flags())
+    into["deprecated"] = method.is_deprecated()
+
+    return into
+
+
+
+def cli_simplify_fields(options, info):
+    fields = list()
+    for field in info.fields:
+        if should_show(options, field):
+            fields.append(cli_simplify_field(options, field))
+    return fields
+
+
+
+def cli_simplify_methods(options, info):
+    methods = list()
+    for method in info.methods:
+        if should_show(options, method):
+            methods.append(cli_simplify_method(options, method))
+    return methods
+
+
+
+def cli_simplify_classinfo(options, info, into=None):
+    from javaclass import platform_from_version
+
+    if into is None:
+        into = dict()
+
+    if options.class_provides:
+        into["class_provides"] = info.get_provides(options.api_ignore)
+    if options.class_requires:
+        into["class_requires"] = info.get_requires(options.api_ignore)
+
+    into["name"] = info.pretty_this()
+    into["extends"] = info.pretty_super()
+    into["implements"] = tuple(info.pretty_interfaces())
+    into["source_file"] = info.get_sourcefile()
+    into["signature"] = info.get_signature()
+    into["enclosing_method"] = info.get_enclosingmethod()
+    into["version"] = info.get_version()
+    into["platform"] = platform_from_version(*info.version)
+
+    if options.constpool:
+        into["constants_pool"] = tuple(info.cpool.pretty_constants())
+
+    into["fields"] = cli_simplify_fields(options, info)
+    into["methods"] = cli_simplify_methods(options, info)
+
+    return into
+
+
+
+def cli_json_class(options, classfile):
+    from javaclass import unpack_classfile
+    from json import dump
+    from sys import stdout
+    
+    info = unpack_classfile(classfile)
+    data = cli_simplify_classinfo(options, info)
+    dump(data, stdout, sort_keys=True, indent=2)
+
+
+
 def cli(parser, options, rest):
 
     if options.verbose:
@@ -276,8 +370,12 @@ def cli(parser, options, rest):
                          options.disassemble or
                          options.sigs)
 
+    style = cli_print_class
+    if options.json:
+        style = cli_json_class
+
     for f in rest[1:]:
-        cli_print_class(options, f)
+        style(options, f)
         
     return 0
 
@@ -345,7 +443,10 @@ def create_optparser():
     parser = OptionParser("%prog <options> <classfiles>")
 
     parser.add_option_group(classinfo_optgroup(parser))
-    
+
+    parser.add_option("--json", action="store_true", default=False,
+                      help="output JSON")
+
     return parser
 
 
