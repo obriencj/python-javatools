@@ -28,8 +28,8 @@ from dirutils import LEFT, RIGHT, DIFF, SAME
 
 
 def compare(left, right):
-
-    return compare_zips(ZipFile(left), ZipFile(right))
+    with open_zip(left) as l, open_zip(right) as r:
+        return compare_zips(l, r)
 
 
 
@@ -87,13 +87,12 @@ def _chunk(stream, size=10240):
 
 def _deep_different(left, right, f):
     from itertools import izip_longest
-    lfd = left.open(f)
-    rfd = right.open(f)
 
-    for l,r in izip_longest(_chunk(lfd), _chunk(rfd)):
-        if l != r:
-            return True
-    return False
+    with left.open(f) as lfd, right.open(f) as rfd:
+        for l,r in izip_longest(_chunk(lfd), _chunk(rfd)):
+            if l != r:
+                return True
+        return False
 
 
 
@@ -103,8 +102,8 @@ def collect_compare(left, right):
 
 
 def collect_compare_into(left, right, added, removed, altered, same):
-    lz, rz = ZipFile(left), ZipFile(right)
-    return collect_compare_zips_into(lz, rz, added, removed, altered, same)
+    with open_zip(left) as l, open_zip(right) as r:
+        return collect_compare_zips_into(l, r, added, removed, altered, same)
 
 
 
@@ -175,12 +174,10 @@ def is_exploded(f):
 def _crc32(fname):
     import zlib
 
-    fd = open(fname, 'rb')
-    c = 0
-    for chunk in _chunk(fd):
-        c = zlib.crc32(chunk, c)
-    fd.close()
-
+    with open(fname, 'rb') as fd:
+        c = 0
+        for chunk in _chunk(fd):
+            c = zlib.crc32(chunk, c)
     return c
 
 
@@ -256,10 +253,8 @@ class ExplodedZipFile(object):
 
 
     def read(self, name):
-        fd = self.open(name)
-        data = fd.read()
-        fd.close()
-        return data
+        with self.open(name) as fd:
+            return fd.read()
 
 
     def close(self):
@@ -267,7 +262,29 @@ class ExplodedZipFile(object):
 
 
 
-def ZipFile(fn):
+class ZipFileContext(object):
+
+    """ A context manager for ZipFile instances. Creates an internal
+    ZipFile, and closes it when the context exits. """
+
+    def __init__(self, filename, mode="r"):
+        self.fn = filename
+        self.zf = None
+        self.mode = mode
+
+    def __enter__(self):
+        self.zf = zip_file(self.fn, self.mode)
+        return self.zf
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.zf:
+            self.zf.close()
+            self.zf = None
+        return (exc_type is None)
+
+
+
+def zip_file(fn, mode="r"):
 
     """ returns either a zipfile.ZipFile instance, or an
     ExplodedZipFile instance, depending on whether fn is the name of a
@@ -278,9 +295,18 @@ def ZipFile(fn):
     if is_exploded(fn):
         return ExplodedZipFile(fn)
     elif is_zipfile(fn):
-        return zipfile.ZipFile(fn, "r")
+        return zipfile.ZipFile(fn, mode)
     else:
         raise Exception("cannot treat as an archive: %r" % fn)
+
+
+
+def open_zip(filename, mode="r"):
+    
+    """ returns a ZipFileContext which will manage closing the zip for
+    you. Use eg: with open_zip('my.zip') as z: ... """
+
+    return ZipFileContext(filename, mode)
 
 
 

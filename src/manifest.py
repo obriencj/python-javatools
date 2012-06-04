@@ -331,12 +331,11 @@ def file_chunk(filename, x=2**14):
     x-sized chunks of filename's contents""" 
 
     def chunks():
-        fd = open(filename, "rb")
-        buf = fd.read(x)
-        while buf:
-            yield buf
+        with open(filename, "rb") as fd:
             buf = fd.read(x)
-        fd.close()
+            while buf:
+                yield buf
+                buf = fd.read(x)
     return chunks
 
 
@@ -347,12 +346,11 @@ def zipentry_chunk(zipfile, name, x=2**14):
     x-sized chunks of the named entry in the zipfile object"""
 
     def chunks():
-        fd = zipfile.open(name)
-        buf = fd.read(x)
-        while buf:
-            yield buf
+        with zipfile.open(name) as fd:
             buf = fd.read(x)
-        fd.close()
+            while buf:
+                yield buf
+                buf = fd.read(x)
     return chunks
 
 

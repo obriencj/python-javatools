@@ -30,13 +30,8 @@ license: LGPL
 
 
 
-# debugging mode
-if False:
-    def debug(*args):
-        print " ".join(args)
-else:
-    def debug(*args):
-        pass
+#def debug(*args):
+#        print " ".join(args)
 
 
 
@@ -132,7 +127,7 @@ class JavaConstantPool(object):
  
         """ Unpacks the constant pool from an unpacker stream """
 
-        debug("unpacking constant pool")
+        #debug("unpacking constant pool")
         
         (count,) = unpacker.unpack(">H")
         
@@ -141,7 +136,8 @@ class JavaConstantPool(object):
         items = [(None,None), ]
         count -= 1
         
-        # two const types will "consume" an item count, but no data
+        # Long and Double const types will "consume" an item count,
+        # but not data
         hackpass = False
 
         for i in xrange(0, count):
@@ -152,7 +148,7 @@ class JavaConstantPool(object):
                 items.append((None,None))
 
             else:
-                debug("unpacking const item %i of %i" % (i+1, count))
+                #debug("unpacking const item %i of %i" % (i+1, count))
                 item = _unpack_const_item(unpacker)
                 items.append(item)
 
@@ -271,7 +267,7 @@ class JavaConstantPool(object):
 
         elif t == CONST_NameAndType:
             a,b = (self.deref_const(i) for i in v)
-            b = "".join([t for t in _pretty_typeseq(b)])
+            b = "".join(_pretty_typeseq(b))
             return "%s:%s" % (a,b)
 
         elif t == CONST_ModuleIdInfo:
@@ -290,27 +286,29 @@ class JavaAttributes(object):
     many of its methods to work correctly. """
 
 
-    def __init__(self):
-        self.attributes = tuple()
+    def __init__(self, cpool):
+        self.attributes = None
+        self.attrmap = None
+        self.cpool = cpool
 
 
 
     def unpack(self, unpacker):
         
-        """ Unpack an attributes table from an unpacker
-        stream. Modifies the structure of this instance. """
+        """ Unpack an attributes table from an unpacker stream.
+        Modifies the structure of this instance. """
 
-        debug("unpacking attributes")
+        #debug("unpacking attributes")
 
         (count,) = unpacker.unpack(">H")
         items = []
 
         for i in xrange(0, count):
-            debug("unpacking attribute %i of %i" % (i+1, count))
+            #debug("unpacking attribute %i of %i" % (i+1, count))
 
             (name, size) = unpacker.unpack(">HI")
 
-            debug("attribute #%s, %i bytes" % (name, size))
+            #debug("attribute #%s, %i bytes" % (name, size))
             data = unpacker.read(size)
 
             items.append( (name, data) )
@@ -319,36 +317,43 @@ class JavaAttributes(object):
 
 
 
-    def get_attributes_as_map(self, cpool):
-        cval = cpool.deref_const
-        pairs = ((cval(i),v) for (i,v) in self.attributes)
-        return dict(pairs)
+    def as_map(self):
+
+        """ dereferences the attr keys to their constant string values
+        and returns a dictionary of attr names to value buffers """
+
+        if self.attributes is None:
+            raise Exception("attempt to read from JavaAttributes that haven't"
+                            " been unpacked yet.")
+
+        if self.attrmap is None:
+            cval = self.cpool.deref_const
+            self.attrmap = dict((cval(i),v) for (i,v) in self.attributes)
+        return self.attrmap
 
 
 
-    def get_attribute(self, name, cpool):
-
-        return self.get_attributes_as_map(cpool).get(name)
-
+    def get_attribute(self, name):
+        return self.as_map().get(name)
 
 
-class JavaClassInfo(JavaAttributes):
+
+class JavaClassInfo(object):
 
     """ Information from a disassembled Java class file. """
 
     def __init__(self):
-        JavaAttributes.__init__(self)
-
         self.cpool = JavaConstantPool()
+        self.attribs = JavaAttributes(self.cpool)
 
         self.magic = JAVA_CLASS_MAGIC
         self.version = (0, 0)
         self.access_flags = 0
         self.this_ref = 0
         self.super_ref = 0
-        self.interfaces = tuple()
-        self.fields = tuple()
-        self.methods = tuple()
+        self.interfaces = None
+        self.fields = None
+        self.methods = None
 
         self._provides = None
         self._provides_private = None
@@ -362,7 +367,7 @@ class JavaClassInfo(JavaAttributes):
 
 
     def get_attribute(self, name):
-        return super(JavaClassInfo, self).get_attribute(name, self.cpool)
+        return self.attribs.get_attribute(name)
 
 
 
@@ -375,7 +380,7 @@ class JavaClassInfo(JavaAttributes):
         it, the read value may be passed via the optional magic
         parameter and it will not attempt to read the value again. """
 
-        debug("unpacking class info")
+        #debug("unpacking class info")
 
         # only unpack the magic bytes if it wasn't specified
         magic = magic or unpacker.unpack(">BBBB")
@@ -400,19 +405,20 @@ class JavaClassInfo(JavaAttributes):
         self.this_ref = b
         self.super_ref = c
 
-        debug("unpacking interfaces")
+        #debug("unpacking interfaces")
         (count,) = unpacker.unpack(">H")
         self.interfaces = unpacker.unpack(">%iH" % count)
         
-        debug("unpacking fields")
-        self.fields = _unpack_objs(unpacker, JavaMemberInfo,
-                                   self.cpool, is_method=False)
+        #debug("unpacking fields")        
+        self.fields = unpacker.unpack_objects(JavaMemberInfo,
+                                              self.cpool, is_method=False)
         
-        debug("unpacking methods")
-        self.methods = _unpack_objs(unpacker, JavaMemberInfo,
-                                    self.cpool, is_method=True)
+        #debug("unpacking methods")
+        self.methods = unpacker.unpack_objects(JavaMemberInfo,
+                                               self.cpool, is_method=True)
 
-        JavaAttributes.unpack(self, unpacker)
+        #debug("unpacking attributes")
+        self.attribs.unpack(unpacker)
 
 
 
@@ -424,13 +430,9 @@ class JavaClassInfo(JavaAttributes):
 
 
 
-    def _get_methods_by_name_gen(self, name):
-        return (m for m in self.methods if m.get_name() == name)
-
-
-
     def get_methods_by_name(self, name):
-        return tuple(self._get_methods_by_name_gen(name))
+        """ generator of methods matching name """
+        return (m for m in self.methods if m.get_name() == name)
 
 
 
@@ -440,7 +442,7 @@ class JavaClassInfo(JavaAttributes):
         type descriptors matching those in arg_types. This does not
         return any bridge methods. """
 
-        for m in self._get_methods_by_name_gen(name):
+        for m in self.get_methods_by_name(name):
             if ((not m.is_bridge) and
                 m.get_arg_type_descriptors() == arg_types):
                 return m
@@ -448,21 +450,13 @@ class JavaClassInfo(JavaAttributes):
 
 
 
-    def _get_method_bridges_gen(self, name, arg_types=()):
-        for m in self._get_methods_by_name_gen(name):
-            if (m.is_bridge and
-                m.get_arg_type_descriptors() == arg_types):
-                yield m
-
-
-
     def get_method_bridges(self, name, arg_types=()):
         
-        """ returns a tuple of bridge methods found that adapt the
-        return types of a named method and having argument type
-        descriptors matching those in arg_types. """
+        """ generator of bridge methods found that adapt the return
+        types of a named method and having argument type descriptors
+        matching those in arg_types."""
         
-        # I am note entirely certain if a class will generate more
+        # I am not entirely certain if a class will generate more
         # than one synthetic bridge method to adapt the return type. I
         # know it will generate one at least if someone subclasses and
         # overrides the method to return a more specific type. If
@@ -473,7 +467,10 @@ class JavaClassInfo(JavaAttributes):
         # original type). I will need to research such insane
         # conditions.
 
-        return tuple(self._get_method_bridges_gen(name, arg_types))
+        for m in self.get_methods_by_name(name):
+            if (m.is_bridge and
+                m.get_arg_type_descriptors() == arg_types):
+                yield m
 
 
 
@@ -548,7 +545,7 @@ class JavaClassInfo(JavaAttributes):
 
 
     def get_interfaces(self):
-        return tuple([self.deref_const(i) for i in self.interfaces])
+        return tuple(self.deref_const(i) for i in self.interfaces)
 
 
 
@@ -557,7 +554,9 @@ class JavaClassInfo(JavaAttributes):
         if buff is None:
             return 0
 
-        (r,) = _unpack(">H", buff)
+        with Unpacker(buff) as up:
+            (r,) = up.unpack(">H")
+
         return r
 
 
@@ -582,9 +581,8 @@ class JavaClassInfo(JavaAttributes):
         if buff is None:
             return None
         
-        up = Unpacker(buff)
-        objs = _unpack_objs(up, JavaInnerClassInfo, self.cpool)
-        up.close()
+        with Unpacker(buff) as up:
+            return up.unpack_objects(JavaInnerClassInfo, self.cpool)
 
 
 
@@ -594,7 +592,8 @@ class JavaClassInfo(JavaAttributes):
             return None
 
         # type index
-        (ti,) = _unpack(">H", buff)
+        with Unpacker(buff) as up:
+            (ti,) = up.unpack(">H")
 
         return self.deref_const(ti)
 
@@ -614,7 +613,8 @@ class JavaClassInfo(JavaAttributes):
             return None
 
         # class index, method index
-        (ci, mi) = _unpack(">HH", buff)
+        with Unpacker(buff) as up:
+            (ci, mi) = up.unpack(">HH")
 
         if ci and mi:
             enc_class = self.deref_const(ci)
@@ -769,15 +769,14 @@ class JavaClassInfo(JavaAttributes):
 
 
 
-class JavaMemberInfo(JavaAttributes):
+class JavaMemberInfo(object):
 
     """ A field or method of a java class """
 
 
     def __init__(self, cpool, is_method=False):
-        JavaAttributes.__init__(self)
-
         self.cpool = cpool
+        self.attribs = JavaAttributes(cpool)
         self.access_flags = 0
         self.name_ref = 0
         self.descriptor_ref = 0
@@ -791,7 +790,7 @@ class JavaMemberInfo(JavaAttributes):
 
 
     def get_attribute(self, name):
-        return super(JavaMemberInfo, self).get_attribute(name, self.cpool)
+        return self.attribs.get_attribute(name)
 
 
 
@@ -801,7 +800,8 @@ class JavaMemberInfo(JavaAttributes):
             return None
 
         # type index
-        (ti,) = _unpack(">H", buff)
+        with Unpacker(buff) as up:
+            (ti,) = up.unpack(">H")
 
         return self.deref_const(ti)
 
@@ -812,23 +812,22 @@ class JavaMemberInfo(JavaAttributes):
         if buff is None:
             return None
 
-        (ti,) = _unpack(">H", buff)
+        with Unpacker(buff) as up:
+            (ti,) = up.unpack(">H")
 
         return self.deref_const(ti)
 
 
 
     def unpack(self, unpacker):
-
-        debug("unpacking member info")
+        #debug("unpacking member info")
 
         (a, b, c) = unpacker.unpack(">HHH")
 
         self.access_flags = a
         self.name_ref = b
         self.descriptor_ref = c
-
-        JavaAttributes.unpack(self, unpacker)
+        self.attribs.unpack(unpacker)
 
 
 
@@ -933,12 +932,9 @@ class JavaMemberInfo(JavaAttributes):
         if buff is None:
             return None
 
-        up = Unpacker(buff)
-
-        code = JavaCodeInfo(self.cpool)
-        code.unpack(up)
-
-        up.close()
+        with Unpacker(buff) as up:
+            code = JavaCodeInfo(self.cpool)
+            code.unpack(up)
 
         return code
 
@@ -953,9 +949,8 @@ class JavaMemberInfo(JavaAttributes):
         if buff is None:
             return ()
 
-        up = Unpacker(buff)
-        excps = _unpack_array(up, ">H")
-        up.close()
+        with Unpacker(buff) as up:
+            excps = up.unpack_array(">H")
 
         return tuple([self.deref_const(e[0]) for e in excps])
 
@@ -970,7 +965,9 @@ class JavaMemberInfo(JavaAttributes):
         if buff is None:
             return None
 
-        (cval_ref,) = _unpack(">H", buff)
+        with Unpacker(buff) as up:
+            (cval_ref,) = up.unpack(">H")
+
         return cval_ref
 
 
@@ -1024,14 +1021,13 @@ class JavaMemberInfo(JavaAttributes):
 
     def pretty_arg_types(self):
 
-        """ The pretty version of get_arg_type_descriptors. Returns
-        () for non-methods """
+        """ Sequence of pretty argument types. """
 
-        if not self.is_method:
+        if self.is_method:
+            types = self.get_arg_type_descriptors()
+            return (_pretty_type(t) for t in types)
+        else:
             return tuple()
-
-        types = self.get_arg_type_descriptors()
-        return tuple(_pretty_type(t) for t in types)
 
 
 
@@ -1064,8 +1060,7 @@ class JavaMemberInfo(JavaAttributes):
             # assemble any throws as necessary
             t = "throws "+t
 
-        x = [z for z in (f,p,n,t) if z]
-        return " ".join(x)
+        return " ".join(z for z in (f,p,n,t) if z)
 
 
 
@@ -1124,7 +1119,7 @@ class JavaMemberInfo(JavaAttributes):
 
         """ sequence of pretty names for get_exceptions() """
 
-        return tuple(_pretty_class(e) for e in self.get_exceptions())
+        return (_pretty_class(e) for e in self.get_exceptions())
 
 
 
@@ -1162,19 +1157,18 @@ class JavaMemberInfo(JavaAttributes):
 
 
 
-class JavaCodeInfo(JavaAttributes):
+class JavaCodeInfo(object):
 
     """ The 'Code' attribue of a method member of a java class """
 
 
     def __init__(self, cpool):
-        JavaAttributes.__init__(self)
-
         self.cpool = cpool
+        self.attribs = JavaAttributes(cpool)
         self.max_stack = 0
         self.max_locals = 0
         self.code = None
-        self.exceptions = tuple()
+        self.exceptions = None
 
 
 
@@ -1184,7 +1178,7 @@ class JavaCodeInfo(JavaAttributes):
 
 
     def get_attribute(self, name):
-        return super(JavaCodeInfo, self).get_attribute(name, self.cpool)
+        return self.attribs.get_attribute(name)
 
 
 
@@ -1193,7 +1187,7 @@ class JavaCodeInfo(JavaAttributes):
         """ unpacks a code block from a buffer. Updates the internal
         structure of this instance """
 
-        debug("unpacking code info")
+        #debug("unpacking code info")
 
         (a, b, c) = unpacker.unpack(">HHI")
         
@@ -1201,9 +1195,9 @@ class JavaCodeInfo(JavaAttributes):
         self.max_locals = b
         self.code = unpacker.read(c)
 
-        self.exceptions = _unpack_objs(unpacker, JavaExceptionInfo, self)
+        self.exceptions = unpacker.unpack_objects(JavaExceptionInfo, self)
 
-        JavaAttributes.unpack(self, unpacker)
+        self.attribs.unpack(unpacker)
 
     
 
@@ -1215,11 +1209,8 @@ class JavaCodeInfo(JavaAttributes):
         if buff is None:
             return None
 
-        up = Unpacker(buff)
-        ret = _unpack_array(up, ">HH")
-        up.close()
-
-        return ret
+        with Unpacker(buff) as up:
+            return up.unpack_array(">HH")
 
 
 
@@ -1232,7 +1223,7 @@ class JavaCodeInfo(JavaAttributes):
         lnt = self.get_linenumbertable()
         if lnt:
             lineoff = lnt[0][1]
-            return [(o,l-lineoff) for (o,l) in lnt]
+            return tuple((o,l-lineoff) for (o,l) in lnt)
         else:
             return tuple()
         
@@ -1247,10 +1238,8 @@ class JavaCodeInfo(JavaAttributes):
         if buff is None:
             return None
 
-        up = Unpacker(buff)
-        ret = _unpack_array(up, ">HHHHH")
-        up.close()
-        return ret
+        with Unpacker(buff) as up:
+            return up.unpack_array(">HHHHH")
     
 
 
@@ -1263,10 +1252,9 @@ class JavaCodeInfo(JavaAttributes):
         if buff is None:
             return None
 
-        up = Unpacker(buff)
-        ret = _unpack_array(up, ">HHHHH")
-        up.close()
-        return ret
+        with Unpacker(buff) as up:
+            return up.unpack_array(">HHHHH")
+
 
 
     def get_line_for_offset(self, code_offset):
@@ -1318,7 +1306,7 @@ class JavaExceptionInfo(object):
         """ unpacks an exception handler entry in an exception
         table. Updates the internal structure of this instance """
 
-        debug("unpacking Exception info")
+        #debug("unpacking Exception info")
 
         (a, b, c, d) = unpacker.unpack(">HHHH")
 
@@ -1376,7 +1364,7 @@ class JavaInnerClassInfo(object):
 
     def unpack(self, unpacker):
 
-        debug("unpacking JavaInnerClass")
+        #debug("unpacking JavaInnerClass")
 
         (a, b, c, d) = unpacker.unpack(">HHHH")
         
@@ -1423,35 +1411,6 @@ def platform_from_version(major, minor):
 
 #
 # Utility functions for the constants pool
-
-
-def _unpack(fmt, data):
-    up = Unpacker(data)
-    ret = up.unpack(fmt)
-    up.close()
-    return ret
-
-
-
-def _unpack_objs(unpacker, atype, *params, **kwds):
-
-    """ The common pattern is to have a count and then that many times
-    of an object. The unpacker class doesn't presume to know the count
-    type, so this function gets the count first"""
-    
-    (count,) = unpacker.unpack(">H")
-    return unpacker.unpack_objects(count, atype, *params, **kwds)
-
-
-
-def _unpack_array(unpacker, fmt):
-
-    """ The common pattern is to have a count and then that many times
-    of an object. The unpacker class doesn't presume to know the count
-    type, so this function gets the count first"""
-    
-    (count,) = unpacker.unpack(">H")
-    return unpacker.unpack_array(count, fmt)
 
 
 
@@ -1587,15 +1546,14 @@ def _typeseq(s):
 
 
 def _pretty_typeseq(s):
-    return [_pretty_type(t) for t in _typeseq_iter(s)]
+    return (_pretty_type(t) for t in _typeseq_iter(s))
 
 
 
 def _pretty_type(s):
     tc = s[0]
     if tc == "(":
-        args = _pretty_typeseq(s[1:-1])
-        return "(%s)" % ",".join(args)
+        return "(%s)" % ",".join(_pretty_typeseq(s[1:-1]))
     elif tc == "V":
         return "void"
     elif tc == "Z":
@@ -1637,40 +1595,10 @@ def _clean_array_const(s):
     return (t,str(b))
 
 
+
 #
 # Utility functions for unpacking shapes of binary data from a
 # buffer.
-
-
-def _struct_class():
-    
-    """ ideally, we want to use the struct.Struct class to cache
-    compiled unpackers. But since that's a semi-recent addition to
-    Python, we'll provide our own dummy class that presents the same
-    interface but just calls the older unpack function"""
-
-    import struct
-
-    class Struct(object):
-        def __init__(self, fmt):
-            self.fmt = fmt
-            self.size = struct.calcsize(fmt)
-        def pack(self, *args):
-            return struct.pack(*args)
-        def unpack(self, buff):
-            return struct.unpack(self.fmt, buff)
-
-    # if the struct module has a Struct class, use that. Otherwise,
-    # use the DummyStruct class
-
-    if hasattr(struct, "Struct"):
-        return getattr(struct, "Struct")
-    else:
-        return Struct
-
-
-
-Struct = _struct_class()
 
 
 
@@ -1678,13 +1606,15 @@ _struct_cache = {}
 
 def compile_struct(fmt):
 
+    from struct import Struct
+
     """ returns a Struct instance compiled from fmt. If fmt has
     already been compiled, it will return the previously compiled
     Struct instance. """
 
     sfmt = _struct_cache.get(fmt, None)
     if not sfmt:
-        debug("compiling struct format %r" % fmt)
+        #debug("compiling struct format %r" % fmt)
         sfmt = Struct(fmt)
         _struct_cache[fmt] = sfmt
     return sfmt
@@ -1714,8 +1644,9 @@ class Unpacker(object):
         return self
 
 
-    def __exit__(self):
+    def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+        return (exc_type is None)
 
 
     def unpack(self, fmt):
@@ -1729,33 +1660,26 @@ class Unpacker(object):
         return val
 
 
-    def unpack_array_gen(self, count, fmt):
+    def _unpack_array(self, count, fmt):
         for i in xrange(0, count):
             yield self.unpack(fmt)
-
-
-    def unpack_array(self, count, fmt):
-
-        """ unpacks fmt count times and returns the tuple of results
-        """
-
-        return tuple(self.unpack_array_gen(count, fmt))
     
 
-    def unpack_objects_gen(self, count, atype, *params, **kwds):
+    def unpack_array(self, fmt):
+        (count,) = self.unpack(">H")
+        return tuple(self._unpack_array(count, fmt))
+
+
+    def _unpack_objects(self, count, atype, *params, **kwds):
         for i in xrange(0, count):
             o = atype(*params, **kwds)
             o.unpack(self)
             yield o
 
 
-    def unpack_objects(self, count, atype, *params, **kwds):
-
-        """ instanciates count atypes by calling it with the given params and
-        keywords, then calls the instance's unpack method, passing
-        this unpacker as the only argument. """
-
-        return tuple(self.unpack_objects_gen(count, atype, *params, **kwds))
+    def unpack_objects(self, atype, *params, **kwds):
+        (count,) = self.unpack(">H")
+        return tuple(self._unpack_objects(count, atype, *params, **kwds))
 
 
     def read(self, i):
@@ -1771,6 +1695,7 @@ class Unpacker(object):
         del self.stream
 
 
+
 #
 # Functions for dealing with buffers and files
 
@@ -1784,9 +1709,9 @@ def is_class(data):
     match, or for any errors. """
 
     try:
-        unpacker = Unpacker(data)
-        magic = unpacker.unpack(">BBBB")
-        unpacker.close()
+        with Unpacker(data) as up:
+            magic = up.unpack(">BBBB")
+
         return magic == JAVA_CLASS_MAGIC
 
     except:
@@ -1795,9 +1720,9 @@ def is_class(data):
 
 
 def is_class_file(filename):
-    fd = open(filename, "rb")
-    c = is_class(fd.read(4))
-    fd.close()
+    with open(filename, "rb") as fd:
+        c = is_class(fd.read(4))
+
     return c == JAVA_CLASS_MAGIC_STR
 
 
@@ -1813,16 +1738,14 @@ def unpack_class(data, magic=None):
     already. In this case, pass those magic bytes as a str or tuple
     and the unpacker will not attempt to read them again.  """
 
-    unpacker = Unpacker(data)
+    with Unpacker(data) as up:
 
-    magic = magic or unpacker.unpack(">BBBB")
-    if magic != JAVA_CLASS_MAGIC:
-        return None
+        magic = magic or up.unpack(">BBBB")
+        if magic != JAVA_CLASS_MAGIC:
+            return None
     
-    o = JavaClassInfo()
-    o.unpack(unpacker, magic=magic)
-
-    unpacker.close()
+        o = JavaClassInfo()
+        o.unpack(up, magic=magic)
 
     return o
 
@@ -1833,11 +1756,8 @@ def unpack_classfile(filename):
     """ returns a newly allocated JavaClassInfo object populated with
     the data unpacked from the specified file """
 
-    fd = open(filename, "rb")
-    ci = unpack_class(fd)
-    fd.close()
-    
-    return ci
+    with open(filename, "rb") as fd:
+        return unpack_class(fd)
 
 
 

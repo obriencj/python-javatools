@@ -98,11 +98,48 @@ class JSONReportFormat(ReportFormat):
     def run_impl(self, change, out, options):
         from json import dump
 
-        data = change.simplify(options)
-        data["runtime_options"] = options.__dict__
+        data = {
+            "runtime_options": options.__dict__,
+            "report": change,
+            }
+
+        # not what they expected, but it works
+        cls = lambda *a,**k: JSONChangeEncoder(options, *a, **k)
 
         #print data
-        dump(data, out, sort_keys=True, indent=2)
+        try:
+            dump(data, out, sort_keys=True, indent=2, cls=cls)
+        except TypeError, te:
+            print data
+            raise(te)
+
+
+
+from json import JSONEncoder
+class JSONChangeEncoder(JSONEncoder):
+
+    """ A specialty JSONEncoder which knows how to represent Change
+    instances """
+
+    def __init__(self, options, *a,**k):
+        JSONEncoder.__init__(self, *a, **k)
+        self.options = options
+
+
+    def default(self, o):
+        from change import Change
+
+        if isinstance(o, Change):
+            return o.simplify(self.options)
+
+        try:
+            i = iter(o)
+        except TypeError, te:
+            pass
+        else:
+            return tuple(i)
+
+        return JSONEncoder.default(self, o)
 
         
 

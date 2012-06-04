@@ -371,7 +371,7 @@ class SuperChange(GenericChange):
             elif show_unchanged:
                 subs.append(s)
 
-        data["children"] = tuple(s.simplify(options) for s in subs)
+        data["children"] = subs
         return data
 
 

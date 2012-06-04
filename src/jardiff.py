@@ -304,21 +304,12 @@ class JarContentsChange(SuperChange):
          as the ldata and rdata of all subchecks. """
 
         # this makes it work on exploded archives
-        from ziputils import ZipFile
+        from ziputils import open_zip
 
-        lzip = ZipFile(self.ldata)
-        rzip = ZipFile(self.rdata)
-
-        self.lzip = lzip
-        self.rzip = rzip
-
-        ret = SuperChange.check_impl(self)
-
-        lzip.close()
-        rzip.close()
-
-        self.lzip = None
-        self.rzip = None
+        with open_zip(self.ldata) as l, open_zip(self.rdata) as r:
+            self.lzip, self.rzip = l, r
+            ret = SuperChange.check_impl(self)
+            self.lzip, self.rzip = None, None
 
         return ret
 
@@ -363,33 +354,26 @@ class JarContentsReport(JarContentsChange):
         # memory usage.
 
         from change import squash
-        from ziputils import ZipFile
-        
-        lzip = ZipFile(self.ldata)
-        rzip = ZipFile(self.rdata)
-        
-        self.lzip = lzip
-        self.rzip = rzip
-        
+        from ziputils import open_zip
+
         changes = list()
         options = self.reporter.options
-        
         c = False
-        for change in self.collect_impl():
-            change.check()
-            c = c or change.is_change()
+        
+        with open_zip(self.ldata) as l, open_zip(self.rdata) as r:
+            self.lzip, self.rzip = l, r
+        
+            for change in self.collect_impl():
+                change.check()
+                c = c or change.is_change()
             
-            if isinstance(change, JarClassReport):
-                changes.append(squash(change, options=options))
-                change.clear()
-            else:
-                changes.append(change)
+                if isinstance(change, JarClassReport):
+                    changes.append(squash(change, options=options))
+                    change.clear()
+                else:
+                    changes.append(change)
         
-        lzip.close()
-        rzip.close()
-        
-        self.lzip = None
-        self.rzip = None
+            self.lzip, self.rzip = None, None
         
         self.changes = changes
         return c, None

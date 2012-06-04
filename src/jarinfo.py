@@ -54,6 +54,15 @@ class JarInfo(object):
         self.close()
 
 
+    def __enter__(self):
+        return self
+
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return (exc_type is None)
+
+
     def _collect_requires_provides(self):
         req = {}
         prov = {}
@@ -114,10 +123,8 @@ class JarInfo(object):
 
     def get_classinfo(self, entry):
         from javaclass import unpack_class
-        cfd = self.get_zipfile().open(entry)
-        cinfo = unpack_class(cfd)
-        cfd.close()
-        return cinfo
+        with self.get_zipfile().open(entry) as cfd:
+            return unpack_class(cfd)
 
 
     def get_manifest(self):
@@ -131,9 +138,9 @@ class JarInfo(object):
 
 
     def get_zipfile(self):
-        from ziputils import ZipFile
+        from ziputils import zip_file
         if self.zipfile is None:
-            self.zipfile = ZipFile(self.filename)
+            self.zipfile = zip_file(self.filename)
         return self.zipfile
 
 
@@ -280,14 +287,11 @@ def cli(parser, options, rest):
                          options.sigs)
     
     for fn in rest[1:]:
-        ji = JarInfo(filename=fn)
-
-        if options.json:
-            cli_jarinfo_json(options, ji)
-        else:
-            cli_jarinfo(options, ji)
-
-        ji.close()
+        with JarInfo(filename=fn) as ji:
+            if options.json:
+                cli_jarinfo_json(options, ji)
+            else:
+                cli_jarinfo(options, ji)
 
     return 0
 

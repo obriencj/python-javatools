@@ -96,7 +96,7 @@ class ClassInterfacesChange(GenericChange):
         return set(c.get_interfaces())
 
     def fn_pretty(self, c):
-        return c.pretty_interfaces()
+        return tuple(c.pretty_interfaces())
 
 
 
@@ -109,7 +109,7 @@ class ClassAccessflagsChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        return c.pretty_access_flags()
+        return tuple(c.pretty_access_flags())
 
 
 
@@ -408,7 +408,7 @@ class MethodParametersChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        return c.pretty_arg_types()
+        return tuple(c.pretty_arg_types())
 
     
 
@@ -421,7 +421,7 @@ class MethodAccessflagsChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        return c.pretty_access_flags()
+        return tuple(c.pretty_access_flags())
 
 
 
@@ -451,7 +451,7 @@ class MethodExceptionsChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        return c.pretty_exceptions()
+        return tuple(c.pretty_exceptions())
         
 
 
@@ -535,7 +535,7 @@ class FieldAccessflagsChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        return c.pretty_access_flags()
+        return tuple(c.pretty_access_flags())
 
 
     def fn_pretty_desc(self, c):

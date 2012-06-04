@@ -260,38 +260,40 @@ def cli_print_class(options, classfile):
 
 
 
-def cli_simplify_field(options, field, into=None):
-    if into is None:
-        into = dict()
+def cli_simplify_field(options, field, data=None):
+    if data is None:
+        data = dict()
 
-    into["name"] = field.get_name()
-    into["type"] = field.pretty_type()
-    into["signature"] = field.get_signature()
-    into["access_flags"] = tuple(field.pretty_access_flags())
-    into["deprecated"] = field.is_deprecated()
+    data["name"] = field.get_name()
+    data["type"] = field.pretty_type()
+    data["access_flags"] = tuple(field.pretty_access_flags())
+
+    ifonly(data, "signature", field.get_signature())
+    ifonly(data, "deprecated", field.is_deprecated())
 
     cv = field.get_constantvalue()
     if cv is not None:
         t,v = field.cpool.pretty_const(cv)
         if t:
-            into["constant_value"] = (t,v)
+            data["constant_value"] = (t,v)
 
-    return into
+    return data
 
 
 
-def cli_simplify_method(options, method, into=None):
-    if into is None:
-        into = dict()
+def cli_simplify_method(options, method, data=None):
+    if data is None:
+        data = dict()
 
-    into["name"] = method.get_name()
-    into["type"] = method.pretty_type()
-    into["arg_types"] = method.pretty_arg_types()
-    into["signature"] = method.get_signature()
-    into["accessflags"] = tuple(method.pretty_access_flags())
-    into["deprecated"] = method.is_deprecated()
+    data["name"] = method.get_name()
+    data["type"] = method.pretty_type()
+    data["access_flags"] = tuple(method.pretty_access_flags())
+    data["arg_types"] = method.pretty_arg_types()
 
-    return into
+    ifonly(data, "signature", method.get_signature())
+    ifonly(data, "deprecated", method.is_deprecated())
+
+    return data
 
 
 
@@ -313,33 +315,41 @@ def cli_simplify_methods(options, info):
 
 
 
-def cli_simplify_classinfo(options, info, into=None):
+def cli_simplify_classinfo(options, info, data=None):
     from javaclass import platform_from_version
 
-    if into is None:
-        into = dict()
+    if data is None:
+        data = dict()
 
     if options.class_provides:
-        into["class_provides"] = info.get_provides(options.api_ignore)
+        data["class_provides"] = info.get_provides(options.api_ignore)
     if options.class_requires:
-        into["class_requires"] = info.get_requires(options.api_ignore)
+        data["class_requires"] = info.get_requires(options.api_ignore)
 
-    into["name"] = info.pretty_this()
-    into["extends"] = info.pretty_super()
-    into["implements"] = tuple(info.pretty_interfaces())
-    into["source_file"] = info.get_sourcefile()
-    into["signature"] = info.get_signature()
-    into["enclosing_method"] = info.get_enclosingmethod()
-    into["version"] = info.get_version()
-    into["platform"] = platform_from_version(*info.version)
+    data["name"] = info.pretty_this()
+    data["extends"] = info.pretty_super()
+    data["implements"] = tuple(info.pretty_interfaces())
+    data["source_file"] = info.get_sourcefile()
+
+    ifonly(data, "signature", info.get_signature())
+    ifonly(data, "enclosing_method", info.get_enclosingmethod())
+
+    data["version"] = info.get_version()
+    data["platform"] = platform_from_version(*info.version)
 
     if options.constpool:
-        into["constants_pool"] = tuple(info.cpool.pretty_constants())
+        data["constants_pool"] = tuple(info.cpool.pretty_constants())
 
-    into["fields"] = cli_simplify_fields(options, info)
-    into["methods"] = cli_simplify_methods(options, info)
+    data["fields"] = cli_simplify_fields(options, info)
+    data["methods"] = cli_simplify_methods(options, info)
 
-    return into
+    return data
+
+
+
+def ifonly(data, key, val):
+    if val:
+        data[key] = val
 
 
 
