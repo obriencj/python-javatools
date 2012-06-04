@@ -119,7 +119,7 @@ class JavaConstantPool(object):
     
 
     def __init__(self):
-        self.consts = []
+        self.consts = tuple()
 
 
 
@@ -230,7 +230,7 @@ class JavaConstantPool(object):
 
         t,v = self.consts[index]
         if not t:
-            return None,None
+            return (None,None)
         else:
             return _pretty_const_type_val(t,v)
 
@@ -351,9 +351,9 @@ class JavaClassInfo(object):
         self.access_flags = 0
         self.this_ref = 0
         self.super_ref = 0
-        self.interfaces = None
-        self.fields = None
-        self.methods = None
+        self.interfaces = tuple()
+        self.fields = tuple()
+        self.methods = tuple()
 
         self._provides = None
         self._provides_private = None
@@ -737,7 +737,7 @@ class JavaClassInfo(object):
 
 
 
-    def get_provides(self, ignored=[], private=False):
+    def get_provides(self, ignored=tuple(), private=False):
         from dirutils import fnmatches
 
         if private:
@@ -755,7 +755,7 @@ class JavaClassInfo(object):
 
 
 
-    def get_requires(self, ignored=[]):
+    def get_requires(self, ignored=tuple()):
         from dirutils import fnmatches
 
         if self._requires is None:
@@ -952,7 +952,7 @@ class JavaMemberInfo(object):
         with Unpacker(buff) as up:
             excps = up.unpack_array(">H")
 
-        return tuple([self.deref_const(e[0]) for e in excps])
+        return tuple(self.deref_const(e[0]) for e in excps)
 
 
 
@@ -1168,7 +1168,7 @@ class JavaCodeInfo(object):
         self.max_stack = 0
         self.max_locals = 0
         self.code = None
-        self.exceptions = None
+        self.exceptions = tuple()
 
 
 
