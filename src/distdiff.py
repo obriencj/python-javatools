@@ -145,9 +145,14 @@ class DistTextChange(DistContentChange):
 
 
 
-class DistManifestChange(DistContentChange):
+class DistManifestChange(SuperChange, DistContentChange):
     label = "Distributed Manifest"
     
+
+    def __init__(self, ldata, rdata, entry, change=True):
+        SuperChange.__init__(self, ldata, rdata)
+        DistContentChange.__init__(self, ldata, rdata, entry, change)
+
 
     def collect_impl(self):
         from manifest import Manifest, ManifestChange

@@ -293,29 +293,40 @@ class CodeConstantsChange(GenericChange):
     label = "Code constants"
 
 
+    def __init__(self, l, r):
+        GenericChange.__init__(self, l, r)
+        self.offsets = None
+
+
     def fn_pretty(self, c):
         import opcodes
         
+        if not self.offsets:
+            return None
+
         pr = list()
+
         for offset,code,args in c.disassemble():
-            if opcodes.has_const_arg(code):
+            if offset in self.offsets and opcodes.has_const_arg(code):
                 name = opcodes.get_opname_by_code(code)
                 data = c.cpool.pretty_deref_const(args[0])
-                pr.append([offset, name, data])
+                pr.append((offset, name, data))
                 
         return pr
 
 
     def check_impl(self):
         import opcodes
+        from itertools import izip
         
         left,right = self.ldata, self.rdata
+        offsets = list()
 
         if len(left.code) != len(right.code):
             # code body change, can't determine constants
             return True, None
         
-        for l,r in zip(left.disassemble(), right.disassemble()):
+        for l,r in izip(left.disassemble(), right.disassemble()):
             if not ((l[0] == r[0]) and (l[1] == r[1])):
                 # code body change, can't determine constants
                 return True, None
@@ -327,9 +338,10 @@ class CodeConstantsChange(GenericChange):
                 rargs[0] = right.cpool.deref_const(rargs[0])
 
             if largs != rargs:
-                return True, None
+                offsets.append(l[0])
 
-        return False, None
+        self.offsets = offsets
+        return bool(self.offsets), None
         
 
 
@@ -353,6 +365,8 @@ class CodeBodyChange(GenericChange):
     
 
     def check_impl(self):
+        from itertools import izip
+
         left,right = self.ldata,self.rdata
                 
         if len(left.code) != len(right.code):
@@ -360,7 +374,7 @@ class CodeBodyChange(GenericChange):
                    (len(left.code), len(right.code))
             return True, desc
 
-        for l,r in zip(left.disassemble(), right.disassemble()):
+        for l,r in izip(left.disassemble(), right.disassemble()):
             if not ((l[0] == r[0]) and (l[1] == r[1])):
                 return True, None
 
