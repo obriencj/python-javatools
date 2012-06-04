@@ -279,7 +279,7 @@ class JavaConstantPool(object):
 
 
 
-class JavaAttributes(object):
+class JavaAttributes(dict):
 
     """ attributes table, as used in class, member, and code
     structures. Requires access to a JavaConstantPool instance for
@@ -287,10 +287,8 @@ class JavaAttributes(object):
 
 
     def __init__(self, cpool):
-        self.attributes = None
-        self.attrmap = None
+        dict.__init__(self)
         self.cpool = cpool
-
 
 
     def unpack(self, unpacker):
@@ -300,41 +298,21 @@ class JavaAttributes(object):
 
         #debug("unpacking attributes")
 
-        (count,) = unpacker.unpack(">H")
-        items = []
+        # bound method for dereferencing constants
+        cval = self.cpool.deref_const
 
+        (count,) = unpacker.unpack(">H")
         for i in xrange(0, count):
             #debug("unpacking attribute %i of %i" % (i+1, count))
 
             (name, size) = unpacker.unpack(">HI")
-
             #debug("attribute #%s, %i bytes" % (name, size))
-            data = unpacker.read(size)
 
-            items.append( (name, data) )
-
-        self.attributes = tuple(items)
-
-
-
-    def as_map(self):
-
-        """ dereferences the attr keys to their constant string values
-        and returns a dictionary of attr names to value buffers """
-
-        if self.attributes is None:
-            raise Exception("attempt to read from JavaAttributes that haven't"
-                            " been unpacked yet.")
-
-        if self.attrmap is None:
-            cval = self.cpool.deref_const
-            self.attrmap = dict((cval(i),v) for (i,v) in self.attributes)
-        return self.attrmap
-
+            self[cval(name)] = unpacker.read(size)
 
 
     def get_attribute(self, name):
-        return self.as_map().get(name)
+        return self.get(name, None)
 
 
 
