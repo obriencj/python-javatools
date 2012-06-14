@@ -1017,7 +1017,6 @@ class JavaMemberInfo(object):
         f = " ".join(self.pretty_access_flags())
         p = self.pretty_type()
         n = self.get_name()
-        a = ",".join(self.pretty_arg_types())
         t = ",".join(self.pretty_exceptions())
         
         if n == "<init>":
@@ -1030,9 +1029,9 @@ class JavaMemberInfo(object):
             # V for constructors
             p = None
 
-        if a:
+        if self.is_method:
             # stick the name and args together so there's no space
-            n = "%s(%s)" % (n, a)
+            n = "%s(%s)" % (n, ",".join(self.pretty_arg_types()))
 
         if t:
             # assemble any throws as necessary
@@ -1307,6 +1306,10 @@ class JavaExceptionInfo(object):
             return "Class "+ct
         else:
             return "any"
+
+
+    def info(self):
+        return self.__cmp_tuple()
 
 
     def __cmp_tuple(self):

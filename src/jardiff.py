@@ -341,9 +341,7 @@ class JarContentsReport(JarContentsChange):
         for c in JarContentsChange.collect_impl(self):
             if isinstance(c, JarClassChange):
                 if c.is_change():
-                    a,b = split(c.entry)
-                    newbase = join(self.reporter.entry, a)
-                    nr = self.reporter.subreporter(newbase, b)
+                    nr = self.reporter.subreporter(c.entry, "classdiff")
                     c = JarClassReport(c.ldata, c.rdata, c.entry, nr)
             yield c
 
@@ -414,9 +412,11 @@ class JarReport(JarChange):
 
 
 def cli_jars_diff(parser, options, left, right):
-    from report import Reporter, JSONReportFormat, TextReportFormat
+    from report import Reporter
+    from report import JSONReportFormat, TextReportFormat
+    from report import CheetahReportFormat
 
-    reports = set(options.reports)
+    reports = set(getattr(options, "reports", tuple()))
     if reports:
         rdir = options.report_dir or "./"
         rpt = Reporter(rdir, "jardiff", options)
@@ -426,6 +426,8 @@ def cli_jars_diff(parser, options, left, right):
                 rpt.add_report_format(JSONReportFormat())
             elif fmt in ("txt", "text"):
                 rpt.add_report_format(TextReportFormat())
+            elif fmt in ("htm", "html"):
+                rpt.add_report_format(CheetahReportFormat())
             else:
                 parser.error("unknown report format: %s" % fmt)
 
@@ -486,12 +488,17 @@ def jardiff_optgroup(parser):
 def create_optparser():
     from optparse import OptionParser
     from classdiff import general_optgroup, classdiff_optgroup
+    import report
 
     parser = OptionParser(usage="%prod [OPTIONS] OLD_JAR NEW_JAR")
     
     parser.add_option_group(general_optgroup(parser))
     parser.add_option_group(jardiff_optgroup(parser))
     parser.add_option_group(classdiff_optgroup(parser))
+
+    parser.add_option_group(report.general_report_optgroup(parser))
+    parser.add_option_group(report.json_report_optgroup(parser))
+    parser.add_option_group(report.html_report_optgroup(parser))
 
     return parser
 

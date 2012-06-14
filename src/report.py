@@ -89,14 +89,46 @@ class ReportFormat():
 
 
 
+def _opt_cb_report(opt, opt_str, value, parser):
+    options = parser.values
+    
+    if not hasattr(options, "reports"):
+        options.reports = list()
+
+    if "," in value:
+        options.reports.extend(v for v in value.split(",") if v)
+    else:
+        options.reports.append(value)
+
+
+
+def general_report_optgroup(parser):
+    from optparse import OptionGroup
+
+    g = OptionGroup(parser, "Reporting Options")
+
+    g.add_option("--report-dir", action="store", default=None)
+
+    g.add_option("--report", action="callback", type="string",
+                 help="comma-separated list of report formats",
+                 callback=_opt_cb_report)
+
+    return g
+
+
+
 class JSONReportFormat(ReportFormat):
 
+    """ renders a Change and all of its children to a JSON object. Can
+    use options from the jon_report_optgroup option group """
     
     extension = ".json"
 
 
     def run_impl(self, change, out, options):
         from json import dump
+
+        indent = getattr(options, "json_indent", 2)
 
         data = {
             "runtime_options": options.__dict__,
@@ -108,10 +140,21 @@ class JSONReportFormat(ReportFormat):
 
         #print data
         try:
-            dump(data, out, sort_keys=True, indent=2, cls=cls)
+            dump(data, out, sort_keys=True, indent=indent, cls=cls)
         except TypeError, te:
             print data
             raise(te)
+
+
+
+def json_report_optgroup(parser):
+    from optparse import OptionGroup
+
+    g = OptionGroup(parser, "JON Report Options")
+
+    g.add_option("--json-indent", action="store", default=2)
+
+    return g
 
 
 
@@ -119,7 +162,7 @@ from json import JSONEncoder
 class JSONChangeEncoder(JSONEncoder):
 
     """ A specialty JSONEncoder which knows how to represent Change
-    instances """
+    instances (or anything with a simplify method) """
 
     def __init__(self, options, *a,**k):
         JSONEncoder.__init__(self, *a, **k)
@@ -129,9 +172,12 @@ class JSONChangeEncoder(JSONEncoder):
     def default(self, o):
         from change import Change
 
-        if isinstance(o, Change):
+        # if there is a simplify method, call it to convert the object
+        # into a simplified dict
+        if hasattr(o, "simplify"):
             return o.simplify(self.options)
 
+        # handle sequences sanely
         try:
             i = iter(o)
         except TypeError, te:
@@ -145,7 +191,8 @@ class JSONChangeEncoder(JSONEncoder):
 
 class TextReportFormat(ReportFormat):
 
-    
+    """ Renders the change as indented text """
+
     extension = ".text"
 
 
@@ -190,6 +237,129 @@ def _indent(stream, indent, *msgs):
     for x in msgs:
         stream.write(x.encode("ascii", errors="backslashreplace"))
     stream.write("\n")
+
+
+
+class CheetahReportFormat(ReportFormat):
+
+    """ HTML output for a Change """
+    
+    extension = ".html"
+
+
+    def run_impl(self, change, out, options):
+        trans = CheetahStreamTransaction(out)
+
+        template_class = resolve_cheetah_template(type(change))
+
+        template = template_class()
+        template.transaction = trans
+        template.change = change
+        template.options = options
+
+        # this lets us call render_change from within the template on
+        # a change instance to chain to another template
+        template.render_change = lambda c: self.run_impl(c, out, options)
+
+        template.respond()
+
+
+
+class CheetahStreamTransaction(object):
+
+    """ Transaction-like object for cheetah template instances which
+    causes writes to go directly to a stream """
+
+    def __init__(self, stream):
+        self.stream = stream
+
+    def response(self):
+        return self.stream
+
+
+
+__template_map = None
+
+def cheetah_template_map():
+
+    """ a map of change types to cheetah template types. Used in
+    resolve_cheetah_template """
+
+    import javaclass
+    import javaclass.cheetah
+
+    global __template_map
+
+    if __template_map is not None:
+        return __template_map
+
+    t = dict()
+
+    for template_type in javaclass.cheetah.get_templates():
+        if not "_" in template_type.__name__:
+            # we use the _ to denote package and class names. So any
+            # template without a _ in the name isn't meant to be
+            # matched to a change type.
+            continue
+
+        # get the package and change class names based off of the
+        # template class name
+        tn = template_type.__name__
+        pn,cn = tn.split("_", 1)
+
+        # get the package from javaclass
+        pk = getattr(javaclass, pn, None)
+        if pk is None:
+            __import__("javaclass."+pn)
+            pk = getattr(javaclass, pn, None)
+
+        # get the class from the package
+        cc = getattr(pk, cn, None)
+        if cc is None:
+            raise Exception("no change class for template %s" % tn)
+
+        # associate a Change class with a Template class
+        t[cc] = template_type
+
+    __template_map = t
+    return t
+
+
+
+def resolve_cheetah_template(change_type):
+
+    """ return the appropriate cheetah template class for the given
+    change type, using the method-resolution-order of the change type.
+    """
+
+    tm = cheetah_template_map()
+
+    # follow the built-in MRO for a type to find the matching
+    # cheetah template
+    for t in change_type.mro():
+        tmpl = tm.get(t)
+        if tmpl:
+            return tmpl
+    else:
+        # this should never happen, since we'll provide a
+        # change_Change template, and all of the changes should be
+        # inheriting from that type
+        raise Exception("No template for class %s" % change_type.__name__)
+
+
+
+def html_report_optgroup(parser):
+    from optparse import OptionGroup
+
+    g = OptionGroup(parser, "HTML Report Options")
+
+    g.add_option("--html-stylesheet", action="append",
+                 dest="html_stylesheets", default=list())
+
+    g.add_option("--html-javascript", action="append", 
+                 dest="html_javascripts", default=list())
+
+    return g
 
 
 

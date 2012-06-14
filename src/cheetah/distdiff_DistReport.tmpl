@@ -1,0 +1,74 @@
+#extends report
+
+
+## render a collection of changes that are all of the same type
+#def render_by_class(changes, label)
+#if changes
+
+<div class="change-category">
+<h2>$label</h2>
+
+<%
+chm = dict((ch.entry,ch) for ch in changes)
+%>
+
+#for entry in sorted(chm.keys())
+$render_change(chm[entry])
+#end for
+
+</div>
+#end if
+#end def
+
+
+## the overridden details block
+#block details
+<!-- begin distdiff_DistReport.details -->
+
+#import javaclass.distdiff
+#import javaclass.change
+
+## collect the changes into buckets by type
+<%
+changemap = javaclass.change.collect_by_type(self.change.collect())
+changeorder = (
+    javaclass.distdiff.DistClassAdded,
+    javaclass.distdiff.DistClassRemoved,
+    javaclass.distdiff.DistClassChange,
+    javaclass.distdiff.DistJarAdded,
+    javaclass.distdiff.DistJarRemoved,
+    javaclass.distdiff.DistJarChange,
+    javaclass.distdiff.DistContentAdded,
+    javaclass.distdiff.DistContentRemoved,
+    javaclass.distdiff.DistContentChange,
+)
+
+## gather SquashedChange instances under a more appropriate heading
+for sq in changemap.pop(javaclass.change.SquashedChange, ()):
+    oc = sq.origclass
+    if oc is javaclass.distdiff.DistJarReport:
+        oc = javaclass.distdiff.DistJarChange
+    elif oc is javaclass.distdiff.DistClassReport:
+        oc = javaclass.distdiff.DistClassChange
+    sqm = changemap.get(oc, None)
+    if sqm is None:
+	changemap[oc] = sqm = list()
+    sqm.append(sq)
+%>
+
+## print the above types gathered in order
+#for ct in changeorder
+$render_by_class(changemap.pop(ct, ()), ct.label)
+#end for
+
+## print the remaining types
+#for ct,changes in changemap.items()
+$render_by_class(changes, ct.label)
+#end for
+
+<!-- end distdiff_DistReport.details -->
+#end block
+
+
+##
+## The end.

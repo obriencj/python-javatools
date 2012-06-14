@@ -24,6 +24,30 @@ license: LGPL
 
 
 
+def collect_by_type(objs):
+    cache = {}
+    for val in objs:
+        key = val.__class__
+        tl = cache.get(key, None)
+        if not tl:
+            tl = list()
+            cache[key] = tl
+        tl.append(val)
+    return cache
+
+
+
+def iterate_by_type(objs, *typelist):
+    cache = collect_by_type(objs)
+    for t in typelist:
+        for val in cache.pop(t, tuple()):
+            yield val
+    for tl in cache.values():
+        for val in tl:
+            yield val
+
+
+
 def yield_sorted_by_type(*typelist):
     """ a useful decorator for the collect_impl method of SuperChange
     subclasses. Caches the yielded changes, and re-emits them
@@ -35,27 +59,8 @@ def yield_sorted_by_type(*typelist):
     taken into consideration for grouping. """
 
     def decorate(fun):
-        cache = {}
-
         def decorated(*args,**kwds):
-            # gather the emitted values by type
-            for val in fun(*args, **kwds):
-                key = val.__class__
-                tl = cache.get(key, None)
-                if not tl:
-                    tl = list()
-                    cache[key] = tl
-                tl.append(val)
-
-            # emit what we've gethered
-            for t in typelist:
-                for val in cache.pop(t, ()):
-                    yield val
-
-            # emit the leftovers
-            for tl in cache.values():
-                for val in tl:
-                    yield val
+            return iterate_by_type(fun(*args, **kwds), *typelist)
 
         decorated.__doc__ = fun.__doc__
         decorated.func_name = fun.func_name

@@ -382,16 +382,14 @@ class DistReport(DistChange):
 
 
     def collect_impl(self):
-        from os.path import split
-
         for c in DistChange.collect_impl(self):
             if isinstance(c, DistJarChange):
                 if c.is_change():
-                    nr = self.reporter.subreporter(*split(c.entry))
+                    nr = self.reporter.subreporter(c.entry, "jardiff")
                     c = DistJarReport(c.ldata, c.rdata, c.entry, nr)
             elif isinstance(c, DistClassChange):
                 if c.is_change():
-                    nr = self.reporter.subreporter(*split(c.entry))
+                    nr = self.reporter.subreporter(c.entry, "classdiff")
                     c = DistClassReport(c.ldata, c.rdata, c.entry, nr)
             yield c
 
@@ -437,10 +435,12 @@ class DistReport(DistChange):
 
 
 def cli_dist_diff(parser, options, left, right):
-    from report import Reporter, JSONReportFormat, TextReportFormat
+    from report import Reporter
+    from report import JSONReportFormat, TextReportFormat
+    from report import CheetahReportFormat
     from sys import stdout
 
-    reports = set(options.reports)
+    reports = set(getattr(options, "reports", tuple()))
     if reports:
         rdir = options.report_dir or "./"
         rpt = Reporter(rdir, "distdiff", options)
@@ -450,6 +450,8 @@ def cli_dist_diff(parser, options, left, right):
                 rpt.add_report_format(JSONReportFormat())
             elif fmt in ("txt", "text"):
                 rpt.add_report_format(TextReportFormat())
+            elif fmt in ("htm", "html"):
+                rpt.add_report_format(CheetahReportFormat())
             else:
                 parser.error("unknown report format: %s" % fmt)
 
@@ -509,6 +511,7 @@ def create_optparser():
     from optparse import OptionParser
     from jardiff import jardiff_optgroup
     from classdiff import classdiff_optgroup, general_optgroup
+    import report
     
     parser = OptionParser(usage="%prod [OPTIONS] OLD_DIST NEW_DIST")
 
@@ -518,7 +521,11 @@ def create_optparser():
     parser.add_option_group(distdiff_optgroup(parser))
     parser.add_option_group(jardiff_optgroup(parser))
     parser.add_option_group(classdiff_optgroup(parser))
-    
+
+    parser.add_option_group(report.general_report_optgroup(parser))
+    parser.add_option_group(report.json_report_optgroup(parser))
+    parser.add_option_group(report.html_report_optgroup(parser))
+
     return parser
 
 

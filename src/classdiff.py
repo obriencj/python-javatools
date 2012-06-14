@@ -270,7 +270,11 @@ class CodeExceptionChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        return repr(c.exceptions)
+        a = list()
+        for e in c.exceptions:
+            p = (e.start_pc, e.end_pc, e.handler_pc, e.pretty_catch_type())
+            a.append(p)
+        return repr(a)
 
 
 
@@ -449,7 +453,7 @@ class MethodAbstractChange(GenericChange):
 
 
     def fn_pretty_desc(self, c):
-        if fn_data(c):
+        if self.fn_data(c):
             return "Method is abstract"
         else:
             return "Method is concrete"
@@ -694,9 +698,11 @@ class JavaClassReport(JavaClassChange):
 
 
 def cli_classes_diff(parser, options, left, right):
-    from report import Reporter, JSONReportFormat, TextReportFormat
+    from report import Reporter
+    from report import JSONReportFormat, TextReportFormat
+    from report import CheetahReportFormat
 
-    reports = set(options.reports)
+    reports = set(getattr(options, "reports", tuple()))
     if reports:
         rdir = options.report_dir or "./"
         rpt = Reporter(rdir, "classdiff", options)
@@ -706,6 +712,8 @@ def cli_classes_diff(parser, options, left, right):
                 rpt.add_report_format(JSONReportFormat())
             elif fmt in ("txt", "text"):
                 rpt.add_report_format(TextReportFormat())
+            elif fmt in ("htm", "html"):
+                rpt.add_report_format(CheetahReportFormat())
             else:
                 parser.error("unknown report format: %s" % fmt)
 
@@ -843,21 +851,22 @@ def general_optgroup(parser):
                  help="comma-separated list of ignores",
                  callback=_opt_cb_ignore)
 
-    parser.add_option("--report-dir", action="store", default=None)
-    parser.add_option("--report", action="append",
-                      dest="reports", default=list())
-
     return g
 
 
 
 def create_optparser():
     from optparse import OptionParser
+    import report
 
     parser = OptionParser("%prog [OPTIONS] OLD_CLASS NEW_CLASS")
 
     parser.add_option_group(general_optgroup(parser))
     parser.add_option_group(classdiff_optgroup(parser))
+
+    parser.add_option_group(report.general_report_optgroup(parser))
+    parser.add_option_group(report.jon_report_optgroup(parser))
+    parser.add_option_group(report.html_report_optgroup(parser))
 
     return parser
     

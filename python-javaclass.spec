@@ -10,7 +10,10 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: noarch
 
 Requires: python2 >= 2.6
+Requires: python-cheetah
+
 BuildRequires: python2-devel
+BuildRequires: python-cheetah
 BuildRequires: coreutils
 
 
@@ -53,6 +56,7 @@ rm -rf %{buildroot}
   list
 - rework options into groups
 - fix for modified-utf8 in class constant pools
+- added multiple output formats for reports (text, json, html)
 
 * Sun May 6 2012 Christopher O'Brien <obriencj@gmail.com> - 1.1-1
 - dependency features, license files

@@ -1,0 +1,14 @@
+#extends change_Change
+
+
+#block details
+<div class="subchanges">
+#for $child in $change.collect()
+$render_change($child)
+#end for
+</div>
+#end block
+
+
+##
+## The end.

@@ -1,0 +1,51 @@
+#extends change_Change
+#implements respond
+
+
+<%
+ch = self.change
+
+cl = list()
+cl.append(type(ch).__name__)
+cl.append(ch.origclass.__name__)
+
+if ch.is_change():
+    cl.append("changed")
+    if ch.is_ignored(self.options):
+        cl.append("ignored")
+else:
+    cl.append("unchanged")
+
+cl = " ".join(cl)
+%>
+
+<div class="<%= cl %>">
+
+
+#block description
+#from xml.sax.saxutils import escape
+$escape($change.entry)
+#end block
+
+
+#block details
+<%
+from javaclass.distdiff import DistJarReport, DistClassReport
+from javaclass.jardiff import JarClassReport
+
+oc = self.change.origclass
+if oc is DistJarReport:
+    uri = self.change.entry + "/jardiff.html"
+elif oc in (DistClassReport, JarClassReport):
+    uri = self.change.entry + "/classdiff.html"
+%>
+
+<div class="moreinfo"><a href="<%= uri %>">more info...</a></div>
+#end block
+
+
+</div>
+
+
+##
+## The end.
