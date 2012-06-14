@@ -48,7 +48,7 @@ rm -rf %{buildroot}
 
 %changelog
 
-* Tue May 22 2012 Christopher O'Brien <obriencj@gmail.com> - 1.2-1
+* Thu Jun 14 2012 Christopher O'Brien <obriencj@gmail.com> - 1.2-1
 - require python 2.6 and later rather than trying to fight with
   library alternatives
 - added classes to compartmentalize distinfo and jarinfo data
@@ -57,6 +57,8 @@ rm -rf %{buildroot}
 - rework options into groups
 - fix for modified-utf8 in class constant pools
 - added multiple output formats for reports (text, json, html)
+- the html output is currently simplified, and will be expanded upon
+  later
 
 * Sun May 6 2012 Christopher O'Brien <obriencj@gmail.com> - 1.1-1
 - dependency features, license files
