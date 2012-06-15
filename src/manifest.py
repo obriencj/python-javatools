@@ -17,6 +17,7 @@
 """
 Module for reading and writing MANIFEST.MF files.
 
+http://docs.oracle.com/javase/1.5.0/docs/guide/jar/index.html
 http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#JAR%20Manifest
 
 author: Christopher O'Brien  <obriencj@gmail.com>
