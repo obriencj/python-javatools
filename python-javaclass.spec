@@ -1,7 +1,7 @@
 Summary: Tools for inspecting and comparing binary Java class files
 Name: python-javaclass
 Version: 1.3
-Release: 1
+Release: 0
 License: LGPL
 Group: Application/System
 URL: https://github.com/obriencj/python-javaclass/

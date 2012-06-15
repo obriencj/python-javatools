@@ -41,9 +41,9 @@ If you'd prefer to build an RPM, see the wiki entry for [Building as an RPM](//g
 
 ## References
 
-Oracle's Java Virtual Machine Specification [Chapter 4 "The class File Format"](http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html)
+* Oracle's Java Virtual Machine Specification [Chapter 4 "The class File Format"](http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html)
 
-[Java Archive (JAR) Files](http://docs.oracle.com/javase/1.5.0/docs/guide/jar/index.html)
+* [Java Archive (JAR) Files](http://docs.oracle.com/javase/1.5.0/docs/guide/jar/index.html)
 
 
 ## Contact
