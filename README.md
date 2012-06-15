@@ -8,6 +8,12 @@ It can do deep checking of classes to perform comparisons of
 functionality, and output reports in multiple formats.
 
 
+## Requirements
+
+* [Python](http://python.org) 2.6 or later (no support for Python 3)
+* [Cheetah](http://www.cheetahtemplate.org/)
+
+
 ## Install
 
 This module uses distutils, so simply run `python setup.py install`
