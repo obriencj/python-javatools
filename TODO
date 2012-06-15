@@ -1,14 +1,12 @@
-- move the pretty_* methods out of __init__.py and into classinfo.py or
-  some-such.
+- standardize on use of pretty_* named functions and methods
 
 - perhaps diff-like opcode output for method code? That would be a bit
   of an undertaking; would it be at all worth it?
 
-- make jardiff understand META-INF magic files
-
 - a class or class-member attribute discovery script
 
-- switch to using logging instead of print statements for output (bad idea?)
+- switch to using logging instead of print statements for CLI output
+  (bad idea?)
 
 - fill in more docstrings with meaningful explanations
 
@@ -16,19 +14,22 @@
   (possibly recursively) from discoverable locations (JAVA_HOME,
   CLASSPATH, etc) and output missing deps
 
-- write a jarsign verifier, and add signature information to jarinfo
+- write a jarsign verifier, and add signature information to jarinfo.
 
-- html/js wrapper for *diff tools using the --json outputs. Maybe
-  using jquery? Some kind of nice human readable and interactive
-  report display
+- make manifest --verify actually do something
 
-- classinfo --json support
+- full classinfo --json support
 
 - move JarChange to use a JarInfo instance rather than path name
 
 - move DistChange to use a DistInfo instance rather than path name
 
+- flesh out the cheetah templates for classdiff reports
+
 - pomdiff? maven-repo-diff?
 
+- [silly] output class files from classinfo data
+
+- [silly] implement jar signing capabilities
 
 #

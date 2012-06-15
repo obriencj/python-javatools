@@ -115,7 +115,7 @@ class build_py(_build_py):
 
 
 setup(name = "javaclass",
-      version = "1.2",
+      version = "1.3",
       
       packages = ["javaclass",
                   "javaclass.cheetah"],

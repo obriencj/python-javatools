@@ -1,6 +1,6 @@
 Summary: Tools for inspecting and comparing binary Java class files
 Name: python-javaclass
-Version: 1.2
+Version: 1.3
 Release: 1
 License: LGPL
 Group: Application/System
@@ -41,12 +41,15 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc LICENSE README TODO
+%doc LICENSE README.md TODO
 %{python2_sitelib}/*
 %{_bindir}/*
 
 
 %changelog
+
+* Fri Jun 14 2012 Christopher O'Brien <obriencj@gmail.com> - 1.3-1
+- expand on cheetah html reporting
 
 * Thu Jun 14 2012 Christopher O'Brien <obriencj@gmail.com> - 1.2-1
 - require python 2.6 and later rather than trying to fight with
