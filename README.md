@@ -12,7 +12,7 @@ functionality, and output reports in multiple formats.
 
 This module uses distutils, so simply run `python setup.py install`
 
-If you'd prefer to build an RPM, see the wiki entry for [Building as an RPM](wiki/Building-as-an-RPM)
+If you'd prefer to build an RPM, see the wiki entry for [Building as an RPM](//github.com/obriencj/python-javaclass/wiki/Building-as-an-RPM)
 
 
 ## Scripts Installed
