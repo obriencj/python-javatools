@@ -1,1 +1,52 @@
 #extends change_Change
+
+
+#def codeline(offset,code,args)
+#from javaclass.opcodes import get_opname_by_code
+<tr>
+<td><%= offset %></td>
+<td><%= get_opname_by_code(code) %></td>
+<td><%= ", ".join(map(str, args)) %></td>
+</tr>
+#end def
+
+
+#def render_disassembly(caption, dis)
+<table>
+
+<caption><%= caption %></caption>
+<thead>
+<tr>
+<th>Index</th>
+<th>Opcode</th>
+<th>Args</th>
+</tr>
+</thead>
+
+#for d in $dis
+$codeline(*d)
+#end for
+</table>
+#end def
+
+
+#block details
+
+<div class="vertical ldata">
+$render_disassembly("Original", $change.ldata.disassemble())
+</div>
+
+<div class="vertical rdata">
+#if $change.is_change()
+#set caption = "Changed"
+#else
+#set caption = "Unchanged"
+#end if
+$render_disassembly($caption, $change.rdata.disassemble())
+</div>
+
+#end block
+
+
+##
+## The end.

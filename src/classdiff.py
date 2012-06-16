@@ -364,7 +364,7 @@ class CodeBodyChange(GenericChange):
         for offset,code,args in c.disassemble():
             name = opcodes.get_opname_by_code(code)
             pr.append((offset, name, args))
-                
+            
         return pr
     
 
