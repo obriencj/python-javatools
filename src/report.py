@@ -30,6 +30,7 @@ class Reporter():
         self.basedir = basedir
         self.entry = entry
         self.options = options
+        self.breadcrumbs = tuple()
         self.formats = list()
 
 
@@ -38,20 +39,33 @@ class Reporter():
 
 
     def subreporter(self, subpath, entry):
-        from os.path import join
-        r = Reporter(join(self.basedir, subpath), entry, self.options)
+        from os.path import join, relpath
+
+        newbase = join(self.basedir, subpath)
+        r = Reporter(newbase, entry, self.options)
+
+        bc = lambda p: (relpath(p[0], newbase), p[1])
+        r.breadcrumbs = map(bc, self.breadcrumbs)
+        r.breadcrumbs.append((relpath(self.basedir, newbase), self.entry))
+
         r.formats = list(self.formats)
         return r
 
 
     def run(self, change, out=None):
+
+        basedir = self.basedir
+        entry = self.entry
+        options = self.options
+        crumbs= self.breadcrumbs
+
         if out:
             for r in self.formats:
-                r.run_impl(change, out, self.options)
+                r.run_impl(change, out, options, crumbs)
 
         else:
             for r in self.formats:
-                r.run(change, self.basedir, self.entry, self.options)
+                r.run(change, basedir, entry, options, crumbs)
 
 
 
@@ -61,11 +75,11 @@ class ReportFormat():
     extension = ".report"
 
 
-    def run_impl(self, change, out, options):
+    def run_impl(self, change, out, options, breadcrumbs=tuple()):
         pass
 
 
-    def run(self, change, basedir, entry, options):
+    def run(self, change, basedir, entry, options, breadcrumbs=tuple()):
         from os.path import exists, join
         from os import makedirs
         from sys import stdout
@@ -79,7 +93,7 @@ class ReportFormat():
 
             fn = join(basedir, entry + self.extension)
             with open(fn, "wt") as out:
-                self.run_impl(change, out, options)
+                self.run_impl(change, out, options, breadcrumbs)
 
             return fn
 
@@ -125,7 +139,7 @@ class JSONReportFormat(ReportFormat):
     extension = ".json"
 
 
-    def run_impl(self, change, out, options):
+    def run_impl(self, change, out, options, breadcrumbs=tuple()):
         from json import dump
 
         indent = getattr(options, "json_indent", 2)
@@ -196,7 +210,7 @@ class TextReportFormat(ReportFormat):
     extension = ".text"
 
 
-    def run_impl(self, change, out, options):
+    def run_impl(self, change, out, options, breadcrumbs=tuple()):
         _indent_change(change, out, options, 0)
 
 
@@ -247,7 +261,7 @@ class CheetahReportFormat(ReportFormat):
     extension = ".html"
 
 
-    def run_impl(self, change, out, options):
+    def run_impl(self, change, out, options, breadcrumbs=tuple()):
         trans = CheetahStreamTransaction(out)
 
         template_class = resolve_cheetah_template(type(change))
@@ -256,10 +270,12 @@ class CheetahReportFormat(ReportFormat):
         template.transaction = trans
         template.change = change
         template.options = options
+        template.breadcrumbs = breadcrumbs
 
         # this lets us call render_change from within the template on
-        # a change instance to chain to another template
-        template.render_change = lambda c: self.run_impl(c, out, options)
+        # a change instance to chain to another template (eg, for
+        # sub-changes)
+        template.render_change = lambda c: self.run_impl(c, out, options, breadcrumbs)
 
         template.respond()
 
@@ -358,6 +374,9 @@ def html_report_optgroup(parser):
 
     g.add_option("--html-javascript", action="append", 
                  dest="html_javascripts", default=list())
+
+    g.add_option("--html-copy-data", action="store_true")
+    g.add_option("--html-data-dir", action="store", default=None)
 
     return g
 

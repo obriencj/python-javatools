@@ -5,12 +5,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
 
+#def title
+$change.__class__.__name__
+#end def
+
+
 <head>
 
 
 #block head_title
 <!-- entering report.head_title -->
-<title>$change.__class__.__name__</title>
+<title>$title</title>
 <!-- exiting report.head_title -->
 #end block
 
@@ -70,17 +75,48 @@ div {
 <!-- entering report.body -->
 <body>
 
-<h1>$change.__class__.__name__</h1>
+
+#block body_heading
+<div id="report-heading">
+
+
+#block body_breadcrumb
+#from os.path import join
+<ul class="breadcrumbs">
+#for p,t in $breadcrumbs
+<li><a href="<%= join(p,t+".html") %>"><%= t %></a></li>
+#end for
+<li>$title</li>
+</ul>
+</ul>
+#end block
+
+
+<h1>$title</h1>
+</div>
+#end block
+
+
+#block into
+<div id="report-intro">
+</div>
+#end block
 
 
 #block details
 <!-- entering report.details -->
-<div id="details">
+<div id="report-details">
 #for $child in $change.collect()
 $render_change($child)
 #end for
 </div>
 <!-- exiting report.details -->
+#end block
+
+
+#block outro
+<div id="report-outro">
+</div>
 #end block
 
 

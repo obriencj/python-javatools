@@ -21,12 +21,13 @@ $render_change(chm[entry])
 ## the overridden details block
 #block details
 <!-- begin jardiff_JarContentsReport.details -->
+<div class="details">
 
-#import javaclass.jardiff
-#import javaclass.change
+<%
+import javaclass.jardiff
+import javaclass.change
 
 ## collect the changes into buckets by type
-<%
 changemap = javaclass.change.collect_by_type(self.change.collect())
 changeorder = (
     javaclass.jardiff.JarManifestChange,
@@ -62,6 +63,7 @@ $render_by_class(changemap.pop(ct, ()), ct.label)
 $render_by_class(changes, ct.label)
 #end for
 
+</div>
 <!-- end jardiff_JarContentsReport.details -->
 #end block
 

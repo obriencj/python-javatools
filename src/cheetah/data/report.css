@@ -1,0 +1,56 @@
+
+div {
+    clear: both;
+    margin: 0 0 0 1em;
+    padding: 0.2em 0;
+    font: 10pt sans;
+}
+
+.unchanged {
+    color: green;
+}
+
+.changed {
+    color: red;
+}
+
+.ignored {
+    color: orange;
+}
+
+.vertical {
+    clear: none;
+    float: left;
+}
+
+.ldata, .rdata {
+    width: auto;
+    min-width: 20em;
+    max-width: 40em;
+    padding-left: 2em;
+}
+
+.ldata table, .rdata table {
+    min-width: 20em;
+}
+
+.ldata td, .rdata td {
+    padding: 0.2em 1em;
+}
+
+td.const-value {
+    max-width: 24em;
+    word-wrap: break-word;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+td {
+    vertical-align: top;
+    border: thin solid grey;
+}
+
+
+/* The end. */

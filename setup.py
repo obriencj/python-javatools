@@ -123,8 +123,9 @@ setup(name = "javaclass",
       package_dir = {"javaclass": "src",
                      "javaclass.cheetah": "src/cheetah"},
       
-      #package_data = {"javaclass.cheetah": ["html/*.js",
-      #                                      "html/*.png"]},
+      package_data = {"javaclass.cheetah": ["data/*.css",
+                                            "data/*.js",
+                                            "data/*.png"]},
       
       scripts = ["scripts/classdiff",
                  "scripts/classinfo",

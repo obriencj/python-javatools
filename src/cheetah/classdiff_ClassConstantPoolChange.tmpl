@@ -1,23 +1,24 @@
 #extends change_Change
 
 
-#def render_disassembly(caption, dis)
-<table>
+#def render_constants(caption, consts)
+#from xml.sax.saxutils import escape
 
+<table>
 <caption><%= caption %></caption>
 <thead>
 <tr>
 <th>Index</th>
-<th>Opcode</th>
-<th>Args</th>
+<th>Type</th>
+<th>Value</th>
 </tr>
 </thead>
 
-#for offset,code,args in $dis
+#for i,t,v in consts
 <tr>
-<td><%= offset %></td>
-<td><%= code %></td>
-<td><%= ", ".join(map(str, args)) %></td>
+<td class="const-index"><%= i %></td>
+<td class="const-type"><%= t %></td>
+<td class="const-value"><%= escape(v) %></td>
 </tr>
 #end for
 
@@ -27,8 +28,9 @@
 
 #block details
 <div class="details">
+
 <div class="vertical ldata">
-$render_disassembly("Original", $change.pretty_ldata())
+$render_constants("Original", $change.pretty_ldata())
 </div>
 
 <div class="vertical rdata">
@@ -37,8 +39,9 @@ $render_disassembly("Original", $change.pretty_ldata())
 #else
 #set caption = "Unchanged"
 #end if
-$render_disassembly($caption, $change.pretty_rdata())
+$render_constants($caption, $change.pretty_rdata())
 </div>
+
 </div>
 #end block
 

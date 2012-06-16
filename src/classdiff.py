@@ -217,7 +217,7 @@ class ClassMembersChange(SuperChange):
 
 
     
-class CodeAbsoluteChange(GenericChange):
+class CodeAbsoluteLinesChange(GenericChange):
     label = "Absolute line numbers"
 
 
@@ -230,7 +230,7 @@ class CodeAbsoluteChange(GenericChange):
     
 
 
-class CodeRelativeChange(GenericChange):
+class CodeRelativeLinesChange(GenericChange):
     label = "Relative line numbers"
 
 
@@ -357,6 +357,10 @@ class CodeBodyChange(GenericChange):
     label = "Code body"
 
 
+    def fn_data(self, c):
+        return c.disassemble()
+
+
     def fn_pretty(self, c):
         import opcodes
         
@@ -477,8 +481,8 @@ class MethodCodeChange(SuperChange):
     label = "Method code"
 
 
-    change_types = (CodeAbsoluteChange,
-                    CodeRelativeChange,
+    change_types = (CodeAbsoluteLinesChange,
+                    CodeRelativeLinesChange,
                     CodeStackChange,
                     CodeLocalsChange,
                     CodeExceptionChange,

@@ -39,8 +39,9 @@ if oc is DistJarReport:
 elif oc in (DistClassReport, JarClassReport):
     uri = self.change.entry + "/classdiff.html"
 %>
-
-<div class="moreinfo"><a href="<%= uri %>">more info...</a></div>
+<div class="details">
+<a class="moreinfo" href="<%= uri %>">more info...</a>
+</div>
 #end block
 
 

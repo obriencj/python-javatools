@@ -1,23 +1,21 @@
 #extends change_Change
 
 
-#def render_disassembly(caption, dis)
+#def render_lnt(caption, lnt)
 <table>
 
 <caption><%= caption %></caption>
 <thead>
 <tr>
-<th>Index</th>
-<th>Opcode</th>
-<th>Args</th>
+<th>Start Index</th>
+<th>Line Number</th>
 </tr>
 </thead>
 
-#for offset,code,args in $dis
+#for offset,line in $lnt
 <tr>
 <td><%= offset %></td>
-<td><%= code %></td>
-<td><%= ", ".join(map(str, args)) %></td>
+<td><%= line %>
 </tr>
 #end for
 
@@ -25,10 +23,15 @@
 #end def
 
 
+#block description
+$self.change.label
+#end block
+
+
 #block details
 <div class="details">
 <div class="vertical ldata">
-$render_disassembly("Original", $change.pretty_ldata())
+$render_lnt("Original", $change.get_ldata())
 </div>
 
 <div class="vertical rdata">
@@ -37,7 +40,7 @@ $render_disassembly("Original", $change.pretty_ldata())
 #else
 #set caption = "Unchanged"
 #end if
-$render_disassembly($caption, $change.pretty_rdata())
+$render_lnt($caption, $change.get_rdata())
 </div>
 </div>
 #end block
