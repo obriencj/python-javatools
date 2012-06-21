@@ -238,7 +238,7 @@ def cli_jarinfo(options, info):
     if options.jar_requires:
         cli_jar_requires(options, info)
 
-    if options.classes:
+    if options.jar_classes:
         cli_jar_classes(options, info)
 
 
@@ -298,24 +298,24 @@ def cli(parser, options, rest):
 
 
 def jarinfo_optgroup(parser):
-    from optparser import OptionGroup
+    from optparse import OptionGroup
 
     g = OptionGroup(parser, "JAR Info Options")
     
-    p.add_option("--zip", action="store_true", default=False,
+    g.add_option("--zip", action="store_true", default=False,
                  help="print zip information")
 
-    p.add_option("--manifest", action="store_true", default=False,
+    g.add_option("--manifest", action="store_true", default=False,
                  help="print manifest information")
 
-    p.add_option("--jar-classes", action="store_true", default=False,
+    g.add_option("--jar-classes", action="store_true", default=False,
                  help="print information about contained classes")
 
-    p.add_option("--jar-provides", dest="jar_provides",
+    g.add_option("--jar-provides", dest="jar_provides",
                  action="store_true", default=False,
                  help="API provides information at the JAR level")
 
-    p.add_option("--jar-requires", dest="jar_requires",
+    g.add_option("--jar-requires", dest="jar_requires",
                  action="store_true", default=False,
                  help="API requires information at the JAR level")
 
@@ -324,7 +324,7 @@ def jarinfo_optgroup(parser):
 
 
 def create_optparser():
-    from optparser import OptionParser
+    from optparse import OptionParser
     from classinfo import classinfo_optgroup
 
     parser = OptionParser("%prog [OPTIONS] JARFILE")

@@ -269,7 +269,7 @@ def cli(parser, options, rest):
 
 
 def distinfo_optgroup(parser):
-    from optparser import OptionGroup
+    from optparse import OptionGroup
 
     g = OptionGroup(parser, "Distribution Info Options")
 
@@ -286,7 +286,7 @@ def distinfo_optgroup(parser):
 
 
 def create_optparser():
-    from optparser import OptionGroup
+    from optparse import OptionParser
     from jarinfo import jarinfo_optgroup
     from classinfo import classinfo_optgroup
     
