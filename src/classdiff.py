@@ -869,7 +869,7 @@ def create_optparser():
     parser.add_option_group(classdiff_optgroup(parser))
 
     parser.add_option_group(report.general_report_optgroup(parser))
-    parser.add_option_group(report.jon_report_optgroup(parser))
+    parser.add_option_group(report.json_report_optgroup(parser))
     parser.add_option_group(report.html_report_optgroup(parser))
 
     return parser

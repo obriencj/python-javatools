@@ -419,7 +419,6 @@ class DistReport(DistChange):
         return c, None
 
 
-
     def check(self):
         # do the actual checking
         DistChange.check(self)

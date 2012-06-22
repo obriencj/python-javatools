@@ -40,7 +40,7 @@ PROV_BY_CLASS = "class.provides"
 class JarInfo(object):
     
     def __init__(self, filename=None, zipfile=None):
-        if not (filename or zipinfo):
+        if not (filename or zipfile):
             raise TypeError("one of pathname or zipinfo must be specified")
 
         self.filename = filename

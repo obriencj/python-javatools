@@ -45,8 +45,9 @@ class Reporter():
         r = Reporter(newbase, entry, self.options)
 
         bc = lambda p: (relpath(p[0], newbase), p[1])
-        r.breadcrumbs = map(bc, self.breadcrumbs)
-        r.breadcrumbs.append((relpath(self.basedir, newbase), self.entry))
+        crumbs = map(bc, self.breadcrumbs)
+        crumbs.append((relpath(self.basedir, newbase), self.entry))
+        r.breadcrumbs = crumbs
 
         r.formats = list(self.formats)
         return r
@@ -184,6 +185,8 @@ class JSONChangeEncoder(JSONEncoder):
 
 
     def default(self, o):
+        #pylint: disable=E0202
+
         from change import Change
 
         # if there is a simplify method, call it to convert the object

@@ -59,6 +59,8 @@ class DistInfo(object):
 
     def _working_path(self):
         from os.path import isdir
+        from tempfile import mkdtemp
+        from ziputils import open_zip
 
         if self.tmpdir:
             return self.tmpdir
@@ -67,8 +69,9 @@ class DistInfo(object):
             return self.base_path
 
         else:
-            self.tmpdir = tmpdir()
-            zipexpand(self.base_path, self.tmpdir)
+            self.tmpdir = mkdtemp()
+            with open_zip(self.base_path, "r") as zf:
+                zf.extractall(path="self.tmpdir")
             return self.tmpdir
 
 
@@ -184,6 +187,8 @@ class DistInfo(object):
         """ if this was a zip'd distribution, any introspection
         may have resulted in opening or creating temporary files.
         Call close in order to clean up. """
+
+        from os import rmdir
 
         if self.tmpdir:
             rmdir(self.tmpdir)

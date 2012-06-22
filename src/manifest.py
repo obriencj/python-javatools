@@ -294,18 +294,6 @@ def parse_sections(data):
     
     if curr:
         yield curr
-
-
-
-_MD5 = None
-_SHA1 = None
-
-try:
-    import hashlib
-    _MD5, _SHA1 = (hashlib.md5, hashlib.sha1)
-except ImportError, err:
-    from Crypto.Hash import MD5, SHA
-    _MD5, _SHA1 = (MD5.new, SHA.new)
     
 
 
@@ -314,9 +302,12 @@ def digest_chunks(chunks):
     """ returns a base64 rep of the MD5 and SHA1 digests from the
     chunks of data """
 
+    #pylint: disable=E0611
+    from hashlib import md5, sha1
+
     from base64 import b64encode
 
-    hashes = (_MD5(), _SHA1())
+    hashes = (md5(), sha1())
     
     for chunk in chunks:
         for h in hashes:
@@ -422,6 +413,7 @@ def cli_create(options, rest):
     from os.path import exists, split
     from os import makedirs
     from dirutils import fnmatches
+    import sys
 
     if options.recursive:
         entries = multi_path_generator(rest[1:])

@@ -152,6 +152,7 @@ def chunks(stream, x=(1024*64)):
 
 
 def sha256sum(fn):
+    #pylint: disable=E0611
     from hashlib import sha256
 
     fd = open(fn, "rb")
