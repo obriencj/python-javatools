@@ -32,4 +32,6 @@
 
 - [silly] implement jar signing capabilities
 
+- pylint integration with build. Attach a pylint config in extras
+
 #
