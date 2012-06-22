@@ -709,7 +709,7 @@ def cli_classes_diff(parser, options, left, right):
     reports = set(getattr(options, "reports", tuple()))
     if reports:
         rdir = options.report_dir or "./"
-        rpt = Reporter(rdir, "classdiff", options)
+        rpt = Reporter(rdir, "JavaClassReport", options)
 
         for fmt in reports:
             if  fmt == "json":

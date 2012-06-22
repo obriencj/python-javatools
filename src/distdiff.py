@@ -195,6 +195,9 @@ class DistJarChange(SuperChange, DistContentChange):
 
 class DistJarReport(DistJarChange):
 
+    report_name = "JarReport"
+
+
     def __init__(self, ldata, rdata, entry, reporter):
         DistJarChange.__init__(self, ldata, rdata, entry, True)
         self.reporter = reporter
@@ -252,6 +255,9 @@ class DistClassChange(SuperChange, DistContentChange):
 
 
 class DistClassReport(DistClassChange):
+
+    report_name = "JavaClassReport"
+
 
     def __init__(self, l, r, entry, reporter):
         DistClassChange.__init__(self, l, r, entry, True)
@@ -375,6 +381,8 @@ class DistReport(DistChange):
     reportdir option set to True will cause the deep checks to be
     written to file in that directory """
 
+    report_name = "DistReport"
+
 
     def __init__(self, l, r, reporter, shallow=False):
         DistChange.__init__(self, l, r, shallow)
@@ -385,14 +393,15 @@ class DistReport(DistChange):
         for c in DistChange.collect_impl(self):
             if isinstance(c, DistJarChange):
                 if c.is_change():
-                    nr = self.reporter.subreporter(c.entry, "jardiff")
+                    ln = DistJarReport.report_name
+                    nr = self.reporter.subreporter(c.entry, ln)
                     c = DistJarReport(c.ldata, c.rdata, c.entry, nr)
             elif isinstance(c, DistClassChange):
                 if c.is_change():
-                    nr = self.reporter.subreporter(c.entry, "classdiff")
+                    ln = DistClassReport.report_name
+                    nr = self.reporter.subreporter(c.entry, ln)
                     c = DistClassReport(c.ldata, c.rdata, c.entry, nr)
             yield c
-
 
 
     def check_impl(self):
@@ -442,7 +451,7 @@ def cli_dist_diff(parser, options, left, right):
     reports = set(getattr(options, "reports", tuple()))
     if reports:
         rdir = options.report_dir or "./"
-        rpt = Reporter(rdir, "distdiff", options)
+        rpt = Reporter(rdir, "DistReport", options)
 
         for fmt in reports:
             if fmt == "json":

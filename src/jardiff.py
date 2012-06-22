@@ -141,6 +141,9 @@ class JarClassChange(SuperChange, JarContentChange):
 
 class JarClassReport(JarClassChange):
     
+    report_name = "JavaClassReport"
+
+
     def __init__(self, l, r, entry, reporter):
         JarClassChange.__init__(self, l, r, entry)
         self.reporter = reporter
@@ -341,7 +344,8 @@ class JarContentsReport(JarContentsChange):
         for c in JarContentsChange.collect_impl(self):
             if isinstance(c, JarClassChange):
                 if c.is_change():
-                    nr = self.reporter.subreporter(c.entry, "classdiff")
+                    ln = JarClassReport.report_name
+                    nr = self.reporter.subreporter(c.entry, ln)
                     c = JarClassReport(c.ldata, c.rdata, c.entry, nr)
             yield c
 
@@ -384,6 +388,8 @@ class JarReport(JarChange):
     reportdir options set to True will cause the deep checks to be
     written to file in that directory """
 
+    report_name = "JarReport"
+
 
     def __init__(self, l, r, reporter):
         JarChange.__init__(self, l, r)
@@ -419,7 +425,7 @@ def cli_jars_diff(parser, options, left, right):
     reports = set(getattr(options, "reports", tuple()))
     if reports:
         rdir = options.report_dir or "./"
-        rpt = Reporter(rdir, "jardiff", options)
+        rpt = Reporter(rdir, "JarReport", options)
 
         for fmt in reports:
             if fmt == "json":

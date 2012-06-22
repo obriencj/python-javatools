@@ -35,9 +35,9 @@ from javaclass.jardiff import JarClassReport
 
 oc = self.change.origclass
 if oc is DistJarReport:
-    uri = self.change.entry + "/jardiff.html"
+    uri = self.change.entry + "/JarReport.html"
 elif oc in (DistClassReport, JarClassReport):
-    uri = self.change.entry + "/classdiff.html"
+    uri = self.change.entry + "/JavaClassReport.html"
 %>
 <div class="details">
 <a class="moreinfo" href="<%= uri %>">more info...</a>
