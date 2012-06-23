@@ -28,7 +28,8 @@ import javaclass.jardiff
 import javaclass.change
 
 ## collect the changes into buckets by type
-changemap = javaclass.change.collect_by_type(self.change.collect())
+change = getattr(self, "change")
+changemap = javaclass.change.collect_by_type(change.collect())
 changeorder = (
     javaclass.jardiff.JarManifestChange,
     javaclass.jardiff.JarSignatureAdded,

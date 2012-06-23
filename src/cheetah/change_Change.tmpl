@@ -1,12 +1,13 @@
 <%
-ch = self.change
+ch = getattr(self, "change")
+opts = getattr(self, "options")
 
 cl = list()
 cl.append(type(ch).__name__)
 
 if ch.is_change():
     cl.append("changed")
-    if ch.is_ignored(self.options):
+    if ch.is_ignored(opts):
         cl.append("ignored")
 else:
     cl.append("unchanged")

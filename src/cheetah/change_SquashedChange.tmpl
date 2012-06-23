@@ -3,7 +3,8 @@
 
 
 <%
-ch = self.change
+ch = getattr(self, "change")
+opts = getattr(self, "options")
 
 cl = list()
 cl.append(type(ch).__name__)
@@ -11,7 +12,7 @@ cl.append(ch.origclass.__name__)
 
 if ch.is_change():
     cl.append("changed")
-    if ch.is_ignored(self.options):
+    if ch.is_ignored(opts):
         cl.append("ignored")
 else:
     cl.append("unchanged")
@@ -33,11 +34,12 @@ $escape($change.entry)
 from javaclass.distdiff import DistJarReport, DistClassReport
 from javaclass.jardiff import JarClassReport
 
-oc = self.change.origclass
+change = getattr(self, "change")
+oc = change.origclass
 if oc is DistJarReport:
-    uri = self.change.entry + "/JarReport.html"
+    uri = change.entry + "/JarReport.html"
 elif oc in (DistClassReport, JarClassReport):
-    uri = self.change.entry + "/JavaClassReport.html"
+    uri = change.entry + "/JavaClassReport.html"
 %>
 <div class="details">
 <a class="moreinfo" href="<%= uri %>">more info...</a>
