@@ -162,28 +162,37 @@ class pylint_cmd(Command):
 
         linter = PyLinter()
         linter.load_default_plugins()
+
+        # using error_mode for now. Need to delve further into
+        # PyLinter's reporting so that we can get it to output into
+        # the right place and so we can collect the overall
+        # results. But this is a good, simple start.
         linter.error_mode()
+
+        # TODO:
+        # output pylint report into report dir
+        # announce overview (quality %, number of errors and warnings)
+
         linter.check(self.packages)
 
 
     def run(self):
         import sys
 
-        self.run_command("build")
-
         if not self.has_pylint():
             self.announce("pylint not present")
             return
 
+        # since we process the build output, we need to ensure build
+        # is run first
+        self.run_command("build")
+
+        # we'll be running our linter on the contents of the build_lib
         sys.path.insert(0, self.build_lib)
         try:
             self.run_linter()
         finally:
             sys.path.pop(0)
-
-        # TODO
-        # output pylint report into report dir
-        # announce overview (quality %, number of errors and warnings)
 
         
 
