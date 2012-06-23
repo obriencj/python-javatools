@@ -24,7 +24,7 @@ license: LGPL
 
 
 
-from distutils.core import setup
+from distutils.core import setup, Command
 from distutils.command.build_py import build_py as _build_py
 
 
@@ -40,25 +40,24 @@ class build_py(_build_py):
 
     def initialize_options(self):
         _build_py.initialize_options(self)
+
+        # storage for py files that were created from tmpl files
         self.built_templates = list()
 
 
     def find_package_templates(self, package, package_dir):
-        from os.path import abspath, basename, join, splitext
+        # template files will be located under src, and will end in .tmpl
+
+        from os.path import basename, join, splitext
         from glob import glob
 
         self.check_package(package, package_dir)
         template_files = glob(join(package_dir, "*.tmpl"))
         templates = []
-        setup_script = abspath(self.distribution.script_name)
 
         for f in template_files:
-            abs_f = abspath(f)
-            if abs_f != setup_script:
-                template = splitext(basename(f))[0]
-                templates.append((package, template, f))
-            else:
-                self.debug_print("excluding %s" % setup_script)
+            template = splitext(basename(f))[0]
+            templates.append((package, template, f))
         return templates
 
 
@@ -73,6 +72,8 @@ class build_py(_build_py):
 
 
     def build_template(self, template, template_file, package):
+        # Compile the cheetah template in src into a python file in build
+
         from Cheetah.Compiler import Compiler
         from os import makedirs
         from os.path import exists, join
@@ -86,7 +87,7 @@ class build_py(_build_py):
             makedirs(outfd)
 
         if newer(template_file, outfn):
-            print "compiling %s -> %s" % (template_file, outfd)
+            self.announce("compiling %s -> %s" % (template_file, outfd))
             with open(outfn, "w") as output:
                 output.write(str(comp))
 
@@ -94,6 +95,8 @@ class build_py(_build_py):
 
 
     def get_outputs(self, include_bytecode=1):
+        # Overridden to append our compiled templates
+
         outputs = _build_py.get_outputs(self, include_bytecode)
         outputs.extend(self.built_templates)
 
@@ -113,6 +116,76 @@ class build_py(_build_py):
         _build_py.run(self)
 
 
+
+class pylint_cmd(Command):
+
+    """ Distutils command to run pylint on the built output and emit
+    its results into build/pylint """
+
+
+    user_options = list()
+
+
+    def initialize_options(self):
+        self.build_base = None
+        self.build_lib = None
+        self.build_scripts = None
+        self.build_temp = None
+        self.built_templates = None
+
+
+    def finalize_options(self):
+        from os.path import join
+
+        self.set_undefined_options('build',
+                                   ('build_base', 'build_base'),
+                                   ('build_lib', 'build_lib'),
+                                   ('build_scripts', 'build_scripts'),
+                                   ('build_temp', 'build_temp'))
+
+        self.packages = self.distribution.packages
+        self.report = join(self.build_base, "pylint")
+
+
+    def has_pylint(self):
+        try:
+            from pylint import lint
+        except ImportError, ie:
+            return False
+        else:
+            return True
+
+
+    def run_linter(self):
+        from pylint.lint import PyLinter
+        import sys
+
+        linter = PyLinter()
+        linter.load_default_plugins()
+        linter.error_mode()
+        linter.check(self.packages)
+
+
+    def run(self):
+        import sys
+
+        self.run_command("build")
+
+        if not self.has_pylint():
+            self.announce("pylint not present")
+            return
+
+        sys.path.insert(0, self.build_lib)
+        try:
+            self.run_linter()
+        finally:
+            sys.path.pop(0)
+
+        # TODO
+        # output pylint report into report dir
+        # announce overview (quality %, number of errors and warnings)
+
+        
 
 setup(name = "javaclass",
       version = "1.3",
@@ -134,10 +207,11 @@ setup(name = "javaclass",
                  "scripts/jardiff",
                  "scripts/jarinfo",
                  "scripts/manifest",
-                 "scripts/distpatchgen",
-                 ],
+                 "scripts/distpatchgen"],
 
-      cmdclass = {'build_py': build_py})
+      cmdclass = {'build_py': build_py,
+                  'pylint': pylint_cmd})
+
 
 
 #
