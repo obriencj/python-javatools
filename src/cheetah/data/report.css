@@ -26,8 +26,9 @@ div {
 .ldata, .rdata {
     width: auto;
     min-width: 20em;
-    max-width: 40em;
-    padding-left: 2em;
+    max-width: 47%;
+    padding: 0 2em 1em 0;
+    margin: 0;
 }
 
 .ldata table, .rdata table {
@@ -39,17 +40,35 @@ div {
 }
 
 td.const-value {
-    max-width: 24em;
+    /* max-width: 24em; */
     word-wrap: break-word;
+    font-family: "Verdana", "monospace";
 }
 
 table {
     border-collapse: collapse;
+    color: black;
 }
 
 td {
     vertical-align: top;
     border: thin solid grey;
+}
+
+caption, th {
+    color: black;
+}
+
+ul.breadcrumbs li {
+    border: thin solid grey;
+    display: inline;
+    list-style-type: none;
+    padding: 0 0.5em;
+    margin: 0;
+}
+
+ul.breadcrumbs a {
+    text-decoration: none;
 }
 
 
