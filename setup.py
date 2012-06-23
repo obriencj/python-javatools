@@ -41,9 +41,6 @@ class build_py(_build_py):
     def initialize_options(self):
         _build_py.initialize_options(self)
 
-        # storage for py files that were created from tmpl files
-        self.built_templates = list()
-
 
     def find_package_templates(self, package, package_dir):
         # template files will be located under src, and will end in .tmpl
@@ -80,6 +77,17 @@ class build_py(_build_py):
         from distutils.util import newer
 
         comp = Compiler(file=template_file, moduleName=template)
+
+        # load configuration if it exists
+        conf_fn = "extras/cheetah.cfg"
+        if exists(conf_fn):
+            with open(conf_fn, "rt") as config:
+                comp.updateSettingsFromConfigFileObj(config)
+
+        # and just why can't I configure these?
+        comp.setShBang("")
+        comp.addModuleHeader("pylint: disable=C,W,R")
+
         outfd = join(self.build_lib, *package.split("."))
         outfn = join(outfd, template+".py")
 
@@ -91,21 +99,35 @@ class build_py(_build_py):
             with open(outfn, "w") as output:
                 output.write(str(comp))
 
-        self.built_templates.append(outfn)
+
+    def get_template_outputs(self, include_bytecode=1):
+        from os.path import join
+
+        built = list()
+
+        for package in self.packages:
+            package_dir = self.get_package_dir(package)
+            templates = self.find_package_templates(package, package_dir)
+            for _, template, _ in templates:
+                outfd = join(self.build_lib, *package.split("."))
+                outfn = join(outfd, template+".py")
+
+                built.append(outfn)
+
+                if include_bytecode:
+                    if self.compile:
+                        built.append(outfn + "c")
+                    if self.optimize > 0:
+                        built.append(outfn + "o")
+
+        return built
 
 
     def get_outputs(self, include_bytecode=1):
         # Overridden to append our compiled templates
 
         outputs = _build_py.get_outputs(self, include_bytecode)
-        outputs.extend(self.built_templates)
-
-        if include_bytecode:
-            for filename in self.built_templates:
-                if self.compile:
-                    outputs.append(filename + "c")
-                if self.optimize > 0:
-                    outputs.append(filename + "o")
+        outputs.extend(self.get_template_outputs(include_bytecode))
 
         return outputs
 
@@ -123,10 +145,11 @@ class pylint_cmd(Command):
     its results into build/pylint """
 
 
-    user_options = list()
+    user_options = [("lint-config=", None, "pylint configuration to load")]
 
 
     def initialize_options(self):
+        self.lint_config = None
         self.build_base = None
         self.build_lib = None
         self.build_scripts = None
@@ -143,6 +166,9 @@ class pylint_cmd(Command):
         self.packages = self.distribution.packages
         self.report = join(self.build_base, "pylint")
 
+        if not self.lint_config:
+            self.lint_config = "extras/pylintrc"
+
 
     def has_pylint(self):
         try:
@@ -152,31 +178,43 @@ class pylint_cmd(Command):
         else:
             return True
 
+        
+    def announce_overview(self, linter, report_fn):
+        pass
+
 
     def run_linter(self):
         from pylint.lint import PyLinter
-        import sys
+        from os.path import join
 
-        linter = PyLinter()
+        linter = PyLinter(pylintrc=self.lint_config)
+
         linter.load_default_plugins()
-
-        # using error_mode for now. Need to delve further into
-        # PyLinter's reporting so that we can get it to output into
-        # the right place and so we can collect the overall
-        # results. But this is a good, simple start.
-        linter.error_mode()
+        linter.read_config_file()
+        linter.load_config_file()
 
         # TODO:
-        # output pylint report into report dir
         # announce overview (quality %, number of errors and warnings)
 
         if self.packages:
             self.announce("checking packages", 2)
-            linter.check(self.packages)
+            report_fn = "packages_report." + linter.reporter.extension
+            report_fn = join(self.build_base, report_fn)
+            with open(report_fn, "wt") as out:
+                linter.reporter.set_output(out)
+                linter.check(self.packages)
+
+            self.announce_overview(linter, report_fn)
 
         if self.build_scripts:
             self.announce("checking scripts", 2)
-            linter.check(self.build_scripts)
+            report_fn = "scripts_report." + linter.reporter.extension
+            report_fn = join(self.build_base, report_fn)
+            with open(report_fn, "wt") as out:
+                linter.reporter.set_output(out)
+                linter.check(self.build_scripts)
+
+            self.announce_overview(linter, report_fn)
 
 
     def run(self):
