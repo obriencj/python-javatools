@@ -87,7 +87,7 @@ class build_py(_build_py):
             makedirs(outfd)
 
         if newer(template_file, outfn):
-            self.announce("compiling %s -> %s" % (template_file, outfd))
+            self.announce("compiling %s -> %s" % (template_file, outfd), 2)
             with open(outfn, "w") as output:
                 output.write(str(comp))
 
@@ -130,8 +130,6 @@ class pylint_cmd(Command):
         self.build_base = None
         self.build_lib = None
         self.build_scripts = None
-        self.build_temp = None
-        self.built_templates = None
 
 
     def finalize_options(self):
@@ -140,8 +138,7 @@ class pylint_cmd(Command):
         self.set_undefined_options('build',
                                    ('build_base', 'build_base'),
                                    ('build_lib', 'build_lib'),
-                                   ('build_scripts', 'build_scripts'),
-                                   ('build_temp', 'build_temp'))
+                                   ('build_scripts', 'build_scripts'))
 
         self.packages = self.distribution.packages
         self.report = join(self.build_base, "pylint")
@@ -173,14 +170,20 @@ class pylint_cmd(Command):
         # output pylint report into report dir
         # announce overview (quality %, number of errors and warnings)
 
-        linter.check(self.packages)
+        if self.packages:
+            self.announce("checking packages", 2)
+            linter.check(self.packages)
+
+        if self.build_scripts:
+            self.announce("checking scripts", 2)
+            linter.check(self.build_scripts)
 
 
     def run(self):
         import sys
 
         if not self.has_pylint():
-            self.announce("pylint not present")
+            self.announce("pylint not present", 2)
             return
 
         # since we process the build output, we need to ensure build
