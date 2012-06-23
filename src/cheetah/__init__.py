@@ -15,11 +15,14 @@
 
 
 def iter_templates():
+    from Cheetah.Template import Template
     import javaclass.cheetah
     from pkgutil import iter_modules
     for _,name,_ in iter_modules(__path__):
         __import__("javaclass.cheetah."+name)
-        yield getattr(getattr(javaclass.cheetah, name), name)
+        found = getattr(getattr(javaclass.cheetah, name), name)
+        if issubclass(found, Template):
+            yield found
 
 
 def get_templates():
