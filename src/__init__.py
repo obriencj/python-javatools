@@ -43,6 +43,7 @@ JAVA_CLASS_MAGIC_STR = "\xca\xfe\xba\xbe"
 
 
 # The constant pool types
+#pylint: disable=C0103
 CONST_Utf8 = 1
 CONST_Integer = 3
 CONST_Float = 4
@@ -303,7 +304,7 @@ class JavaAttributes(dict):
         cval = self.cpool.deref_const
 
         (count,) = unpacker.unpack(">H")
-        for i in xrange(0, count):
+        for _ in xrange(0, count):
             #debug("unpacking attribute %i of %i" % (i+1, count))
 
             (name, size) = unpacker.unpack(">HI")

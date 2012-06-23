@@ -185,6 +185,7 @@ def disassemble(bytecode):
 # The individual OP_* constants just have the numerical value. The
 # rest is just information to get stored in the _optable
 
+#pylint: disable=C0103
 
 OP_aaload = _op('aaload', 0x32)
 OP_aastore = _op('aastore', 0x53)

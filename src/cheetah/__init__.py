@@ -14,10 +14,14 @@
 
 
 
-def iter_templates():
+def _iter_templates():
     from Cheetah.Template import Template
-    import javaclass.cheetah
     from pkgutil import iter_modules
+
+    #pylint: disable=W0406
+    # needed for introspection
+    import javaclass.cheetah
+
     for _,name,_ in iter_modules(__path__):
         __import__("javaclass.cheetah."+name)
         found = getattr(getattr(javaclass.cheetah, name), name)
@@ -26,7 +30,10 @@ def iter_templates():
 
 
 def get_templates():
-    return tuple(iter_templates())
+
+    """ The Cheetah Template classes contained within this module """
+
+    return tuple(_iter_templates())
 
 
 

@@ -278,7 +278,8 @@ class CheetahReportFormat(ReportFormat):
         # this lets us call render_change from within the template on
         # a change instance to chain to another template (eg, for
         # sub-changes)
-        template.render_change = lambda c: self.run_impl(c, out, options, breadcrumbs)
+        rc = lambda c: self.run_impl(c, out, options, breadcrumbs)
+        template.render_change = rc
 
         template.respond()
 
@@ -304,8 +305,11 @@ def cheetah_template_map():
     """ a map of change types to cheetah template types. Used in
     resolve_cheetah_template """
 
+    from javaclass.cheetah import get_templates
+
+    #pylint: disable=W0406
+    # needed for introspection
     import javaclass
-    import javaclass.cheetah
 
     global __template_map
 
@@ -314,7 +318,7 @@ def cheetah_template_map():
 
     t = dict()
 
-    for template_type in javaclass.cheetah.get_templates():
+    for template_type in get_templates():
         if not "_" in template_type.__name__:
             # we use the _ to denote package and class names. So any
             # template without a _ in the name isn't meant to be
