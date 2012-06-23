@@ -14,20 +14,15 @@ $change.__class__.__name__
 
 
 #block head_title
-<!-- entering report.head_title -->
 <title>$title</title>
-<!-- exiting report.head_title -->
 #end block
 
 
 #block head_meta
-<!-- entering report.head_meta -->
-<!-- exiting report.head_meta -->
 #end block
 
 
 #block head_stylesheets
-<!-- entering report.head_stylesheets -->
 #if $options.html_stylesheets
 #for ss in $options.html_stylesheets
 <link rel="stylesheet" type="text/css" href="$ss" />
@@ -49,22 +44,17 @@ div {
 }
 </style>
 #end if
-<!-- exiting report.head_stylesheets -->
 #end block
 
 
 #block head_javascripts
-<!-- entering report.head_javascripts -->
 #for js in $options.html_javascripts
 <script type="text/javascript" src="$js"></script>
 #end for
-<!-- exiting report.head_javascripts --> 
 #end block
 
 
 #block head_extra
-<!-- entering report.head_extra -->
-<!-- exiting report.head_extra -->
 #end block
 
 
@@ -72,7 +62,6 @@ div {
 
 
 #block body
-<!-- entering report.body -->
 <body>
 
 
@@ -103,13 +92,11 @@ div {
 
 
 #block details
-<!-- entering report.details -->
 <div id="report-details">
 #for $child in $change.collect()
 $render_change($child)
 #end for
 </div>
-<!-- exiting report.details -->
 #end block
 
 
@@ -120,7 +107,6 @@ $render_change($child)
 
 
 </body>
-<!-- exiting report.body -->
 #end block
 
 
