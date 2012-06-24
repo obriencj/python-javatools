@@ -96,12 +96,12 @@ class UnpackException(Exception):
     """ raised when there is not enough data to unpack the expected
     structures """
 
-    def __init__(self, format, wanted, present):
-        self.format = format
+    def __init__(self, fmt, wanted, present):
+        self.format = fmt
         self.bytes_wanted = wanted
         self.bytes_present = present
         Exception.__init__("format %r requires %i bytes, only %i present" %
-                           (format, wanted, present))
+                           (fmt, wanted, present))
 
         
         
@@ -142,7 +142,7 @@ class JavaConstantPool(object):
         # but not data
         hackpass = False
 
-        for i in xrange(0, count):
+        for _ in xrange(0, count):
 
             if hackpass:
                 # previous item was a long or double
@@ -150,7 +150,6 @@ class JavaConstantPool(object):
                 items.append((None,None))
 
             else:
-                #debug("unpacking const item %i of %i" % (i+1, count))
                 item = _unpack_const_item(unpacker)
                 items.append(item)
 
@@ -181,7 +180,7 @@ class JavaConstantPool(object):
         if not index:
             raise Exception("Requested const 0")
 
-        t,v = self.consts[index]
+        t, v = self.consts[index]
         
         if t in (CONST_Utf8, CONST_Integer, CONST_Float,
                  CONST_Long, CONST_Double):
@@ -206,7 +205,7 @@ class JavaConstantPool(object):
         the constant pool entries. """
 
         for i in xrange(1, len(self.consts)):
-            t,v = self.consts[i]            
+            t, _ = self.consts[i]            
             if t:
                 yield (i, t, self.deref_const(i))
     
@@ -239,10 +238,17 @@ class JavaConstantPool(object):
 
 
     def pretty_deref_const(self, index):
-        t,v = self.consts[index]
+
+        """ A string representation of the end-value of a constant.
+        This will deref the constant index, and if it is a compound
+        type, will continue dereferencing until it can compose the
+        full value (eg: a CONST_Methodref will be composed of its
+        class, name, and value derefenced constants)"""
+
+        t, v = self.consts[index]
 
         if t == CONST_String:
-            return "%s" % repr(self.deref_const(v))[1:-1]
+            return str(self.deref_const(v))
 
         elif t == CONST_Class:
             return _pretty_class(self.deref_const(v))
@@ -251,7 +257,7 @@ class JavaConstantPool(object):
             cn = self.deref_const(v[0])
             cn = _pretty_class(cn)
 
-            n,t = self.deref_const(v[1])
+            n, t = self.deref_const(v[1])
 
             return "%s.%s:%s" % (cn, n, _pretty_type(t))
 
@@ -261,14 +267,14 @@ class JavaConstantPool(object):
             cn = self.deref_const(v[0])
             cn = _pretty_class(cn)
 
-            n,t = self.deref_const(v[1])
+            n, t = self.deref_const(v[1])
 
-            args,ret = tuple(_pretty_typeseq(t))
+            args, ret = tuple(_pretty_typeseq(t))
 
             return "%s.%s%s:%s" % (cn, n, args, ret)
 
         elif t == CONST_NameAndType:
-            a,b = (self.deref_const(i) for i in v)
+            a, b = (self.deref_const(i) for i in v)
             b = "".join(_pretty_typeseq(b))
             return "%s:%s" % (a,b)
 
@@ -276,8 +282,13 @@ class JavaConstantPool(object):
             a,b = (self.deref_const(i) for i in v)
             return "%s@%s" % (a,b)
 
-        else:
+        elif not t:
+            # the skipped-type, meaning the prior index was a
+            # two-slotter.
             return ""
+
+        else:
+            raise Unimplemented("No pretty for const type %r" % t)
 
 
 
@@ -298,18 +309,12 @@ class JavaAttributes(dict):
         """ Unpack an attributes table from an unpacker stream.
         Modifies the structure of this instance. """
 
-        #debug("unpacking attributes")
-
         # bound method for dereferencing constants
         cval = self.cpool.deref_const
 
         (count,) = unpacker.unpack(">H")
         for _ in xrange(0, count):
-            #debug("unpacking attribute %i of %i" % (i+1, count))
-
             (name, size) = unpacker.unpack(">HI")
-            #debug("attribute #%s, %i bytes" % (name, size))
-
             self[cval(name)] = unpacker.read(size)
 
 
@@ -689,7 +694,7 @@ class JavaClassInfo(object):
         cpool = self.cpool
 
         # loop through the constant pool for API types
-        for i,t,v in cpool.constants():
+        for i, t, _ in cpool.constants():
             pv = None
 
             if t in (CONST_Class, CONST_Fieldref,
@@ -706,7 +711,7 @@ class JavaClassInfo(object):
                     # the event that this was a method or field on the
                     # array, we'll throw away that as well, and just
                     # emit the type contained in the array.
-                    t,b = _next_argsig(buffer(pv))
+                    t, b = _next_argsig(buffer(pv))
                     if t[1] == "L":
                         pv = _pretty_type(t[1:])
                     else:
@@ -765,16 +770,25 @@ class JavaMemberInfo(object):
 
 
     def deref_const(self, index):
+
+        """ Dereference a constant in the parent constant pool """
+
         return self.cpool.deref_const(index)
 
 
 
     def get_attribute(self, name):
+
+        """ Get an attribute buffer by name """
+
         return self.attribs.get_attribute(name)
 
 
 
     def get_signature(self):
+
+        """ the Signature attribute """
+
         buff = self.get_attribute("Signature")
         if buff is None:
             return None
@@ -788,6 +802,9 @@ class JavaMemberInfo(object):
 
 
     def get_module(self):
+
+        """ the Module attribute """
+
         buff = self.get_attribute("Module")
         if buff is None:
             return None
@@ -800,6 +817,10 @@ class JavaMemberInfo(object):
 
 
     def unpack(self, unpacker):
+
+        """ unpack the contents of this instance from the values in
+        unpacker """
+
         #debug("unpacking member info")
 
         (a, b, c) = unpacker.unpack(">HHH")
@@ -812,102 +833,163 @@ class JavaMemberInfo(object):
 
 
     def get_name(self):
+        
+        """ the name of this member """
+
         return self.deref_const(self.name_ref)
 
 
 
     def get_descriptor(self):
+
+        """ the descriptor of this member """
+
         return self.deref_const(self.descriptor_ref)
 
 
 
     def is_public(self):
+
+        """ is this member public """
+
         return self.access_flags & ACC_PUBLIC
 
 
 
     def is_private(self):
+
+        """ is this member private """
+
         return self.access_flags & ACC_PRIVATE
 
 
 
     def is_protected(self):
+
+        """ is this member protected """
+
         return self.access_flags & ACC_PROTECTED
 
 
 
     def is_static(self):
+
+        """ is this member static """
+
         return self.access_flags & ACC_STATIC
 
 
 
     def is_final(self):
+
+        """ is this member final """
+
         return self.access_flags & ACC_FINAL
 
 
 
     def is_synchronized(self):
+
+        """ is this member synchronized """
+
         return self.access_flags & ACC_SYNCHRONIZED
 
 
 
     def is_native(self):
+
+        """ is this member native """
+
         return self.access_flags & ACC_NATIVE
 
 
 
     def is_abstract(self):
+
+        """ is this member abstract """
+
         return self.access_flags & ACC_ABSTRACT
 
 
 
     def is_strict(self):
+        
+        """ is this member strict """
+
         return self.access_flags & ACC_STRICT
 
 
 
     def is_volatile(self):
+
+        """ is this member volatile """
+
         return self.access_flags & ACC_VOLATILE
 
 
 
     def is_transient(self):
+
+        """ is this member transient """
+
         return self.access_flags & ACC_TRANSIENT
 
 
 
     def is_bridge(self):
+
+        """ is this method a bridge to another method """
+
         return self.access_flags & ACC_BRIDGE
 
 
 
     def is_varargs(self):
+
+        """ is this a varargs method """
+
         return self.access_flags & ACC_VARARGS
 
 
 
     def is_synthetic(self):
+
+        """ is this a synthetic method """
+
         return ((self.access_flags & ACC_SYNTHETIC) or
                 bool(self.get_attribute("Synthetic")))
 
 
 
     def is_enum(self):
+
+        """ it this member an enum """
+
         return self.access_flags & ACC_ENUM
 
 
 
     def is_module(self):
+
+        """ is this a module member """
+
         return self.access_flags & ACC_MODULE
 
 
 
     def is_deprecated(self):
+        
+        """ is this member deprecated """
+
         return bool(self.get_attribute("Deprecated"))
 
 
 
     def get_code(self):
+
+        """ the JavaCodeInfo of this member if it is a non-abstract
+        method, None otherwise """
+
         buff = self.get_attribute("Code")
         if buff is None:
             return None
@@ -1127,6 +1209,9 @@ class JavaMemberInfo(object):
 
 
     def pretty_identifier(self):
+
+        """ The pretty version of get_identifier """
+
         id = self.get_name()
         if self.is_method:
             args = ",".join(self.pretty_arg_types())
@@ -1152,11 +1237,18 @@ class JavaCodeInfo(object):
 
 
     def deref_const(self, index):
+
+        """ dereference a constant by index from the parent constant
+        pool """
+
         return self.cpool.deref_const(index)
 
 
 
     def get_attribute(self, name):
+
+        """ get an attribute buffer by name """
+
         return self.attribs.get_attribute(name)
 
 
@@ -1165,8 +1257,6 @@ class JavaCodeInfo(object):
 
         """ unpacks a code block from a buffer. Updates the internal
         structure of this instance """
-
-        #debug("unpacking code info")
 
         (a, b, c) = unpacker.unpack(">HHI")
         
@@ -1182,11 +1272,11 @@ class JavaCodeInfo(object):
 
     def get_linenumbertable(self):
 
-        """  a sequence of (code_offset, line_number) pairs """
+        """ a sequence of (code_offset, line_number) pairs """
 
         buff = self.get_attribute("LineNumberTable")
         if buff is None:
-            return None
+            return tuple()
 
         with Unpacker(buff) as up:
             return up.unpack_array(">HH")
@@ -1202,7 +1292,7 @@ class JavaCodeInfo(object):
         lnt = self.get_linenumbertable()
         if lnt:
             lineoff = lnt[0][1]
-            return tuple((o,l-lineoff) for (o,l) in lnt)
+            return tuple((o, l - lineoff) for (o, l) in lnt)
         else:
             return tuple()
         
@@ -1215,7 +1305,7 @@ class JavaCodeInfo(object):
 
         buff = self.get_attribute("LocalVariableTable")
         if buff is None:
-            return None
+            return tuple()
 
         with Unpacker(buff) as up:
             return up.unpack_array(">HHHHH")
@@ -1229,7 +1319,7 @@ class JavaCodeInfo(object):
 
         buff = self.get_attribute("LocalVariableTypeTable")
         if buff is None:
-            return None
+            return tuple()
 
         with Unpacker(buff) as up:
             return up.unpack_array(">HHHHH")
@@ -1285,8 +1375,6 @@ class JavaExceptionInfo(object):
         """ unpacks an exception handler entry in an exception
         table. Updates the internal structure of this instance """
 
-        #debug("unpacking Exception info")
-
         (a, b, c, d) = unpacker.unpack(">HHHH")
 
         self.start_pc = a
@@ -1296,6 +1384,10 @@ class JavaExceptionInfo(object):
 
 
     def get_catch_type(self):
+
+        """ dereferences the catch_type_ref to its class name, or None
+        if the catch type is all """
+
         if self.catch_type_ref:
             return self.cpool.deref_const(self.catch_type_ref)
         else:
@@ -1305,12 +1397,16 @@ class JavaExceptionInfo(object):
     def pretty_catch_type(self):
         ct = self.get_catch_type()
         if ct:
-            return "Class "+ct
+            return "Class " + ct
         else:
             return "any"
 
 
     def info(self):
+
+        """ tuple of the start_pc, end_pc, handler_pc and
+        catch_type_ref """
+
         return self.__cmp_tuple()
 
 
@@ -1347,7 +1443,7 @@ class JavaInnerClassInfo(object):
 
     def unpack(self, unpacker):
 
-        #debug("unpacking JavaInnerClass")
+        """ unpack this instance with data from unpacker """
 
         (a, b, c, d) = unpacker.unpack(">HHHH")
         
@@ -1358,6 +1454,9 @@ class JavaInnerClassInfo(object):
 
 
     def get_name(self):
+        
+        """ the name of this inner-class """
+
         return self.cpool.deref_const(self.name_ref)
 
 
@@ -1382,10 +1481,11 @@ _platforms = ( ((45, 0), (45, 3), "1.0.2"),
 def platform_from_version(major, minor):
 
     """ returns the minimum platform version that can load the given
-    class version indicated by major.minor"""
+    class version indicated by major.minor or None if no known
+    platforms match the given version """
     
     v = (major, minor)
-    for low,high,name in _platforms:
+    for low, high, name in _platforms:
         if low <= v <= high:
             return name
     return None
@@ -1485,7 +1585,7 @@ def _pretty_const_type_val(typecode, val):
     else:
         raise Unimplemented("unknown type, %r", typecode)
     
-    return typestr,val
+    return typestr, val
 
 
 
@@ -1589,11 +1689,11 @@ _struct_cache = {}
 
 def compile_struct(fmt):
 
-    from struct import Struct
-
     """ returns a Struct instance compiled from fmt. If fmt has
     already been compiled, it will return the previously compiled
     Struct instance. """
+
+    from struct import Struct
 
     sfmt = _struct_cache.get(fmt, None)
     if not sfmt:
@@ -1608,11 +1708,16 @@ class Unpacker(object):
 
 
     """ Wraps a stream (or creates a stream for a string or buffer)
-    and advances along it while unpacking structures from it. """
+    and advances along it while unpacking structures from it.
+
+    This class adheres to the context management protocol, so may be
+    used in conjunction with the 'with' keyword """
 
 
     def __init__(self, data):
         from StringIO import StringIO
+
+        self.stream = None
         
         if isinstance(data, str) or isinstance(data, buffer):
             self.stream = StringIO(data)
@@ -1633,6 +1738,11 @@ class Unpacker(object):
 
 
     def unpack(self, fmt):
+
+        """ unpacks the given fmt from the underlying stream and
+        returns the results. Will raise an UnpackException if there is
+        not enough data to satisfy the fmt """
+
         sfmt = compile_struct(fmt)
         size = sfmt.size
         buff = self.stream.read(size)
@@ -1644,38 +1754,57 @@ class Unpacker(object):
 
 
     def _unpack_array(self, count, fmt):
-        for i in xrange(0, count):
+        for _ in xrange(0, count):
             yield self.unpack(fmt)
     
 
     def unpack_array(self, fmt):
+        
+        """ reads a count from the unpacker, and unpacks fmt count
+        times. Returns a tuple of the unpacked sequences """
+
         (count,) = self.unpack(">H")
         return tuple(self._unpack_array(count, fmt))
 
 
     def _unpack_objects(self, count, atype, *params, **kwds):
-        for i in xrange(0, count):
+        for _ in xrange(0, count):
             o = atype(*params, **kwds)
             o.unpack(self)
             yield o
 
 
     def unpack_objects(self, atype, *params, **kwds):
+
+        """ reads a count from the unpacker, and instanciates that
+        many calls to atype, with the given params and kwds passed
+        along. Each instance then has its unpack method called with
+        this unpacker instance passed along. Returns a tuple of the
+        unpacked instances """
+
         (count,) = self.unpack(">H")
         return tuple(self._unpack_objects(count, atype, *params, **kwds))
 
 
-    def read(self, i):
-        buff = self.stream.read(i)
-        if len(buff) < i:
-            raise UnpackException(None, i, len(buff))
+    def read(self, count):
+
+        """ read count bytes from the unpacker and return it as a
+        buffer """
+
+        buff = self.stream.read(count)
+        if len(buff) < count:
+            raise UnpackException(None, count, len(buff))
         return buff
 
 
     def close(self):
+
+        """ close this unpacker, and the underlying stream if it
+        supports such """
+
         if hasattr(self.stream, "close"):
             self.stream.close()
-        del self.stream
+        self.stream = None
 
 
 
@@ -1703,6 +1832,10 @@ def is_class(data):
 
 
 def is_class_file(filename):
+
+    """ checks whether the given file is a Java class file, by opening
+    it and checking for the magic header """
+
     with open(filename, "rb") as fd:
         c = is_class(fd.read(4))
 
@@ -1717,15 +1850,17 @@ def unpack_class(data, magic=None):
     populated JavaClassInfo instance.
 
     If data is a stream which has already been confirmed to be a java
-    class, it may have had the first four bytes read from it
-    already. In this case, pass those magic bytes as a str or tuple
-    and the unpacker will not attempt to read them again.  """
+    class, it may have had the first four bytes read from it already.
+    In this case, pass those magic bytes as a str or tuple and the
+    unpacker will not attempt to read them again.
+
+    Raises an UnpackException if the class data is malformed """
 
     with Unpacker(data) as up:
 
         magic = magic or up.unpack(">BBBB")
         if magic != JAVA_CLASS_MAGIC:
-            return None
+            raise UnpackException("Not a Java class file")
     
         o = JavaClassInfo()
         o.unpack(up, magic=magic)
@@ -1737,7 +1872,8 @@ def unpack_class(data, magic=None):
 def unpack_classfile(filename):
 
     """ returns a newly allocated JavaClassInfo object populated with
-    the data unpacked from the specified file """
+    the data unpacked from the specified file. Raises an
+    UnpackException if the class data is malformed """
 
     with open(filename, "rb") as fd:
         return unpack_class(fd)

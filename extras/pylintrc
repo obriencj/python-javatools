@@ -1,12 +1,5 @@
 [MASTER]
 
-# Specify a configuration file.
-#rcfile=
-
-# Python code to execute, usually for sys.path manipulation such as
-# pygtk.require().
-#init-hook=
-
 # Profiled execution.
 profile=no
 
@@ -33,7 +26,7 @@ load-plugins=
 # can either give multiple identifier separated by comma (,) or put this option
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once).
-disable=C0324, R0801, I0011
+disable=C0324, R0801, W0511, I0011
 
 
 [REPORTS]
@@ -62,7 +55,7 @@ evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / stateme
 
 # Add a comment according to your evaluation note. This is used by the global
 # evaluation report (RP0004).
-comment=no
+comment=yes
 
 
 [SIMILARITIES]

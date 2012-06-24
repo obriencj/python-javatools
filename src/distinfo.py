@@ -259,6 +259,8 @@ def cli_distinfo_json(options, info):
 
 
 def cli(parser, options, rest):
+    #pylint: disable=W0613
+    # parser unused
 
     pathn = rest[1]
     info = DistInfo(pathn)
