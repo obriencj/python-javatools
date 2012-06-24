@@ -11,6 +11,7 @@ BuildArch: noarch
 
 Requires: python2 >= 2.6
 Requires: python-cheetah
+Requires: PyXML
 
 BuildRequires: python2-devel
 BuildRequires: python-cheetah
@@ -50,6 +51,7 @@ rm -rf %{buildroot}
 
 * Fri Jun 14 2012 Christopher O'Brien <obriencj@gmail.com> - 1.3-1
 - expand on cheetah html reporting
+- requires PyXML for xml.xpath
 
 * Thu Jun 14 2012 Christopher O'Brien <obriencj@gmail.com> - 1.2-1
 - require python 2.6 and later rather than trying to fight with
