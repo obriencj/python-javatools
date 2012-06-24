@@ -27,9 +27,9 @@ license: LGPL
 
 
 
-from change import Change, GenericChange, SuperChange
-from change import Addition, Removal
-from change import yield_sorted_by_type
+from .change import GenericChange, SuperChange
+from .change import Addition, Removal
+from .change import yield_sorted_by_type
 
 
 
@@ -303,7 +303,7 @@ class CodeConstantsChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        import opcodes
+        from javaclass import opcodes
         
         if not self.offsets:
             return None
@@ -320,7 +320,7 @@ class CodeConstantsChange(GenericChange):
 
 
     def check_impl(self):
-        import opcodes
+        from javaclass import opcodes
         from itertools import izip
         
         left,right = self.ldata, self.rdata
@@ -362,7 +362,7 @@ class CodeBodyChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        import opcodes
+        from javaclass import opcodes
         
         pr = list()
         for offset,code,args in c.disassemble():
@@ -702,9 +702,9 @@ class JavaClassReport(JavaClassChange):
 
 
 def cli_classes_diff(parser, options, left, right):
-    from report import Reporter
-    from report import JSONReportFormat, TextReportFormat
-    from report import CheetahReportFormat
+    from .report import Reporter
+    from .report import JSONReportFormat, TextReportFormat
+    from .report import CheetahReportFormat
 
     reports = set(getattr(options, "reports", tuple()))
     if reports:
@@ -861,7 +861,7 @@ def general_optgroup(parser):
 
 def create_optparser():
     from optparse import OptionParser
-    import report
+    from javaclass import report
 
     parser = OptionParser("%prog [OPTIONS] OLD_CLASS NEW_CLASS")
 

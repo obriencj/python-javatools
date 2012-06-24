@@ -66,7 +66,7 @@ def _gen_from_dircmp(dc, lpath, rpath):
     for f in left_only:
         fp = join(dc.left, f)
         if isdir(fp):
-            for r,d,fs in walk(fp):
+            for r, _, fs in walk(fp):
                 r = relpath(r, lpath)
                 for f in fs:
                     yield(LEFT, join(r, f))
@@ -79,7 +79,7 @@ def _gen_from_dircmp(dc, lpath, rpath):
     for f in right_only:
         fp = join(dc.right, f)
         if isdir(fp):
-            for r,d,fs in walk(fp):
+            for r, _, fs in walk(fp):
                 r = relpath(r, rpath)
                 for f in fs:
                     yield(RIGHT, join(r, f))
@@ -113,7 +113,7 @@ def collect_compare(left, right):
 
 def collect_compare_into(left, right, added, removed, altered, same):
 
-    for event,file in compare(left, right):
+    for event, filename in compare(left, right):
         
         if event == LEFT:
             group = removed
@@ -127,9 +127,9 @@ def collect_compare_into(left, right, added, removed, altered, same):
             assert(False)
 
         if group is not None:
-            group.append(file)
+            group.append(filename)
 
-    return added,removed,altered,same
+    return (added, removed, altered, same)
 
 
 

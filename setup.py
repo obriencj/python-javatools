@@ -191,7 +191,7 @@ class pylint_cmd(Command):
 
         try:
             note = eval(linter.config.evaluation, {}, stats)
-        except Exception, ex:
+        except Exception:
             pass
         else:
             self.announce(" overall score: %.1f%%" % (note * 10), 2)

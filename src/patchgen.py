@@ -31,10 +31,6 @@ license: LGPL
 
 
 
-import os.path
-
-
-
 CONFIG_PATTERN = (
     "*.bat",
     "*.conf",
@@ -178,7 +174,6 @@ def copyfile(fn, orig, patchdir, squash=None,
 
     orig_fn = join(orig, fn)
     dest = join(patchdir, a)
-    dest_fn = join(patchdir, a, b)
     ret = join("#{patchFolder}", a, b)
 
     if pathsquash is not None:
@@ -255,9 +250,9 @@ Notification = pkg + ".NotificationActionHandler"
 
 
 def sieve_changes(delta, options, copies, removals, patches):
-    from change import SquashedChange
-    from dirutils import fnmatches
-    import distdiff
+    from .change import SquashedChange
+    from .dirutils import fnmatches
+    from javaclass import distdiff
 
     for change in delta.collect():
         if not change.is_change():
@@ -294,7 +289,6 @@ def sieve_changes(delta, options, copies, removals, patches):
 
 
 def repath(pathmap, pathstr):
-    from os.path import join
     found = ""
     for key in pathmap.keys():
         if pathstr.startswith(key):
@@ -429,8 +423,8 @@ def options_magic(options):
 
 
 def cli_patchgen(parser, options, left, right):
-    from distdiff import DistReport
-    from report import Reporter, JSONReportFormat, TextReportFormat
+    from .distdiff import DistReport
+    from .report import Reporter, JSONReportFormat, TextReportFormat
 
     rdir = options.report_dir or "./"
     rpt = Reporter(rdir, "patchgen", options)
@@ -470,18 +464,18 @@ def cli(parser, options, rest):
 
 
 def create_optparser():
-    from distdiff import create_optparser
+    from javaclass import distdiff
 
     # TODO Bring this in line with the other option sets
-    parser = create_optparser()
+    parser = distdiff.create_optparser()
 
     parser.add_option("--patch-dir", action="store", default="patch")
-    parser.add_option("--path-map", action="append", default=[])
+    parser.add_option("--path-map", action="append", default=list())
 
     parser.add_option("--squash-256", action="store_true",
                       default=False)
 
-    parser.add_option("--squash-path", action="append", default=[])
+    parser.add_option("--squash-path", action="append", default=list())
 
     return parser
 

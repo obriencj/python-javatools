@@ -23,7 +23,7 @@ license: LGPL
 """
 
 
-""" for reference by other modules """
+# for reference by other modules
 JAR_PATTERNS = ( "*.ear",
                  "*.jar",
                  "*.rar",
@@ -88,8 +88,8 @@ class JarInfo(object):
         self._provides = prov
 
 
-    def get_requires(self, ignored=[]):
-        from dirutils import fnmatches
+    def get_requires(self, ignored=tuple()):
+        from .dirutils import fnmatches
 
         if self._requires is None:
             self._collect_requires_provides()
@@ -101,8 +101,8 @@ class JarInfo(object):
         return d
 
 
-    def get_provides(self, ignored=[]):
-        from dirutils import fnmatches
+    def get_provides(self, ignored=tuple()):
+        from .dirutils import fnmatches
 
         if self._provides is None:
             self._collect_requires_provides()
@@ -115,7 +115,7 @@ class JarInfo(object):
 
 
     def get_classes(self):
-        from dirutils import fnmatches
+        from .dirutils import fnmatches
         for n in self.get_zipfile().namelist():
             if fnmatches(n, "*.class"):
                 yield n
@@ -132,13 +132,13 @@ class JarInfo(object):
         list of dicts representing all of the key:val sections in the
         manifest."""
 
-        from manifest import parse_sections
+        from .manifest import parse_sections
         data = self.get_zipfile().read("META-INF/MANIFEST.MF")
         return parse_sections(data)
 
 
     def get_zipfile(self):
-        from ziputils import zip_file
+        from .ziputils import zip_file
         if self.zipfile is None:
             self.zipfile = zip_file(self.filename)
         return self.zipfile
@@ -174,7 +174,7 @@ def cli_jar_manifest_info(options, jarinfo):
 
 
 def cli_jar_zip_info(options, jarinfo):
-    from ziputils import zip_entry_rollup
+    from .ziputils import zip_entry_rollup
     
     zipfile = jarinfo.get_zipfile()
 
@@ -189,7 +189,7 @@ def cli_jar_zip_info(options, jarinfo):
 
 
 def cli_jar_classes(options, jarinfo):
-    from classinfo import cli_print_classinfo
+    from .classinfo import cli_print_classinfo
 
     for entry in jarinfo.get_classes():
         ci = jarinfo.get_classinfo(entry)
@@ -200,7 +200,7 @@ def cli_jar_classes(options, jarinfo):
 
 
 def cli_jar_provides(options, jarinfo):
-    from dirutils import fnmatches
+    from .dirutils import fnmatches
     
     print "jar provides:"
 
@@ -212,7 +212,7 @@ def cli_jar_provides(options, jarinfo):
 
 
 def cli_jar_requires(options, jarinfo):
-    from dirutils import fnmatches
+    from .dirutils import fnmatches
 
     print "jar requires:"
 
@@ -224,8 +224,6 @@ def cli_jar_requires(options, jarinfo):
 
 
 def cli_jarinfo(options, info):
-    from ziputils import zip_entry_rollup
-
     if options.zip:
         cli_jar_zip_info(options, info)
 
@@ -246,8 +244,7 @@ def cli_jarinfo(options, info):
 def cli_jarinfo_json(options, info):
     from json import dump
     from sys import stdout
-    from ziputils import zip_entry_rollup
-    from dirutils import fnmatches
+    from .ziputils import zip_entry_rollup
 
     data = {}
 
@@ -325,7 +322,7 @@ def jarinfo_optgroup(parser):
 
 def create_optparser():
     from optparse import OptionParser
-    from classinfo import classinfo_optgroup
+    from .classinfo import classinfo_optgroup
 
     parser = OptionParser("%prog [OPTIONS] JARFILE")
 

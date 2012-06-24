@@ -7,8 +7,11 @@ profile=no
 # paths.
 ignore=.git
 
-# Pickle collected data for later comparisons.
-persistent=yes
+# Pickle collected data for later comparisons.  note: You probably
+# don't want to use this with the pylint distutils command, since it
+# actually runs twice from the same place on two different sets
+# (packages and scripts) so it'll be confused.
+persistent=no
 
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
@@ -26,7 +29,15 @@ load-plugins=
 # can either give multiple identifier separated by comma (,) or put this option
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once).
-disable=C0324, R0801, W0511, I0011
+
+# See http://pylint-messages.wikidot.com/all-codes
+# C0324 : no space after comma (worth checking into later)
+# R0801 : multiple lines in files
+# W0142 : using * or ** magic
+# W0511 : TODO in comments
+# W0613 : Unused arguments (might be worth checking into)
+# I0011 : locally disabled feature (if I disabled it, I don't want to see it...)
+disable=C0324, R0801, W0142, W0511, W0613, I0011
 
 
 [REPORTS]

@@ -26,9 +26,9 @@ licence: LGPL
 
 
 
-from change import Change, GenericChange
-from change import SuperChange, Addition, Removal
-from change import yield_sorted_by_type
+from .change import Change, GenericChange
+from .change import SuperChange, Addition, Removal
+from .change import yield_sorted_by_type
 
 
 
@@ -75,7 +75,7 @@ class JarContentChange(Change):
 
 
     def is_ignored(self, options):
-        from dirutils import fnmatches
+        from .dirutils import fnmatches
         return fnmatches(self.entry, *options.ignore_jar_entry)
 
 
@@ -117,7 +117,7 @@ class JarClassChange(SuperChange, JarContentChange):
 
     def collect_impl(self):
         from javaclass import unpack_class
-        from classdiff import JavaClassChange
+        from .classdiff import JavaClassChange
 
         if not self.is_change():
             return
@@ -151,7 +151,7 @@ class JarClassReport(JarClassChange):
 
     def collect_impl(self):
         from javaclass import unpack_class
-        from classdiff import JavaClassReport
+        from .classdiff import JavaClassReport
 
         if not self.is_change():
             return
@@ -174,7 +174,7 @@ class JarManifestChange(SuperChange, JarContentChange):
 
 
     def collect_impl(self):
-        from manifest import Manifest, ManifestChange
+        from .manifest import Manifest, ManifestChange
         
         if not self.is_change():
             return
@@ -234,8 +234,8 @@ class JarContentsChange(SuperChange):
                           JarClassRemoved,
                           JarClassChange)
     def collect_impl(self):
-        from ziputils import compare_zips, LEFT, RIGHT, DIFF, SAME
-        from dirutils import fnmatches
+        from .ziputils import compare_zips, LEFT, RIGHT, DIFF, SAME
+        from .dirutils import fnmatches
 
         # these are opened for the duration of check_impl
         left, right = self.lzip, self.rzip
@@ -307,7 +307,7 @@ class JarContentsChange(SuperChange):
          as the ldata and rdata of all subchecks. """
 
         # this makes it work on exploded archives
-        from ziputils import open_zip
+        from .ziputils import open_zip
 
         with open_zip(self.ldata) as l, open_zip(self.rdata) as r:
             self.lzip, self.rzip = l, r
@@ -338,8 +338,6 @@ class JarContentsReport(JarContentsChange):
         # a filter on the collect_impl of JarContentsChange which
         # replaces JarClassChange instances with a JarClassReport
         # instance instead.
-
-        from os.path import join, split
         
         for c in JarContentsChange.collect_impl(self):
             if isinstance(c, JarClassChange):
@@ -355,8 +353,8 @@ class JarContentsReport(JarContentsChange):
         # overridden to immediately squash class reports, to save on
         # memory usage.
 
-        from change import squash
-        from ziputils import open_zip
+        from .change import squash
+        from .ziputils import open_zip
 
         changes = list()
         options = self.reporter.options
@@ -400,7 +398,7 @@ class JarReport(JarChange):
         for c in JarChange.collect_impl(self):
             if isinstance(c, JarContentsChange):
                 c = JarContentsReport(c.ldata, c.rdata, self.reporter)
-        yield c
+            yield c
 
 
     def check(self):
@@ -418,9 +416,9 @@ class JarReport(JarChange):
 
 
 def cli_jars_diff(parser, options, left, right):
-    from report import Reporter
-    from report import JSONReportFormat, TextReportFormat
-    from report import CheetahReportFormat
+    from .report import Reporter
+    from .report import JSONReportFormat, TextReportFormat
+    from .report import CheetahReportFormat
 
     reports = set(getattr(options, "reports", tuple()))
     if reports:
@@ -493,8 +491,8 @@ def jardiff_optgroup(parser):
 
 def create_optparser():
     from optparse import OptionParser
-    from classdiff import general_optgroup, classdiff_optgroup
-    import report
+    from .classdiff import general_optgroup, classdiff_optgroup
+    from javaclass import report
 
     parser = OptionParser(usage="%prod [OPTIONS] OLD_JAR NEW_JAR")
     

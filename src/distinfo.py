@@ -29,7 +29,7 @@ DIST_CLASS = "class"
 
 
 
-from jarinfo import REQ_BY_CLASS, PROV_BY_CLASS
+from .jarinfo import REQ_BY_CLASS, PROV_BY_CLASS
 REQ_BY_JAR = "jar.requires"
 PROV_BY_JAR = "jar.provides"
 
@@ -60,7 +60,7 @@ class DistInfo(object):
     def _working_path(self):
         from os.path import isdir
         from tempfile import mkdtemp
-        from ziputils import open_zip
+        from .ziputils import open_zip
 
         if self.tmpdir:
             return self.tmpdir
@@ -105,12 +105,12 @@ class DistInfo(object):
         self._provides = prov
 
 
-    def get_requires(self, ignored=[]):
+    def get_requires(self, ignored=tuple()):
         """ a map of requirements to what requires it. ignored is an
         optional list of globbed patterns indicating packages,
         classes, etc that shouldn't be included in the provides map"""
 
-        from dirutils import fnmatches
+        from .dirutils import fnmatches
 
         if self._requires is None:
             self._collect_requires_provides()
@@ -122,13 +122,13 @@ class DistInfo(object):
         return d
 
 
-    def get_provides(self, ignored=[]):
+    def get_provides(self, ignored=tuple()):
         """ a map of provided classes and class members, and what
         provides them. ignored is an optional list of globbed patterns
         indicating packages, classes, etc that shouldn't be included
         in the provides map"""
 
-        from dirutils import fnmatches
+        from .dirutils import fnmatches
 
         if self._provides is None:
             self._collect_requires_provides()
@@ -143,8 +143,8 @@ class DistInfo(object):
     def get_jars(self):
         """ sequence of entry names found in this distribution """
 
-        from jarinfo import JAR_PATTERNS
-        from dirutils import fnmatches
+        from .jarinfo import JAR_PATTERNS
+        from .dirutils import fnmatches
 
         for entry in self.get_contents():
             if fnmatches(entry, *JAR_PATTERNS):
@@ -152,7 +152,7 @@ class DistInfo(object):
 
 
     def get_jarinfo(self, entry):
-        from jarinfo import JarInfo
+        from .jarinfo import JarInfo
         from os.path import join
 
         return JarInfo(join(self.base_path,entry))
@@ -163,7 +163,7 @@ class DistInfo(object):
         is only the collection of class files directly in the dist, it
         does not include classes within JARs that are inthe dist."""
 
-        from dirutils import fnmatches
+        from .dirutils import fnmatches
 
         for entry in self.get_contents():
             if fnmatches(entry, "*.class"):
@@ -201,7 +201,7 @@ class DistInfo(object):
 def _collect_dist(pathn):
     from os.path import join, relpath
     from os import walk
-    for r,d,fs in walk(pathn):
+    for r,_,fs in walk(pathn):
         for f in fs:
             yield relpath(join(r,f),pathn)
 
@@ -294,8 +294,8 @@ def distinfo_optgroup(parser):
 
 def create_optparser():
     from optparse import OptionParser
-    from jarinfo import jarinfo_optgroup
-    from classinfo import classinfo_optgroup
+    from .jarinfo import jarinfo_optgroup
+    from .classinfo import classinfo_optgroup
     
     parser = OptionParser("%prog [OPTIONS] DISTRIBUTION")
 

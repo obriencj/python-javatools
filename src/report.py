@@ -23,7 +23,7 @@ license: LGPL
 
 
 
-class Reporter():
+class Reporter(object):
 
 
     def __init__(self, basedir, entry, options):
@@ -44,8 +44,7 @@ class Reporter():
         newbase = join(self.basedir, subpath)
         r = Reporter(newbase, entry, self.options)
 
-        bc = lambda p: (relpath(p[0], newbase), p[1])
-        crumbs = map(bc, self.breadcrumbs)
+        crumbs = [(relpath(a, newbase), b) for a, b in self.breadcrumbs]
         crumbs.append((relpath(self.basedir, newbase), self.entry))
         r.breadcrumbs = crumbs
 
@@ -58,7 +57,7 @@ class Reporter():
         basedir = self.basedir
         entry = self.entry
         options = self.options
-        crumbs= self.breadcrumbs
+        crumbs = self.breadcrumbs
 
         if out:
             for r in self.formats:
@@ -70,7 +69,7 @@ class Reporter():
 
 
 
-class ReportFormat():
+class ReportFormat(object):
     
 
     extension = ".report"
@@ -104,7 +103,7 @@ class ReportFormat():
 
 
 
-def _opt_cb_report(opt, opt_str, value, parser):
+def _opt_cb_report(_, _, value, parser):
     options = parser.values
     
     if not hasattr(options, "reports"):
@@ -186,8 +185,7 @@ class JSONChangeEncoder(JSONEncoder):
 
     def default(self, o):
         #pylint: disable=E0202
-
-        from change import Change
+        # JSONEncoder.default confuses pylint
 
         # if there is a simplify method, call it to convert the object
         # into a simplified dict
@@ -197,7 +195,7 @@ class JSONChangeEncoder(JSONEncoder):
         # handle sequences sanely
         try:
             i = iter(o)
-        except TypeError, te:
+        except TypeError:
             pass
         else:
             return tuple(i)
@@ -298,25 +296,19 @@ class CheetahStreamTransaction(object):
 
 
 
-__template_map = None
-
-def cheetah_template_map():
+def cheetah_template_map(cache=dict()):
 
     """ a map of change types to cheetah template types. Used in
     resolve_cheetah_template """
 
-    from javaclass.cheetah import get_templates
+    from .cheetah import get_templates
 
     #pylint: disable=W0406
     # needed for introspection
     import javaclass
 
-    global __template_map
-
-    if __template_map is not None:
-        return __template_map
-
-    t = dict()
+    if cache:
+        return cache    
 
     for template_type in get_templates():
         if not "_" in template_type.__name__:
@@ -342,11 +334,9 @@ def cheetah_template_map():
             raise Exception("no change class for template %s" % tn)
 
         # associate a Change class with a Template class
-        t[cc] = template_type
+        cache[cc] = template_type
 
-    __template_map = t
-    return t
-
+    return cache
 
 
 def resolve_cheetah_template(change_type):

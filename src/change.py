@@ -402,6 +402,7 @@ class SquashedChange(Change):
     in-depth information. """
 
     def __init__(self, change, is_ignored=False):
+        Change.__init__(self)
         self.label = change.label
         self.description = change.get_description()
         self.changed = change.is_change()

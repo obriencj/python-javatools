@@ -100,7 +100,7 @@ def print_method(options, method):
             opname = opcodes.get_opname_by_code(line[1])
             args = line[2]
             if args:
-                args = ", ".join(map(str,args))
+                args = ", ".join(str(arg) for arg in args)
                 print "   %i:\t%s\t%s" % (line[0], opname, args)
             else:
                 print "   %i:\t%s" % (line[0], opname)

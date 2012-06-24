@@ -26,7 +26,7 @@ license: LGPL
 
 
 
-from change import GenericChange, SuperChange, Addition, Removal
+from .change import GenericChange, SuperChange, Addition, Removal
 
 
 
@@ -190,7 +190,7 @@ class Manifest(ManifestSection):
         """ write Manifest to a stream """
 
         ManifestSection.store(self, stream)
-        for k,sect in sorted(self.sub_sections.items()):
+        for _, sect in sorted(self.sub_sections.items()):
             sect.store(stream)
 
 
@@ -348,7 +348,7 @@ def zipentry_chunk(zipfile, name, x=2**14):
 
 
 def directory_generator(dirname, trim=0):
-    from os.path import isdir, join, sep, walk
+    from os.path import isdir, join, walk
 
     def gather(collect, dirname, fnames):
         for fname in fnames:
@@ -412,7 +412,7 @@ def single_path_generator(pathname):
 def cli_create(options, rest):
     from os.path import exists, split
     from os import makedirs
-    from dirutils import fnmatches
+    from .dirutils import fnmatches
     import sys
 
     if options.recursive:

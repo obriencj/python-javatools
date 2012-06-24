@@ -26,8 +26,9 @@ license: LGPL
 """
 
 
-from change import Change, GenericChange, SuperChange, Addition, Removal
-from change import yield_sorted_by_type
+from .change import Change, SuperChange
+from .change import Addition, Removal
+from .change import yield_sorted_by_type
 
 
 
@@ -84,7 +85,7 @@ class DistContentChange(Change):
 
 
     def is_ignored(self, options):
-        from dirutils import fnmatches
+        from .dirutils import fnmatches
         return fnmatches(self.entry, *options.ignore_filenames)
 
 
@@ -115,7 +116,6 @@ class DistTextChange(DistContentChange):
 
 
     def check(self):
-        from dirutils import fnmatches
         from itertools import izip_longest
 
         # We already know whether the file has changed or not, from
@@ -155,7 +155,7 @@ class DistManifestChange(SuperChange, DistContentChange):
 
 
     def collect_impl(self):
-        from manifest import Manifest, ManifestChange
+        from .manifest import Manifest, ManifestChange
 
         if not self.is_change():
             return
@@ -178,7 +178,7 @@ class DistJarChange(SuperChange, DistContentChange):
 
 
     def collect_impl(self):
-        from jardiff import JarChange
+        from .jardiff import JarChange
         from os.path import join
 
         lf = join(self.ldata, self.entry)
@@ -204,7 +204,7 @@ class DistJarReport(DistJarChange):
 
 
     def collect_impl(self):
-        from jardiff import JarReport
+        from .jardiff import JarReport
         from os.path import join
 
         lf = join(self.ldata, self.entry)
@@ -236,7 +236,7 @@ class DistClassChange(SuperChange, DistContentChange):
 
     def collect_impl(self):
         from javaclass import unpack_classfile
-        from classdiff import JavaClassChange
+        from .classdiff import JavaClassChange
         from os.path import join
 
         lf = join(self.ldata, self.entry)
@@ -266,7 +266,7 @@ class DistClassReport(DistClassChange):
 
     def collect_impl(self):
         from javaclass import unpack_classfile
-        from classdiff import JavaClassReport
+        from .classdiff import JavaClassReport
         from os.path import join
 
         lf = join(self.ldata, self.entry)
@@ -315,9 +315,9 @@ class DistChange(SuperChange):
                           DistContentRemoved,
                           DistContentChange)
     def collect_impl(self):
-        from dirutils import compare, LEFT, RIGHT, SAME, DIFF
-        from dirutils import fnmatches
-        from jarinfo import JAR_PATTERNS
+        from .dirutils import LEFT, RIGHT, SAME, DIFF
+        from .dirutils import compare, fnmatches
+        from .jarinfo import JAR_PATTERNS
 
         ld, rd = self.ldata, self.rdata
         deep = not self.shallow
@@ -408,7 +408,7 @@ class DistReport(DistChange):
         # overridden to immediately squash jar and class reports, to
         # save on memory usage.
 
-        from change import squash
+        from .change import squash
 
         changes = list()
         options = self.reporter.options
@@ -443,9 +443,9 @@ class DistReport(DistChange):
 
 
 def cli_dist_diff(parser, options, left, right):
-    from report import Reporter
-    from report import JSONReportFormat, TextReportFormat
-    from report import CheetahReportFormat
+    from .report import Reporter
+    from .report import JSONReportFormat, TextReportFormat
+    from .report import CheetahReportFormat
     from sys import stdout
 
     reports = set(getattr(options, "reports", tuple()))
@@ -517,9 +517,9 @@ def distdiff_optgroup(parser):
 
 def create_optparser():
     from optparse import OptionParser
-    from jardiff import jardiff_optgroup
-    from classdiff import classdiff_optgroup, general_optgroup
-    import report
+    from .jardiff import jardiff_optgroup
+    from .classdiff import classdiff_optgroup, general_optgroup
+    from javaclass import report
     
     parser = OptionParser(usage="%prod [OPTIONS] OLD_DIST NEW_DIST")
 

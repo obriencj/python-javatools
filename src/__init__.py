@@ -711,7 +711,7 @@ class JavaClassInfo(object):
                     # the event that this was a method or field on the
                     # array, we'll throw away that as well, and just
                     # emit the type contained in the array.
-                    t, b = _next_argsig(buffer(pv))
+                    t, _ = _next_argsig(buffer(pv))
                     if t[1] == "L":
                         pv = _pretty_type(t[1:])
                     else:
@@ -723,7 +723,7 @@ class JavaClassInfo(object):
 
 
     def get_provides(self, ignored=tuple(), private=False):
-        from dirutils import fnmatches
+        from .dirutils import fnmatches
 
         if private:
             if self._provides_private is None:
@@ -734,23 +734,18 @@ class JavaClassInfo(object):
                 self._provides = set(self._get_provides(False))
             provides = self._provides
 
-        if ignored:
-            provides = filter(lambda n: not fnmatches(n, *ignored), provides)
-        return provides
-
+        return [prov for prov in provides if not fnmatches(prov, *ignored)]
+    
 
 
     def get_requires(self, ignored=tuple()):
-        from dirutils import fnmatches
+        from .dirutils import fnmatches
 
         if self._requires is None:
             self._requires = set(self._get_requires())
 
         requires = self._requires
-
-        if ignored:
-            requires = filter(lambda n: not fnmatches(n, *ignored), requires)
-        return requires
+        return [req for req in requires if not fnmatches(req, *ignored)]
 
 
 
@@ -1125,7 +1120,7 @@ class JavaMemberInfo(object):
 
 
 
-    def _pretty_access_flags_gen(self, all=False):
+    def _pretty_access_flags_gen(self, showall=False):
 
         if self.is_public():
             yield "public"
@@ -1148,16 +1143,16 @@ class JavaMemberInfo(object):
         if self.is_module():
             yield "module"
 
-        if all and self.is_synthetic():
+        if showall and self.is_synthetic():
             yield "synthetic"
 
         if self.is_method:
             if self.is_synchronized():
                 yield "synchronized"
                 
-            if all and self.is_bridge():
+            if showall and self.is_bridge():
                 yield "bridge"
-            if all and self.is_varargs():
+            if showall and self.is_varargs():
                 yield "varargs"
 
         else:
@@ -1168,11 +1163,11 @@ class JavaMemberInfo(object):
 
 
 
-    def pretty_access_flags(self, all=False, forclass=True):
+    def pretty_access_flags(self, showall=False):
 
         """ generator of the keywords determined from the access flags"""
 
-        return self._pretty_access_flags_gen(all)
+        return self._pretty_access_flags_gen(showall)
 
 
 
@@ -1195,16 +1190,16 @@ class JavaMemberInfo(object):
         with the same name and argument type list, but with different
         return type."""
 
-        id = self.get_name()
+        ident = self.get_name()
 
         if self.is_method:
             args = ",".join(self.get_arg_type_descriptors())
             if self.is_bridge():
-                id = "%s(%s):%s" % (id, args, self.get_descriptor())
+                ident = "%s(%s):%s" % (ident, args, self.get_descriptor())
             else:
-                id = "%s(%s)" % (id, args)
+                ident = "%s(%s)" % (ident, args)
 
-        return id
+        return ident
 
 
 
@@ -1212,12 +1207,12 @@ class JavaMemberInfo(object):
 
         """ The pretty version of get_identifier """
 
-        id = self.get_name()
+        ident = self.get_name()
         if self.is_method:
             args = ",".join(self.pretty_arg_types())
-            id = "%s(%s)" % (id, args)
+            ident = "%s(%s)" % (ident, args)
 
-        return "%s:%s" % (id, self.pretty_type())
+        return "%s:%s" % (ident, self.pretty_type())
 
 
 
@@ -1367,7 +1362,7 @@ class JavaExceptionInfo(object):
         self.start_pc = 0
         self.end_pc = 0
         self.handler_pc = 0
-        self.catchx_type_ref = 0
+        self.catch_type_ref = 0
 
 
     def unpack(self, unpacker):
@@ -1386,7 +1381,7 @@ class JavaExceptionInfo(object):
     def get_catch_type(self):
 
         """ dereferences the catch_type_ref to its class name, or None
-        if the catch type is all """
+        if the catch type is unspecified """
 
         if self.catch_type_ref:
             return self.cpool.deref_const(self.catch_type_ref)
@@ -1407,24 +1402,23 @@ class JavaExceptionInfo(object):
         """ tuple of the start_pc, end_pc, handler_pc and
         catch_type_ref """
 
-        return self.__cmp_tuple()
-
-
-    def __cmp_tuple(self):
         return (self.start_pc, self.end_pc,
                 self.handler_pc, self.get_catch_type())
 
 
     def __hash__(self):
-        return hash(self.__cmp_tuple())
+        return hash(self.info())
 
 
     def __eq__(self, other):
-        return self.__cmp_tuple() == other.__cmp_tuple()
+        if isinstance(other, JavaExceptionInfo):
+            return self.info() == other.info()
+        else:
+            return self.info() == other
 
 
     def __str__(self):
-        return "(%s)" % ",".join(self.__cmp_tuple())
+        return "(%s)" % ",".join(self.info())
 
 
 
@@ -1510,7 +1504,7 @@ def _unpack_const_item(unpacker):
         val = unpacker.read(slen)
         try:
             val = val.decode("utf8")
-        except UnicodeDecodeError, ude:
+        except UnicodeDecodeError:
             # easiest hack to handle java's modified utf-8 encoding
             val = val.replace("\xC0\x80", "\00").decode("utf8")
     
@@ -1826,7 +1820,7 @@ def is_class(data):
 
         return magic == JAVA_CLASS_MAGIC
 
-    except:
+    except UnpackException:
         return False
 
 

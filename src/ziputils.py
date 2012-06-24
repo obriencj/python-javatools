@@ -23,7 +23,7 @@ license: LGPL
 
 
 
-from dirutils import LEFT, RIGHT, DIFF, SAME
+from .dirutils import LEFT, RIGHT, DIFF, SAME
 
 
 
@@ -114,7 +114,7 @@ def collect_compare_zips(left, right):
 
 def collect_compare_zips_into(left, right, added, removed, altered, same):
         
-    for event,file in compare_zips(left, right):
+    for event,filename in compare_zips(left, right):
         
         if event == LEFT:
             group = removed
@@ -128,7 +128,7 @@ def collect_compare_zips_into(left, right, added, removed, altered, same):
             assert(False)
 
         if group is not None:
-            group.append(file)
+            group.append(filename)
 
     return added,removed,altered,same
 
@@ -152,9 +152,11 @@ def is_zipfile(f):
         else:
             t = 0
         try:
+            #pylint: disable=W0212
+            # unfortunately not otherwise available
             ret = bool(zipfile._EndRecData(f))
         except IOError:
-            pass
+            ret = False
 
         f.seek(t)
 
@@ -185,21 +187,21 @@ def _crc32(fname):
 def _collect_infos(dirname):
 
     from zipfile import ZipInfo
-    from os.path import relpath, join, getsize, islink, isdir, isfile
+    from os.path import relpath, join, getsize, islink, isfile
     from os import walk
 
-    for r,ds,fs in walk(dirname):
+    for r, _, fs in walk(dirname):
         if not islink(r) and r != dirname:
             i = ZipInfo()
-            i.filename = join(relpath(r,dirname), "")
+            i.filename = join(relpath(r, dirname), "")
             i.file_size = 0
             i.compress_size = 0
             i.CRC = 0
             yield i.filename, i
 
         for f in fs:
-            df = join(r,f)
-            relfn = relpath(join(r,f),dirname)
+            df = join(r, f)
+            relfn = relpath(join(r, f), dirname)
 
             if islink(df):
                 pass
