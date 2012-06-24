@@ -180,7 +180,23 @@ class pylint_cmd(Command):
 
         
     def announce_overview(self, linter, report_fn):
-        pass
+        from itertools import izip
+
+        stats = linter.stats
+
+        m_types = ('error', 'warning', 'refactor', 'convention')
+        m_counts = (stats.get(mt, 0) for mt in m_types)
+        msg = ", ".join("%s: %i" % p for p in izip(m_types, m_counts))
+        self.announce(" "+msg, 2)
+
+        try:
+            note = eval(linter.config.evaluation, {}, stats)
+        except Exception, ex:
+            pass
+        else:
+            self.announce(" overall score: %.1f%%" % (note * 10), 2)
+
+        self.announce(" full details at %s" % report_fn, 2)        
 
 
     def run_linter(self):
@@ -190,15 +206,12 @@ class pylint_cmd(Command):
 
         linter = PyLinter(pylintrc=self.lint_config)
 
-        # same thing, but not all pylint versions have load_default_plugins
+        # same, but not all pylint versions have load_default_plugins
         #linter.load_default_plugins()
         checkers.initialize(linter)
         
         linter.read_config_file()
         linter.load_config_file()
-
-        # TODO:
-        # announce overview (quality %, number of errors and warnings)
 
         if self.packages:
             self.announce("checking packages", 2)
