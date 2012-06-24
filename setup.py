@@ -185,11 +185,15 @@ class pylint_cmd(Command):
 
     def run_linter(self):
         from pylint.lint import PyLinter
+        from pylint import checkers
         from os.path import join
 
         linter = PyLinter(pylintrc=self.lint_config)
 
-        linter.load_default_plugins()
+        # same thing, but not all pylint versions have load_default_plugins
+        #linter.load_default_plugins()
+        checkers.initialize(linter)
+        
         linter.read_config_file()
         linter.load_config_file()
 
