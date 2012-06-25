@@ -276,6 +276,8 @@ setup(name = "javatools",
                  "scripts/manifest",
                  "scripts/distpatchgen"],
 
+      requires = ["Cheetah"],
+
       cmdclass = {'build_py': build_py,
                   'pylint': pylint_cmd})
 
