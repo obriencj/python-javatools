@@ -131,10 +131,23 @@ class build_py(_build_py):
 
         return outputs
 
+
+    def has_cheetah(self):
+        try:
+            from Cheetah.Compiler import Compiler
+        except ImportError:
+            return False
+        else:
+            return True
+
     
     def run(self):
-        if self.packages:
+        if not self.has_cheetah():
+            self.announce("Cheetah not present, template compile skipped", 3)
+
+        elif self.packages:
             self.build_package_templates()
+
         _build_py.run(self)
 
 
@@ -173,7 +186,7 @@ class pylint_cmd(Command):
     def has_pylint(self):
         try:
             from pylint import lint
-        except ImportError, ie:
+        except ImportError:
             return False
         else:
             return True
