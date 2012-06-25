@@ -201,9 +201,9 @@ class DistInfo(object):
 def _collect_dist(pathn):
     from os.path import join, relpath
     from os import walk
-    for r,_,fs in walk(pathn):
+    for r, _ds, fs in walk(pathn):
         for f in fs:
-            yield relpath(join(r,f),pathn)
+            yield relpath(join(r, f), pathn)
 
 
 

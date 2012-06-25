@@ -135,7 +135,7 @@ class JavaConstantPool(object):
         # but not data
         hackpass = False
 
-        for _ in xrange(0, count):
+        for _i in xrange(0, count):
 
             if hackpass:
                 # previous item was a long or double
@@ -198,7 +198,7 @@ class JavaConstantPool(object):
         the constant pool entries. """
 
         for i in xrange(1, len(self.consts)):
-            t, _ = self.consts[i]            
+            t, _v = self.consts[i]            
             if t:
                 yield (i, t, self.deref_const(i))
     
@@ -309,7 +309,7 @@ class JavaAttributes(dict):
         cval = self.cpool.deref_const
 
         (count,) = unpacker.unpack(">H")
-        for _ in xrange(0, count):
+        for _i in xrange(0, count):
             (name, size) = unpacker.unpack(">HI")
             self[cval(name)] = unpacker.read(size)
 
@@ -758,7 +758,7 @@ class JavaClassInfo(object):
         cpool = self.cpool
 
         # loop through the constant pool for API types
-        for i, t, _ in cpool.constants():
+        for i, t, _v in cpool.constants():
             pv = None
 
             if t in (CONST_Class, CONST_Fieldref,
@@ -775,7 +775,7 @@ class JavaClassInfo(object):
                     # the event that this was a method or field on the
                     # array, we'll throw away that as well, and just
                     # emit the type contained in the array.
-                    t, _ = _next_argsig(buffer(pv))
+                    t, _buff = _next_argsig(buffer(pv))
                     if t[1] == "L":
                         pv = _pretty_type(t[1:])
                     else:
@@ -1817,7 +1817,7 @@ class Unpacker(object):
 
 
     def _unpack_array(self, count, fmt):
-        for _ in xrange(0, count):
+        for _i in xrange(0, count):
             yield self.unpack(fmt)
     
 
@@ -1831,7 +1831,7 @@ class Unpacker(object):
 
 
     def _unpack_objects(self, count, atype, *params, **kwds):
-        for _ in xrange(0, count):
+        for _i in xrange(0, count):
             o = atype(*params, **kwds)
             o.unpack(self)
             yield o

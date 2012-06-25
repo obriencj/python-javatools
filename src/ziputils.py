@@ -228,7 +228,7 @@ def _collect_infos(dirname):
     from os.path import relpath, join, getsize, islink, isfile
     from os import walk
 
-    for r, _, fs in walk(dirname):
+    for r, _ds, fs in walk(dirname):
         if not islink(r) and r != dirname:
             i = ZipInfo()
             i.filename = join(relpath(r, dirname), "")

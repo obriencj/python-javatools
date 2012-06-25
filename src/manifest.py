@@ -190,7 +190,7 @@ class Manifest(ManifestSection):
         """ write Manifest to a stream """
 
         ManifestSection.store(self, stream)
-        for _, sect in sorted(self.sub_sections.items()):
+        for _name, sect in sorted(self.sub_sections.items()):
             sect.store(stream)
 
 

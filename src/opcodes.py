@@ -103,7 +103,7 @@ def _unpack_lookupswitch(bc, offset):
     (default, npairs), offset = _unpack(">ii", bc, offset)
 
     switches = []
-    for _ in xrange(0, npairs):
+    for _i in xrange(0, npairs):
         pair, offset = _unpack(">ii", bc, offset)
         switches.append(pair)
     switches = tuple(switches)
@@ -119,8 +119,8 @@ def _unpack_tableswitch(bc, offset):
 
     (default, low, high), offset = _unpack(">iii", bc, offset)
 
-    joffs = []
-    for _ in xrange(0, (high - low) + 1):
+    joffs = list()
+    for _i in xrange(0, (high - low) + 1):
         j, offset = _unpack(">i", bc, offset)
         joffs.append(j)
     joffs = tuple(joffs)
