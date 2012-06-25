@@ -122,11 +122,10 @@ class JarClassChange(SuperChange, JarContentChange):
         if not self.is_change():
             return
 
-        #pylint: disable=C0321
-        # seen as multiple statements on one line
-        with self.open_left() as lfd, self.open_right() as rfd:
-            linfo = unpack_class(lfd)
-            rinfo = unpack_class(rfd)
+        with self.open_left() as lfd:
+            with self.open_right() as rfd:
+                linfo = unpack_class(lfd)
+                rinfo = unpack_class(rfd)
 
         yield JavaClassChange(linfo, rinfo)
 
@@ -158,11 +157,10 @@ class JarClassReport(JarClassChange):
         if not self.is_change():
             return
 
-        #pylint: disable=C0321
-        # seen as multiple statements on one line        
-        with self.open_left() as l, self.open_right() as r:
-            linfo = unpack_class(l)
-            rinfo = unpack_class(r)
+        with self.open_left() as l:
+            with self.open_right() as r:
+                linfo = unpack_class(l)
+                rinfo = unpack_class(r)
 
         yield JavaClassReport(linfo, rinfo, self.reporter)
 
@@ -185,10 +183,10 @@ class JarManifestChange(SuperChange, JarContentChange):
 
         lm, rm = Manifest(), Manifest()
 
-        #pylint: disable=C0321
-        with self.open_left() as l, self.open_right() as r:
-            lm.parse(l)
-            rm.parse(r)
+        with self.open_left() as l:
+            with self.open_right() as r:
+                lm.parse(l)
+                rm.parse(r)
 
         yield ManifestChange(lm, rm)
 
@@ -315,11 +313,11 @@ class JarContentsChange(SuperChange):
         # this makes it work on exploded archives
         from .ziputils import open_zip
 
-        #pylint: disable=C0321
-        with open_zip(self.ldata) as l, open_zip(self.rdata) as r:
-            self.lzip, self.rzip = l, r
-            ret = SuperChange.check_impl(self)
-            self.lzip, self.rzip = None, None
+        with open_zip(self.ldata) as l:
+            with open_zip(self.rdata) as r:
+                self.lzip, self.rzip = l, r
+                ret = SuperChange.check_impl(self)
+                self.lzip, self.rzip = None, None
 
         return ret
 
@@ -367,21 +365,22 @@ class JarContentsReport(JarContentsChange):
         options = self.reporter.options
         c = False
 
-        #pylint: disable=C0321
-        with open_zip(self.ldata) as l, open_zip(self.rdata) as r:
-            self.lzip, self.rzip = l, r
+        with open_zip(self.ldata) as l:
+            with open_zip(self.rdata) as r:
+
+                self.lzip, self.rzip = l, r
         
-            for change in self.collect_impl():
-                change.check()
-                c = c or change.is_change()
+                for change in self.collect_impl():
+                    change.check()
+                    c = c or change.is_change()
             
-                if isinstance(change, JarClassReport):
-                    changes.append(squash(change, options=options))
-                    change.clear()
-                else:
-                    changes.append(change)
+                    if isinstance(change, JarClassReport):
+                        changes.append(squash(change, options=options))
+                        change.clear()
+                    else:
+                        changes.append(change)
         
-            self.lzip, self.rzip = None, None
+                self.lzip, self.rzip = None, None
         
         self.changes = changes
         return c, None

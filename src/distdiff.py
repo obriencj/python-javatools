@@ -128,15 +128,15 @@ class DistTextChange(DistContentChange):
         # and if so, set lineending to true so we can optionally
         # ignore the change later.
 
-        #pylint: disable=C0321
-        with open(self.left_fn()) as lf, open(self.right_fn()) as rf:
-            for li,ri in izip_longest(lf, rf, fillvalue=""):
-                if li.rstrip() != ri.rstrip():
-                    break
-            else:
-                # we went through every line, and they were all equal
-                # when stripped of their trailing whitespace
-                self.lineending = True
+        with open(self.left_fn()) as lf:
+            with open(self.right_fn()) as rf:
+                for li,ri in izip_longest(lf, rf, fillvalue=""):
+                    if li.rstrip() != ri.rstrip():
+                        break
+                else:
+                    # we went through every line, and they were all equal
+                    # when stripped of their trailing whitespace
+                    self.lineending = True
 
         return DistContentChange.check(self)
 

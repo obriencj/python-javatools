@@ -32,10 +32,9 @@ def compare(left, right):
     """ yields EVENT,ENTRY pairs describing the differences between
     left and right, which are filenames for a pair of zip files """
 
-    #pylint: disable=C0321
-    # seen as multiple statements on one line
-    with open_zip(left) as l, open_zip(right) as r:
-        return compare_zips(l, r)
+    with open_zip(left) as l:
+        with open_zip(right) as r:
+            return compare_zips(l, r)
 
 
 
@@ -104,13 +103,16 @@ def _deep_different(left, right, f):
 
     from itertools import izip_longest
 
-    #pylint: disable=C0321
-    # seen as multiple statements on one line
-    with left.open(f) as lfd, right.open(f) as rfd:
-        for l,r in izip_longest(_chunk(lfd), _chunk(rfd)):
-            if l != r:
-                return True
-        return False
+    differ = False
+
+    with left.open(f) as lfd:
+        with right.open(f) as rfd:
+            for l,r in izip_longest(_chunk(lfd), _chunk(rfd)):
+                if l != r:
+                    differ = True
+                    break
+
+    return differ
 
 
 
@@ -131,10 +133,11 @@ def collect_compare_into(left, right, added, removed, altered, same):
     altered, and same.  Returns a tuple of added, removed, altered,
     same """
 
-    #pylint: disable=C0321
-    # seen as multiple statements on one line
-    with open_zip(left) as l, open_zip(right) as r:
-        return collect_compare_zips_into(l, r, added, removed, altered, same)
+    with open_zip(left) as l:
+        with open_zip(right) as r:
+            return collect_compare_zips_into(l, r,
+                                             added, removed,
+                                             altered, same)
 
 
 
