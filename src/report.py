@@ -103,7 +103,7 @@ class ReportFormat(object):
 
 
 
-def _opt_cb_report(_, _, value, parser):
+def _opt_cb_report(_opt, _optstr, value, parser):
     options = parser.values
     
     if not hasattr(options, "reports"):

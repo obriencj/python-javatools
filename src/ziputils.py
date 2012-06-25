@@ -50,7 +50,8 @@ def compare_zips(left, right):
         if f in rl:
             rl.remove(f)
 
-            if _directory(left, right, f):
+            if (f[-1] == '/'):
+                # it's a directory entry
                 pass
 
             elif _different(left, right, f):
@@ -64,15 +65,6 @@ def compare_zips(left, right):
 
     for f in rl:
         yield RIGHT, f
-
-
-
-def _directory(_, _, f):
-
-    """ true if entry f appears to be a directory """
-    
-    # the easy way out.
-    return (f[-1] == '/')
 
 
 
