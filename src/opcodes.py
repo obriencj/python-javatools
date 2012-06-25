@@ -86,7 +86,7 @@ def _unpack(frmt, bc, offset=0):
     """ returns the unpacked data tuple, and the next offset past the
     unpacked data"""
 
-    from javaclass import compile_struct
+    from javatools import compile_struct
 
     sfmt = compile_struct(frmt)
     data = buffer(bc, offset, sfmt.size)

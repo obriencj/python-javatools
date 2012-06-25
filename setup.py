@@ -254,16 +254,16 @@ class pylint_cmd(Command):
 
         
 
-setup(name = "javaclass",
+setup(name = "javatools",
       version = "1.3",
       
-      packages = ["javaclass",
-                  "javaclass.cheetah"],
+      packages = ["javatools",
+                  "javatools.cheetah"],
 
-      package_dir = {"javaclass": "src",
-                     "javaclass.cheetah": "src/cheetah"},
+      package_dir = {"javatools": "src",
+                     "javatools.cheetah": "src/cheetah"},
       
-      package_data = {"javaclass.cheetah": ["data/*.css",
+      package_data = {"javatools.cheetah": ["data/*.css",
                                             "data/*.js",
                                             "data/*.png"]},
       

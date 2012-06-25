@@ -303,7 +303,7 @@ class CodeConstantsChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        from javaclass import opcodes
+        from javatools import opcodes
         
         if not self.offsets:
             return None
@@ -320,7 +320,7 @@ class CodeConstantsChange(GenericChange):
 
 
     def check_impl(self):
-        from javaclass import opcodes
+        from javatools import opcodes
         from itertools import izip
         
         left,right = self.ldata, self.rdata
@@ -362,7 +362,7 @@ class CodeBodyChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        from javaclass import opcodes
+        from javatools import opcodes
         
         pr = list()
         for offset,code,args in c.disassemble():
@@ -744,7 +744,7 @@ def cli_classes_diff(parser, options, left, right):
 
 
 def cli(parser, options, rest):
-    from javaclass import unpack_classfile
+    from javatools import unpack_classfile
     
     if len(rest) != 3:
         parser.error("wrong number of arguments.")
@@ -861,7 +861,7 @@ def general_optgroup(parser):
 
 def create_optparser():
     from optparse import OptionParser
-    from javaclass import report
+    from javatools import report
 
     parser = OptionParser("%prog [OPTIONS] OLD_CLASS NEW_CLASS")
 

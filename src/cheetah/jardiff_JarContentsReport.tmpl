@@ -24,30 +24,30 @@ $render_change(chm[entry])
 <div class="details">
 
 <%
-import javaclass.jardiff
-import javaclass.change
+import javatools.jardiff
+import javatools.change
 
 ## collect the changes into buckets by type
 change = getattr(self, "change")
-changemap = javaclass.change.collect_by_type(change.collect())
+changemap = javatools.change.collect_by_type(change.collect())
 changeorder = (
-    javaclass.jardiff.JarManifestChange,
-    javaclass.jardiff.JarSignatureAdded,
-    javaclass.jardiff.JarSignatureRemoved,
-    javaclass.jardiff.JarSignatureChange,
-    javaclass.jardiff.JarContentAdded,
-    javaclass.jardiff.JarContentRemoved,
-    javaclass.jardiff.JarContentChange,
-    javaclass.jardiff.JarClassAdded,
-    javaclass.jardiff.JarClassRemoved,
-    javaclass.jardiff.JarClassChange,
+    javatools.jardiff.JarManifestChange,
+    javatools.jardiff.JarSignatureAdded,
+    javatools.jardiff.JarSignatureRemoved,
+    javatools.jardiff.JarSignatureChange,
+    javatools.jardiff.JarContentAdded,
+    javatools.jardiff.JarContentRemoved,
+    javatools.jardiff.JarContentChange,
+    javatools.jardiff.JarClassAdded,
+    javatools.jardiff.JarClassRemoved,
+    javatools.jardiff.JarClassChange,
 )
 
 ## gather SquashedChange instances under a more appropriate heading
-for sq in changemap.pop(javaclass.change.SquashedChange, ()):
+for sq in changemap.pop(javatools.change.SquashedChange, ()):
     oc = sq.origclass
-    if oc is javaclass.jardiff.JarClassReport:
-        oc = javaclass.jardiff.JarClassChange
+    if oc is javatools.jardiff.JarClassReport:
+        oc = javatools.jardiff.JarClassChange
     sqm = changemap.get(oc, None)
     if sqm is None:
 	changemap[oc] = sqm = list()

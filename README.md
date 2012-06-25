@@ -1,5 +1,5 @@
 
-# Overview of python-javaclass
+# Overview of python-javatools
 
 A python module for unpacking and inspecting Java Class files, JARs,
 and collections of either.
@@ -7,16 +7,16 @@ and collections of either.
 It can do deep checking of classes to perform comparisons of
 functionality, and output reports in multiple formats.
 
+[python-javatools on GitHub](https://github.com/obriencj/python-javatools/)
 
-## Likely Project Rename
 
-"javaclass" is a very generic name, and indeed I've already found a
+## Project Renamed
+
+Originally python-javaclass.
+
+"javaclass" was a very generic name, and indeed I had found a
 conflictingly-named javaclass package that does something else
-entirely. As such I'll likely need to change the package name to
-javaclassdiff or such. It isn't a priority at the moment, since I
-doubt there's a user base. If you have a more inventive suggestion for
-a package name, please let me know!
-
+entirely.
 
 ## Requirements
 
@@ -28,7 +28,7 @@ a package name, please let me know!
 
 This module uses distutils, so simply run `python setup.py install`
 
-If you'd prefer to build an RPM, see the wiki entry for [Building as an RPM](//github.com/obriencj/python-javaclass/wiki/Building-as-an-RPM)
+If you'd prefer to build an RPM, see the wiki entry for [Building as an RPM](https://github.com/obriencj/python-javatools/wiki/Building-as-an-RPM)
 
 
 ## Scripts Installed

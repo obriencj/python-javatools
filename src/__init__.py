@@ -1414,7 +1414,7 @@ class JavaCodeInfo(object):
         """ disassembles the underlying bytecode instructions and
         generates a sequence of (offset, code, args) tuples"""
 
-        import javaclass.opcodes as opcodes
+        import javatools.opcodes as opcodes
         return opcodes.disassemble(self.code)
 
 

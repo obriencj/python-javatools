@@ -252,7 +252,7 @@ Notification = pkg + ".NotificationActionHandler"
 def sieve_changes(delta, options, copies, removals, patches):
     from .change import SquashedChange
     from .dirutils import fnmatches
-    from javaclass import distdiff
+    from javatools import distdiff
 
     for change in delta.collect():
         if not change.is_change():
@@ -464,7 +464,7 @@ def cli(parser, options, rest):
 
 
 def create_optparser():
-    from javaclass import distdiff
+    from javatools import distdiff
 
     # TODO Bring this in line with the other option sets
     parser = distdiff.create_optparser()

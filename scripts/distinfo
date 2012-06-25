@@ -1,7 +1,7 @@
 #! python
 
 
-from javaclass.distinfo import main
+from javatools.distinfo import main
 import sys
 
 

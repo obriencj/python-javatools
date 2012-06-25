@@ -1,10 +1,10 @@
 Summary: Tools for inspecting and comparing binary Java class files
-Name: python-javaclass
+Name: python-javatools
 Version: 1.3
 Release: 0
 License: LGPL
 Group: Application/System
-URL: https://github.com/obriencj/python-javaclass/
+URL: https://github.com/obriencj/python-javatools/
 Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: noarch
@@ -52,6 +52,7 @@ rm -rf %{buildroot}
 * Fri Jun 14 2012 Christopher O'Brien <obriencj@gmail.com> - 1.3-1
 - expand on cheetah html reporting
 - requires PyXML for xml.xpath
+- renamed to python-javatools as there was already a javaclass
 
 * Thu Jun 14 2012 Christopher O'Brien <obriencj@gmail.com> - 1.2-1
 - require python 2.6 and later rather than trying to fight with

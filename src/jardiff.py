@@ -116,7 +116,7 @@ class JarClassChange(SuperChange, JarContentChange):
 
 
     def collect_impl(self):
-        from javaclass import unpack_class
+        from javatools import unpack_class
         from .classdiff import JavaClassChange
 
         if not self.is_change():
@@ -152,7 +152,7 @@ class JarClassReport(JarClassChange):
 
 
     def collect_impl(self):
-        from javaclass import unpack_class
+        from javatools import unpack_class
         from .classdiff import JavaClassReport
 
         if not self.is_change():
@@ -500,7 +500,7 @@ def jardiff_optgroup(parser):
 def create_optparser():
     from optparse import OptionParser
     from .classdiff import general_optgroup, classdiff_optgroup
-    from javaclass import report
+    from javatools import report
 
     parser = OptionParser(usage="%prod [OPTIONS] OLD_JAR NEW_JAR")
     

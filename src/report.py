@@ -305,7 +305,7 @@ def cheetah_template_map(cache=dict()):
 
     #pylint: disable=W0406
     # needed for introspection
-    import javaclass
+    import javatools
 
     if cache:
         return cache    
@@ -322,11 +322,11 @@ def cheetah_template_map(cache=dict()):
         tn = template_type.__name__
         pn,cn = tn.split("_", 1)
 
-        # get the package from javaclass
-        pk = getattr(javaclass, pn, None)
+        # get the package from javatools
+        pk = getattr(javatools, pn, None)
         if pk is None:
-            __import__("javaclass."+pn)
-            pk = getattr(javaclass, pn, None)
+            __import__("javatools."+pn)
+            pk = getattr(javatools, pn, None)
 
         # get the class from the package
         cc = getattr(pk, cn, None)

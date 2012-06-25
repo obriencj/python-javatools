@@ -1,7 +1,7 @@
 #! python
 
 
-from javaclass.jardiff import main
+from javatools.jardiff import main
 import sys
 
 

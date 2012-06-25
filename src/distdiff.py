@@ -237,7 +237,7 @@ class DistClassChange(SuperChange, DistContentChange):
 
 
     def collect_impl(self):
-        from javaclass import unpack_classfile
+        from javatools import unpack_classfile
         from .classdiff import JavaClassChange
         from os.path import join
 
@@ -267,7 +267,7 @@ class DistClassReport(DistClassChange):
 
 
     def collect_impl(self):
-        from javaclass import unpack_classfile
+        from javatools import unpack_classfile
         from .classdiff import JavaClassReport
         from os.path import join
 
@@ -521,7 +521,7 @@ def create_optparser():
     from optparse import OptionParser
     from .jardiff import jardiff_optgroup
     from .classdiff import classdiff_optgroup, general_optgroup
-    from javaclass import report
+    from javatools import report
     
     parser = OptionParser(usage="%prod [OPTIONS] OLD_DIST NEW_DIST")
 

@@ -122,7 +122,7 @@ class JarInfo(object):
 
 
     def get_classinfo(self, entry):
-        from javaclass import unpack_class
+        from javatools import unpack_class
         with self.get_zipfile().open(entry) as cfd:
             return unpack_class(cfd)
 

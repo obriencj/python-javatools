@@ -1,7 +1,7 @@
 #! python
 
 
-from javaclass.classdiff import main
+from javatools.classdiff import main
 import sys
 
 

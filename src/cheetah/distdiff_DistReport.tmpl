@@ -25,32 +25,32 @@ $render_change(chm[entry])
 #block details
 <!-- begin distdiff_DistReport.details -->
 
-#import javaclass.distdiff
-#import javaclass.change
+#import javatools.distdiff
+#import javatools.change
 
 ## collect the changes into buckets by type
 <%
 change = getattr(self, "change")
-changemap = javaclass.change.collect_by_type(change.collect())
+changemap = javatools.change.collect_by_type(change.collect())
 changeorder = (
-    javaclass.distdiff.DistClassAdded,
-    javaclass.distdiff.DistClassRemoved,
-    javaclass.distdiff.DistClassChange,
-    javaclass.distdiff.DistJarAdded,
-    javaclass.distdiff.DistJarRemoved,
-    javaclass.distdiff.DistJarChange,
-    javaclass.distdiff.DistContentAdded,
-    javaclass.distdiff.DistContentRemoved,
-    javaclass.distdiff.DistContentChange,
+    javatools.distdiff.DistClassAdded,
+    javatools.distdiff.DistClassRemoved,
+    javatools.distdiff.DistClassChange,
+    javatools.distdiff.DistJarAdded,
+    javatools.distdiff.DistJarRemoved,
+    javatools.distdiff.DistJarChange,
+    javatools.distdiff.DistContentAdded,
+    javatools.distdiff.DistContentRemoved,
+    javatools.distdiff.DistContentChange,
 )
 
 ## gather SquashedChange instances under a more appropriate heading
-for sq in changemap.pop(javaclass.change.SquashedChange, ()):
+for sq in changemap.pop(javatools.change.SquashedChange, ()):
     oc = sq.origclass
-    if oc is javaclass.distdiff.DistJarReport:
-        oc = javaclass.distdiff.DistJarChange
-    elif oc is javaclass.distdiff.DistClassReport:
-        oc = javaclass.distdiff.DistClassChange
+    if oc is javatools.distdiff.DistJarReport:
+        oc = javatools.distdiff.DistJarChange
+    elif oc is javatools.distdiff.DistClassReport:
+        oc = javatools.distdiff.DistClassChange
     sqm = changemap.get(oc, None)
     if sqm is None:
 	changemap[oc] = sqm = list()

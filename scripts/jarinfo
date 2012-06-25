@@ -1,7 +1,7 @@
 #! python
 
 
-from javaclass.jarinfo import main
+from javatools.jarinfo import main
 import sys
 
 

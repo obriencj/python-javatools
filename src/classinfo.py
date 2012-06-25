@@ -69,7 +69,7 @@ def print_field(options, field):
 
 
 def print_method(options, method):
-    import javaclass.opcodes as opcodes
+    import javatools.opcodes as opcodes
 
     if options.indent:
         print "   ",
@@ -188,7 +188,7 @@ def cli_class_requires(options, info):
 
 
 def cli_print_classinfo(options, info):
-    from javaclass import platform_from_version
+    from javatools import platform_from_version
 
     if options.class_provides or options.class_requires:
         if options.class_provides:
@@ -226,11 +226,11 @@ def cli_print_classinfo(options, info):
         cpool = info.cpool
 
         for i in xrange(1, len(cpool.consts)):
-            t,v = cpool.pretty_const(i)
+            t, v = cpool.pretty_const(i)
             if t:
                 # skipping the None consts, which would be the entries
                 # comprising the second half of a long or double value
-                print "const #%i = %s\t%s;" % (i,t,v)
+                print "const #%i = %s\t%s;" % (i, t, v)
         print
         
     if options.show == HEADER:
@@ -254,7 +254,7 @@ def cli_print_classinfo(options, info):
 
 
 def cli_print_class(options, classfile):
-    from javaclass import unpack_classfile
+    from javatools import unpack_classfile
 
     info = unpack_classfile(classfile)
     return cli_print_classinfo(options, info)
@@ -274,9 +274,9 @@ def cli_simplify_field(options, field, data=None):
 
     cv = field.get_constantvalue()
     if cv is not None:
-        t,v = field.cpool.pretty_const(cv)
+        t, v = field.cpool.pretty_const(cv)
         if t:
-            data["constant_value"] = (t,v)
+            data["constant_value"] = (t, v)
 
     return data
 
@@ -317,7 +317,7 @@ def cli_simplify_methods(options, info):
 
 
 def cli_simplify_classinfo(options, info, data=None):
-    from javaclass import platform_from_version
+    from javatools import platform_from_version
 
     if data is None:
         data = dict()
@@ -349,13 +349,17 @@ def cli_simplify_classinfo(options, info, data=None):
 
 
 def ifonly(data, key, val):
+
+    """ utility function to set data[key] to val, but only if val has
+    a truthy value """
+
     if val:
         data[key] = val
 
 
 
 def cli_json_class(options, classfile):
-    from javaclass import unpack_classfile
+    from javatools import unpack_classfile
     from json import dump
     from sys import stdout
     

@@ -171,7 +171,7 @@ class DistInfo(object):
 
 
     def get_classinfo(self, entry):
-        from javaclass import unpack_classfile
+        from javatools import unpack_classfile
         from os.path import join
         
         return unpack_classfile(join(self.base_path,entry))
