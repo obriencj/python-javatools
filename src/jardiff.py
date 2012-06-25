@@ -122,6 +122,8 @@ class JarClassChange(SuperChange, JarContentChange):
         if not self.is_change():
             return
 
+        #pylint: disable=C0321
+        # seen as multiple statements on one line
         with self.open_left() as lfd, self.open_right() as rfd:
             linfo = unpack_class(lfd)
             rinfo = unpack_class(rfd)
@@ -155,7 +157,9 @@ class JarClassReport(JarClassChange):
 
         if not self.is_change():
             return
-        
+
+        #pylint: disable=C0321
+        # seen as multiple statements on one line        
         with self.open_left() as l, self.open_right() as r:
             linfo = unpack_class(l)
             rinfo = unpack_class(r)

@@ -28,12 +28,21 @@ from .dirutils import LEFT, RIGHT, DIFF, SAME
 
 
 def compare(left, right):
+
+    """ yields EVENT,ENTRY pairs describing the differences between
+    left and right, which are filenames for a pair of zip files """
+
+    #pylint: disable=C0321
+    # seen as multiple statements on one line
     with open_zip(left) as l, open_zip(right) as r:
         return compare_zips(l, r)
 
 
 
 def compare_zips(left, right):
+
+    """ yields EVENT,ENTRY pairs describing the differences between
+    left and right ZipFile instances """
 
     ll, rl = set(left.namelist()), set(right.namelist())
 
@@ -58,13 +67,20 @@ def compare_zips(left, right):
 
 
 
-def _directory(left, right, f):
+def _directory(_, _, f):
+
+    """ true if entry f appears to be a directory """
+    
     # the easy way out.
     return (f[-1] == '/')
 
 
 
 def _different(left, right, f):
+
+    """ true if entry f is different between left and right ZipFile
+    instances """
+
     l, r = left.getinfo(f), right.getinfo(f)
 
     if (l.file_size == r.file_size) and (l.CRC == r.CRC):
@@ -78,6 +94,10 @@ def _different(left, right, f):
 
 
 def _chunk(stream, size=10240):
+
+    """ yields chunked reads from stream in the given size. The last
+    chunk may be smaller than the rest """
+
     d = stream.read(size)
     while d:
         yield d
@@ -86,8 +106,14 @@ def _chunk(stream, size=10240):
 
 
 def _deep_different(left, right, f):
+
+    """ checks that entry f is identical between ZipFile instances
+    left and right """
+
     from itertools import izip_longest
 
+    #pylint: disable=C0321
+    # seen as multiple statements on one line
     with left.open(f) as lfd, right.open(f) as rfd:
         for l,r in izip_longest(_chunk(lfd), _chunk(rfd)):
             if l != r:
@@ -97,25 +123,45 @@ def _deep_different(left, right, f):
 
 
 def collect_compare(left, right):
+
+    """ collects the differences between left and right, which are
+    filenames for valid zip files, into a tuple of lists: added,
+    removed, altered, same """
+
     return collect_compare_into(left, right, [], [], [], [])
 
 
 
 def collect_compare_into(left, right, added, removed, altered, same):
+
+    """ collects the differences between left and right, which are
+    filenames for valid zip files, into the lists added, removed,
+    altered, and same.  Returns a tuple of added, removed, altered,
+    same """
+
+    #pylint: disable=C0321
+    # seen as multiple statements on one line
     with open_zip(left) as l, open_zip(right) as r:
         return collect_compare_zips_into(l, r, added, removed, altered, same)
 
 
 
 def collect_compare_zips(left, right):
+    
+    """ collects the differences between left and right ZipFile
+    instances into a tuple of lists: added, removed, altered, same """
+
     return collect_compare_zips_into(left, right, [], [], [], [])
 
 
 
 def collect_compare_zips_into(left, right, added, removed, altered, same):
-        
+    
+    """ collects the differences between left and right ZipFile
+    instances into the lists added, removed, altered, and same.
+    Returns a tuple of added, removed, altered, same"""
+
     for event,filename in compare_zips(left, right):
-        
         if event == LEFT:
             group = removed
         elif event == RIGHT:
@@ -136,7 +182,7 @@ def collect_compare_zips_into(left, right, added, removed, altered, same):
 
 def is_zipfile(f):
 
-    """ just like zipfile.is_zipfile, but also works upon file-like
+    """ just like zipfile.is_zipfile, but also works upon stream-like
     objects (and not just filenames) """
 
     import zipfile
@@ -167,13 +213,10 @@ def is_zipfile(f):
 
 
 
-def is_exploded(f):
-    import os.path
-    return os.path.isdir(f)
-
-
-
 def _crc32(fname):
+
+    """ gets the CRC32 of a file named fname """
+
     import zlib
 
     with open(fname, 'rb') as fd:
@@ -185,6 +228,9 @@ def _crc32(fname):
 
 
 def _collect_infos(dirname):
+
+    """ Utility function used by ExplodedZipFile to generate ZipInfo
+    entries for all of the files and directories under dirname """
 
     from zipfile import ZipInfo
     from os.path import relpath, join, getsize, islink, isfile
@@ -288,13 +334,14 @@ class ZipFileContext(object):
 
 def zip_file(fn, mode="r"):
 
-    """ returns either a zipfile.ZipFile instance, or an
+    """ returns either a zipfile.ZipFile instance or an
     ExplodedZipFile instance, depending on whether fn is the name of a
-    valid zip file, or a directory. """
+    valid zip file, or a directory."""
     
     import zipfile
-    
-    if is_exploded(fn):
+    import os.path
+
+    if os.path.isdir(fn):
         return ExplodedZipFile(fn)
     elif is_zipfile(fn):
         return zipfile.ZipFile(fn, mode)

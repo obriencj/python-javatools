@@ -318,10 +318,6 @@ class JavaAttributes(dict):
             self[cval(name)] = unpacker.read(size)
 
 
-    def get_attribute(self, name):
-        return self.get(name, None)
-
-
 
 class JavaClassInfo(object):
 
@@ -347,12 +343,18 @@ class JavaClassInfo(object):
 
 
     def deref_const(self, index):
+
+        """ dereference a value from the parent constant pool """
+
         return self.cpool.deref_const(index)
 
 
 
     def get_attribute(self, name):
-        return self.attribs.get_attribute(name)
+
+        """ get an attribute buffer by name """
+
+        return self.attribs.get(name)
 
 
 
@@ -408,6 +410,10 @@ class JavaClassInfo(object):
 
 
     def get_field_by_name(self, name):
+
+        """ the field member matching name, or None if no such field
+        is found """
+        
         for f in self.fields:
             if f.get_name() == name:
                 return f
@@ -416,7 +422,9 @@ class JavaClassInfo(object):
 
 
     def get_methods_by_name(self, name):
+
         """ generator of methods matching name """
+
         return (m for m in self.methods if m.get_name() == name)
 
 
@@ -425,7 +433,8 @@ class JavaClassInfo(object):
 
         """ returns the method matching the name and having argument
         type descriptors matching those in arg_types. This does not
-        return any bridge methods. """
+        return any bridge methods. None if no matching method is found
+        """
 
         for m in self.get_methods_by_name(name):
             if ((not m.is_bridge) and
@@ -460,31 +469,53 @@ class JavaClassInfo(object):
 
 
     def get_version(self):
+        
+        """ the (major, minor) version of Java required by this Java
+        class """
+
         return self.version
 
 
 
     def get_major_version(self):
+
+        """ the major part of the version of Java required by this
+        Java class """
+
         return self.version[0]
 
 
 
     def get_minor_version(self):
+
+        """ the minor part of the version of Java required by this
+        Java class """
+
         return self.version[1]
 
 
 
     def get_platform(self):
+
+        """ The platform as a string, derived from the major and minor
+        version number """
+
         return platform_from_version(*self.version)
 
 
 
     def is_public(self):
+
+        """ is this class public """
+
         return self.access_flags & ACC_PUBLIC
 
 
 
     def is_final(self):
+
+        """ is this class final """
+
         return self.access_flags & ACC_FINAL
 
 
@@ -495,46 +526,74 @@ class JavaClassInfo(object):
 
 
     def is_interface(self):
+
+        """ is this an interface """
+
         return self.access_flags & ACC_INTERFACE
 
 
 
     def is_abstract(self):
+
+        """ is this an abstract class """
+
         return self.access_flags & ACC_ABSTRACT
 
 
 
     def is_annotation(self):
+
+        """ is this an annotation class """
+
         return self.access_flags & ACC_ANNOTATION
 
 
 
     def is_enum(self):
+
+        """ is this an enum class """
+
         return self.access_flags & ACC_ENUM
 
 
 
     def get_this(self):
+
+        """ the name of this class """
+
         return self.deref_const(self.this_ref)
 
 
 
     def is_deprecated(self):
+
+        """ is this class deprecated """
+
         return bool(self.get_attribute("Deprecated"))
 
 
 
     def get_super(self):
+
+        """ get the parent class that this extends """
+
         return self.deref_const(self.super_ref)
 
 
 
     def get_interfaces(self):
+
+        """ tuple of interfaces that this class implements """
+
         return tuple(self.deref_const(i) for i in self.interfaces)
 
 
 
     def get_sourcefile_ref(self):
+
+        """ the constant ref indicated by the Sourcefile attribute, or
+        0 of the SourceFile attribute is not present """
+
         buff = self.get_attribute("SourceFile")
         if buff is None:
             return 0
@@ -547,6 +606,10 @@ class JavaClassInfo(object):
 
 
     def get_sourcefile(self):
+
+        """ the name of thie file this class was compiled from, or
+        None if not indicated """
+
         sfref = self.get_sourcefile_ref()
         if sfref:
             return self.deref_const(sfref)
@@ -562,6 +625,10 @@ class JavaClassInfo(object):
 
 
     def get_innerclasses(self):
+
+        """ sequence of JavaInnerClassInfo instances describing the
+        inner classes of this class definition """
+
         buff = self.get_attribute("InnerClasses")
         if buff is None:
             return None
@@ -572,6 +639,9 @@ class JavaClassInfo(object):
 
 
     def get_signature(self):
+
+        """ the generics class signature """
+
         buff = self.get_attribute("Signature")
         if buff is None:
             return None
@@ -585,6 +655,9 @@ class JavaClassInfo(object):
 
 
     def get_enclosingmethod(self):
+
+        """ the enclosing method which defined this class, if any """
+
         buff = self.get_attribute("EnclosingMethod")
 
         # TODO:
@@ -615,6 +688,9 @@ class JavaClassInfo(object):
 
 
     def _pretty_access_flags_gen(self):
+        
+        """ generator of the pretty access flags """
+
         if self.is_public():
             yield "public"
         if self.is_final():
@@ -641,16 +717,26 @@ class JavaClassInfo(object):
 
 
     def pretty_this(self):
+
+        """ the pretty version of this class name """
+
         return _pretty_class(self.get_this())
 
 
 
     def pretty_super(self):
+
+        """ the pretty version of the parent class """
+
         return _pretty_class(self.get_super())
 
 
 
     def pretty_interfaces(self):
+
+        """ the pretty versions of any interfaces this class
+        implements """
+
         return (_pretty_class(t) for t in self.get_interfaces())
 
     
@@ -676,6 +762,11 @@ class JavaClassInfo(object):
 
 
     def _get_provides(self, private=False):
+
+        """ iterator of provided classes, fields, methods """
+
+        #TODO I probably need to add inner classes here
+
         me = self.pretty_this()
         yield me
 
@@ -690,6 +781,10 @@ class JavaClassInfo(object):
 
 
     def _get_requires(self):
+
+        """ iterator of required classes, fields, methods, determined
+        my mining the constant pool for such types """
+
         provided = set(self.get_provides(private=True))
         cpool = self.cpool
 
@@ -723,6 +818,10 @@ class JavaClassInfo(object):
 
 
     def get_provides(self, ignored=tuple(), private=False):
+
+        """ The provided API, including the class itself, its fields,
+        and its methods. """
+
         from .dirutils import fnmatches
 
         if private:
@@ -739,6 +838,10 @@ class JavaClassInfo(object):
 
 
     def get_requires(self, ignored=tuple()):
+
+        """ The required API, including all external classes, fields,
+        and methods that this class references """
+
         from .dirutils import fnmatches
 
         if self._requires is None:
@@ -776,7 +879,7 @@ class JavaMemberInfo(object):
 
         """ Get an attribute buffer by name """
 
-        return self.attribs.get_attribute(name)
+        return self.attribs.get(name)
 
 
 
@@ -815,8 +918,6 @@ class JavaMemberInfo(object):
 
         """ unpack the contents of this instance from the values in
         unpacker """
-
-        #debug("unpacking member info")
 
         (a, b, c) = unpacker.unpack(">HHH")
 
@@ -1244,7 +1345,7 @@ class JavaCodeInfo(object):
 
         """ get an attribute buffer by name """
 
-        return self.attribs.get_attribute(name)
+        return self.attribs.get(name)
 
 
 
@@ -1538,6 +1639,9 @@ def _unpack_const_item(unpacker):
 
 def _pretty_const_type_val(typecode, val):
 
+    """ given a typecode and a value, returns the appropriate pretty
+    version of that value (not the dereferenced data) """
+
     if typecode == CONST_Utf8:
         typestr = "Utf8" # formerly Asciz, which was considered Java bug
         if isinstance(val, unicode):
@@ -1679,9 +1783,7 @@ def _clean_array_const(s):
 
 
 
-_struct_cache = {}
-
-def compile_struct(fmt):
+def compile_struct(fmt, cache=dict()):
 
     """ returns a Struct instance compiled from fmt. If fmt has
     already been compiled, it will return the previously compiled
@@ -1689,11 +1791,10 @@ def compile_struct(fmt):
 
     from struct import Struct
 
-    sfmt = _struct_cache.get(fmt, None)
+    sfmt = cache.get(fmt, None)
     if not sfmt:
-        #debug("compiling struct format %r" % fmt)
         sfmt = Struct(fmt)
-        _struct_cache[fmt] = sfmt
+        cache[fmt] = sfmt
     return sfmt
 
 

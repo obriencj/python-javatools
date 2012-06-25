@@ -14,7 +14,19 @@
 
 
 
+"""
+Collects available Cheetah templates for use with the HTML report
+
+author: Christopher O'Brien <obriencj@gmail.com>
+license: LGPL
+"""
+
+
 def _iter_templates():
+
+    """ uses reflection to yield the Cheetah templates under this
+    module """
+
     from Cheetah.Template import Template
     from pkgutil import iter_modules
 
