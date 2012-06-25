@@ -65,6 +65,7 @@ class build_py(_build_py):
 
             for package_, template, template_file in templates:
                 assert package == package_
+                self.check_cheetah()
                 self.build_template(template, template_file, package)
 
 
@@ -132,20 +133,17 @@ class build_py(_build_py):
         return outputs
 
 
-    def has_cheetah(self):
+    def check_cheetah(self):
         try:
-            from Cheetah.Compiler import Compiler
+            import Cheetah.Compiler
         except ImportError:
-            return False
+            raise SystemExit("Cheetah.Compiler not present, cannot continue")
         else:
             return True
 
     
     def run(self):
-        if not self.has_cheetah():
-            self.announce("Cheetah not present, template compile skipped", 3)
-
-        elif self.packages:
+        if self.packages:
             self.build_package_templates()
 
         _build_py.run(self)
@@ -251,7 +249,7 @@ class pylint_cmd(Command):
         import sys
 
         if not self.has_pylint():
-            self.announce("pylint not present", 2)
+            self.warn("pylint not present")
             return
 
         # since we process the build output, we need to ensure build
