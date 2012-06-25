@@ -8,6 +8,16 @@ It can do deep checking of classes to perform comparisons of
 functionality, and output reports in multiple formats.
 
 
+## Likely Project Rename
+
+"javaclass" is a very generic name, and indeed I've already found a
+conflictingly-named javaclass package that does something else
+entirely. As such I'll likely need to change the package name to
+javaclassdiff or such. It isn't a priority at the moment, since I
+doubt there's a user base. If you have a more inventive suggestion for
+a package name, please let me know!
+
+
 ## Requirements
 
 * [Python](http://python.org) 2.6 or later (no support for Python 3)
