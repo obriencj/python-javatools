@@ -184,6 +184,8 @@ class JarManifestChange(SuperChange, JarContentChange):
             return
 
         lm, rm = Manifest(), Manifest()
+
+        #pylint: disable=C0321
         with self.open_left() as l, self.open_right() as r:
             lm.parse(l)
             rm.parse(r)
@@ -313,6 +315,7 @@ class JarContentsChange(SuperChange):
         # this makes it work on exploded archives
         from .ziputils import open_zip
 
+        #pylint: disable=C0321
         with open_zip(self.ldata) as l, open_zip(self.rdata) as r:
             self.lzip, self.rzip = l, r
             ret = SuperChange.check_impl(self)
@@ -363,7 +366,8 @@ class JarContentsReport(JarContentsChange):
         changes = list()
         options = self.reporter.options
         c = False
-        
+
+        #pylint: disable=C0321
         with open_zip(self.ldata) as l, open_zip(self.rdata) as r:
             self.lzip, self.rzip = l, r
         
