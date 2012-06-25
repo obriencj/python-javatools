@@ -211,8 +211,9 @@ def cli_print_classinfo(options, info):
             print "  Signature:", info.get_signature()
         if info.get_enclosingmethod():
             print "  EnclosingMethod:", info.get_enclosingmethod()
-        print "  minor version:", info.get_minor_version()
-        print "  major version:", info.get_major_version()
+        major, minor = info.get_version()
+        print "  minor version:", major
+        print "  major version:", minor
         platform = platform_from_version(*info.version) or "unknown"
         print "  Platform:", platform
 

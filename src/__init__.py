@@ -31,11 +31,6 @@ license: LGPL
 
 
 
-#def debug(*args):
-#        print " ".join(args)
-
-
-
 # the four bytes at the start of every class file
 JAVA_CLASS_MAGIC = (0xCA, 0xFE, 0xBA, 0xBE)
 JAVA_CLASS_MAGIC_STR = "\xca\xfe\xba\xbe"
@@ -128,8 +123,6 @@ class JavaConstantPool(object):
     def unpack(self, unpacker):
  
         """ Unpacks the constant pool from an unpacker stream """
-
-        #debug("unpacking constant pool")
         
         (count,) = unpacker.unpack(">H")
         
@@ -217,7 +210,7 @@ class JavaConstantPool(object):
         constant pool entries."""
 
         for i in xrange(1, len(self.consts)):
-            t,v = self.pretty_const(i)
+            t, v = self.pretty_const(i)
             if t:
                 yield (i, t, v)
 
@@ -229,11 +222,11 @@ class JavaConstantPool(object):
         invalid indexes (such as the second part of a long or double
         value) """
 
-        t,v = self.consts[index]
+        t, v = self.consts[index]
         if not t:
-            return (None,None)
+            return (None, None)
         else:
-            return _pretty_const_type_val(t,v)
+            return _pretty_const_type_val(t, v)
 
 
 
@@ -246,12 +239,13 @@ class JavaConstantPool(object):
         class, name, and value derefenced constants)"""
 
         t, v = self.consts[index]
+        result = ""
 
         if t == CONST_String:
-            return str(self.deref_const(v))
+            result = str(self.deref_const(v))
 
         elif t == CONST_Class:
-            return _pretty_class(self.deref_const(v))
+            result = _pretty_class(self.deref_const(v))
 
         elif t == CONST_Fieldref:
             cn = self.deref_const(v[0])
@@ -259,7 +253,7 @@ class JavaConstantPool(object):
 
             n, t = self.deref_const(v[1])
 
-            return "%s.%s:%s" % (cn, n, _pretty_type(t))
+            result = "%s.%s:%s" % (cn, n, _pretty_type(t))
 
         elif t in (CONST_Methodref,
                    CONST_InterfaceMethodref):
@@ -271,24 +265,26 @@ class JavaConstantPool(object):
 
             args, ret = tuple(_pretty_typeseq(t))
 
-            return "%s.%s%s:%s" % (cn, n, args, ret)
+            result = "%s.%s%s:%s" % (cn, n, args, ret)
 
         elif t == CONST_NameAndType:
             a, b = (self.deref_const(i) for i in v)
             b = "".join(_pretty_typeseq(b))
-            return "%s:%s" % (a,b)
+            result = "%s:%s" % (a,b)
 
         elif t == CONST_ModuleIdInfo:
-            a,b = (self.deref_const(i) for i in v)
-            return "%s@%s" % (a,b)
+            a, b = (self.deref_const(i) for i in v)
+            result = "%s@%s" % (a,b)
 
         elif not t:
             # the skipped-type, meaning the prior index was a
             # two-slotter.
-            return ""
+            pass
 
         else:
             raise Unimplemented("No pretty for const type %r" % t)
+
+        return result
 
 
 
@@ -367,8 +363,6 @@ class JavaClassInfo(object):
         it, the read value may be passed via the optional magic
         parameter and it will not attempt to read the value again. """
 
-        #debug("unpacking class info")
-
         # only unpack the magic bytes if it wasn't specified
         magic = magic or unpacker.unpack(">BBBB")
 
@@ -378,13 +372,14 @@ class JavaClassInfo(object):
             magic = tuple(magic)
 
         if magic != JAVA_CLASS_MAGIC:
-            raise Exception("not a Java class file")
+            raise UnpackException("not a Java class file")
 
         self.magic = magic
 
-        # unpack (minor,major), store as (major, minor)
+        # unpack (minor, major), store as (major, minor)
         self.version = unpacker.unpack(">HH")[::-1]
 
+        # unpack constant pool
         self.cpool.unpack(unpacker)
         
         (a, b, c) = unpacker.unpack(">HHH")
@@ -392,19 +387,19 @@ class JavaClassInfo(object):
         self.this_ref = b
         self.super_ref = c
 
-        #debug("unpacking interfaces")
+        # unpack interfaces
         (count,) = unpacker.unpack(">H")
         self.interfaces = unpacker.unpack(">%iH" % count)
         
-        #debug("unpacking fields")        
+        # unpack fields
         self.fields = unpacker.unpack_objects(JavaMemberInfo,
                                               self.cpool, is_method=False)
         
-        #debug("unpacking methods")
+        # unpack methods
         self.methods = unpacker.unpack_objects(JavaMemberInfo,
                                                self.cpool, is_method=True)
 
-        #debug("unpacking attributes")
+        # unpack attributes
         self.attribs.unpack(unpacker)
 
 
@@ -477,24 +472,6 @@ class JavaClassInfo(object):
 
 
 
-    def get_major_version(self):
-
-        """ the major part of the version of Java required by this
-        Java class """
-
-        return self.version[0]
-
-
-
-    def get_minor_version(self):
-
-        """ the minor part of the version of Java required by this
-        Java class """
-
-        return self.version[1]
-
-
-
     def get_platform(self):
 
         """ The platform as a string, derived from the major and minor
@@ -521,6 +498,9 @@ class JavaClassInfo(object):
 
 
     def is_super(self):
+
+        """ class has the Super flag set """
+
         return self.access_flags & ACC_SUPER
 
 
@@ -589,32 +569,19 @@ class JavaClassInfo(object):
 
 
 
-    def get_sourcefile_ref(self):
-
-        """ the constant ref indicated by the Sourcefile attribute, or
-        0 of the SourceFile attribute is not present """
-
-        buff = self.get_attribute("SourceFile")
-        if buff is None:
-            return 0
-
-        with Unpacker(buff) as up:
-            (r,) = up.unpack(">H")
-
-        return r
-
-
-
     def get_sourcefile(self):
 
         """ the name of thie file this class was compiled from, or
         None if not indicated """
 
-        sfref = self.get_sourcefile_ref()
-        if sfref:
-            return self.deref_const(sfref)
-        else:
+        buff = self.get_attribute("SourceFile")
+        if buff is None:
             return None
+        
+        with Unpacker(buff) as up:
+            (ref,) = up.unpack(">H")
+        
+        return self.deref_const(ref)
 
 
 
@@ -631,7 +598,7 @@ class JavaClassInfo(object):
 
         buff = self.get_attribute("InnerClasses")
         if buff is None:
-            return None
+            return tuple()
         
         with Unpacker(buff) as up:
             return up.unpack_objects(JavaInnerClassInfo, self.cpool)
@@ -646,17 +613,18 @@ class JavaClassInfo(object):
         if buff is None:
             return None
 
-        # type index
         with Unpacker(buff) as up:
-            (ti,) = up.unpack(">H")
+            (ref,) = up.unpack(">H")
 
-        return self.deref_const(ti)
+        return self.deref_const(ref)
 
 
 
     def get_enclosingmethod(self):
 
-        """ the enclosing method which defined this class, if any """
+        """ the class.method or class (if the definition is not from
+        within a method) that encloses the definition of this
+        class. Returns None if this was not an inner class. """
 
         buff = self.get_attribute("EnclosingMethod")
 
@@ -674,16 +642,17 @@ class JavaClassInfo(object):
         with Unpacker(buff) as up:
             (ci, mi) = up.unpack(">HH")
 
+        result = None
+
         if ci and mi:
             enc_class = self.deref_const(ci)
             enc_meth,enc_type = self.deref_const(mi)
-            return "%s.%s%s" % (enc_class, enc_meth, enc_type)
+            result = "%s.%s%s" % (enc_class, enc_meth, enc_type)
 
         elif ci:
-            return self.deref_const(ci)
+            result = self.deref_const(ci)
 
-        else:
-            return None
+        return result
 
 
 
@@ -1632,7 +1601,6 @@ def _unpack_const_item(unpacker):
     else:
         raise Unimplemented("unknown constant type %r" % type)
 
-    #debug("const %s\t%s;" % _pretty_const_type_val(typecode,val))
     return (typecode, val)
 
 
