@@ -49,6 +49,16 @@ class Reporter(object):
         return [(relpath(b, basedir), e) for b, e in crumbs]
 
 
+    def add_formats_by_name(self, rfmt_list):
+        for fmt in rfmt_list:
+            if fmt == "json":
+                self.add_report_format(JSONReportFormat)
+            elif fmt in ("txt", "text"):
+                self.add_report_format(TextReportFormat)
+            elif fmt in ("htm", "html"):
+                self.add_report_format(CheetahReportFormat)
+
+
     def add_report_format(self, report_format):
         
         """ Add an output format to this reporter. report_format

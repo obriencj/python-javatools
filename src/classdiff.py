@@ -92,8 +92,10 @@ class ClassSuperclassChange(GenericChange):
 class ClassInterfacesChange(GenericChange):
     label = "Interfaces"
 
+
     def fn_data(self, c):
         return set(c.get_interfaces())
+
 
     def fn_pretty(self, c):
         return tuple(c.pretty_interfaces())
@@ -375,7 +377,7 @@ class CodeBodyChange(GenericChange):
     def check_impl(self):
         from itertools import izip
 
-        left,right = self.ldata,self.rdata
+        left, right = self.ldata, self.rdata
                 
         if len(left.code) != len(right.code):
             desc = "Code length changed from %r to %r" % \
@@ -717,22 +719,13 @@ class JavaClassReport(JavaClassChange):
 def cli_classes_diff(parser, options, left, right):
     from .report import quick_report, Reporter
     from .report import JSONReportFormat, TextReportFormat
-    from .report import CheetahReportFormat
 
     reports = getattr(options, "reports", tuple())
     if reports:
         rdir = options.report_dir or "./"
-        rpt = Reporter(rdir, "JavaClassReport", options)
 
-        for fmt in reports:
-            if  fmt == "json":
-                rpt.add_report_format(JSONReportFormat)
-            elif fmt in ("txt", "text"):
-                rpt.add_report_format(TextReportFormat)
-            elif fmt in ("htm", "html"):
-                rpt.add_report_format(CheetahReportFormat)
-            else:
-                parser.error("unknown report format: %s" % fmt)
+        rpt = Reporter(rdir, "JavaClassReport", options)
+        rpt.add_formats_by_name(reports)
 
         delta = JavaClassReport(left, right, rpt)
 

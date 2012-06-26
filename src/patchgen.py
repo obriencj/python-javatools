@@ -425,21 +425,12 @@ def options_magic(options):
 def cli_patchgen(parser, options, left, right):
     from .report import quick_report, Reporter
     from .report import JSONReportFormat, TextReportFormat
-    from .report import CheetahReportFormat
     from .distdiff import DistReport
 
     rdir = options.report_dir or "./"
-    rpt = Reporter(rdir, "DistReport", options)
 
-    for fmt in getattr(options, "reports", tuple()):
-        if fmt == "json":
-            rpt.add_report_format(JSONReportFormat)
-        elif fmt in ("txt", "text"):
-            rpt.add_report_format(TextReportFormat)
-        elif fmt in ("htm", "html"):
-            rpt.add_report_format(CheetahReportFormat)
-        else:
-            parser.error("unknown report format: %s" % fmt)
+    rpt = Reporter(rdir, "DistReport", options)
+    rpt.add_formats_by_name(getattr(options, "reports", tuple()))
 
     delta = DistReport(left, right, rpt, options.shallow)
     delta.check()
