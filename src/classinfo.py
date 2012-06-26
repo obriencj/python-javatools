@@ -289,7 +289,7 @@ def cli_simplify_method(options, method, data=None):
     data["name"] = method.get_name()
     data["type"] = method.pretty_type()
     data["access_flags"] = tuple(method.pretty_access_flags())
-    data["arg_types"] = method.pretty_arg_types()
+    data["arg_types"] = tuple(method.pretty_arg_types())
 
     ifonly(data, "signature", method.get_signature())
     ifonly(data, "deprecated", method.is_deprecated())

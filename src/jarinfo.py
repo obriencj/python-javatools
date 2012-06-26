@@ -115,6 +115,9 @@ class JarInfo(object):
 
 
     def get_classes(self):
+
+        """ sequence of .class files in the underlying zip """
+
         from .dirutils import fnmatches
         for n in self.get_zipfile().namelist():
             if fnmatches(n, "*.class"):
@@ -122,19 +125,31 @@ class JarInfo(object):
 
 
     def get_classinfo(self, entry):
+        
+        """ fetch a class entry as a JavaClassInfo instance """
+
         from javatools import unpack_class
         with self.get_zipfile().open(entry) as cfd:
             return unpack_class(cfd)
 
 
     def get_manifest(self):
-        """ fetch the sections from the MANIFEST.MF file. Returns a
-        list of dicts representing all of the key:val sections in the
-        manifest."""
 
-        from .manifest import parse_sections
-        data = self.get_zipfile().read("META-INF/MANIFEST.MF")
-        return parse_sections(data)
+        """ fetch the sections from the MANIFEST.MF file as a Manifest
+        instance, or None if no MANIFEST.MF entry present """
+
+        from .manifest import Manifest
+
+        mf_entry = "META-INF/MANIFEST.MF"
+
+        zipfile = self.get_zipfile()
+        if not zipfile.getinfo(mf_entry):
+            return None
+
+        mf = Manifest()
+        with zipfile.open(mf_entry) as data:
+            mf.parse(data)
+        return mf
 
 
     def get_zipfile(self):
@@ -160,14 +175,14 @@ def cli_jar_manifest_info(options, jarinfo):
         return
 
     print "Manifest main section:"
-    for k,v in sorted(mf[0].items()):
-        print "  %s: %s" % (k,v)
+    for k, v in sorted(mf.items()):
+        print "  %s: %s" % (k, v)
 
-    for sect in mf[1:]:
+    for _name, sect in sorted(mf.sub_sections.items()):
         print
         print "Manifest sub-section:"
-        for k,v in sorted(sect.items()):
-            print "  %s: %s" % (k,v)
+        for k, v in sorted(sect.items()):
+            print "  %s: %s" % (k, v)
 
     print
 
