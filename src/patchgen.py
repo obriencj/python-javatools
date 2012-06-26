@@ -432,7 +432,7 @@ def cli_patchgen(parser, options, left, right):
     rpt = Reporter(rdir, "DistReport", options)
     rpt.add_formats_by_name(getattr(options, "reports", tuple()))
 
-    delta = DistReport(left, right, rpt, options.shallow)
+    delta = DistReport(left, right, rpt)
     delta.check()
 
     if not options.silent:

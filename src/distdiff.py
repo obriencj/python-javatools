@@ -377,6 +377,20 @@ class DistChange(SuperChange):
 
 
 
+def _mp_check_helper(tasks, results):
+
+    """ a helper function for multiprocessing with DistReport """
+
+    for index, change in iter(tasks.get, None):
+        change.check()
+        results.put((index, change))
+        tasks.task_done()
+
+    # called once more for the sentinel None we consumed
+    tasks.task_done()
+
+
+
 class DistReport(DistChange):
 
     """ This class has side-effects. Running the check method with the
@@ -386,9 +400,11 @@ class DistReport(DistChange):
     report_name = "DistReport"
 
 
-    def __init__(self, l, r, reporter, shallow=False):
-        DistChange.__init__(self, l, r, shallow)
+    def __init__(self, l, r, reporter):
         self.reporter = reporter
+        options = reporter.options
+        shallow = getattr(options, "shallow", False)
+        DistChange.__init__(self, l, r, shallow)
 
 
     def collect_impl(self):
@@ -406,14 +422,68 @@ class DistReport(DistChange):
             yield c
 
 
-    def check_impl(self):
-        # overridden to immediately squash jar and class reports, to
-        # save on memory usage.
+    def mp_check_impl(self, process_count=2):
+        from .change import squash
+        from multiprocessing import Process, JoinableQueue
 
+        func = _mp_check_helper
+
+        options = self.reporter.options
+
+        task_count = 0
+        tasks = JoinableQueue()
+        results = JoinableQueue()
+
+        # enqueue the sub-reports for multi-processing. Other types of
+        # changes can happen sync.
+        changes = list(self.collect_impl())
+        for index in xrange(0, len(changes)):
+            change = changes[index]
+
+            if isinstance(change, (DistJarReport, DistClassReport)):
+                changes[index] = None
+                tasks.put((index, change))
+                task_count += 1
+            else:
+                change.check()
+
+        # start the number of processes, and make sure there are that
+        # many stop sentinels in the tasks queue
+        for _i in xrange(0, process_count):
+            tasks.put(None)
+            process = Process(target=func, args=(tasks, results))
+            process.start()
+        
+        # get all of the results and feed them back into our change
+        # set after squashing them.
+        for _i in xrange(0, task_count):
+            index, change = results.get()
+            changes[index] = squash(change, options=options)
+            change.clear()
+
+            results.task_done()
+
+        # complete the check by setting our internal collection of
+        # child changes and returning our overall status
+        c = False
+        for change in changes:
+            c = c or change.is_change()
+        self.changes = changes
+        return c, None
+
+
+    def check_impl(self):
         from .change import squash
 
-        changes = list()
         options = self.reporter.options
+
+        # if we're configured to use multiple processes, the work happens
+        # in mp_check_impl instead
+        forks = getattr(options, "processes", 0)
+        if forks:
+            return self.mp_check_impl(forks)
+
+        changes = list()
 
         c = False
         for change in self.collect_impl():
@@ -421,6 +491,8 @@ class DistReport(DistChange):
             c = c or change.is_change()
 
             if isinstance(change, (DistJarReport, DistClassReport)):
+                # the child report has run, we only need to keep the
+                # squashed overview
                 changes.append(squash(change, options=options))
                 change.clear()
             else:
@@ -455,7 +527,7 @@ def cli_dist_diff(parser, options, left, right):
         rpt = Reporter(rdir, "DistReport", options)
         rpt.add_formats_by_name(reports)
 
-        delta = DistReport(left, right, rpt, options.shallow)
+        delta = DistReport(left, right, rpt)
 
     else:
         delta = DistChange(left, right, options.shallow)
@@ -485,14 +557,29 @@ def cli(parser, options, rest):
 
 
 def distdiff_optgroup(parser):
+
+    """ Option group relating to the use of a DistChange or DistReport """
+
     from optparse import OptionGroup
 
     og = OptionGroup(parser, "Distribution Checking Options")
 
-    og.add_option("--ignore-filenames", action="append", default=[])
+    og.add_option("--processes", action="store", type="int", default=0,
+                  help="Number of child processes to spawn to handle"
+                  " sub-reports. Defaults to 0")
+
+    og.add_option("--shallow", action="store_true", default=False,
+                  help="Check only that the files of this dist have"
+                  "changed, do not infer the meaning")
+
+    og.add_option("--ignore-filenames", action="append", default=[],
+                  help="file glob to ignore. Can be specified multiple"
+                  " times")
+
     og.add_option("--ignore-trailing-whitespace",
                   action="store_true", default=False,
-                  help="ignore trailing whitespace when comparing text files")
+                  help="ignore trailing whitespace when comparing text"
+                  " files")
 
     return og
 
@@ -505,8 +592,6 @@ def create_optparser():
     from javatools import report
     
     parser = OptionParser(usage="%prod [OPTIONS] OLD_DIST NEW_DIST")
-
-    parser.add_option("--shallow", action="store_true", default=False)
 
     parser.add_option_group(general_optgroup(parser))
     parser.add_option_group(distdiff_optgroup(parser))
