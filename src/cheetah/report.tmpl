@@ -23,8 +23,8 @@ $change.__class__.__name__
 
 
 #block head_stylesheets
-#if $options.html_stylesheets
-#for ss in $options.html_stylesheets
+#if $stylesheets
+#for ss in $stylesheets
 <link rel="stylesheet" type="text/css" href="$ss" />
 #end for
 #else
@@ -48,7 +48,7 @@ div {
 
 
 #block head_javascripts
-#for js in $options.html_javascripts
+#for js in $javascripts
 <script type="text/javascript" src="$js"></script>
 #end for
 #end block

@@ -423,22 +423,22 @@ class JarReport(JarChange):
 
 
 def cli_jars_diff(parser, options, left, right):
-    from .report import Reporter
+    from .report import quick_report, Reporter
     from .report import JSONReportFormat, TextReportFormat
     from .report import CheetahReportFormat
 
-    reports = set(getattr(options, "reports", tuple()))
+    reports = getattr(options, "reports", tuple())
     if reports:
         rdir = options.report_dir or "./"
         rpt = Reporter(rdir, "JarReport", options)
 
         for fmt in reports:
             if fmt == "json":
-                rpt.add_report_format(JSONReportFormat())
+                rpt.add_report_format(JSONReportFormat)
             elif fmt in ("txt", "text"):
-                rpt.add_report_format(TextReportFormat())
+                rpt.add_report_format(TextReportFormat)
             elif fmt in ("htm", "html"):
-                rpt.add_report_format(CheetahReportFormat())
+                rpt.add_report_format(CheetahReportFormat)
             else:
                 parser.error("unknown report format: %s" % fmt)
 
@@ -450,12 +450,10 @@ def cli_jars_diff(parser, options, left, right):
     delta.check()
 
     if not options.silent:
-        rpt = Reporter(None, None, options)
         if options.json:
-            rpt.add_report_format(JSONReportFormat())
+            quick_report(JSONReportFormat, delta, options)
         else:
-            rpt.add_report_format(TextReportFormat())
-        rpt.run(delta)
+            quick_report(TextReportFormat, delta, options)
 
     if (not delta.is_change()) or delta.is_ignored(options):
         return 0

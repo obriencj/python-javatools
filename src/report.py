@@ -25,20 +25,32 @@ license: LGPL
 
 class Reporter(object):
 
+    """ Collects multiple report formats for use in presenting a
+    change """
+
 
     def __init__(self, basedir, entry, options):
         self.basedir = basedir
         self.entry = entry
         self.options = options
         self.breadcrumbs = tuple()
-        self.formats = list()
+        self.formats = set()
 
 
     def add_report_format(self, report_format):
-        self.formats.append(report_format)
+        
+        """ Add an output format to this reporter. report_format
+        should be a ReportFormat subtype. It will be instantiated when
+        the reporter is run. """
+
+        self.formats.add(report_format)
 
 
     def subreporter(self, subpath, entry):
+
+        """ create a reporter for a sub-report, with updated
+        breadcrumbs and the same output formats """
+
         from os.path import join, relpath
 
         newbase = join(self.basedir, subpath)
@@ -48,57 +60,76 @@ class Reporter(object):
         crumbs.append((relpath(self.basedir, newbase), self.entry))
         r.breadcrumbs = crumbs
 
-        r.formats = list(self.formats)
+        r.formats = set(self.formats)
         return r
 
 
-    def run(self, change, out=None):
+    def run(self, change):
+
+        """ Instantiates all report formats that have been added to
+        this reporter, and runs them """
 
         basedir = self.basedir
-        entry = self.entry
         options = self.options
         crumbs = self.breadcrumbs
+        entry = self.entry
 
-        if out:
-            for r in self.formats:
-                r.run_impl(change, out, options, crumbs)
-
-        else:
-            for r in self.formats:
-                r.run(change, basedir, entry, options, crumbs)
+        # formats is a set of types
+        for fmt_class in self.formats:
+            # instantiate a formater from the class and run it
+            fmt = fmt_class(basedir, options, crumbs)
+            fmt.run(change, entry)
 
 
 
 class ReportFormat(object):
+
+    """ Base class of a report format provider. Override to describe a
+    concrete format type """
     
 
     extension = ".report"
 
 
-    def run_impl(self, change, out, options, breadcrumbs=tuple()):
+    def __init__(self, basedir, options, breadcrumbs=tuple()):
+        self.basedir = basedir
+        self.options = options
+        self.breadcrumbs = breadcrumbs
+
+
+    def run_impl(self, change, entry, out):
+        
+        """ override to actually produce output """
+
         pass
 
 
-    def run(self, change, basedir, entry, options, breadcrumbs=tuple()):
+    def run(self, change, entry, out=None):
+
+        """ setup for run, including creating an output file if
+        needed. Calls run_impl when ready """
+
         from os.path import exists, join
         from os import makedirs
         from sys import stdout
+
+        if out:
+            self.run_impl(change, entry, out)
+            return None
         
-        if basedir or entry:
-            basedir = basedir or "./"
-            entry = entry or "overall"
-            
-            if basedir and not exists(basedir):
+        elif entry:
+            basedir = self.basedir or "./"
+
+            if not exists(basedir):
                 makedirs(basedir)
 
             fn = join(basedir, entry + self.extension)
             with open(fn, "wt") as out:
-                self.run_impl(change, out, options, breadcrumbs)
-
+                self.run_impl(change, entry, out)
             return fn
 
         else:
-            self.run_impl(change, stdout, options)
+            self.run_impl(change, entry, stdout)
             return None
 
 
@@ -117,6 +148,9 @@ def _opt_cb_report(_opt, _optstr, value, parser):
 
 
 def general_report_optgroup(parser):
+
+    """ General Reporting Options """
+
     from optparse import OptionGroup
 
     g = OptionGroup(parser, "Reporting Options")
@@ -139,9 +173,10 @@ class JSONReportFormat(ReportFormat):
     extension = ".json"
 
 
-    def run_impl(self, change, out, options, breadcrumbs=tuple()):
+    def run_impl(self, change, entry, out):
         from json import dump
 
+        options = self.options
         indent = getattr(options, "json_indent", 2)
 
         data = {
@@ -162,6 +197,9 @@ class JSONReportFormat(ReportFormat):
 
 
 def json_report_optgroup(parser):
+
+    """ Option group for the JON report format """
+
     from optparse import OptionGroup
 
     g = OptionGroup(parser, "JON Report Options")
@@ -211,7 +249,8 @@ class TextReportFormat(ReportFormat):
     extension = ".text"
 
 
-    def run_impl(self, change, out, options, breadcrumbs=tuple()):
+    def run_impl(self, change, entry, out):
+        options = self.options
         _indent_change(change, out, options, 0)
 
 
@@ -262,24 +301,126 @@ class CheetahReportFormat(ReportFormat):
     extension = ".html"
 
 
-    def run_impl(self, change, out, options, breadcrumbs=tuple()):
-        trans = CheetahStreamTransaction(out)
+    def _relative(self, uri):
 
+        """ if uri is relative, re-relate it to our basedir """
+
+        from os.path import exists, relpath
+        
+        if (uri.startswith("http:") or
+            uri.startswith("https:") or
+            uri.startswith("file:") or
+            uri.startswith("/")):
+            return uri
+
+        elif exists(uri):
+            result = relpath(uri, self.basedir)
+            #print uri, self.basedir, result
+            return result
+
+        else:
+            return uri
+
+
+    def _relative_uris(self, uri_list):
+
+        """ if uris in list are relative, re-relate them to our basedir """
+
+        return [u for u in (self._relative(uri) for uri in uri_list) if u]
+
+
+    def copy_data(self):
+
+        """ copies default stylesheets and javascript files if
+        necessary, and appends them to the options """
+
+        from javatools import cheetah
+        from shutil import copy
+        from os.path import exists, join, relpath
+        from os import makedirs, walk
+        
+        options = self.options
+        datadir = getattr(options, "html_copy_data", None)
+        copied = getattr(options, "html_data_copied", False)
+        
+        if copied or not datadir:
+            return
+
+        # this is where we've installed the default media
+        datasrc = join(cheetah.__path__[0], "data")
+
+        # copy the contents of our data source to datadir
+        for r, ds, fs in walk(datasrc):
+            for d in ds:
+                rd = join(datadir, d)
+                if not exists(rd):
+                    makedirs(rd)
+            for f in fs:
+                rf = join(r, f)
+                copy(rf, join(datadir, relpath(rf, datasrc)))
+
+        # compose an extended list of the js and css files we copied
+        # into place
+        javascripts = list()
+        stylesheets = list()
+
+        for r, _ds, fs in walk(datadir):
+            for f in fs:
+                if f.endswith(".js"):
+                    javascripts.append(join(r, f))
+                elif f.endswith(".css"):
+                    stylesheets.append(join(r, f))
+
+        javascripts.extend(getattr(options, "html_javascripts", tuple()))
+        stylesheets.extend(getattr(options, "html_stylesheets", tuple()))
+
+        setattr(options, "html_javascripts", javascripts)
+        setattr(options, "html_stylesheets", stylesheets)
+
+        # keep from copying again
+        setattr(options, "html_data_copied", True)
+
+
+    def run_impl(self, change, entry, out):
+
+        options = self.options
+        crumbs = self.breadcrumbs
+
+        # ensure we have copied data if we need to
+        self.copy_data()
+
+        # translate relative paths if necessary
+        javascripts = self._relative_uris(options.html_javascripts)
+        stylesheets = self._relative_uris(options.html_stylesheets)
+
+        # create a transaction wrapping the output stream
+        trans = CheetahStreamTransaction(out)
+        
+        # map the class of the change to a template class
         template_class = resolve_cheetah_template(type(change))
 
+        # instantiate and setup the template
         template = template_class()
         template.transaction = trans
         template.change = change
+        template.entry = entry
         template.options = options
-        template.breadcrumbs = breadcrumbs
+        template.breadcrumbs = crumbs
+        template.javascripts = javascripts
+        template.stylesheets = stylesheets
 
         # this lets us call render_change from within the template on
         # a change instance to chain to another template (eg, for
         # sub-changes)
-        rc = lambda c: self.run_impl(c, out, options, breadcrumbs)
+        rc = lambda c: self.run_impl(c, entry, out)
         template.render_change = rc
 
+        # execute the template, which will write its contents to the
+        # transaction (and the underlying stream)
         template.respond()
+
+        # clean up the template
+        template.shutdown()
 
 
 
@@ -339,6 +480,7 @@ def cheetah_template_map(cache=dict()):
     return cache
 
 
+
 def resolve_cheetah_template(change_type):
 
     """ return the appropriate cheetah template class for the given
@@ -362,6 +504,9 @@ def resolve_cheetah_template(change_type):
 
 
 def html_report_optgroup(parser):
+
+    """ Option group for the HTML report format """
+
     from optparse import OptionGroup
 
     g = OptionGroup(parser, "HTML Report Options")
@@ -372,10 +517,28 @@ def html_report_optgroup(parser):
     g.add_option("--html-javascript", action="append", 
                  dest="html_javascripts", default=list())
 
-    g.add_option("--html-copy-data", action="store_true")
-    g.add_option("--html-data-dir", action="store", default=None)
+    g.add_option("--html-copy-data", action="store", default=None,
+                 help="Copy default resources to the given directory and"
+                 " enable them in the template")
 
     return g
+
+
+
+def quick_report(report_type, change, options):
+
+    """ writes a change report via report_type to options.output or
+    sys.stdout """
+
+    from sys import stdout
+
+    report = report_type(None, options)
+    
+    if options.output:
+        with open(options.output, "wt") as out:
+            report.run(change, None, out)
+    else:
+        report.run(change, None, stdout)
 
 
 
