@@ -37,6 +37,18 @@ class Reporter(object):
         self.formats = set()
 
 
+    def get_relative_breadcrumbs(self):
+
+        """ get the breadcrumbs as relative to the basedir """
+
+        from os.path import relpath
+
+        basedir = self.basedir
+        crumbs = self.breadcrumbs
+
+        return [(relpath(b, basedir), e) for b, e in crumbs]
+
+
     def add_report_format(self, report_format):
         
         """ Add an output format to this reporter. report_format
@@ -51,13 +63,13 @@ class Reporter(object):
         """ create a reporter for a sub-report, with updated
         breadcrumbs and the same output formats """
 
-        from os.path import join, relpath
+        from os.path import join
 
         newbase = join(self.basedir, subpath)
         r = Reporter(newbase, entry, self.options)
 
-        crumbs = [(relpath(a, newbase), b) for a, b in self.breadcrumbs]
-        crumbs.append((relpath(self.basedir, newbase), self.entry))
+        crumbs = list(self.breadcrumbs)
+        crumbs.append((self.basedir, self.entry))
         r.breadcrumbs = crumbs
 
         r.formats = set(self.formats)
@@ -71,7 +83,7 @@ class Reporter(object):
 
         basedir = self.basedir
         options = self.options
-        crumbs = self.breadcrumbs
+        crumbs = self.get_relative_breadcrumbs()
         entry = self.entry
 
         # formats is a set of types
