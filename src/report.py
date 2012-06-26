@@ -23,6 +23,10 @@ license: LGPL
 
 
 
+from json import JSONEncoder
+
+
+
 class Reporter(object):
 
     """ Collects multiple report formats for use in presenting a
@@ -50,6 +54,10 @@ class Reporter(object):
 
 
     def add_formats_by_name(self, rfmt_list):
+
+        """ adds formats by short label descriptors, such as 'txt',
+        'json', or 'html' """
+
         for fmt in rfmt_list:
             if fmt == "json":
                 self.add_report_format(JSONReportFormat)
@@ -157,6 +165,9 @@ class ReportFormat(object):
 
 
 def _opt_cb_report(_opt, _optstr, value, parser):
+
+    """ callback for the --report option in general_report_optgroup """
+
     options = parser.values
     
     if not hasattr(options, "reports"):
@@ -232,11 +243,12 @@ def json_report_optgroup(parser):
 
 
 
-from json import JSONEncoder
 class JSONChangeEncoder(JSONEncoder):
 
     """ A specialty JSONEncoder which knows how to represent Change
-    instances (or anything with a simplify method) """
+    instances (or anything with a simplify method), and sequences (by
+    rendering them into tuples) """
+
 
     def __init__(self, options, *a,**k):
         JSONEncoder.__init__(self, *a, **k)
@@ -278,6 +290,9 @@ class TextReportFormat(ReportFormat):
 
 
 def _indent_change(change, out, options, indent):
+
+    """ recursive function to print indented change descriptions """
+
     show_unchanged = getattr(options, "show_unchanged", False)
     show_ignored = getattr(options, "show_ignored", False)
     
@@ -305,8 +320,8 @@ def _indent_change(change, out, options, indent):
 
 def _indent(stream, indent, *msgs):
 
-    """ utility for use in writing change messages to a stream, using
-    indentation to denote superchange children """
+    """ write a message to stream, with indentation. Also ensures that
+    the output encoding of the messages is safe for writing. """
 
     for x in xrange(0,indent):
         stream.write("  ")
