@@ -58,6 +58,7 @@ rm -rf %{buildroot}
 - requires PyXML for xml.xpath
 - renamed to python-javatools as there was already a javaclass
 - significantly more testing before tagging a release
+- distdiff and distpatchgen are now multi-core-enabled
 
 * Thu Jun 14 2012 Christopher O'Brien <obriencj@gmail.com> - 1.2-1
 - require python 2.6 and later rather than trying to fight with
