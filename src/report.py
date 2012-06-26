@@ -349,6 +349,9 @@ class CheetahReportFormat(ReportFormat):
         # this is where we've installed the default media
         datasrc = join(cheetah.__path__[0], "data")
 
+        if not exists(datadir):
+            makedirs(datadir)
+
         # copy the contents of our data source to datadir
         for r, ds, fs in walk(datasrc):
             for d in ds:

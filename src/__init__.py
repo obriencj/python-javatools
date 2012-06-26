@@ -244,6 +244,11 @@ class JavaConstantPool(object):
         if t == CONST_String:
             result = str(self.deref_const(v))
 
+        elif t in (CONST_Utf8,
+                   CONST_Integer, CONST_Float,
+                   CONST_Long, CONST_Double):
+            result = v
+
         elif t == CONST_Class:
             result = _pretty_class(self.deref_const(v))
 
@@ -279,7 +284,7 @@ class JavaConstantPool(object):
         elif not t:
             # the skipped-type, meaning the prior index was a
             # two-slotter.
-            pass
+            result = ""
 
         else:
             raise Unimplemented("No pretty for const type %r" % t)

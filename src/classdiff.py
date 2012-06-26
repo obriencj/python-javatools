@@ -227,7 +227,7 @@ class CodeAbsoluteLinesChange(GenericChange):
 
     def is_ignored(self, options):
         return options.ignore_absolute_lines
-    
+
 
 
 class CodeRelativeLinesChange(GenericChange):
@@ -490,11 +490,24 @@ class MethodCodeChange(SuperChange):
                     CodeBodyChange)
 
 
-    def __init__(self,l,r):
-        SuperChange.__init__(self,l.get_code(),r.get_code())
+    def __init__(self, l, r):
+        SuperChange.__init__(self, l.get_code(), r.get_code())
+
+
+    def collect_impl(self):
+        # if one side has gone abstract, don't bother trying to collect
+        # subchanges
+
+        if None not in (self.ldata, self.rdata):
+            return SuperChange.collect_impl(self)
+        else:
+            return tuple()
 
 
     def check_impl(self):
+        # if one side has gone abstract, don't bother trying to check
+        # any deeper, they're different unless they're both abstract.
+
         if None not in (self.ldata, self.rdata):
             return SuperChange.check_impl(self)
         else:

@@ -161,7 +161,6 @@ class JarClassReport(JarClassChange):
             with self.open_right() as r:
                 linfo = unpack_class(l)
                 rinfo = unpack_class(r)
-
         yield JavaClassReport(linfo, rinfo, self.reporter)
 
 

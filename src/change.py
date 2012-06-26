@@ -314,7 +314,7 @@ class SuperChange(GenericChange):
         for c in self.changes:
             c.clear()
         self.changes = tuple()
-
+        
 
     def collect_impl(self):
         """ instanciates each of the entries in in the overriden
@@ -444,12 +444,16 @@ def squash(change, is_ignored=False, options=None):
     if options:
         is_ignored = change.is_ignored(options)
 
+    result = None
+
     if isinstance(change, Removal):
-        return SquashedRemoval(change, is_ignored)
+        result = SquashedRemoval(change, is_ignored)
     elif isinstance(change, Addition):
-        return SquashedAddition(change, is_ignored)
+        result = SquashedAddition(change, is_ignored)
     else:
-        return SquashedChange(change, is_ignored)
+        result = SquashedChange(change, is_ignored)
+        
+    return result
 
 
 

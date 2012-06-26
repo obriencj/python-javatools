@@ -33,6 +33,7 @@ license: LGPL
 
 CONFIG_PATTERN = (
     "*.bat",
+    "*.cfg",
     "*.conf",
     "*.ini",
     "*.properties",
@@ -406,9 +407,8 @@ def generate_patch(delta, options):
 
     # write the doc to file
     tmp = join(patchdir, "install-instructions.xml")
-    fd = open(tmp, "wb")
-    doc.writexml(fd)
-    fd.close()
+    with open(tmp, "wb") as fd:
+        doc.writexml(fd)
 
 
 
@@ -423,31 +423,37 @@ def options_magic(options):
 
 
 def cli_patchgen(parser, options, left, right):
+    from .report import quick_report, Reporter
+    from .report import JSONReportFormat, TextReportFormat
+    from .report import CheetahReportFormat
     from .distdiff import DistReport
-    from .report import Reporter, JSONReportFormat, TextReportFormat
 
     rdir = options.report_dir or "./"
-    rpt = Reporter(rdir, "patchgen", options)
+    rpt = Reporter(rdir, "DistReport", options)
 
-    reports = set(options.reports)
-    if reports:
-        for fmt in reports:
-            if fmt == "json":
-                rpt.add_report_format(JSONReportFormat())
-            elif fmt in ("txt", "text"):
-                rpt.add_report_format(TextReportFormat())
-            else:
-                parser.error("unknown report format: %s" % fmt)
+    for fmt in getattr(options, "reports", tuple()):
+        if fmt == "json":
+            rpt.add_report_format(JSONReportFormat)
+        elif fmt in ("txt", "text"):
+            rpt.add_report_format(TextReportFormat)
+        elif fmt in ("htm", "html"):
+            rpt.add_report_format(CheetahReportFormat)
+        else:
+            parser.error("unknown report format: %s" % fmt)
 
-    print "running DistReport.check"
     delta = DistReport(left, right, rpt, options.shallow)
     delta.check()
 
-    print "generating patch"
+    if not options.silent:
+        if options.json:
+            quick_report(JSONReportFormat, delta, options)
+        else:
+            quick_report(TextReportFormat, delta, options)
+
     mkdirp(options.patch_dir)
     generate_patch(delta, options)
 
-    print "done"
+    return 0
 
 
 
