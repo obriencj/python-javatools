@@ -9,6 +9,10 @@ Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: noarch
 
+# Don't believe we can do this, as there really was a "javaclass"
+# module already, and we do not want to Obsolete it by accident
+#Obsoletes: python-javaclass
+
 Requires: python2 >= 2.6
 Requires: python-cheetah
 Requires: PyXML
@@ -53,6 +57,7 @@ rm -rf %{buildroot}
 - expand on cheetah html reporting
 - requires PyXML for xml.xpath
 - renamed to python-javatools as there was already a javaclass
+- significantly more testing before tagging a release
 
 * Thu Jun 14 2012 Christopher O'Brien <obriencj@gmail.com> - 1.2-1
 - require python 2.6 and later rather than trying to fight with
