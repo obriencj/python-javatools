@@ -462,6 +462,9 @@ def cli(parser, options, rest):
 
 
 def jardiff_optgroup(parser):
+
+    """ option group specific to the tests in jardiff """
+
     from optparse import OptionGroup
 
     og = OptionGroup(parser, "JAR Checking Options")
@@ -485,6 +488,10 @@ def jardiff_optgroup(parser):
 
 
 def create_optparser():
+
+    """ an OptionParser instance with the appropriate options and
+    groups for the jardiff utility """
+
     from optparse import OptionParser
     from .classdiff import general_optgroup, classdiff_optgroup
     from javatools import report
@@ -504,6 +511,9 @@ def create_optparser():
 
 
 def main(args):
+
+    """ main entry point for the jardiff CLI """
+
     parser = create_optparser()
     return cli(parser, *parser.parse_args(args))
 
