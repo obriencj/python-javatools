@@ -91,7 +91,7 @@ class build_py(_build_py):
 
         # and just why can't I configure these?
         comp.setShBang("")
-        comp.addModuleHeader("pylint: disable=C,W,R")
+        comp.addModuleHeader("pylint: disable=C,W,R,F")
 
         outfd = join(self.build_lib, *package.split("."))
         outfn = join(outfd, template+".py")
