@@ -26,7 +26,15 @@ license: LGPL
 
 
 
-_optable = {}
+__optable = {}
+
+
+_op_name = 0
+_op_val = 1
+_op_fmt = 2
+_op_consume = 3
+_op_produce = 4
+_op_const = 5
 
 
 
@@ -36,14 +44,14 @@ def _op(name, val, fmt=None, const=False, consume=0, produce=0):
     the _optable for lookup. """
 
     name = name.lower()
-    
+
     operand = (name, val, fmt, consume, produce, const)
 
-    assert(not _optable.has_key(name))
-    assert(not _optable.has_key(val))
+    assert(not __optable.has_key(name))
+    assert(not __optable.has_key(val))
 
-    _optable[name] = operand
-    _optable[val] = operand
+    __optable[name] = operand
+    __optable[val] = operand
 
     return val
 
@@ -53,7 +61,7 @@ def get_opcode_by_name(name):
 
     """ get the integer opcode by its name """
 
-    return _optable[name.lower()][1]
+    return __optable[name.lower()][_op_val]
 
 
 
@@ -61,7 +69,7 @@ def get_opname_by_code(code):
 
     """ get the name of an opcode """
 
-    return _optable[code][0]
+    return __optable[code][_op_name]
 
 
 
@@ -69,7 +77,7 @@ def get_arg_format(code):
 
     """ get the format of arguments to this opcode """
 
-    return _optable[code][2]
+    return __optable[code][_op_fmt]
 
 
 
@@ -77,7 +85,7 @@ def has_const_arg(code):
 
     """ which arg is a const for this opcode """
     
-    return _optable[code][5]
+    return __optable[code][_op_const]
 
 
 
@@ -86,12 +94,12 @@ def _unpack(frmt, bc, offset=0):
     """ returns the unpacked data tuple, and the next offset past the
     unpacked data"""
 
-    from javatools import compile_struct
+    from .pack import compile_struct
 
     sfmt = compile_struct(frmt)
     data = buffer(bc, offset, sfmt.size)
 
-    return (sfmt.unpack(data), offset+sfmt.size)
+    return (sfmt.unpack(data), offset + sfmt.size)
 
 
 
@@ -148,10 +156,10 @@ def _unpack_wide(bc, offset):
 
 
 
-def disassemble_gen(bytecode):
+def disassemble(bytecode):
     
-    """ disassembles Java bytecode into a sequence of
-    (offset,code,args) tuples """
+    """ Generator. Disassembles Java bytecode into a sequence of
+    (offset, code, args) tuples"""
 
     offset = 0
     end = len(bytecode)
@@ -165,25 +173,20 @@ def disassemble_gen(bytecode):
         fmt = get_arg_format(code)
 
         if callable(fmt):
-            args,offset = fmt(bytecode, offset)
+            args, offset = fmt(bytecode, offset)
         elif fmt:
-            args,offset = _unpack(fmt, bytecode, offset)
+            args, offset = _unpack(fmt, bytecode, offset)
         else:
             args = ()
 
         yield (orig_offset, code, args)
-    
-
-
-def disassemble(bytecode):
-    return tuple(disassemble_gen(bytecode))
 
 
 
 # And now, the OP codes themselves
 
 # The individual OP_* constants just have the numerical value. The
-# rest is just information to get stored in the _optable
+# rest is just information to get stored in the __optable
 
 #pylint: disable=C0103
 
