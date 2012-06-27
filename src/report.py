@@ -79,7 +79,7 @@ class Reporter(object):
     def subreporter(self, subpath, entry):
 
         """ create a reporter for a sub-report, with updated
-        breadcrumbs and the same output formats """
+        breadcrumbs and the same output formats"""
 
         from os.path import join
 
@@ -107,8 +107,7 @@ class Reporter(object):
         # formats is a set of types
         for fmt_class in self.formats:
             # instantiate a formater from the class and run it
-            fmt = fmt_class(basedir, options, crumbs)
-            fmt.run(change, entry)
+            fmt_class(basedir, options, crumbs).run(change, entry)
 
 
 
@@ -218,12 +217,13 @@ class JSONReportFormat(ReportFormat):
             }
 
         # not what they expected, but it works
-        cls = lambda *a,**k: JSONChangeEncoder(options, *a, **k)
+        cls = lambda *a, **k: JSONChangeEncoder(options, *a, **k)
 
-        #print data
         try:
             dump(data, out, sort_keys=True, indent=indent, cls=cls)
+
         except TypeError, te:
+            # XXX for debugging. Otherwise the wrapping try isn't necessary
             print data
             raise(te)
 
@@ -250,7 +250,7 @@ class JSONChangeEncoder(JSONEncoder):
     rendering them into tuples) """
 
 
-    def __init__(self, options, *a,**k):
+    def __init__(self, options, *a, **k):
         JSONEncoder.__init__(self, *a, **k)
         self.options = options
 
@@ -347,13 +347,12 @@ class CheetahReportFormat(ReportFormat):
         if (uri.startswith("http:") or
             uri.startswith("https:") or
             uri.startswith("file:") or
+            uri.startswith("://") or
             uri.startswith("/")):
             return uri
 
         elif exists(uri):
-            result = relpath(uri, self.basedir)
-            #print uri, self.basedir, result
-            return result
+            return relpath(uri, self.basedir)
 
         else:
             return uri
@@ -378,9 +377,10 @@ class CheetahReportFormat(ReportFormat):
         
         options = self.options
         datadir = getattr(options, "html_copy_data", None)
-        copied = getattr(options, "html_data_copied", False)
         
-        if copied or not datadir:
+        if getattr(options, "html_data_copied", False) or not datadir:
+            # either already run by a parent report, or not supposed
+            # to run at all.
             return
 
         # this is where we've installed the default media
@@ -389,71 +389,86 @@ class CheetahReportFormat(ReportFormat):
         if not exists(datadir):
             makedirs(datadir)
 
-        # copy the contents of our data source to datadir
-        for r, ds, fs in walk(datasrc):
-            for d in ds:
-                rd = join(datadir, d)
-                if not exists(rd):
-                    makedirs(rd)
-            for f in fs:
-                rf = join(r, f)
-                copy(rf, join(datadir, relpath(rf, datasrc)))
-
-        # compose an extended list of the js and css files we copied
-        # into place
+        # record the .js and .css content we copy
         javascripts = list()
         stylesheets = list()
 
-        for r, _ds, fs in walk(datadir):
-            for f in fs:
-                if f.endswith(".js"):
-                    javascripts.append(join(r, f))
-                elif f.endswith(".css"):
-                    stylesheets.append(join(r, f))
+        # copy the contents of our data source to datadir
+        for r, ds, fs in walk(datasrc):
+            for d in ds:
+                # ensure directories exist
+                rd = join(datadir, d)
+                if not exists(rd):
+                    makedirs(rd)
 
+            for f in fs:
+                rf = join(r, f)
+                df = join(datadir, relpath(rf, datasrc))
+                copy(rf, df)
+
+                if f.endswith(".js"):
+                    javascripts.append(df)
+                elif f.endswith(".css"):
+                    stylesheets.append(df)
+        
         javascripts.extend(getattr(options, "html_javascripts", tuple()))
         stylesheets.extend(getattr(options, "html_stylesheets", tuple()))
 
-        setattr(options, "html_javascripts", javascripts)
-        setattr(options, "html_stylesheets", stylesheets)
+        options.html_javascripts = javascripts
+        options.html_stylesheets = stylesheets
 
         # keep from copying again
-        setattr(options, "html_data_copied", True)
+        options.html_data_copied = True
 
 
     def run_impl(self, change, entry, out):
+        
+        """ sets up the report directory for an HTML report. Obtains
+        the top-level Cheetah template that is appropriate for the
+        change instance, and runs it.
+        
+        The cheetah templates are supplied the following values:
+         * change - the Change instance to report on
+         * entry - the string name of the entry for this report
+         * options - the cli options object
+         * breadcrumbs - list of backlinks
+         * javascripts - list of .js links
+         * stylesheets - list of .css links
 
-        options = self.options
-        crumbs = self.breadcrumbs
-
+        The cheetah templates are also given a render_change method
+        which can be called on another Change instance to cause its
+        template to be resolved and run in-line. """
+        
         # ensure we have copied data if we need to
         self.copy_data()
+        
+        options = self.options
 
         # translate relative paths if necessary
         javascripts = self._relative_uris(options.html_javascripts)
         stylesheets = self._relative_uris(options.html_stylesheets)
-
-        # create a transaction wrapping the output stream
-        trans = CheetahStreamTransaction(out)
         
         # map the class of the change to a template class
         template_class = resolve_cheetah_template(type(change))
 
         # instantiate and setup the template
         template = template_class()
-        template.transaction = trans
+
+        # create a transaction wrapping the output stream
+        template.transaction = CheetahStreamTransaction(out)
+
+        # inject our values
         template.change = change
         template.entry = entry
         template.options = options
-        template.breadcrumbs = crumbs
+        template.breadcrumbs = self.breadcrumbs
         template.javascripts = javascripts
         template.stylesheets = stylesheets
 
         # this lets us call render_change from within the template on
         # a change instance to chain to another template (eg, for
         # sub-changes)
-        rc = lambda c: self.run_impl(c, entry, out)
-        template.render_change = rc
+        template.render_change = lambda c: self.run_impl(c, entry, out)
 
         # execute the template, which will write its contents to the
         # transaction (and the underlying stream)
