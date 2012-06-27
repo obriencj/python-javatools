@@ -30,6 +30,9 @@ license: LGPL
 """
 
 
+from .pack import Unpacker, UnpackException
+
+
 
 # the four bytes at the start of every class file
 JAVA_CLASS_MAGIC = (0xCA, 0xFE, 0xBA, 0xBE)
@@ -84,20 +87,6 @@ class NoPoolException(Exception):
 
     pass
 
-
-
-class UnpackException(Exception):
-
-    """ raised when there is not enough data to unpack the expected
-    structures """
-
-    def __init__(self, fmt, wanted, present):
-        self.format = fmt
-        self.bytes_wanted = wanted
-        self.bytes_present = present
-        Exception.__init__("format %r requires %i bytes, only %i present" %
-                           (fmt, wanted, present))
-
         
         
 class Unimplemented(Exception):
@@ -105,6 +94,14 @@ class Unimplemented(Exception):
     """ raised when something unexpected happens, which usually
     indicates part of the classfile specification that wasn't
     implemented in this module yet"""
+
+    pass
+
+
+
+class ClassUnpackException(Exception):
+
+    """ raised when a class couldn't be unpacked """
 
     pass
 
@@ -377,7 +374,7 @@ class JavaClassInfo(object):
             magic = tuple(magic)
 
         if magic != JAVA_CLASS_MAGIC:
-            raise UnpackException("not a Java class file")
+            raise ClassUnpackException("Not a Java class file")
 
         self.magic = magic
 
@@ -1750,133 +1747,7 @@ def _clean_array_const(s):
 
 
 
-#
-# Utility functions for unpacking shapes of binary data from a
-# buffer.
-
-
-
-def compile_struct(fmt, cache=dict()):
-
-    """ returns a Struct instance compiled from fmt. If fmt has
-    already been compiled, it will return the previously compiled
-    Struct instance. """
-
-    from struct import Struct
-
-    sfmt = cache.get(fmt, None)
-    if not sfmt:
-        sfmt = Struct(fmt)
-        cache[fmt] = sfmt
-    return sfmt
-
-
-
-class Unpacker(object):
-
-
-    """ Wraps a stream (or creates a stream for a string or buffer)
-    and advances along it while unpacking structures from it.
-
-    This class adheres to the context management protocol, so may be
-    used in conjunction with the 'with' keyword """
-
-
-    def __init__(self, data):
-        from StringIO import StringIO
-
-        self.stream = None
-        
-        if isinstance(data, str) or isinstance(data, buffer):
-            self.stream = StringIO(data)
-        elif hasattr(data, "read"):
-            self.stream = data
-        else:
-            raise TypeError("Unpacker requires a string, buffer,"
-                            " or object with a read method")
-
-
-    def __enter__(self):
-        return self
-
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
-        return (exc_type is None)
-
-
-    def unpack(self, fmt):
-
-        """ unpacks the given fmt from the underlying stream and
-        returns the results. Will raise an UnpackException if there is
-        not enough data to satisfy the fmt """
-
-        sfmt = compile_struct(fmt)
-        size = sfmt.size
-        buff = self.stream.read(size)
-        if len(buff) < size:
-            raise UnpackException(fmt, size, len(buff))
-        
-        val = sfmt.unpack(buff)
-        return val
-
-
-    def _unpack_array(self, count, fmt):
-        for _i in xrange(0, count):
-            yield self.unpack(fmt)
-    
-
-    def unpack_array(self, fmt):
-        
-        """ reads a count from the unpacker, and unpacks fmt count
-        times. Returns a tuple of the unpacked sequences """
-
-        (count,) = self.unpack(">H")
-        return tuple(self._unpack_array(count, fmt))
-
-
-    def _unpack_objects(self, count, atype, *params, **kwds):
-        for _i in xrange(0, count):
-            o = atype(*params, **kwds)
-            o.unpack(self)
-            yield o
-
-
-    def unpack_objects(self, atype, *params, **kwds):
-
-        """ reads a count from the unpacker, and instanciates that
-        many calls to atype, with the given params and kwds passed
-        along. Each instance then has its unpack method called with
-        this unpacker instance passed along. Returns a tuple of the
-        unpacked instances """
-
-        (count,) = self.unpack(">H")
-        return tuple(self._unpack_objects(count, atype, *params, **kwds))
-
-
-    def read(self, count):
-
-        """ read count bytes from the unpacker and return it as a
-        buffer """
-
-        buff = self.stream.read(count)
-        if len(buff) < count:
-            raise UnpackException(None, count, len(buff))
-        return buff
-
-
-    def close(self):
-
-        """ close this unpacker, and the underlying stream if it
-        supports such """
-
-        if hasattr(self.stream, "close"):
-            self.stream.close()
-        self.stream = None
-
-
-
-#
+# -----
 # Functions for dealing with buffers and files
 
 
@@ -1922,13 +1793,14 @@ def unpack_class(data, magic=None):
     In this case, pass those magic bytes as a str or tuple and the
     unpacker will not attempt to read them again.
 
-    Raises an UnpackException if the class data is malformed """
+    Raises a ClassUnpackException or an UnpackException if the class
+    data is malformed """
 
     with Unpacker(data) as up:
 
         magic = magic or up.unpack(">BBBB")
         if magic != JAVA_CLASS_MAGIC:
-            raise UnpackException("Not a Java class file")
+            raise ClassUnpackException("Not a Java class file")
     
         o = JavaClassInfo()
         o.unpack(up, magic=magic)
