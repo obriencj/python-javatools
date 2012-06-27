@@ -287,8 +287,28 @@ setup(name = "javatools",
                  "scripts/manifest",
                  "scripts/distpatchgen"],
 
-      requires = ["Cheetah"],
+      # PyPI information
+      author = "Christopher O'Brien",
+      author_email = "obriencj@gmail.com",
+      url = "https://github.com/obriencj/python-javatools",
+      license = "GNU Lesser General Public License",
 
+      description = "Tools for finding meaningful deltas in Java"
+      " class files and JARs",
+
+      provides = ["javatools"],
+      requires = ["Cheetah"],
+      platforms = ["python2 >= 2.6"],
+
+      classifiers = ["Development Status :: 5 - Production/Stable",
+                     "Environment :: Console",
+                     "Intended Audience :: Developers",
+                     "Intended Audience :: Information Technology",
+                     "Natural Language :: English",
+                     "Programming Language :: Python :: 2",
+                     "Topic :: Software Development :: Disassemblers"],
+
+      # dirty stuff
       cmdclass = {'build_py': build_py,
                   'pylint': pylint_cmd})
 
