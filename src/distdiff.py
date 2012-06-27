@@ -293,6 +293,9 @@ class DistClassRemoved(DistContentRemoved):
 
 
 class DistChange(SuperChange):
+
+    """ Top-level change for comparing two distributions """
+
     label = "Distribution"
 
 
@@ -317,6 +320,10 @@ class DistChange(SuperChange):
                           DistContentRemoved,
                           DistContentChange)
     def collect_impl(self):
+
+        """ emits change instances based on the delta of the two
+        distribution directories """
+
         from .dirutils import LEFT, RIGHT, SAME, DIFF
         from .dirutils import compare, fnmatches
         from .jarinfo import JAR_PATTERNS
@@ -377,20 +384,6 @@ class DistChange(SuperChange):
 
 
 
-def _mp_check_helper(tasks, results):
-
-    """ a helper function for multiprocessing with DistReport """
-
-    for index, change in iter(tasks.get, None):
-        change.check()
-        results.put((index, change))
-        tasks.task_done()
-
-    # called once more for the sentinel None we consumed
-    tasks.task_done()
-
-
-
 class DistReport(DistChange):
 
     """ This class has side-effects. Running the check method with the
@@ -408,6 +401,11 @@ class DistReport(DistChange):
 
 
     def collect_impl(self):
+
+        """ overrides DistJarChange and DistClassChange from the
+        underlying DistChange with DistJarReport and DistClassReport
+        instances """
+
         for c in DistChange.collect_impl(self):
             if isinstance(c, DistJarChange):
                 if c.is_change():
@@ -422,17 +420,22 @@ class DistReport(DistChange):
             yield c
 
 
-    def mp_check_impl(self, process_count=2):
-        from .change import squash
-        from multiprocessing import Process, JoinableQueue
+    def mp_check_impl(self, process_count):
 
-        func = _mp_check_helper
+        """ a multiprocessing-enabled check implementation. Will
+        create process_count helper processes and use them to perform
+        the DistJarReport and DistClassReport actions. """
+
+        from .change import squash
+        from multiprocessing import Process, Queue
 
         options = self.reporter.options
 
         task_count = 0
-        tasks = JoinableQueue()
-        results = JoinableQueue()
+        tasks = Queue()
+        results = Queue()
+
+        func = _mp_check_helper
 
         # enqueue the sub-reports for multi-processing. Other types of
         # changes can happen sync.
@@ -460,8 +463,6 @@ class DistReport(DistChange):
             index, change = results.get()
             changes[index] = squash(change, options=options)
             change.clear()
-
-            results.task_done()
 
         # complete the check by setting our internal collection of
         # child changes and returning our overall status
@@ -508,6 +509,16 @@ class DistReport(DistChange):
 
         # write to file
         self.reporter.run(self)
+
+
+
+def _mp_check_helper(tasks, results):
+
+    """ a helper function for multiprocessing with DistReport. """
+
+    for index, change in iter(tasks.get, None):
+        change.check()
+        results.put((index, change))
 
 
 
@@ -586,6 +597,10 @@ def distdiff_optgroup(parser):
 
 
 def create_optparser():
+
+    """ an OptionParser instance filled with options and groups
+    appropriate for use with the distdiff command """
+
     from optparse import OptionParser
     from .jardiff import jardiff_optgroup
     from .classdiff import classdiff_optgroup, general_optgroup
@@ -607,6 +622,9 @@ def create_optparser():
 
 
 def main(args):
+
+    """ entry point for the distdiff command-line utility """
+
     parser = create_optparser()
     return cli(parser, *parser.parse_args(args))
 
