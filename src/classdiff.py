@@ -312,7 +312,7 @@ class CodeConstantsChange(GenericChange):
 
         pr = list()
 
-        for offset,code,args in c.disassemble():
+        for offset, code, args in c.disassemble():
             if offset in self.offsets and opcodes.has_const_arg(code):
                 name = opcodes.get_opname_by_code(code)
                 data = c.cpool.pretty_deref_const(args[0])
@@ -367,7 +367,7 @@ class CodeBodyChange(GenericChange):
         from javatools import opcodes
         
         pr = list()
-        for offset,code,args in c.disassemble():
+        for offset, code, args in c.disassemble():
             name = opcodes.get_opname_by_code(code)
             pr.append((offset, name, args))
             

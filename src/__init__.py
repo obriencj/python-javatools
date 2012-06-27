@@ -1071,7 +1071,7 @@ class JavaMemberInfo(object):
 
     def get_exceptions(self):
 
-        """ a tuple class names for the exception types this method
+        """ a tuple of class names for the exception types this method
         may raise, or None if this is not a method"""
 
         buff = self.get_attribute("Exceptions")
@@ -1171,11 +1171,6 @@ class JavaMemberInfo(object):
         t = ",".join(self.pretty_exceptions())
         
         if n == "<init>":
-            # rename this method to match the class name
-            #n = self.cpool.get_this()
-            #if "/" in n:
-            #    n = n[n.rfind("/")+1:]
-
             # we pretend that there's no return type, even though it's
             # V for constructors
             p = None
@@ -1186,9 +1181,9 @@ class JavaMemberInfo(object):
 
         if t:
             # assemble any throws as necessary
-            t = "throws "+t
+            t = "throws " + t
 
-        return " ".join(z for z in (f,p,n,t) if z)
+        return " ".join(z for z in (f, p, n, t) if z)
 
 
 
@@ -1527,10 +1522,12 @@ class JavaInnerClassInfo(object):
 
 
 
-#
+# -----
 # Utility functions for turning major/minor versions into JVM releases
 # Each entry is a tuple of minimum version and maxiumum version,
 # inclusive, and the string of the platform version.
+
+
 
 _platforms = ( ((45, 0), (45, 3), "1.0.2"),
                ((45, 4), (45, 65535), "1.1"),
@@ -1558,7 +1555,7 @@ def platform_from_version(major, minor):
 
 
 
-#
+# -----
 # Utility functions for the constants pool
 
 
@@ -1657,7 +1654,7 @@ def _pretty_const_type_val(typecode, val):
 
 
 
-#
+# -----
 # Utility functions for dealing with exploding internal type
 # signatures into sequences, and converting type signatures into
 # "pretty" strings
