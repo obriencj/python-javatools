@@ -297,7 +297,7 @@ setup(name = "javatools",
       " class files and JARs",
 
       provides = ["javatools"],
-      requires = ["Cheetah"],
+      requires = ["Cheetah", "PyXML"],
       platforms = ["python2 >= 2.6"],
 
       classifiers = ["Development Status :: 5 - Production/Stable",

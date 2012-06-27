@@ -18,10 +18,22 @@ Originally python-javaclass.
 conflictingly-named javaclass package that does something else
 entirely.
 
+
 ## Requirements
 
 * [Python](http://python.org) 2.6 or later (no support for Python 3)
 * [Cheetah](http://www.cheetahtemplate.org/)
+* [PyXML](http://www.python.org/community/sigs/current/xml-sig/)
+
+All of these packages are available from
+[PyPI](http://pypi.python.org), most major Linux distributions, and
+via [MacPorts](http://www.macports.org).
+
+
+## Optional
+
+* [pylint](http://pypi.python.org/pypi/pylint/) - If installed
+  setup.py will gain a 'pylint' command to help with debugging forks
 
 
 ## Install
