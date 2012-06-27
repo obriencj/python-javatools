@@ -347,7 +347,6 @@ class CheetahReportFormat(ReportFormat):
         if (uri.startswith("http:") or
             uri.startswith("https:") or
             uri.startswith("file:") or
-            uri.startswith("://") or
             uri.startswith("/")):
             return uri
 
