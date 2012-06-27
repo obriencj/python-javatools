@@ -7,16 +7,22 @@ and collections of either.
 It can do deep checking of classes to perform comparisons of
 functionality, and output reports in multiple formats.
 
-[python-javatools on GitHub](https://github.com/obriencj/python-javatools/)
+* [python-javatools on GitHub](https://github.com/obriencj/python-javatools/)
+* [javatools on PyPI](http://pypi.python.org/pypi/javatools)
+
+If you have suggestions, please use the [issue tracker on
+github](https://github.com/obriencj/python-javatools/issues). Or heck,
+just fork it!
 
 
 ## Project Renamed
 
-Originally python-javaclass.
+Originally python-javaclass, now python-javatools
 
 "javaclass" was a very generic name, and indeed I had found a
-conflictingly-named javaclass package that does something else
-entirely.
+conflictingly-named [javaclass](http://pypi.python.org/pypi/javaclass)
+package that does something else entirely. Thus this package became
+named "javatools" and hopefully that will be the end of it.
 
 
 ## Requirements
@@ -32,8 +38,9 @@ via [MacPorts](http://www.macports.org).
 
 ## Optional
 
-* [pylint](http://pypi.python.org/pypi/pylint/) - If installed
-  setup.py will gain a 'pylint' command to help with debugging forks
+* [pylint](http://pypi.python.org/pypi/pylint/) - If installed you may
+  invoke `python setup.py pylint` to get an overview report and a
+  detailed summary written to the build dir.
 
 
 ## Install
