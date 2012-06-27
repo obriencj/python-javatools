@@ -423,46 +423,78 @@ class DistReport(DistChange):
     def mp_check_impl(self, process_count):
 
         """ a multiprocessing-enabled check implementation. Will
-        create process_count helper processes and use them to perform
-        the DistJarReport and DistClassReport actions. """
+        create up to process_count helper processes and use them to
+        perform the DistJarReport and DistClassReport actions. """
 
         from multiprocessing import Process, Queue
 
         options = self.reporter.options
 
-        task_count = 0
-        tasks = Queue()
-        results = Queue()
-
         # this is the function that will be run in a separate process,
         # which will handle the tasks queue and feed into the results
         # queue
-        func = _mp_check_helper
+        func = _mp_run_check
+
+        # normally this would happen lazily, but since we'll have
+        # multiple processes all running reports at the same time, we
+        # need to make sure the setup is done before-hand. This is
+        # hackish, but in particular this keeps the HTML reports from
+        # trying to perform the default data copy over and over.
+        self.reporter.setup()
 
         # enqueue the sub-reports for multi-processing. Other types of
         # changes can happen sync.
         changes = list(self.collect_impl())
-        for index in xrange(0, len(changes)):
-            change = changes[index]
 
-            if isinstance(change, (DistJarReport, DistClassReport)):
-                changes[index] = None
-                tasks.put((index, change))
-                task_count += 1
-            else:
-                change.check()
+        task_count = 0
+        tasks = Queue()
+        results = Queue()
 
-        # start the number of processes, and make sure there are that
-        # many stop sentinels in the tasks queue
-        for _i in xrange(0, process_count):
-            tasks.put(None)
-            process = Process(target=func, args=(tasks, results, options))
-            process.start()
+        try:
+            # as soon as we start using the tasks queue, we need to be
+            # catching the KeyboardInterrupt event so that we can
+            # drain the queue and lets its underlying thread terminate
+            # happily.
+
+            # TODO: is there a better way to handle this shutdown
+            # gracefully?
+
+            # feed any sub-reports to the tasks queue
+            for index in xrange(0, len(changes)):
+                change = changes[index]
+                if isinstance(change, (DistJarReport, DistClassReport)):
+                    changes[index] = None
+                    tasks.put((index, change))
+                    task_count += 1
+
+            # infrequent edge case, but don't bother starting more
+            # helpers than we'll ever use
+            process_count = min(process_count, task_count)
         
-        # get all of the results and feed them back into our change
-        for _i in xrange(0, task_count):
-            index, change = results.get()
-            changes[index] = change
+            # start the number of helper processes, and make sure
+            # there are that many stop sentinels at the end of the
+            # tasks queue
+            for _i in xrange(0, process_count):
+                tasks.put(None)
+                process = Process(target=func, args=(tasks, results, options))
+                process.daemon = False
+                process.start()
+
+            # while the helpers are running, perform our checks
+            for change in changes:
+                if change:
+                    change.check()
+        
+            # get all of the results and feed them back into our change
+            for _i in xrange(0, task_count):
+                index, change = results.get()
+                changes[index] = change
+
+        except KeyboardInterrupt, keyint:
+            # drain the tasks queue so it will exit gracefully
+            for change in iter(tasks.get, None):
+                pass
+            raise keyint
 
         # complete the check by setting our internal collection of
         # child changes and returning our overall status
@@ -512,27 +544,32 @@ class DistReport(DistChange):
 
 
 
-def _mp_check_helper(tasks, results, options):
+def _mp_run_check(tasks, results, options):
 
     """ a helper function for multiprocessing with DistReport. """
 
     from .change import squash
 
-    for index, change in iter(tasks.get, None):
+    try:
+        for index, change in iter(tasks.get, None):
+            # this is the part that takes up all of our time and
+            # produces side-effects like writing out files for all of
+            # the report formats.
+            change.check()
+            
+            # rather than serializing the completed change (which
+            # could be rather large now that it's been realized), we
+            # send back only what we want, which is the squashed
+            # overview, and throw away the used bits.
+            squashed = squash(change, options=options)
+            change.clear()
+            
+            results.put((index, squashed))
 
-        # this is the part that takes up all of our time and produces
-        # side-effects like writing out files for all of the report
-        # formats.
-        change.check()
-
-        # rather than serializing the completed change (which could be
-        # rather large now that it's been realized), we send back only
-        # what we want, which is the squashed overview, and throw away
-        # the used bits.
-        squashed = squash(change, options=options)
-        change.clear()
-
-        results.put((index, squashed))
+    except KeyboardInterrupt:
+        # prevent a billion lines of backtrace from hitting the user
+        # in the face
+        return
 
 
 
