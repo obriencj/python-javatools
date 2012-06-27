@@ -426,7 +426,6 @@ class DistReport(DistChange):
         create process_count helper processes and use them to perform
         the DistJarReport and DistClassReport actions. """
 
-        from .change import squash
         from multiprocessing import Process, Queue
 
         options = self.reporter.options
@@ -435,6 +434,9 @@ class DistReport(DistChange):
         tasks = Queue()
         results = Queue()
 
+        # this is the function that will be run in a separate process,
+        # which will handle the tasks queue and feed into the results
+        # queue
         func = _mp_check_helper
 
         # enqueue the sub-reports for multi-processing. Other types of
@@ -454,15 +456,13 @@ class DistReport(DistChange):
         # many stop sentinels in the tasks queue
         for _i in xrange(0, process_count):
             tasks.put(None)
-            process = Process(target=func, args=(tasks, results))
+            process = Process(target=func, args=(tasks, results, options))
             process.start()
         
         # get all of the results and feed them back into our change
-        # set after squashing them.
         for _i in xrange(0, task_count):
             index, change = results.get()
-            changes[index] = squash(change, options=options)
-            change.clear()
+            changes[index] = change
 
         # complete the check by setting our internal collection of
         # child changes and returning our overall status
@@ -512,13 +512,27 @@ class DistReport(DistChange):
 
 
 
-def _mp_check_helper(tasks, results):
+def _mp_check_helper(tasks, results, options):
 
     """ a helper function for multiprocessing with DistReport. """
 
+    from .change import squash
+
     for index, change in iter(tasks.get, None):
+
+        # this is the part that takes up all of our time and produces
+        # side-effects like writing out files for all of the report
+        # formats.
         change.check()
-        results.put((index, change))
+
+        # rather than serializing the completed change (which could be
+        # rather large now that it's been realized), we send back only
+        # what we want, which is the squashed overview, and throw away
+        # the used bits.
+        squashed = squash(change, options=options)
+        change.clear()
+
+        results.put((index, squashed))
 
 
 
