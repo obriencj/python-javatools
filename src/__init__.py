@@ -1296,6 +1296,9 @@ class JavaCodeInfo(object):
         self.code = None
         self.exceptions = tuple()
 
+        # cache of disassembled code
+        self._dis_code = None
+
 
 
     def deref_const(self, index):
@@ -1406,13 +1409,20 @@ class JavaCodeInfo(object):
         return prev
 
 
+
     def disassemble(self):
         
         """ disassembles the underlying bytecode instructions and
-        generates a sequence of (offset, code, args) tuples"""
+        generates a sequence of (offset, code, args) tuples """
 
-        import javatools.opcodes as opcodes
-        return opcodes.disassemble(self.code)
+        from .opcodes import disassemble
+
+        dis = self._dis_code
+        if dis is None:
+            dis = tuple(disassemble(self.code))
+            self._dis_code = dis
+
+        return dis
 
 
 
