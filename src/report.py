@@ -40,6 +40,10 @@ class Reporter(object):
         self.breadcrumbs = tuple()
         self.formats = set()
 
+        # cache of instances from self.formats, created in setup, used
+        # in run, removed in clear
+        self._formats = None
+
 
     def get_relative_breadcrumbs(self):
 
@@ -94,20 +98,53 @@ class Reporter(object):
         return r
 
 
-    def run(self, change):
+    def setup(self):
 
-        """ Instantiates all report formats that have been added to
-        this reporter, and runs them """
+        """ instantiates all report formats that have been added to
+        this reporter, and calls their setup methods. """
+
+        if self._formats:
+            # setup has been run already.
+            return
 
         basedir = self.basedir
         options = self.options
         crumbs = self.get_relative_breadcrumbs()
+
+        fmts = list()
+        for fmt_class in self.formats:
+            fmt = fmt_class(basedir, options, crumbs)
+            fmt.setup()
+            fmts.append(fmt)
+
+        self._formats = fmts
+
+
+    def run(self, change):
+
+        """ runs the report format instances in this reporter. Will
+        call setup if it hasn't been called already """
+
+        if self._formats is None:
+            self.setup()
+
         entry = self.entry
 
-        # formats is a set of types
-        for fmt_class in self.formats:
-            # instantiate a formater from the class and run it
-            fmt_class(basedir, options, crumbs).run(change, entry)
+        for fmt in self._formats:
+            fmt.run(change, entry)
+
+        self.clear()
+
+
+    def clear(self):
+
+        """ calls clear on any report format instances created during
+        setup and drops the cache """
+
+        if self._formats:
+            for fmt in self._formats:
+                fmt.clear()
+        self._formats = None
 
 
 
@@ -160,6 +197,25 @@ class ReportFormat(object):
         else:
             self.run_impl(change, entry, stdout)
             return None
+
+
+    def setup(self):
+
+        """ override if the report format has behavior which can be
+        done ahead of time, such as copying files or creating
+        directories """
+
+        pass
+
+
+    def clear(self):
+
+        """ clear up the internal references of this format. Called by
+        the parent reporter at the end of run """
+
+        self.basedir = None
+        self.options = None
+        self.breadcrumbs = None
 
 
 
@@ -364,7 +420,7 @@ class CheetahReportFormat(ReportFormat):
         return [u for u in (self._relative(uri) for uri in uri_list) if u]
 
 
-    def copy_data(self):
+    def setup(self):
 
         """ copies default stylesheets and javascript files if
         necessary, and appends them to the options """
@@ -437,9 +493,6 @@ class CheetahReportFormat(ReportFormat):
         The cheetah templates are also given a render_change method
         which can be called on another Change instance to cause its
         template to be resolved and run in-line. """
-        
-        # ensure we have copied data if we need to
-        self.copy_data()
         
         options = self.options
 
