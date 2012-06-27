@@ -37,6 +37,10 @@ class build_py(_build_py):
     in the src dir of my project, and have them get compiled to
     py/pyc/pyo files during the build process. """
 
+    # Note: it's important to override build_py rather than to add a
+    # sub-command to build. The build command doesn't collate the
+    # get_outputs of its sub-commands, and install specifically looks
+    # for build_py and build_ext for the list of files to install.
 
     def initialize_options(self):
         _build_py.initialize_options(self)
