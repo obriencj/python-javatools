@@ -30,7 +30,7 @@ license: LGPL
 """
 
 
-from .pack import Unpacker, UnpackException
+from .pack import compile_struct, Unpacker, UnpackException
 
 
 
@@ -80,6 +80,16 @@ ACC_MODULE = 0x8000
 
 
 
+# commonly re-occurring struct formats
+_H = compile_struct(">H")
+_HH = compile_struct(">HH")
+_HHH = compile_struct(">HHH")
+_HHHH = compile_struct(">HHHH")
+_HI = compile_struct(">HI")
+_HHI = compile_struct(">HHI")
+
+
+
 class NoPoolException(Exception):
 
     """ raised by methods that need a JavaConstantPool, but aren't
@@ -121,7 +131,7 @@ class JavaConstantPool(object):
  
         """ Unpacks the constant pool from an unpacker stream """
         
-        (count,) = unpacker.unpack(">H")
+        (count,) = unpacker.unpack_struct(_H)
         
         # first item is never present in the actual data buffer, but
         # the count number acts like it would be.
@@ -310,9 +320,9 @@ class JavaAttributes(dict):
         # bound method for dereferencing constants
         cval = self.cpool.deref_const
 
-        (count,) = unpacker.unpack(">H")
+        (count,) = unpacker.unpack_struct(_H)
         for _i in xrange(0, count):
-            (name, size) = unpacker.unpack(">HI")
+            (name, size) = unpacker.unpack_struct(_HI)
             self[cval(name)] = unpacker.read(size)
 
 
@@ -379,27 +389,29 @@ class JavaClassInfo(object):
         self.magic = magic
 
         # unpack (minor, major), store as (major, minor)
-        self.version = unpacker.unpack(">HH")[::-1]
+        self.version = unpacker.unpack_struct(_HH)[::-1]
 
         # unpack constant pool
         self.cpool.unpack(unpacker)
         
-        (a, b, c) = unpacker.unpack(">HHH")
+        (a, b, c) = unpacker.unpack_struct(_HHH)
         self.access_flags = a
         self.this_ref = b
         self.super_ref = c
 
         # unpack interfaces
-        (count,) = unpacker.unpack(">H")
+        (count,) = unpacker.unpack_struct(_H)
         self.interfaces = unpacker.unpack(">%iH" % count)
         
+        uobjs = unpacker.unpack_objects
+
         # unpack fields
-        self.fields = unpacker.unpack_objects(JavaMemberInfo,
-                                              self.cpool, is_method=False)
+        self.fields = tuple(uobjs(JavaMemberInfo,
+                                  self.cpool, is_method=False))
         
         # unpack methods
-        self.methods = unpacker.unpack_objects(JavaMemberInfo,
-                                               self.cpool, is_method=True)
+        self.methods = tuple(uobjs(JavaMemberInfo,
+                                   self.cpool, is_method=True))
 
         # unpack attributes
         self.attribs.unpack(unpacker)
@@ -581,7 +593,7 @@ class JavaClassInfo(object):
             return None
         
         with Unpacker(buff) as up:
-            (ref,) = up.unpack(">H")
+            (ref,) = up.unpack_struct(_H)
         
         return self.deref_const(ref)
 
@@ -603,7 +615,7 @@ class JavaClassInfo(object):
             return tuple()
         
         with Unpacker(buff) as up:
-            return up.unpack_objects(JavaInnerClassInfo, self.cpool)
+            return tuple(up.unpack_objects(JavaInnerClassInfo, self.cpool))
 
 
 
@@ -616,7 +628,7 @@ class JavaClassInfo(object):
             return None
 
         with Unpacker(buff) as up:
-            (ref,) = up.unpack(">H")
+            (ref,) = up.unpack_struct(_H)
 
         return self.deref_const(ref)
 
@@ -642,7 +654,7 @@ class JavaClassInfo(object):
 
         # class index, method index
         with Unpacker(buff) as up:
-            (ci, mi) = up.unpack(">HH")
+            (ci, mi) = up.unpack_struct(_HH)
 
         result = None
 
@@ -864,7 +876,7 @@ class JavaMemberInfo(object):
 
         # type index
         with Unpacker(buff) as up:
-            (ti,) = up.unpack(">H")
+            (ti,) = up.unpack_struct(_H)
 
         return self.deref_const(ti)
 
@@ -879,7 +891,7 @@ class JavaMemberInfo(object):
             return None
 
         with Unpacker(buff) as up:
-            (ti,) = up.unpack(">H")
+            (ti,) = up.unpack_struct(_H)
 
         return self.deref_const(ti)
 
@@ -890,7 +902,7 @@ class JavaMemberInfo(object):
         """ unpack the contents of this instance from the values in
         unpacker """
 
-        (a, b, c) = unpacker.unpack(">HHH")
+        (a, b, c) = unpacker.unpack_struct(_HHH)
 
         self.access_flags = a
         self.name_ref = b
@@ -1095,7 +1107,7 @@ class JavaMemberInfo(object):
             return None
 
         with Unpacker(buff) as up:
-            (cval_ref,) = up.unpack(">H")
+            (cval_ref,) = up.unpack_struct(_H)
 
         return cval_ref
 
@@ -1323,13 +1335,14 @@ class JavaCodeInfo(object):
         """ unpacks a code block from a buffer. Updates the internal
         structure of this instance """
 
-        (a, b, c) = unpacker.unpack(">HHI")
+        (a, b, c) = unpacker.unpack_struct(_HHI)
         
         self.max_stack = a
         self.max_locals = b
         self.code = unpacker.read(c)
 
-        self.exceptions = unpacker.unpack_objects(JavaExceptionInfo, self)
+        uobjs = unpacker.unpack_objects
+        self.exceptions = tuple(uobjs(JavaExceptionInfo, self))
 
         self.attribs.unpack(unpacker)
 
@@ -1344,7 +1357,7 @@ class JavaCodeInfo(object):
             return tuple()
 
         with Unpacker(buff) as up:
-            return up.unpack_array(">HH")
+            return tuple(up.unpack_array(">HH"))
 
 
 
@@ -1373,7 +1386,7 @@ class JavaCodeInfo(object):
             return tuple()
 
         with Unpacker(buff) as up:
-            return up.unpack_array(">HHHHH")
+            return tuple(up.unpack_array(">HHHHH"))
     
 
 
@@ -1387,7 +1400,7 @@ class JavaCodeInfo(object):
             return tuple()
 
         with Unpacker(buff) as up:
-            return up.unpack_array(">HHHHH")
+            return tuple(up.unpack_array(">HHHHH"))
 
 
 
@@ -1447,7 +1460,7 @@ class JavaExceptionInfo(object):
         """ unpacks an exception handler entry in an exception
         table. Updates the internal structure of this instance """
 
-        (a, b, c, d) = unpacker.unpack(">HHHH")
+        (a, b, c, d) = unpacker.unpack_struct(_HHHH)
 
         self.start_pc = a
         self.end_pc = b
@@ -1516,7 +1529,7 @@ class JavaInnerClassInfo(object):
 
         """ unpack this instance with data from unpacker """
 
-        (a, b, c, d) = unpacker.unpack(">HHHH")
+        (a, b, c, d) = unpacker.unpack_struct(_HHHH)
         
         self.inner_info_ref = a
         self.outer_info_ref = b
@@ -1579,7 +1592,7 @@ def _unpack_const_item(unpacker):
     (typecode,) = unpacker.unpack(">B")
 
     if typecode == CONST_Utf8:
-        (slen,) = unpacker.unpack(">H")
+        (slen,) = unpacker.unpack_struct(_H)
         val = unpacker.read(slen)
         try:
             val = val.decode("utf8")
@@ -1600,12 +1613,12 @@ def _unpack_const_item(unpacker):
         (val,) = unpacker.unpack(">d")
 
     elif typecode in (CONST_Class, CONST_String):
-        (val,) = unpacker.unpack(">H")
+        (val,) = unpacker.unpack_struct(_H)
 
     elif typecode in (CONST_Fieldref, CONST_Methodref,
                       CONST_InterfaceMethodref, CONST_NameAndType,
                       CONST_ModuleIdInfo):
-        val = unpacker.unpack(">HH")
+        val = unpacker.unpack_struct(_HH)
 
     else:
         raise Unimplemented("unknown constant type %r" % type)

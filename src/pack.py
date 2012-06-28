@@ -17,11 +17,15 @@
 """ Utility module for unpacking shapes of binary data from a buffer
 or stream. """
 
-
-
 # TODO: maybe one day in the future we'll add a Packer to this. If we
 # ever get to the point where we want to recompile a class from a
 # JavaClassInfo instance.
+
+# profiling showed a significant amount of time spent in this module,
+# so there will be efforts here to increase performance
+
+
+from struct import Struct
 
 
 
@@ -30,8 +34,6 @@ def compile_struct(fmt, cache=dict()):
     """ returns a struct.Struct instance compiled from fmt. If fmt has
     already been compiled, it will return the previously compiled
     Struct instance. """
-
-    from struct import Struct
 
     sfmt = cache.get(fmt, None)
     if not sfmt:
@@ -43,7 +45,6 @@ def compile_struct(fmt, cache=dict()):
 
 class Unpacker(object):
 
-
     """ Wraps a stream (or creates a stream for a string or buffer)
     and advances along it while unpacking structures from it.
 
@@ -52,14 +53,21 @@ class Unpacker(object):
 
 
     def __init__(self, data):
-        from StringIO import StringIO
-
-        self.stream = None
+        self.data = data
+        self.offset = 0
         
-        if isinstance(data, str) or isinstance(data, buffer):
-            self.stream = StringIO(data)
+        if isinstance(data, (str, buffer)):
+            self.read = self._buffer_read
+            self.unpack = self._buffer_unpack
+            self.unpack_struct = self._buffer_unpack_struct
+            self.close = self._buffer_close
+
         elif hasattr(data, "read"):
-            self.stream = data
+            self.read = self._stream_read
+            self.unpack = self._stream_unpack
+            self.unpack_struct = self._stream_unpack_struct
+            self.close = self._stream_close
+
         else:
             raise TypeError("Unpacker requires a string, buffer,"
                             " or object with a read method")
@@ -74,7 +82,7 @@ class Unpacker(object):
         return (exc_type is None)
 
 
-    def unpack(self, fmt):
+    def _stream_unpack(self, fmt):
 
         """ unpacks the given fmt from the underlying stream and
         returns the results. Will raise an UnpackException if there is
@@ -82,33 +90,93 @@ class Unpacker(object):
 
         sfmt = compile_struct(fmt)
         size = sfmt.size
-        buff = self.stream.read(size)
+        buff = self.data.read(size)
         if len(buff) < size:
             raise UnpackException(fmt, size, len(buff))
         
-        val = sfmt.unpack(buff)
-        return val
+        return sfmt.unpack(buff)
 
 
-    def _unpack_array(self, count, fmt):
-        for _i in xrange(0, count):
-            yield self.unpack(fmt)
+    def _buffer_unpack(self, fmt):
+
+        """ unpacks the given fmt from the underlying buffer and
+        returns the results. Will raise an UnpackException if there is
+        not enough data to satisfy the fmt """
+
+        sfmt = compile_struct(fmt)
+        size = sfmt.size
+
+        offset = self.offset
+        avail = len(self.data) - offset
+
+        if avail < size:
+            raise UnpackException(fmt, size, avail)
+
+        self.offset = offset + size
+        return sfmt.unpack_from(self.data, offset)
+
+
+    def unpack(self, fmt):
+        #pylint: disable=E0202
+
+        """ unpacks the given fmt from the underlying data and returns
+        the results. Will raise an UnpackException if there is not
+        enough data to satisfy the fmt """
+
+        pass
+
+
+    def _stream_unpack_struct(self, struct):
+
+        """ unpacks the given struct from the underlying stream and
+        returns the results. Will raise an UnpackException if there is
+        not enough data to satisfy the format of the structure """
+
+        size = struct.size
+        buff = self.data.read(size)
+        if len(buff) < size:
+            raise UnpackException(struct.format, size, len(buff))
+        
+        return struct.unpack(buff)
+
+
+    def _buffer_unpack_struct(self, struct):
+
+        """ unpacks the given struct from the underlying buffer and
+        returns the results. Will raise an UnpackException if there is
+        not enough data to satisfy the format of the structure """
+
+        offset = self.offset
+        avail = len(self.data) - offset
+
+        size = struct.size
+
+        if avail < size:
+            raise UnpackException(struct.format, size, avail)
+
+        self.offset = offset + size
+        return struct.unpack_from(self.data, offset)
+
+
+    def unpack_struct(self, struct):
+        #pylint: disable=E0202
+
+        """ unpacks the given struct from the underlying data and
+        returns the results. Will raise an UnpackException if there is
+        not enough data to satisfy the format of the structure """
+
+        pass
     
 
     def unpack_array(self, fmt):
         
         """ reads a count from the unpacker, and unpacks fmt count
-        times. Returns a tuple of the unpacked sequences """
+        times. Yields a sequence of the unpacked data tuples """
 
-        (count,) = self.unpack(">H")
-        return tuple(self._unpack_array(count, fmt))
-
-
-    def _unpack_objects(self, count, atype, *params, **kwds):
-        for _i in xrange(0, count):
-            o = atype(*params, **kwds)
-            o.unpack(self)
-            yield o
+        (count,) = self.unpack_struct(_H)
+        sfmt = compile_struct(fmt)
+        for _i in xrange(count):
+            yield self.unpack_struct(sfmt)
 
 
     def unpack_objects(self, atype, *params, **kwds):
@@ -116,35 +184,87 @@ class Unpacker(object):
         """ reads a count from the unpacker, and instanciates that
         many calls to atype, with the given params and kwds passed
         along. Each instance then has its unpack method called with
-        this unpacker instance passed along. Returns a tuple of the
+        this unpacker instance passed along. Yields a squence of the
         unpacked instances """
 
-        (count,) = self.unpack(">H")
-        return tuple(self._unpack_objects(count, atype, *params, **kwds))
+        (count,) = self.unpack_struct(_H)
+        for _i in xrange(count):
+            obj = atype(*params, **kwds)
+            obj.unpack(self)
+            yield obj
 
 
-    def read(self, count):
+    def _stream_read(self, count):
 
-        """ read count bytes from the unpacker and return it as a
-        buffer """
+        """ read count bytes from the unpacker and return it. Raises
+        an UnpackException if there is not enough data in the
+        underlying stream. """
 
-        if not self.stream:
+        if not self.data:
             raise UnpackException(None, count, 0)
 
-        buff = self.stream.read(count)
+        buff = self.data.read(count)
         if len(buff) < count:
             raise UnpackException(None, count, len(buff))
+
         return buff
 
 
-    def close(self):
+    def _buffer_read(self, count):
+        
+        """ read count bytes from the unpacker and return it. Raises
+        an UnpackException if there is not enough data in the
+        underlying buffer. """
+
+        if not self.data:
+            raise UnpackException(None, count, 0)
+
+        offset = self.offset
+        avail = len(self.data) - offset
+
+        if avail < count:
+            raise UnpackException(None, count, avail)
+
+        self.offset = offset + count
+        return buffer(self.data, offset, count)
+
+
+    def read(self, count):
+        #pylint: disable=E0202
+
+        """ read count bytes from the unpacker and return it. Raises
+        an UnpackException if there is not enough data in the
+        underlying stream. """
+
+        pass
+
+
+    def _stream_close(self):
 
         """ close this unpacker, and the underlying stream if it
         supports such """
 
-        if hasattr(self.stream, "close"):
-            self.stream.close()
-        self.stream = None
+        data = self.data
+        self.data = None
+
+        if hasattr(data, "close"):
+            data.close()
+
+
+    def _buffer_close(self):
+
+        """ close this unpacker, release the underlying buffer """
+
+        self.data = None
+        self.offset = 0
+
+        
+    def close(self):
+        #pylint: disable=E0202
+        
+        """ close this unpacker """
+
+        pass
 
 
 
@@ -160,6 +280,12 @@ class UnpackException(Exception):
         self.format = fmt
         self.bytes_wanted = wanted
         self.bytes_present = present
+
+
+
+# We use this one a lot, so let's not bother calling compile_struct
+# over and over to get it.
+_H = compile_struct(">H")
 
 
 
