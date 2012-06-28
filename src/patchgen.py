@@ -31,6 +31,10 @@ license: LGPL
 
 
 
+from .dirutils import makedirsp
+
+
+
 CONFIG_PATTERN = (
     "*.bat",
     "*.cfg",
@@ -191,12 +195,12 @@ def copyfile(fn, orig, patchdir, squash=None,
                 return check
             else:
                 pathsquashed[ps] = ret
-                mkdirp(dest)
+                makedirsp(dest)
                 copy(orig_fn, dest)
                 return ret
 
     if squash is None:
-        mkdirp(dest)
+        makedirsp(dest)
         copy(orig_fn, dest)
         return ret
 
@@ -210,7 +214,7 @@ def copyfile(fn, orig, patchdir, squash=None,
 
         else:
             squash[squashkey] = ret
-            mkdirp(dest)
+            makedirsp(dest)
             copy(orig_fn, dest)
             return ret
 
@@ -227,7 +231,7 @@ def copypatch(fn, orig, patched, patchdir):
 
     print "copy patch %s into %s" % (fn, patchdir)
 
-    mkdirp(dest)
+    makedirsp(dest)
 
     copy(join(orig, fn),  "%s.orig" % dest_fn)
     copy(join(patched, fn), "%s.patched" % dest_fn)
@@ -236,17 +240,9 @@ def copypatch(fn, orig, patched, patchdir):
 
 
 
-def mkdirp(dirname):
-    from os.path import exists
-    from os import makedirs
-    if not exists(dirname):
-        makedirs(dirname)
-
-
-
-pkg = "com.jboss.jbossnetwork.product.jbpm.handlers"
-BackupAndReplaceFile = pkg + ".BackupAndReplaceFileActionHandler"
-Notification = pkg + ".NotificationActionHandler"
+_pkg = "com.jboss.jbossnetwork.product.jbpm.handlers"
+_BackupAndReplaceFile = _pkg + ".BackupAndReplaceFileActionHandler"
+_Notification = _pkg + ".NotificationActionHandler"
 
 
 
@@ -355,7 +351,7 @@ def generate_patch(delta, options):
         fn = repath(pathmap, change.entry)
 
         node = append_node(state, index)
-        act = append_action(node, BackupAndReplaceFile)
+        act = append_action(node, _BackupAndReplaceFile)
         
         o = doc.createElement("originalFileLocation")
         act.appendChild(o)
@@ -373,7 +369,7 @@ def generate_patch(delta, options):
 
     for change in sort_by_entry(removals):
         node = append_node(state, index)
-        act = append_action(node, Notification)
+        act = append_action(node, _Notification)
         fn = repath(pathmap, change.entry)
 
         o = doc.createElement("notification")
@@ -389,7 +385,7 @@ def generate_patch(delta, options):
         fn = repath(pathmap, change.entry)
 
         node = append_node(state, index)
-        act = append_action(node, Notification)
+        act = append_action(node, _Notification)
 
         o = doc.createElement("notification")
         act.appendChild(o)
@@ -441,7 +437,7 @@ def cli_patchgen(parser, options, left, right):
         else:
             quick_report(TextReportFormat, delta, options)
 
-    mkdirp(options.patch_dir)
+    makedirsp(options.patch_dir)
     generate_patch(delta, options)
 
     return 0

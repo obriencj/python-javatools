@@ -24,6 +24,11 @@ license: LGPL
 
 
 
+from os.path import exists, isdir, join, relpath
+from os import makedirs, walk
+
+
+
 LEFT = "left only"
 RIGHT = "right only"
 DIFF = "changed"
@@ -45,26 +50,31 @@ def fnmatches(entry, *pattern_list):
 
 
 
+
+def makedirsp(dirname):
+
+    """ create dirname if it doesn't exist """
+
+    if not exists(dirname):
+        makedirs(dirname)
+
+
+
 def copydir(orig, dest):
 
     """ copies directory orig to dest. Returns a list of tuples of
     relative filenames which were copied from orig to dest """
 
-    from os.path import exists, join, relpath
-    from os import makedirs, walk
     from shutil import copy
 
     copied = list()
 
-    if not exists(dest):
-        makedirs(dest)
+    makedirsp(dest)
 
     for r, ds, fs in walk(orig):
         for d in ds:
             # ensure directories exist
-            rd = join(dest, d)
-            if not exists(rd):
-                makedirs(rd)
+            makedirsp(join(dest, d))
                 
         for f in fs:
             rf = join(r, f)
@@ -91,9 +101,6 @@ def compare(left, right):
     
 
 def _gen_from_dircmp(dc, lpath, rpath):
-    from os.path import isdir, join, relpath
-    from os import walk
-
     left_only = dc.left_only
     left_only.sort()
     

@@ -175,9 +175,9 @@ class ReportFormat(object):
         """ setup for run, including creating an output file if
         needed. Calls run_impl when ready """
 
-        from os.path import exists, join
-        from os import makedirs
+        from os.path import join
         from sys import stdout
+        from .dirutils import makedirsp
 
         if out:
             self.run_impl(change, entry, out)
@@ -186,8 +186,7 @@ class ReportFormat(object):
         elif entry:
             basedir = self.basedir or "./"
 
-            if not exists(basedir):
-                makedirs(basedir)
+            makedirsp(basedir)
 
             fn = join(basedir, entry + self.extension)
             with open(fn, "wt") as out:
