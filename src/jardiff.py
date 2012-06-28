@@ -496,7 +496,7 @@ def create_optparser():
     from .classdiff import general_optgroup, classdiff_optgroup
     from javatools import report
 
-    parser = OptionParser(usage="%prod [OPTIONS] OLD_JAR NEW_JAR")
+    parser = OptionParser(usage="%prog [OPTIONS] OLD_JAR NEW_JAR")
     
     parser.add_option_group(general_optgroup(parser))
     parser.add_option_group(jardiff_optgroup(parser))

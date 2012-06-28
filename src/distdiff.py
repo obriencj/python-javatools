@@ -660,7 +660,7 @@ def create_optparser():
     from .classdiff import classdiff_optgroup, general_optgroup
     from javatools import report
     
-    parser = OptionParser(usage="%prod [OPTIONS] OLD_DIST NEW_DIST")
+    parser = OptionParser(usage="%prog [OPTIONS] OLD_DIST NEW_DIST")
 
     parser.add_option_group(general_optgroup(parser))
     parser.add_option_group(distdiff_optgroup(parser))
