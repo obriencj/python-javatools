@@ -144,29 +144,6 @@ def append_action(node, nodeclass):
 
 
 
-def chunks(stream, x=(1024*64)):
-    buf = stream.read(x)
-    while buf:
-        yield buf
-        buf = stream.read(x)
-
-
-
-def sha256sum(fn):
-    #pylint: disable=E0611
-    from hashlib import sha256
-
-    fd = open(fn, "rb")
-    cs = sha256()
-
-    for chunk in chunks(fd):
-        cs.update(chunk)
-    fd.close()
-
-    return cs.hexdigest()
-
-
-
 def copyfile(fn, orig, patchdir):
 
     from os.path import join, split
@@ -294,7 +271,7 @@ def generate_patch(delta, options):
     entry_key = lambda i: i.entry
 
     for change in sorted(copies, key=entry_key):
-        tmp = copyfile(change.entry, delta.rdata, patchdir),
+        tmp = copyfile(change.entry, delta.rdata, patchdir)
         fn = repath(pathmap, change.entry)
 
         node = append_node(state, index)
