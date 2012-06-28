@@ -791,43 +791,67 @@ def classdiff_optgroup(parser):
 
 
 
-def _opt_cb_ignore(opt, opt_str, value, parser):
-    options = parser.values
-    options.ignore = value
+def _opt_cb_ignore(_opt, _opt_str, value, parser):
+
+    """ handle the --ignore option, which trigges other options """
 
     if not value:
         return
 
+    options = parser.values
+
+    ignore = getattr(options, "ignore", None)
+    if ignore is None:
+        options.ignore = value
+    else:
+        options.ignore = ",".join((value,ignore))
+
     ign = (i.strip() for i in value.split(","))
     for i in (i for i in ign if i):
-        iopt_str = "--ignore-"+i.replace("_","-")
+        iopt_str = "--ignore-" + i.replace("_","-")
         iopt = parser.get_option(iopt_str)
         if iopt:
-            iopt.process(opt_str, value, options, parser)
+            iopt.process(iopt_str, value, options, parser)
 
 
-def _opt_cb_ign_lines(opt, opt_str, value, parser):
+
+def _opt_cb_ign_lines(_opt, _opt_str, _value, parser):
+
+    """ handle the --ignore-lines option """
+
     options = parser.values
     options.ignore_lines = True
     options.ignore_absolute_lines = True
     options.ignore_relative_lines = True
 
 
-def _opt_cb_ign_version(opt, opt_str, value, parser):
+
+def _opt_cb_ign_version(_opt, _opt_str, _value, parser):
+
+    """ handle the --ignore-version option """
+
     options = parser.values
     options.ignore_version = True
     options.ignore_version_up = True
     options.ignore_version_down = True
 
 
-def _opt_cb_ign_platform(opt, opt_str, value, parser):
+
+def _opt_cb_ign_platform(_opt, _opt_str, _value, parser):
+
+    """ handle the --ignore-platform option """
+
     options = parser.values
     options.ignore_platform = True
     options.ignore_platform_up = True
     options.ignore_platform_down = True
 
 
-def _opt_cb_verbose(opt, opt_str, value, parser):
+
+def _opt_cb_verbose(_opt, _opt_str, _value, parser):
+
+    """ handle the --verbose option """
+
     options = parser.values
     options.verbose = True
     options.show_unchanged = True
@@ -855,15 +879,19 @@ def general_optgroup(parser):
     g.add_option("--show-ignored", action="store_true", default=False)
     g.add_option("--show-unchanged", action="store_true", default=False)
     
-    g.add_option("--ignore", action="callback", type="string",
-                 help="comma-separated list of ignores",
-                 callback=_opt_cb_ignore)
+    g.add_option("--ignore", type="string",
+                 action="callback", callback=_opt_cb_ignore,
+                 help="comma-separated list of ignores")
 
     return g
 
 
 
 def create_optparser():
+
+    """ an OptionParser instance with the appropriate options and groups
+    for the classdiff utility """
+
     from optparse import OptionParser
     from javatools import report
 
@@ -877,7 +905,25 @@ def create_optparser():
     parser.add_option_group(report.html_report_optgroup(parser))
 
     return parser
+
+
+
+def default_classdiff_options(updates=None):
     
+    """ generate an options object with the appropriate default values
+    in place for API usage of classdiff features. overrides is an
+    optional dictionary which will be used to update fields on the
+    options object. """
+    
+    parser = create_optparser()
+    options, _args = parser.parse_args(list())
+
+    if updates:
+        #pylint: disable=W0212
+        options._update_careful(updates)
+
+    return options
+
 
 
 def main(args):

@@ -510,6 +510,24 @@ def create_optparser():
 
 
 
+def default_jardiff_options(updates=None):
+    
+    """ generate an options object with the appropriate default values
+    in place for API usage of jardiff features. overrides is an
+    optional dictionary which will be used to update fields on the
+    options object. """
+    
+    parser = create_optparser()
+    options, _args = parser.parse_args(list())
+
+    if updates:
+        #pylint: disable=W0212
+        options._update_careful(updates)
+
+    return options
+
+
+
 def main(args):
 
     """ main entry point for the jardiff CLI """

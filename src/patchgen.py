@@ -332,17 +332,11 @@ def generate_patch(delta, options):
 
 
 
-def options_magic(options):
-    pathmap = {}
-    for m in options.path_map:
-        k,v = m.split(":",1)
-        pathmap[k] = v
-
-    options.pathmap = pathmap
-
-
-
 def cli_patchgen(parser, options, left, right):
+
+    """ very similar to running a distdiff report, but the final
+    results are also used to create patching instructions """
+
     from .report import quick_report, Reporter
     from .report import JSONReportFormat, TextReportFormat
     from .distdiff import DistReport
@@ -361,6 +355,7 @@ def cli_patchgen(parser, options, left, right):
         else:
             quick_report(TextReportFormat, delta, options)
 
+    # begin patch generation
     makedirsp(options.patch_dir)
     generate_patch(delta, options)
 
@@ -372,11 +367,29 @@ def cli(parser, options, rest):
     if len(rest) != 3:
         parser.error("wrong number of arguments.")
 
-    # TODO: fix these options
-    options_magic(options)
     left, right = rest[1:3]
 
     return cli_patchgen(parser, options, left, right)
+
+
+
+def _opt_cb_path_map(opt, opt_str, value, parser):
+    
+    """ handle the --path-map CLI option """
+
+    options = parser.values
+    pathmap = getattr(options, "pathmap", None)
+
+    if pathmap is None:
+        pathmap = dict()
+        options.pathmap = pathmap
+
+    if not ':' in value:
+        parser.error("invalid --path-map argument %r, should be a"
+                     " path:variable pair")
+
+    k, v = value.split(':', 1)
+    pathmap[k] = v
 
 
 
@@ -393,7 +406,8 @@ def patchgen_optgroup(parser):
                   help="Directory into which output patch data should"
                   " be written and copied. Defaults to ./patch")
 
-    og.add_option("--path-map", action="append", default=list(),
+    og.add_option("--path-map", type="string",
+                  action="callback", callback=_opt_cb_path_map,
                   help="Can be specified multiple times. Each is a"
                   " path:variable mapping which will be used to swap"
                   " out the path names in the generated instructions")
@@ -429,7 +443,28 @@ def create_optparser():
 
 
 
+def default_patchgen_options(updates=None):
+
+    """ generate an options object with the appropriate default values
+    in place for API usage of patchgen features. overrides is an
+    optional dictionary which will be used to update fields on the
+    options object. """
+
+    parser = create_optparser()
+    options, _args = parser.parse_args(list())
+
+    if updates:
+        #pylint: disable=W0212
+        options._update_careful(updates)
+
+    return options
+
+
+
 def main(args):
+
+    """ main entry point for CLI usage of the dist patch generator """
+
     parser = create_optparser()
     return cli(parser, *parser.parse_args(args))
 
