@@ -46,7 +46,7 @@ CONFIG_PATTERN = (
 
 
 
-INSTRUCTION_BASE = '''
+_INSTRUCTION_BASE = '''
 <process-definition name="process">
   <start-state>
     <transition to="main_process/pre_1" />
@@ -167,8 +167,7 @@ def sha256sum(fn):
 
 
 
-def copyfile(fn, orig, patchdir, squash=None,
-             pathsquash=None, pathsquashed=None):
+def copyfile(fn, orig, patchdir):
 
     from os.path import join, split
     from shutil import copy
@@ -181,42 +180,9 @@ def copyfile(fn, orig, patchdir, squash=None,
     dest = join(patchdir, a)
     ret = join("#{patchFolder}", a, b)
 
-    if pathsquash is not None:
-        ps = None
-        for k in pathsquash:
-            if fn.startswith(k):
-                ps = fn[len(k):]
-                break
-
-        if ps:
-            check = pathsquashed.get(ps)
-            if check:
-                print "path squashing file %s as a copy of %s" % (fn, check)
-                return check
-            else:
-                pathsquashed[ps] = ret
-                makedirsp(dest)
-                copy(orig_fn, dest)
-                return ret
-
-    if squash is None:
-        makedirsp(dest)
-        copy(orig_fn, dest)
-        return ret
-
-    else:
-        squashkey = sha256sum(orig_fn)
-        squashed = squash.get(squashkey)
-        
-        if squashed:
-            print "sha256 squashing file %s as a copy of %s" % (fn, squashed)
-            return squashed
-
-        else:
-            squash[squashkey] = ret
-            makedirsp(dest)
-            copy(orig_fn, dest)
-            return ret
+    makedirsp(dest)
+    copy(orig_fn, dest)
+    return ret
 
 
 
@@ -286,6 +252,10 @@ def sieve_changes(delta, options, copies, removals, patches):
 
 
 def repath(pathmap, pathstr):
+
+    """ given pathmap (a dict of sub-paths to path monikers), match
+    the longest moniker to pathstr and substitute. """
+
     found = ""
     for key in pathmap.keys():
         if pathstr.startswith(key):
@@ -299,55 +269,32 @@ def repath(pathmap, pathstr):
 
 
 
-def sort_by_entry(changeset):
-    tmp = {}
-    for c in changeset:
-        tmp[c.entry] = c
-    keys = tmp.keys()
-    keys.sort()
-    for k in keys:
-        yield tmp[k]
-
-
-
 def generate_patch(delta, options):
 
     from os.path import join
     from xml.dom.minidom import parseString
     import xml.xpath
     
+    # get the lists of files we'll be copying, removing, or patching
     copies, removals, patches = [], [], []
     sieve_changes(delta, options, copies, removals, patches)
 
     pathmap = options.pathmap
+    patchdir = options.patch_dir
 
-    doc = parseString(INSTRUCTION_BASE)
+    # get the base XML document that we'll be starting from
+    doc = parseString(_INSTRUCTION_BASE)
     state = xml.xpath.Evaluate("/process-definition/super-state", doc)[0]
     end = xml.xpath.Evaluate("node[@name='complete']", state)[0]
     end.parentNode.removeChild(end)
 
-    #print doc
-    #print state
-    #print end
-
     index = 1
 
-    patchdir = options.patch_dir
-    
-    squash = None
-    if options.squash_256:
-        squash = {}
+    # used for sorting changes by entry
+    entry_key = lambda i: i.entry
 
-    spaths = None
-    spmap = None
-    if options.squash_path:
-        spaths = options.squash_path
-        spmap = {}
-
-    for change in sort_by_entry(copies):
-        tmp = copyfile(change.entry, delta.rdata, patchdir,
-                       squash, spaths, spmap)
-
+    for change in sorted(copies, key=entry_key):
+        tmp = copyfile(change.entry, delta.rdata, patchdir),
         fn = repath(pathmap, change.entry)
 
         node = append_node(state, index)
@@ -367,7 +314,7 @@ def generate_patch(delta, options):
         append_transition(node, "originalFileNotFound", index)
         append_transition(node, "success", index)
 
-    for change in sort_by_entry(removals):
+    for change in sorted(removals, key=entry_key):
         node = append_node(state, index)
         act = append_action(node, _Notification)
         fn = repath(pathmap, change.entry)
@@ -380,7 +327,7 @@ def generate_patch(delta, options):
         index = index + 1
         append_transition(node, "success", index)
 
-    for change in sort_by_entry(patches):
+    for change in sorted(patches, key=entry_key):
         tmp = copypatch(change.entry, delta.ldata, delta.rdata, patchdir)
         fn = repath(pathmap, change.entry)
 
@@ -456,19 +403,50 @@ def cli(parser, options, rest):
 
 
 
+def patchgen_optgroup(parser):
+    
+    """ Option group relating to the patch generation actions of
+    distpatchgen """
+
+    from optparse import OptionGroup
+
+    og = OptionGroup(parser, "Distribution Patch Generator Options")
+
+    og.add_option("--patch-dir", action="store", default="patch",
+                  help="Directory into which output patch data should"
+                  " be written and copied. Defaults to ./patch")
+
+    og.add_option("--path-map", action="append", default=list(),
+                  help="Can be specified multiple times. Each is a"
+                  " path:variable mapping which will be used to swap"
+                  " out the path names in the generated instructions")
+
+    return og
+
+
+
 def create_optparser():
-    from javatools import distdiff
 
-    # TODO Bring this in line with the other option sets
-    parser = distdiff.create_optparser()
+    """ an OptionParser instance filled with options and groups
+    appropriate for use with the distpatchgen command """
 
-    parser.add_option("--patch-dir", action="store", default="patch")
-    parser.add_option("--path-map", action="append", default=list())
+    from optparse import OptionParser
+    from .distdiff import distdiff_optgroup
+    from .jardiff import jardiff_optgroup
+    from .classdiff import classdiff_optgroup, general_optgroup
+    from javatools import report
+    
+    parser = OptionParser(usage="%prog [OPTIONS] OLD_DIST NEW_DIST")
 
-    parser.add_option("--squash-256", action="store_true",
-                      default=False)
+    parser.add_option_group(general_optgroup(parser))
+    parser.add_option_group(patchgen_optgroup(parser))
+    parser.add_option_group(distdiff_optgroup(parser))
+    parser.add_option_group(jardiff_optgroup(parser))
+    parser.add_option_group(classdiff_optgroup(parser))
 
-    parser.add_option("--squash-path", action="append", default=list())
+    parser.add_option_group(report.general_report_optgroup(parser))
+    parser.add_option_group(report.json_report_optgroup(parser))
+    parser.add_option_group(report.html_report_optgroup(parser))
 
     return parser
 
