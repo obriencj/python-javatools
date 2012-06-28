@@ -625,13 +625,16 @@ def distdiff_optgroup(parser):
     from optparse import OptionGroup
     from multiprocessing import cpu_count
 
+    # for the --processes default
+    cpus = cpu_count()
+
     og = OptionGroup(parser, "Distribution Checking Options")
 
     og.add_option("--processes", action="store",
-                  type="int", default=(cpu_count() + 1),
+                  type="int", default=cpus,
                   help="Number of child processes to spawn to handle"
                   " sub-reports. Set to 0 to disable multi-processing."
-                  " Defaults to the number of CPUs + 1")
+                  " Defaults to the number of CPUs (%r)" % cpus)
 
     og.add_option("--shallow", action="store_true", default=False,
                   help="Check only that the files of this dist have"
