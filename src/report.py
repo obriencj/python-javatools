@@ -426,10 +426,9 @@ class CheetahReportFormat(ReportFormat):
         necessary, and appends them to the options """
 
         from javatools import cheetah
-        from shutil import copy
-        from os.path import exists, join, relpath
-        from os import makedirs, walk
-        
+        from os.path import join
+        from .dirutils import copydir
+
         options = self.options
         datadir = getattr(options, "html_copy_data", None)
         
@@ -441,30 +440,16 @@ class CheetahReportFormat(ReportFormat):
         # this is where we've installed the default media
         datasrc = join(cheetah.__path__[0], "data")
 
-        if not exists(datadir):
-            makedirs(datadir)
-
         # record the .js and .css content we copy
         javascripts = list()
         stylesheets = list()
 
         # copy the contents of our data source to datadir
-        for r, ds, fs in walk(datasrc):
-            for d in ds:
-                # ensure directories exist
-                rd = join(datadir, d)
-                if not exists(rd):
-                    makedirs(rd)
-
-            for f in fs:
-                rf = join(r, f)
-                df = join(datadir, relpath(rf, datasrc))
-                copy(rf, df)
-
-                if f.endswith(".js"):
-                    javascripts.append(df)
-                elif f.endswith(".css"):
-                    stylesheets.append(df)
+        for _orig, copied in copydir(datasrc, datadir):
+            if copied.endswith(".js"):
+                javascripts.append(copied)
+            elif copied.endswith(".css"):
+                stylesheets.append(copied)
         
         javascripts.extend(getattr(options, "html_javascripts", tuple()))
         stylesheets.extend(getattr(options, "html_stylesheets", tuple()))
@@ -532,6 +517,8 @@ class CheetahReportFormat(ReportFormat):
 
 
 class CheetahStreamTransaction(object):
+    #pylint: disable=R0903
+    # this is the whole interface, get off of my back.
 
     """ Transaction-like object for cheetah template instances which
     causes writes to go directly to a stream """

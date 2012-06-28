@@ -306,18 +306,23 @@ class ExplodedZipFile(object):
 
 
 class ZipFileContext(object):
+    #pylint: disable=R0903
+    # too few public methods (none). It's a context manager.
 
     """ A context manager for ZipFile instances. Creates an internal
-    ZipFile, and closes it when the context exits. """
+    ZipFile, and closes it when the context exits. See open_zip """
+
 
     def __init__(self, filename, mode="r"):
         self.fn = filename
         self.zf = None
         self.mode = mode
 
+
     def __enter__(self):
         self.zf = zip_file(self.fn, self.mode)
         return self.zf
+
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.zf:

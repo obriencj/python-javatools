@@ -32,13 +32,47 @@ BOTH = SAME # meh, synonyms
 
 
 
-
 def fnmatches(entry, *pattern_list):
+
+    """ returns true if entry matches any of the glob patterns, false
+    otherwise """
+
     from fnmatch import fnmatch
     for pattern in pattern_list:
         if pattern and fnmatch(entry, pattern):
             return True
     return False
+
+
+
+def copydir(orig, dest):
+
+    """ copies directory orig to dest. Returns a list of tuples of
+    relative filenames which were copied from orig to dest """
+
+    from os.path import exists, join, relpath
+    from os import makedirs, walk
+    from shutil import copy
+
+    copied = list()
+
+    if not exists(dest):
+        makedirs(dest)
+
+    for r, ds, fs in walk(orig):
+        for d in ds:
+            # ensure directories exist
+            rd = join(dest, d)
+            if not exists(rd):
+                makedirs(rd)
+                
+        for f in fs:
+            rf = join(r, f)
+            df = join(dest, relpath(rf, orig))
+            copy(rf, df)
+            copied.append((rf, df))
+
+    return copied
 
 
 
