@@ -623,12 +623,15 @@ def distdiff_optgroup(parser):
     """ Option group relating to the use of a DistChange or DistReport """
 
     from optparse import OptionGroup
+    from multiprocessing import cpu_count
 
     og = OptionGroup(parser, "Distribution Checking Options")
 
-    og.add_option("--processes", action="store", type="int", default=0,
+    og.add_option("--processes", action="store",
+                  type="int", default=(cpu_count() + 1),
                   help="Number of child processes to spawn to handle"
-                  " sub-reports. Defaults to 0")
+                  " sub-reports. Set to 0 to disable multi-processing."
+                  " Defaults to the number of CPUs + 1")
 
     og.add_option("--shallow", action="store_true", default=False,
                   help="Check only that the files of this dist have"
