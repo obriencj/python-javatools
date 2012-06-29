@@ -23,6 +23,7 @@ license: LGPL
 
 
 
+from functools import partial
 from json import JSONEncoder
 
 
@@ -272,7 +273,7 @@ class JSONReportFormat(ReportFormat):
             }
 
         # not what they expected, but it works
-        cls = lambda *a, **k: JSONChangeEncoder(options, *a, **k)
+        cls = partial(JSONChangeEncoder, options)
 
         try:
             dump(data, out, sort_keys=True, indent=indent, cls=cls)
