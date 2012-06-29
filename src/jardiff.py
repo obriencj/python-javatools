@@ -245,8 +245,6 @@ class JarContentsChange(SuperChange):
         assert(right != None)
 
         for event,entry in compare_zips(left, right):
-            #print event, entry
-
             if event == SAME:
 
                 # TODO: should we split by file type to more specific
@@ -331,6 +329,11 @@ class JarChange(SuperChange):
 
 class JarContentsReport(JarContentsChange):
 
+    """ overridden JarContentsChange which will swap out
+    JarClassChange with JarClassReport instances. The check_impl
+    method gains the side effect of causing all JarClassReports
+    gathered to write reports of themselves to file. """
+
 
     def __init__(self, left_fn, right_fn, reporter):
         JarContentsChange.__init__(self, left_fn, right_fn)
@@ -351,11 +354,7 @@ class JarContentsReport(JarContentsChange):
             yield c
 
 
-
     def check_impl(self):
-        # overridden to immediately squash class reports, to save on
-        # memory usage.
-
         from .change import squash
         from .ziputils import open_zip
 

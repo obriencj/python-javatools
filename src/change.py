@@ -24,20 +24,33 @@ license: LGPL
 
 
 
-def collect_by_type(objs):
+def collect_by_type(obj_sequence):
+
+    """ collects objects from obj_sequence and stores them into buckets by
+    type """
+
     cache = {}
-    for val in objs:
-        key = val.__class__
-        tl = cache.get(key, None)
-        if not tl:
-            tl = list()
-            cache[key] = tl
-        tl.append(val)
+
+    for val in obj_sequence:
+        key = type(val)
+        bucket = cache.get(key, None)
+
+        if bucket is None:
+            bucket = [val]
+            cache[key] = bucket
+        else:
+            bucket.append(val)
+
     return cache
 
 
 
-def iterate_by_type(objs, *typelist):
+def iterate_by_type(objs, typelist):
+
+    """ collects a sequence of objs into buckets by type, then
+    re-emits objs from the buckets, sorting through the buckets in the
+    order specified by typelist """
+
     cache = collect_by_type(objs)
     for t in typelist:
         for val in cache.pop(t, tuple()):
@@ -59,8 +72,8 @@ def yield_sorted_by_type(*typelist):
     taken into consideration for grouping. """
 
     def decorate(fun):
-        def decorated(*args,**kwds):
-            return iterate_by_type(fun(*args, **kwds), *typelist)
+        def decorated(*args, **kwds):
+            return iterate_by_type(fun(*args, **kwds), typelist)
 
         decorated.__doc__ = fun.__doc__
         decorated.func_name = fun.func_name
