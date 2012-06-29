@@ -316,6 +316,8 @@ class DistChange(SuperChange):
                           DistJarAdded,
                           DistJarRemoved,
                           DistJarChange,
+                          DistTextChange,
+                          DistManifestChange,
                           DistContentAdded,
                           DistContentRemoved,
                           DistContentChange)
