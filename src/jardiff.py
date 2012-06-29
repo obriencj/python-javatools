@@ -29,6 +29,7 @@ licence: LGPL
 from .change import Change, GenericChange
 from .change import SuperChange, Addition, Removal
 from .change import yield_sorted_by_type
+from .dirutils import fnmatches
 
 
 
@@ -75,7 +76,6 @@ class JarContentChange(Change):
 
 
     def is_ignored(self, options):
-        from .dirutils import fnmatches
         return fnmatches(self.entry, *options.ignore_jar_entry)
 
 
@@ -238,7 +238,6 @@ class JarContentsChange(SuperChange):
                           JarClassChange)
     def collect_impl(self):
         from .ziputils import compare_zips, LEFT, RIGHT, DIFF, SAME
-        from .dirutils import fnmatches
 
         # these are opened for the duration of check_impl
         left, right = self.lzip, self.rzip

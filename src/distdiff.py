@@ -26,9 +26,11 @@ license: LGPL
 """
 
 
+
 from .change import Change, SuperChange
 from .change import Addition, Removal
 from .change import yield_sorted_by_type
+from .dirutils import fnmatches
 
 
 
@@ -85,7 +87,6 @@ class DistContentChange(Change):
 
 
     def is_ignored(self, options):
-        from .dirutils import fnmatches
         return fnmatches(self.entry, *options.ignore_filenames)
 
 
@@ -327,7 +328,7 @@ class DistChange(SuperChange):
         distribution directories """
 
         from .dirutils import LEFT, RIGHT, SAME, DIFF
-        from .dirutils import compare, fnmatches
+        from .dirutils import compare
         from .jarinfo import JAR_PATTERNS
 
         ld, rd = self.ldata, self.rdata
