@@ -25,6 +25,7 @@ or stream. """
 # so there will be efforts here to increase performance
 
 
+
 from struct import Struct
 
 
@@ -43,127 +44,51 @@ def compile_struct(fmt, cache=dict()):
 
 
 
-class Unpacker(object):
-
-    """ Wraps a stream (or creates a stream for a string or buffer)
-    and advances along it while unpacking structures from it.
-
-    This class adheres to the context management protocol, so may be
-    used in conjunction with the 'with' keyword """
-
-
-    def __init__(self, data):
-        self.data = data
-        self.offset = 0
-        
-        if isinstance(data, (str, buffer)):
-            self.read = self._buffer_read
-            self.unpack = self._buffer_unpack
-            self.unpack_struct = self._buffer_unpack_struct
-            self.close = self._buffer_close
-
-        elif hasattr(data, "read"):
-            self.read = self._stream_read
-            self.unpack = self._stream_unpack
-            self.unpack_struct = self._stream_unpack_struct
-            self.close = self._stream_close
-
-        else:
-            raise TypeError("Unpacker requires a string, buffer,"
-                            " or object with a read method")
+class _Unpacker(object):
+    
+    """ (abstract) base class for StreamUnpacker and BufferUnpacker,
+    hold common code"""
 
 
     def __enter__(self):
         return self
 
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, _exc_val, _exc_tb):
         self.close()
         return (exc_type is None)
 
 
-    def _stream_unpack(self, fmt):
+    def unpack(self, format_str):
 
-        """ unpacks the given fmt from the underlying stream and
+        """ unpacks the given format_str from the underlying data and
         returns the results. Will raise an UnpackException if there is
-        not enough data to satisfy the fmt """
-
-        sfmt = compile_struct(fmt)
-        size = sfmt.size
-        buff = self.data.read(size)
-        if len(buff) < size:
-            raise UnpackException(fmt, size, len(buff))
-        
-        return sfmt.unpack(buff)
-
-
-    def _buffer_unpack(self, fmt):
-
-        """ unpacks the given fmt from the underlying buffer and
-        returns the results. Will raise an UnpackException if there is
-        not enough data to satisfy the fmt """
-
-        sfmt = compile_struct(fmt)
-        size = sfmt.size
-
-        offset = self.offset
-        avail = len(self.data) - offset
-
-        if avail < size:
-            raise UnpackException(fmt, size, avail)
-
-        self.offset = offset + size
-        return sfmt.unpack_from(self.data, offset)
-
-
-    def unpack(self, fmt):
-        #pylint: disable=E0202
-
-        """ unpacks the given fmt from the underlying data and returns
-        the results. Will raise an UnpackException if there is not
-        enough data to satisfy the fmt """
+        not enough data to satisfy the specified format """
 
         pass
 
 
-    def _stream_unpack_struct(self, struct):
-
-        """ unpacks the given struct from the underlying stream and
-        returns the results. Will raise an UnpackException if there is
-        not enough data to satisfy the format of the structure """
-
-        size = struct.size
-        buff = self.data.read(size)
-        if len(buff) < size:
-            raise UnpackException(struct.format, size, len(buff))
-        
-        return struct.unpack(buff)
-
-
-    def _buffer_unpack_struct(self, struct):
-
-        """ unpacks the given struct from the underlying buffer and
-        returns the results. Will raise an UnpackException if there is
-        not enough data to satisfy the format of the structure """
-
-        offset = self.offset
-        avail = len(self.data) - offset
-
-        size = struct.size
-
-        if avail < size:
-            raise UnpackException(struct.format, size, avail)
-
-        self.offset = offset + size
-        return struct.unpack_from(self.data, offset)
-
-
     def unpack_struct(self, struct):
-        #pylint: disable=E0202
 
         """ unpacks the given struct from the underlying data and
         returns the results. Will raise an UnpackException if there is
         not enough data to satisfy the format of the structure """
+
+        pass
+
+
+    def read(self, count):
+
+        """ read count bytes from the unpacker and return it. Raises
+        an UnpackException if there is not enough data in the
+        underlying stream. """
+
+        pass
+
+
+    def close(self):
+
+        """ close this unpacker and release the underlying data """
 
         pass
     
@@ -194,7 +119,128 @@ class Unpacker(object):
             yield obj
 
 
-    def _stream_read(self, count):
+
+class BufferUnpacker(_Unpacker):
+
+    """ Unpacker wrapping a str or buffer. """
+
+
+    def __init__(self, data, offset=0):
+        _Unpacker.__init__(self)
+
+        self.data = data
+        self.offset = offset
+
+
+    def unpack(self, fmt):
+
+        """ unpacks the given fmt from the underlying buffer and
+        returns the results. Will raise an UnpackException if there is
+        not enough data to satisfy the fmt """
+
+        sfmt = compile_struct(fmt)
+        size = sfmt.size
+
+        offset = self.offset
+        avail = len(self.data) - offset
+
+        if avail < size:
+            raise UnpackException(fmt, size, avail)
+
+        self.offset = offset + size
+        return sfmt.unpack_from(self.data, offset)
+
+
+    def unpack_struct(self, struct):
+
+        """ unpacks the given struct from the underlying buffer and
+        returns the results. Will raise an UnpackException if there is
+        not enough data to satisfy the format of the structure """
+
+        offset = self.offset
+        avail = len(self.data) - offset
+
+        size = struct.size
+
+        if avail < size:
+            raise UnpackException(struct.format, size, avail)
+
+        self.offset = offset + size
+        return struct.unpack_from(self.data, offset)
+
+
+    def read(self, count):
+        
+        """ read count bytes from the underlying buffer and return
+        them as a str. Raises an UnpackException if there is not
+        enough data in the underlying buffer."""
+
+        if not self.data:
+            raise UnpackException(None, count, 0)
+
+        offset = self.offset
+        avail = len(self.data) - offset
+
+        if avail < count:
+            raise UnpackException(None, count, avail)
+
+        self.offset = offset + count
+        return self.data[offset:self.offset]
+
+
+    def close(self):
+
+        """ release the underlying buffer """
+
+        self.data = None
+        self.offset = 0
+
+
+
+class StreamUnpacker(_Unpacker):
+
+    """ Wraps a stream (or creates a stream for a string or buffer)
+    and advances along it while unpacking structures from it.
+
+    This class adheres to the context management protocol, so may be
+    used in conjunction with the 'with' keyword """
+
+
+    def __init__(self, data):
+        _Unpacker.__init__(self)
+        self.data = data
+
+
+    def unpack(self, fmt):
+
+        """ unpacks the given fmt from the underlying stream and
+        returns the results. Will raise an UnpackException if there is
+        not enough data to satisfy the fmt """
+
+        sfmt = compile_struct(fmt)
+        size = sfmt.size
+        buff = self.data.read(size)
+        if len(buff) < size:
+            raise UnpackException(fmt, size, len(buff))
+        
+        return sfmt.unpack(buff)
+
+
+    def unpack_struct(self, struct):
+
+        """ unpacks the given struct from the underlying stream and
+        returns the results. Will raise an UnpackException if there is
+        not enough data to satisfy the format of the structure """
+
+        size = struct.size
+        buff = self.data.read(size)
+        if len(buff) < size:
+            raise UnpackException(struct.format, size, len(buff))
+        
+        return struct.unpack(buff)
+
+
+    def read(self, count):
 
         """ read count bytes from the unpacker and return it. Raises
         an UnpackException if there is not enough data in the
@@ -210,36 +256,7 @@ class Unpacker(object):
         return buff
 
 
-    def _buffer_read(self, count):
-        
-        """ read count bytes from the unpacker and return it. Raises
-        an UnpackException if there is not enough data in the
-        underlying buffer. """
-
-        if not self.data:
-            raise UnpackException(None, count, 0)
-
-        offset = self.offset
-        avail = len(self.data) - offset
-
-        if avail < count:
-            raise UnpackException(None, count, avail)
-
-        self.offset = offset + count
-        return buffer(self.data, offset, count)
-
-
-    def read(self, count):
-        #pylint: disable=E0202
-
-        """ read count bytes from the unpacker and return it. Raises
-        an UnpackException if there is not enough data in the
-        underlying stream. """
-
-        pass
-
-
-    def _stream_close(self):
+    def close(self):
 
         """ close this unpacker, and the underlying stream if it
         supports such """
@@ -251,20 +268,23 @@ class Unpacker(object):
             data.close()
 
 
-    def _buffer_close(self):
 
-        """ close this unpacker, release the underlying buffer """
+def unpack(data):
 
-        self.data = None
-        self.offset = 0
+    """ returns either a BufferUnpacker or StreamUnpacker instance,
+    depending upon the type of data. The unpacker supports the managed
+    context interface, so may be used eg: `with unpack(my_data) as
+    unpacker:` """
 
-        
-    def close(self):
-        #pylint: disable=E0202
-        
-        """ close this unpacker """
+    if isinstance(data, (str, buffer)):
+        return BufferUnpacker(data)
 
-        pass
+    elif hasattr(data, "read"):
+        return StreamUnpacker(data)
+
+    else:
+        raise TypeError("Unpacker requires a str, buffer, or instance"
+                        " supporting the read method")
 
 
 

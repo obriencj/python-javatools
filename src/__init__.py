@@ -30,7 +30,7 @@ license: LGPL
 """
 
 
-from .pack import compile_struct, Unpacker, UnpackException
+from .pack import compile_struct, unpack, UnpackException
 
 
 
@@ -592,7 +592,7 @@ class JavaClassInfo(object):
         if buff is None:
             return None
         
-        with Unpacker(buff) as up:
+        with unpack(buff) as up:
             (ref,) = up.unpack_struct(_H)
         
         return self.deref_const(ref)
@@ -614,7 +614,7 @@ class JavaClassInfo(object):
         if buff is None:
             return tuple()
         
-        with Unpacker(buff) as up:
+        with unpack(buff) as up:
             return tuple(up.unpack_objects(JavaInnerClassInfo, self.cpool))
 
 
@@ -627,7 +627,7 @@ class JavaClassInfo(object):
         if buff is None:
             return None
 
-        with Unpacker(buff) as up:
+        with unpack(buff) as up:
             (ref,) = up.unpack_struct(_H)
 
         return self.deref_const(ref)
@@ -653,7 +653,7 @@ class JavaClassInfo(object):
             return None
 
         # class index, method index
-        with Unpacker(buff) as up:
+        with unpack(buff) as up:
             (ci, mi) = up.unpack_struct(_HH)
 
         result = None
@@ -875,7 +875,7 @@ class JavaMemberInfo(object):
             return None
 
         # type index
-        with Unpacker(buff) as up:
+        with unpack(buff) as up:
             (ti,) = up.unpack_struct(_H)
 
         return self.deref_const(ti)
@@ -890,7 +890,7 @@ class JavaMemberInfo(object):
         if buff is None:
             return None
 
-        with Unpacker(buff) as up:
+        with unpack(buff) as up:
             (ti,) = up.unpack_struct(_H)
 
         return self.deref_const(ti)
@@ -1073,7 +1073,7 @@ class JavaMemberInfo(object):
         if buff is None:
             return None
 
-        with Unpacker(buff) as up:
+        with unpack(buff) as up:
             code = JavaCodeInfo(self.cpool)
             code.unpack(up)
 
@@ -1090,10 +1090,9 @@ class JavaMemberInfo(object):
         if buff is None:
             return ()
 
-        with Unpacker(buff) as up:
-            excps = up.unpack_array(">H")
-
-        return tuple(self.deref_const(e[0]) for e in excps)
+        with unpack(buff) as up:
+            return tuple(self.deref_const(e[0]) for e
+                         in up.unpack_array(">H"))
 
 
 
@@ -1106,7 +1105,7 @@ class JavaMemberInfo(object):
         if buff is None:
             return None
 
-        with Unpacker(buff) as up:
+        with unpack(buff) as up:
             (cval_ref,) = up.unpack_struct(_H)
 
         return cval_ref
@@ -1356,7 +1355,7 @@ class JavaCodeInfo(object):
         if buff is None:
             return tuple()
 
-        with Unpacker(buff) as up:
+        with unpack(buff) as up:
             return tuple(up.unpack_array(">HH"))
 
 
@@ -1385,7 +1384,7 @@ class JavaCodeInfo(object):
         if buff is None:
             return tuple()
 
-        with Unpacker(buff) as up:
+        with unpack(buff) as up:
             return tuple(up.unpack_array(">HHHHH"))
     
 
@@ -1399,7 +1398,7 @@ class JavaCodeInfo(object):
         if buff is None:
             return tuple()
 
-        with Unpacker(buff) as up:
+        with unpack(buff) as up:
             return tuple(up.unpack_array(">HHHHH"))
 
 
@@ -1780,7 +1779,7 @@ def is_class(data):
     match, or for any errors. """
 
     try:
-        with Unpacker(data) as up:
+        with unpack(data) as up:
             magic = up.unpack(">BBBB")
 
         return magic == JAVA_CLASS_MAGIC
@@ -1816,8 +1815,12 @@ def unpack_class(data, magic=None):
     Raises a ClassUnpackException or an UnpackException if the class
     data is malformed """
 
-    with Unpacker(data) as up:
+    # trading memory for cpu time here, let's load the whole file into
+    # a buffer rather than repeatedly reading from it.
+    if hasattr(data, "read"):
+        data = data.read()
 
+    with unpack(data) as up:
         magic = magic or up.unpack(">BBBB")
         if magic != JAVA_CLASS_MAGIC:
             raise ClassUnpackException("Not a Java class file")
