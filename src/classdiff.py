@@ -34,6 +34,7 @@ from .change import yield_sorted_by_type
 
 
 class ClassNameChange(GenericChange):
+
     label = "Class name"
 
     
@@ -47,6 +48,7 @@ class ClassNameChange(GenericChange):
 
 
 class ClassVersionChange(GenericChange):
+
     label = "Java class verison"
 
 
@@ -55,13 +57,16 @@ class ClassVersionChange(GenericChange):
 
 
     def is_ignored(self, o):
-        lver, rver = self.ldata.version, self.rdata.version
+        lver = self.ldata.version
+        rver = self.rdata.version
+
         return ((o.ignore_version_up and lver < rver) or
                 (o.ignore_version_down and lver > rver))
 
 
 
 class ClassPlatformChange(GenericChange):
+
     label = "Java platform"
 
 
@@ -70,13 +75,16 @@ class ClassPlatformChange(GenericChange):
 
 
     def is_ignored(self, o):
-        lver, rver = self.ldata.version, self.rdata.version
+        lver = self.ldata.version
+        rver = self.rdata.version
+
         return ((o.ignore_version_up and lver < rver) or
                 (o.ignore_version_down and lver > rver))
 
 
 
 class ClassSuperclassChange(GenericChange):
+
     label = "Superclass"
 
 
@@ -90,6 +98,7 @@ class ClassSuperclassChange(GenericChange):
 
 
 class ClassInterfacesChange(GenericChange):
+
     label = "Interfaces"
 
 
@@ -103,6 +112,7 @@ class ClassInterfacesChange(GenericChange):
 
 
 class ClassAccessflagsChange(GenericChange):
+
     label = "Access flags"
 
 
@@ -116,6 +126,7 @@ class ClassAccessflagsChange(GenericChange):
 
 
 class ClassDeprecationChange(GenericChange):
+
     label = "Deprecation"
 
 
@@ -129,6 +140,7 @@ class ClassDeprecationChange(GenericChange):
 
 
 class ClassSignatureChange(GenericChange):
+
     label = "Generics Signature"
 
 
@@ -138,7 +150,9 @@ class ClassSignatureChange(GenericChange):
 
 
 class ClassInfoChange(SuperChange):
+
     label = "Class information"
+
 
     change_types = (ClassNameChange,
                     ClassVersionChange,
@@ -154,6 +168,7 @@ class ClassInfoChange(SuperChange):
 class MemberSuperChange(SuperChange):
     
     """ basis for FieldChange and MethodChange """
+
     
     label = "Member"
 
@@ -166,6 +181,7 @@ class MemberSuperChange(SuperChange):
 class MemberAdded(Addition):
     
     """ basis for FieldAdded and MethodAdded """
+
     
     label = "Member added"
 
@@ -178,6 +194,7 @@ class MemberAdded(Addition):
 class MemberRemoved(Removal):
     
     """ basis for FieldChange and MethodChange """
+
     
     label = "Member removed"
 
@@ -190,6 +207,7 @@ class MemberRemoved(Removal):
 class ClassMembersChange(SuperChange):
 
     """ basis for ClassFieldsChange and ClassMethodsChange """
+
     
     label = "Members"
 
@@ -220,6 +238,7 @@ class ClassMembersChange(SuperChange):
 
     
 class CodeAbsoluteLinesChange(GenericChange):
+
     label = "Absolute line numbers"
 
 
@@ -233,6 +252,7 @@ class CodeAbsoluteLinesChange(GenericChange):
 
 
 class CodeRelativeLinesChange(GenericChange):
+
     label = "Relative line numbers"
 
 
@@ -246,6 +266,7 @@ class CodeRelativeLinesChange(GenericChange):
 
 
 class CodeStackChange(GenericChange):
+
     label = "Stack size"
 
 
@@ -255,6 +276,7 @@ class CodeStackChange(GenericChange):
     
 
 class CodeLocalsChange(GenericChange):
+
     label = "Locals"
 
 
@@ -264,6 +286,7 @@ class CodeLocalsChange(GenericChange):
 
 
 class CodeExceptionChange(GenericChange):
+
     label = "Exception table"
 
 
@@ -274,7 +297,8 @@ class CodeExceptionChange(GenericChange):
     def fn_pretty(self, c):
         a = list()
         for e in c.exceptions:
-            p = (e.start_pc, e.end_pc, e.handler_pc, e.pretty_catch_type())
+            p = (e.start_pc, e.end_pc,
+                 e.handler_pc, e.pretty_catch_type())
             a.append(p)
         return repr(a)
 
@@ -325,19 +349,22 @@ class CodeConstantsChange(GenericChange):
         from javatools import opcodes
         from itertools import izip
         
-        left,right = self.ldata, self.rdata
+        left = self.ldata
+        right = self.rdata
         offsets = list()
 
         if len(left.code) != len(right.code):
             # code body change, can't determine constants
             return True, None
         
-        for l,r in izip(left.disassemble(), right.disassemble()):
+        for l, r in izip(left.disassemble(), right.disassemble()):
             if not ((l[0] == r[0]) and (l[1] == r[1])):
                 # code body change, can't determine constants
                 return True, None
-            
-            largs,rargs = l[2], r[2]
+
+            largs = l[2]
+            rargs = r[2]
+
             if opcodes.has_const_arg(l[1]):
                 largs, rargs = list(largs), list(rargs)
                 largs[0] = left.cpool.deref_const(largs[0])
@@ -355,6 +382,7 @@ class CodeBodyChange(GenericChange):
 
     """ The length or the opcodes or the arguments of the opcodes has
     changed, signalling that the method body is different """
+
 
     label = "Code body"
 
@@ -377,14 +405,15 @@ class CodeBodyChange(GenericChange):
     def check_impl(self):
         from itertools import izip
 
-        left, right = self.ldata, self.rdata
+        left = self.ldata
+        right = self.rdata
                 
         if len(left.code) != len(right.code):
             desc = "Code length changed from %r to %r" % \
                    (len(left.code), len(right.code))
             return True, desc
 
-        for l,r in izip(left.disassemble(), right.disassemble()):
+        for l, r in izip(left.disassemble(), right.disassemble()):
             if not ((l[0] == r[0]) and (l[1] == r[1])):
                 return True, None
 
@@ -393,6 +422,7 @@ class CodeBodyChange(GenericChange):
 
 
 class MethodNameChange(GenericChange):
+
     label = "Method name"
 
 
@@ -402,6 +432,7 @@ class MethodNameChange(GenericChange):
     
 
 class MethodTypeChange(GenericChange):
+
     label = "Method type"
 
 
@@ -415,6 +446,7 @@ class MethodTypeChange(GenericChange):
 
 
 class MethodSignatureChange(GenericChange):
+
     label = "Method Generic Signature"
 
 
@@ -424,6 +456,7 @@ class MethodSignatureChange(GenericChange):
 
 
 class MethodParametersChange(GenericChange):
+
     label = "Method parameters"
 
 
@@ -437,6 +470,7 @@ class MethodParametersChange(GenericChange):
     
 
 class MethodAccessflagsChange(GenericChange):
+
     label = "Method accessflags"
 
 

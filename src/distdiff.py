@@ -29,7 +29,7 @@ license: LGPL
 
 from .change import Change, SuperChange
 from .change import Addition, Removal
-from .change import yield_sorted_by_type
+from .change import squash, yield_sorted_by_type
 from .dirutils import fnmatches
 
 
@@ -53,6 +53,7 @@ TEXT_PATTERNS = (
 
 
 class DistContentChange(Change):
+
     label = "Distributed Content"
 
 
@@ -92,7 +93,9 @@ class DistContentChange(Change):
 
 
 class DistContentAdded(DistContentChange, Addition):
+
     label = "Distributed Content Added"
+
     
     def get_description(self):
         return "%s: %s" % (self.label, self.entry)
@@ -100,7 +103,9 @@ class DistContentAdded(DistContentChange, Addition):
 
 
 class DistContentRemoved(DistContentChange, Removal):
+
     label = "Distributed Content Removed"
+
     
     def get_description(self):
         return "%s: %s" % (self.label, self.entry)
@@ -108,6 +113,7 @@ class DistContentRemoved(DistContentChange, Removal):
 
 
 class DistTextChange(DistContentChange):
+
     label = "Distributed Text"
 
 
@@ -149,6 +155,7 @@ class DistTextChange(DistContentChange):
 
 
 class DistManifestChange(SuperChange, DistContentChange):
+
     label = "Distributed Manifest"
     
 
@@ -163,7 +170,8 @@ class DistManifestChange(SuperChange, DistContentChange):
         if not self.is_change():
             return
         
-        lm, rm = Manifest(), Manifest()
+        lm = Manifest()
+        rm = Manifest()
         lm.parse_file(self.left_fn())
         rm.parse_file(self.right_fn())
 
@@ -172,6 +180,7 @@ class DistManifestChange(SuperChange, DistContentChange):
 
 
 class DistJarChange(SuperChange, DistContentChange):
+
     label = "Distributed JAR"
 
 
@@ -284,11 +293,13 @@ class DistClassReport(DistClassChange):
 
 
 class DistClassAdded(DistContentAdded):
+
     label = "Distributed Java Class Added"
 
 
 
 class DistClassRemoved(DistContentRemoved):
+
     label = "Distributed Java Class Removed"
 
 
@@ -331,10 +342,11 @@ class DistChange(SuperChange):
         from .dirutils import compare
         from .jarinfo import JAR_PATTERNS
 
-        ld, rd = self.ldata, self.rdata
+        ld = self.ldata
+        rd = self.rdata
         deep = not self.shallow
 
-        for event,entry in compare(ld, rd):
+        for event, entry in compare(ld, rd):
             if deep and fnmatches(entry, *JAR_PATTERNS):
                 if event == LEFT:
                     yield DistJarRemoved(ld, rd, entry)
@@ -392,6 +404,7 @@ class DistReport(DistChange):
     """ This class has side-effects. Running the check method with the
     reportdir option set to True will cause the deep checks to be
     written to file in that directory """
+
 
     report_name = "DistReport"
 
@@ -509,8 +522,6 @@ class DistReport(DistChange):
 
 
     def check_impl(self):
-        from .change import squash
-
         options = self.reporter.options
 
         # if we're configured to use multiple processes, the work happens
@@ -550,8 +561,6 @@ class DistReport(DistChange):
 def _mp_run_check(tasks, results, options):
 
     """ a helper function for multiprocessing with DistReport. """
-
-    from .change import squash
 
     try:
         for index, change in iter(tasks.get, None):

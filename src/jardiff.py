@@ -28,15 +28,18 @@ licence: LGPL
 
 from .change import Change, GenericChange
 from .change import SuperChange, Addition, Removal
-from .change import yield_sorted_by_type
+from .change import squash, yield_sorted_by_type
 from .dirutils import fnmatches
 
 
 
 class JarTypeChange(GenericChange):
-    # exploded vs. zipped and compression level
+
+    """ exploded vs. zipped and compression level """
+
 
     label = "Jar type"
+
 
     def fn_data(self, c):
         # TODO: create some kind of menial zipinfo output showing type
@@ -52,9 +55,12 @@ class JarTypeChange(GenericChange):
 
 
 class JarContentChange(Change):
-    # a file or directory changed between JARs
+
+    """ a file or directory changed between JARs """
+
 
     label = "Jar Content"
+
     
     def __init__(self, lzip, rzip, entry, is_change=True):
         Change.__init__(self, lzip, rzip)
@@ -81,7 +87,9 @@ class JarContentChange(Change):
 
 
 class JarContentAdded(JarContentChange, Addition):
+
     label = "Jar Content Added"
+
 
     def get_description(self):
         return "%s: %s" % (self.label, self.entry)
@@ -89,7 +97,9 @@ class JarContentAdded(JarContentChange, Addition):
 
 
 class JarContentRemoved(JarContentChange, Removal):
+
     label = "Jar Content Removed"
+
 
     def get_description(self):
         return "%s: %s" % (self.label, self.entry)
@@ -97,16 +107,19 @@ class JarContentRemoved(JarContentChange, Removal):
 
 
 class JarClassAdded(JarContentAdded):
+
     label = "Java Class Added"
 
 
 
 class JarClassRemoved(JarContentRemoved):
+
     label = "Java Class Removed"
 
 
 
 class JarClassChange(SuperChange, JarContentChange):
+
     label = "Java Class"
 
     
@@ -166,6 +179,7 @@ class JarClassReport(JarClassChange):
 
 
 class JarManifestChange(SuperChange, JarContentChange):
+
     label = "Jar Manifest"
 
     
@@ -192,7 +206,9 @@ class JarManifestChange(SuperChange, JarContentChange):
 
 
 class JarSignatureChange(JarContentChange):
+
     label = "Jar Signature Data"
+
 
     def is_ignored(self, options):
         return options.ignore_jar_signature
@@ -200,7 +216,9 @@ class JarSignatureChange(JarContentChange):
 
 
 class JarSignatureAdded(JarContentAdded):
+
     label = "Jar Signature Added"
+
 
     def is_ignored(self, options):
         return options.ignore_jar_signature
@@ -208,7 +226,9 @@ class JarSignatureAdded(JarContentAdded):
 
 
 class JarSignatureRemoved(JarContentRemoved):
+
     label = "Jar Signature Removed"
+
 
     def is_ignored(self, options):
         return options.ignore_jar_signature
@@ -240,11 +260,12 @@ class JarContentsChange(SuperChange):
         from .ziputils import compare_zips, LEFT, RIGHT, DIFF, SAME
 
         # these are opened for the duration of check_impl
-        left, right = self.lzip, self.rzip
+        left = self.lzip
+        right = self.rzip
         assert(left != None)
         assert(right != None)
 
-        for event,entry in compare_zips(left, right):
+        for event, entry in compare_zips(left, right):
             if event == SAME:
 
                 # TODO: should we split by file type to more specific
@@ -320,7 +341,9 @@ class JarContentsChange(SuperChange):
 
 
 class JarChange(SuperChange):
+
     label = "JAR"
+
 
     change_types = (JarTypeChange,
                     JarContentsChange)
@@ -355,7 +378,6 @@ class JarContentsReport(JarContentsChange):
 
 
     def check_impl(self):
-        from .change import squash
         from .ziputils import open_zip
 
         changes = list()
@@ -389,6 +411,7 @@ class JarReport(JarChange):
     """ This class has side-effects. Running the check method with the
     reportdir options set to True will cause the deep checks to be
     written to file in that directory """
+
 
     report_name = "JarReport"
 

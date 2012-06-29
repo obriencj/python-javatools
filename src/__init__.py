@@ -31,6 +31,7 @@ license: LGPL
 
 
 from .pack import compile_struct, unpack, UnpackException
+from .opcodes import disassemble
 
 
 
@@ -135,7 +136,7 @@ class JavaConstantPool(object):
         
         # first item is never present in the actual data buffer, but
         # the count number acts like it would be.
-        items = [(None,None), ]
+        items = [(None, None), ]
         count -= 1
         
         # Long and Double const types will "consume" an item count,
@@ -147,7 +148,7 @@ class JavaConstantPool(object):
             if hackpass:
                 # previous item was a long or double
                 hackpass = False
-                items.append((None,None))
+                items.append((None, None))
 
             else:
                 item = _unpack_const_item(unpacker)
@@ -654,7 +655,7 @@ class JavaClassInfo(object):
 
         # class index, method index
         with unpack(buff) as up:
-            (ci, mi) = up.unpack_struct(_HH)
+            ci, mi = up.unpack_struct(_HH)
 
         result = None
 
@@ -1407,14 +1408,13 @@ class JavaCodeInfo(object):
 
         """ returns the line number given a code offset """
 
-        lnt = self.get_linenumbertable()
-
         prev = -1
-        for (o,l) in lnt:
-            if o < code_offset:
-                prev = o
-            elif o == code_offset:
-                return l
+
+        for (offset, line) in self.get_linenumbertable():
+            if offset < code_offset:
+                prev = offset
+            elif offset == code_offset:
+                return line
             else:
                 return prev
 
@@ -1426,8 +1426,6 @@ class JavaCodeInfo(object):
         
         """ disassembles the underlying bytecode instructions and
         generates a sequence of (offset, code, args) tuples """
-
-        from .opcodes import disassemble
 
         dis = self._dis_code
         if dis is None:
@@ -1761,8 +1759,8 @@ def _pretty_class(s):
 
 
 def _clean_array_const(s):
-    t,b = _next_argsig(buffer(s))
-    return (t,str(b))
+    t, b = _next_argsig(buffer(s))
+    return (t, str(b))
 
 
 
