@@ -501,6 +501,7 @@ class MethodAbstractChange(GenericChange):
 
 
 class MethodExceptionsChange(GenericChange):
+
     label = "Method exceptions"
 
 
@@ -514,6 +515,7 @@ class MethodExceptionsChange(GenericChange):
 
 
 class MethodCodeChange(SuperChange):
+
     label = "Method code"
 
 
@@ -732,6 +734,8 @@ class JavaClassChange(SuperChange):
 
 
 class JavaClassReport(JavaClassChange):
+
+    """ a JavaClassChange with the side-effect of writing reports """
     
 
     def __init__(self, l, r, reporter):
@@ -828,6 +832,9 @@ def cli(parser, options, rest):
 
 
 def classdiff_optgroup(parser):
+
+    """ option group specific to class checking """
+
     from optparse import OptionGroup
 
     g = OptionGroup(parser, "Class Checking Options")
@@ -927,6 +934,9 @@ def _opt_cb_verbose(_opt, _opt_str, _value, parser):
 
 
 def general_optgroup(parser):
+
+    """ option group for general-use features of all javatool CLIs """
+    
     from optparse import OptionGroup
 
     g = OptionGroup(parser, "General Options")
@@ -994,6 +1004,9 @@ def default_classdiff_options(updates=None):
 
 
 def main(args):
+
+    """ Main entry point for the classdiff CLI """
+
     parser = create_optparser()
     return cli(parser, *parser.parse_args(args))
 

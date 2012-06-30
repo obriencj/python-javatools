@@ -30,6 +30,7 @@ license: LGPL
 """
 
 
+
 from .pack import compile_struct, unpack, UnpackException
 from .opcodes import disassemble
 
