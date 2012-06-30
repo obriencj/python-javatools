@@ -71,16 +71,16 @@ def copydir(orig, dest):
 
     makedirsp(dest)
 
-    for r, ds, fs in walk(orig):
-        for d in ds:
+    for root, dirs, files in walk(orig):
+        for d in dirs:
             # ensure directories exist
             makedirsp(join(dest, d))
 
-        for f in fs:
-            rf = join(r, f)
-            df = join(dest, relpath(rf, orig))
-            copy(rf, df)
-            copied.append((rf, df))
+        for f in files:
+            root_f = join(root, f)
+            dest_f = join(dest, relpath(root_f, orig))
+            copy(root_f, dest_f)
+            copied.append((root_f, dest_f))
 
     return copied
 
