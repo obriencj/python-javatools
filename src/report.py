@@ -23,6 +23,7 @@ license: LGPL
 
 
 
+from Cheetah.DummyTransaction import DummyTransaction
 from functools import partial
 from json import dump, JSONEncoder
 from os.path import exists, join, relpath
@@ -486,7 +487,8 @@ class CheetahReportFormat(ReportFormat):
         template = template_class()
 
         # create a transaction wrapping the output stream
-        template.transaction = CheetahStreamTransaction(out)
+        template.transaction = DummyTransaction()
+        template.transaction.response(resp=out)
 
         # inject our values
         template.change = change
@@ -507,21 +509,6 @@ class CheetahReportFormat(ReportFormat):
 
         # clean up the template
         template.shutdown()
-
-
-
-class CheetahStreamTransaction(object):
-    #pylint: disable=R0903
-    # this is the whole interface, get off of my back.
-
-    """ Transaction-like object for cheetah template instances which
-    causes writes to go directly to a stream """
-
-    def __init__(self, stream):
-        self.stream = stream
-
-    def response(self):
-        return self.stream
 
 
 
