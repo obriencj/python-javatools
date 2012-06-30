@@ -41,6 +41,10 @@ JAVA_CLASS_MAGIC_STR = "\xca\xfe\xba\xbe"
 
 
 
+_BUFFERING = 2 ** 14
+
+
+
 # The constant pool types
 #pylint: disable=C0103
 CONST_Utf8 = 1
@@ -1863,11 +1867,6 @@ def unpack_class(data, magic=None):
     Raises a ClassUnpackException or an UnpackException if the class
     data is malformed """
 
-    # trading memory for cpu time here, let's load the whole file into
-    # a buffer rather than repeatedly reading from it.
-    if hasattr(data, "read"):
-        data = data.read()
-
     with unpack(data) as up:
         magic = magic or up.unpack(">BBBB")
         if magic != JAVA_CLASS_MAGIC:
@@ -1886,7 +1885,7 @@ def unpack_classfile(filename):
     the data unpacked from the specified file. Raises an
     UnpackException if the class data is malformed """
 
-    with open(filename, "rb") as fd:
+    with open(filename, "rb", _BUFFERING) as fd:
         return unpack_class(fd)
 
 

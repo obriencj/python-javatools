@@ -26,10 +26,17 @@ licence: LGPL
 
 
 
+from os.path import isdir
+
+from javatools import unpack_class
 from .change import Change, GenericChange
 from .change import SuperChange, Addition, Removal
 from .change import squash, yield_sorted_by_type
+from .classdiff import JavaClassChange, JavaClassReport
 from .dirutils import fnmatches
+from .manifest import Manifest, ManifestChange
+from .ziputils import compare_zips, open_zip
+from .ziputils import LEFT, RIGHT, DIFF, SAME
 
 
 
@@ -44,8 +51,6 @@ class JarTypeChange(GenericChange):
     def fn_data(self, c):
         # TODO: create some kind of menial zipinfo output showing type
         # (exploded/zipped) and compression level
-
-        from os.path import isdir
 
         if(isdir(c)):
             return "exploded JAR"
@@ -129,18 +134,14 @@ class JarClassChange(SuperChange, JarContentChange):
 
 
     def collect_impl(self):
-        from javatools import unpack_class
-        from .classdiff import JavaClassChange
-
-        if not self.is_change():
-            return
-
-        with self.open_left() as lfd:
+        if self.is_change():
+            with self.open_left() as lfd:
+                linfo = unpack_class(lfd.read())
+            
             with self.open_right() as rfd:
-                linfo = unpack_class(lfd)
-                rinfo = unpack_class(rfd)
+                rinfo = unpack_class(rfd.read())
 
-        yield JavaClassChange(linfo, rinfo)
+            yield JavaClassChange(linfo, rinfo)
 
 
     def is_ignored(self, options):
@@ -164,17 +165,14 @@ class JarClassReport(JarClassChange):
 
 
     def collect_impl(self):
-        from javatools import unpack_class
-        from .classdiff import JavaClassReport
+        if self.is_change():
+            with self.open_left() as lfd:
+                linfo = unpack_class(lfd.read())
 
-        if not self.is_change():
-            return
-
-        with self.open_left() as l:
-            with self.open_right() as r:
-                linfo = unpack_class(l)
-                rinfo = unpack_class(r)
-        yield JavaClassReport(linfo, rinfo, self.reporter)
+            with self.open_right() as rfd:
+                rinfo = unpack_class(rfd.read())
+                
+            yield JavaClassReport(linfo, rinfo, self.reporter)
 
 
 
@@ -189,19 +187,16 @@ class JarManifestChange(SuperChange, JarContentChange):
 
 
     def collect_impl(self):
-        from .manifest import Manifest, ManifestChange
-        
-        if not self.is_change():
-            return
+        if self.is_change():
+            with self.open_left() as lfd:
+                lm = Manifest()
+                lm.parse(lfd.read())
 
-        lm, rm = Manifest(), Manifest()
+            with self.open_right() as rfd:
+                rm = Manifest()
+                rm.parse(rfd.read())
 
-        with self.open_left() as l:
-            with self.open_right() as r:
-                lm.parse(l)
-                rm.parse(r)
-
-        yield ManifestChange(lm, rm)
+            yield ManifestChange(lm, rm)
 
 
 
@@ -257,8 +252,6 @@ class JarContentsChange(SuperChange):
                           JarClassRemoved,
                           JarClassChange)
     def collect_impl(self):
-        from .ziputils import compare_zips, LEFT, RIGHT, DIFF, SAME
-
         # these are opened for the duration of check_impl
         left = self.lzip
         right = self.rzip
@@ -327,14 +320,15 @@ class JarContentsChange(SuperChange):
          attributes self.lzip and self.rzip will be available and used
          as the ldata and rdata of all subchecks. """
 
-        # this makes it work on exploded archives
-        from .ziputils import open_zip
+        with open_zip(self.ldata) as lzip:
+            with open_zip(self.rdata) as rzip:
+                self.lzip = lzip
+                self.rzip = rzip
 
-        with open_zip(self.ldata) as l:
-            with open_zip(self.rdata) as r:
-                self.lzip, self.rzip = l, r
                 ret = SuperChange.check_impl(self)
-                self.lzip, self.rzip = None, None
+
+        self.lzip = None
+        self.rzip = None
 
         return ret
 
@@ -368,38 +362,38 @@ class JarContentsReport(JarContentsChange):
         # replaces JarClassChange instances with a JarClassReport
         # instance instead.
         
-        for c in JarContentsChange.collect_impl(self):
-            if isinstance(c, JarClassChange):
-                if c.is_change():
-                    ln = JarClassReport.report_name
-                    nr = self.reporter.subreporter(c.entry, ln)
-                    c = JarClassReport(c.ldata, c.rdata, c.entry, nr)
-            yield c
+        for change in JarContentsChange.collect_impl(self):
+            if isinstance(change, JarClassChange) and change.is_change():
+                name = JarClassReport.report_name
+                sub_r = self.reporter.subreporter(change.entry, name)
+                change = JarClassReport(change.ldata, change.rdata,
+                                        change.entry, sub_r)
+            yield change
 
 
     def check_impl(self):
-        from .ziputils import open_zip
-
-        changes = list()
         options = self.reporter.options
+        changes = list()
         c = False
 
-        with open_zip(self.ldata) as l:
-            with open_zip(self.rdata) as r:
+        with open_zip(self.ldata) as lzip:
+            with open_zip(self.rdata) as rzip:
 
-                self.lzip, self.rzip = l, r
-        
+                self.lzip = lzip
+                self.rzip = rzip
+
                 for change in self.collect_impl():
                     change.check()
                     c = c or change.is_change()
-            
+                    
                     if isinstance(change, JarClassReport):
                         changes.append(squash(change, options=options))
                         change.clear()
                     else:
                         changes.append(change)
-        
-                self.lzip, self.rzip = None, None
+
+        self.lzip = None
+        self.rzip = None  
         
         self.changes = changes
         return c, None
@@ -450,7 +444,7 @@ def cli_jars_diff(parser, options, left, right):
     if reports:
         rdir = options.report_dir or "./"
 
-        rpt = Reporter(rdir, "JarReport", options)
+        rpt = Reporter(rdir, JarReport.report_name, options)
         rpt.add_formats_by_name(reports)
 
         delta = JarReport(left, right, rpt)

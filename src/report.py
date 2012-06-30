@@ -24,7 +24,14 @@ license: LGPL
 
 
 from functools import partial
-from json import JSONEncoder
+from json import dump, JSONEncoder
+from os.path import exists, join, relpath
+from sys import stdout
+from .dirutils import copydir, makedirsp
+
+
+
+_BUFFERING = 2 ** 14
 
 
 
@@ -49,8 +56,6 @@ class Reporter(object):
     def get_relative_breadcrumbs(self):
 
         """ get the breadcrumbs as relative to the basedir """
-
-        from os.path import relpath
 
         basedir = self.basedir
         crumbs = self.breadcrumbs
@@ -85,8 +90,6 @@ class Reporter(object):
 
         """ create a reporter for a sub-report, with updated
         breadcrumbs and the same output formats"""
-
-        from os.path import join
 
         newbase = join(self.basedir, subpath)
         r = Reporter(newbase, entry, self.options)
@@ -176,10 +179,6 @@ class ReportFormat(object):
         """ setup for run, including creating an output file if
         needed. Calls run_impl when ready """
 
-        from os.path import join
-        from sys import stdout
-        from .dirutils import makedirsp
-
         if out:
             self.run_impl(change, entry, out)
             return None
@@ -190,7 +189,7 @@ class ReportFormat(object):
             makedirsp(basedir)
 
             fn = join(basedir, entry + self.extension)
-            with open(fn, "wt") as out:
+            with open(fn, "wt", _BUFFERING) as out:
                 self.run_impl(change, entry, out)
             return fn
 
@@ -262,8 +261,6 @@ class JSONReportFormat(ReportFormat):
 
 
     def run_impl(self, change, entry, out):
-        from json import dump
-
         options = self.options
         indent = getattr(options, "json_indent", 2)
 
@@ -397,8 +394,6 @@ class CheetahReportFormat(ReportFormat):
     def _relative(self, uri):
 
         """ if uri is relative, re-relate it to our basedir """
-
-        from os.path import exists, relpath
         
         if (uri.startswith("http:") or
             uri.startswith("https:") or
@@ -426,8 +421,6 @@ class CheetahReportFormat(ReportFormat):
         necessary, and appends them to the options """
 
         from javatools import cheetah
-        from os.path import join
-        from .dirutils import copydir
 
         options = self.options
         datadir = getattr(options, "html_copy_data", None)
@@ -531,19 +524,16 @@ class CheetahStreamTransaction(object):
 
 
 
-def cheetah_template_map(cache=dict()):
+def _compose_cheetah_template_map(cache):
 
-    """ a map of change types to cheetah template types. Used in
-    resolve_cheetah_template """
+    """ does the work of composing the cheetah template map into the
+    given cache """
 
     from .cheetah import get_templates
 
     #pylint: disable=W0406
     # needed for introspection
     import javatools
-
-    if cache:
-        return cache    
 
     for template_type in get_templates():
         if not "_" in template_type.__name__:
@@ -572,6 +562,15 @@ def cheetah_template_map(cache=dict()):
         cache[cc] = template_type
 
     return cache
+    
+
+
+def cheetah_template_map(cache=dict()):
+
+    """ a map of change types to cheetah template types. Used in
+    resolve_cheetah_template """
+
+    return cache or _compose_cheetah_template_map(cache)
 
 
 
@@ -623,8 +622,6 @@ def quick_report(report_type, change, options):
 
     """ writes a change report via report_type to options.output or
     sys.stdout """
-
-    from sys import stdout
 
     report = report_type(None, options)
     

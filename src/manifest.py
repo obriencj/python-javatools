@@ -26,7 +26,15 @@ license: LGPL
 
 
 
-from .change import GenericChange, SuperChange, Addition, Removal
+from os.path import isdir, join, sep, split, walk
+from cStringIO import StringIO
+
+from .change import GenericChange, SuperChange
+from .change import Addition, Removal
+from .dirutils import fnmatches, makedirsp
+
+
+_BUFFERING = 2 ** 14
 
 
 
@@ -167,7 +175,7 @@ class Manifest(ManifestSection):
 
 
     def parse_file(self, filename):
-        with open(filename, "rt") as stream:
+        with open(filename, "rt", _BUFFERING) as stream:
             self.parse(stream)
     
 
@@ -195,47 +203,38 @@ class Manifest(ManifestSection):
 
 
 
-def store_item(k, v, stream):
+def store_item(key, val, stream):
 
     """ The MANIFEST specification limits the width of individual
     lines to 72 bytes (including the terminating newlines). Any key
     and value pair that would be longer must be split up over multiple
     continuing lines"""
 
-    from StringIO import StringIO
+    key = key or ""
+    val = val or ""
 
-    k = k or ""
-    v = v or ""
+    if not (0 < len(key) < 69):
+        raise Exception("Invalid key length: %i" % len(key))
 
-    if not (0 < len(k) < 69):
-        raise Exception("Invalid key length: %i" % len(k))
-
-    if len(k) + len(v) > 68:
-        s = StringIO()
-        s.write(k)
-        s.write(": ")
-        s.write(v)
-        k = s.getvalue()
-        s.close()
-
-        s = StringIO(k)
+    if len(key) + len(val) > 68:
+        kvbuffer = StringIO(": ".join((key, val)))
 
         # first grab 70 (which is 72 after the trailing newline)
-        stream.write(s.read(70))
+        stream.write(kvbuffer.read(70))
 
         # now only 69 at a time, because we need a leading space and a
         # trailing \n
-        k = s.read(69)
-        while k:
+        part = kvbuffer.read(69)
+        while part:
             stream.write("\n ")
-            stream.write(k)
-            k = s.read(69)
-        s.close()
+            stream.write(part)
+            part = kvbuffer.read(69)
+        kvbuffer.close()
 
     else:
-        stream.write(k)
+        stream.write(key)
         stream.write(": ")
-        stream.write(v)
+        stream.write(val)
 
     stream.write("\n")
 
@@ -253,13 +252,11 @@ def parse_sections(data):
     in which case simply concatenate the vals together to get the full
     value.
     """
-
-    from StringIO import StringIO
     
     if not data:
         return
     
-    if isinstance(data, str) or isinstance(data, buffer):
+    if isinstance(data, (str, buffer)):
         data = StringIO(data)
 
     # our current section
@@ -268,30 +265,30 @@ def parse_sections(data):
     for line in data:
 
         # Clean up the line
-        sl = line.replace('\0','')
-        sl = sl.splitlines()[0]
+        cleanline = line.replace('\0','').splitlines()[0]
         
-        if not sl:
+        if not cleanline:
             # blank line means end of current section (if any)
             if curr:
                 yield curr
                 curr = None
 
-        elif sl[0] == ' ':
+        elif cleanline[0] == ' ':
             # line beginning with a space means a continuation
             if curr is None:
                 raise Exception("malformed Manifest, bad continuation")
             else:
-                curr[-1][1].append(sl[1:])
+                curr[-1][1].append(cleanline[1:])
 
         else:
             # otherwise the beginning of a new k:v pair
             if curr is None:
                 curr = list()
         
-            k,v = sl.split(':', 1)
-            curr.append( (k, [v[1:],]) )
+            key, val = cleanline.split(':', 1)
+            curr.append((key, [val[1:]]))
     
+    # yield and leftovers
     if curr:
         yield curr
     
@@ -317,49 +314,47 @@ def digest_chunks(chunks):
 
 
 
-def file_chunk(filename, x=2**14):
+def file_chunk(filename, size=_BUFFERING):
 
     """ returns a generator function which when called will emit
     x-sized chunks of filename's contents""" 
 
     def chunks():
-        with open(filename, "rb") as fd:
-            buf = fd.read(x)
+        with open(filename, "rb", _BUFFERING) as fd:
+            buf = fd.read(size)
             while buf:
                 yield buf
-                buf = fd.read(x)
+                buf = fd.read(size)
     return chunks
 
 
 
-def zipentry_chunk(zipfile, name, x=2**14):
+def zipentry_chunk(zipfile, name, size=_BUFFERING):
 
     """ returns a generator function which when called will emit
     x-sized chunks of the named entry in the zipfile object"""
 
     def chunks():
         with zipfile.open(name) as fd:
-            buf = fd.read(x)
+            buf = fd.read(size)
             while buf:
                 yield buf
-                buf = fd.read(x)
+                buf = fd.read(size)
     return chunks
 
 
 
 def directory_generator(dirname, trim=0):
-    from os.path import isdir, join, walk
-
     def gather(collect, dirname, fnames):
         for fname in fnames:
-            f = join(dirname, fname)
-            if not isdir(f):
-                collect.append(f)
+            df = join(dirname, fname)
+            if not isdir(df):
+                collect.append(df)
 
     collect = list()
     walk(dirname, gather, collect)
-    for f in collect:
-        yield f[trim:], file_chunk(f)
+    for fname in collect:
+        yield fname[trim:], file_chunk(fname)
 
 
 
@@ -369,10 +364,8 @@ def multi_path_generator(pathnames):
     list of pathnames given. This is recursive, so directories will
     have their contents emitted. chunkgen is a function that can
     called and iterated over to obtain the contents of the file in
-    multiple reads.
-    """
+    multiple reads. """
 
-    from os.path import isdir
     for pathname in pathnames:
         if isdir(pathname):
             for entry in directory_generator(pathname):
@@ -390,7 +383,6 @@ def single_path_generator(pathname):
     be iterated over to obtain the contents of the file in multiple
     parts """
 
-    from os.path import isdir, sep
     from zipfile import ZipFile
 
     if isdir(pathname):
@@ -410,9 +402,6 @@ def single_path_generator(pathname):
 
 
 def cli_create(options, rest):
-    from os.path import exists, split
-    from os import makedirs
-    from .dirutils import fnmatches
     import sys
 
     if options.recursive:
@@ -442,9 +431,7 @@ def cli_create(options, rest):
         # we'll output to the manifest file if specified, and we'll
         # even create parent directories for it, if necessary
 
-        mfdir = split(options.manifest)[0]
-        if not exists(mfdir):
-            makedirs(mfdir)
+        makedirsp(split(options.manifest)[0])
         output = open(options.manifest, "wt")
 
     mf.store(output)

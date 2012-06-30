@@ -27,10 +27,19 @@ license: LGPL
 
 
 
+from itertools import izip_longest
+from os.path import join
+
+from javatools import unpack_classfile
 from .change import Change, SuperChange
 from .change import Addition, Removal
 from .change import squash, yield_sorted_by_type
-from .dirutils import fnmatches
+from .classdiff import JavaClassChange, JavaClassReport
+from .dirutils import compare, fnmatches
+from .dirutils import LEFT, RIGHT, SAME, DIFF
+from .manifest import Manifest, ManifestChange
+from .jardiff import JarChange, JarReport        
+from .jarinfo import JAR_PATTERNS
 
 
 
@@ -65,12 +74,10 @@ class DistContentChange(Change):
     
 
     def left_fn(self):
-        from os.path import join
         return join(self.ldata, self.entry)
 
 
     def right_fn(self):
-        from os.path import join
         return join(self.rdata, self.entry)
 
 
@@ -123,8 +130,6 @@ class DistTextChange(DistContentChange):
 
 
     def check(self):
-        from itertools import izip_longest
-
         # We already know whether the file has changed or not, from
         # when it was created by the DistChange
         if not self.is_change():
@@ -165,17 +170,14 @@ class DistManifestChange(SuperChange, DistContentChange):
 
 
     def collect_impl(self):
-        from .manifest import Manifest, ManifestChange
+        if self.is_change():
+            lm = Manifest()
+            rm = Manifest()
 
-        if not self.is_change():
-            return
-        
-        lm = Manifest()
-        rm = Manifest()
-        lm.parse_file(self.left_fn())
-        rm.parse_file(self.right_fn())
+            lm.parse_file(self.left_fn())
+            rm.parse_file(self.right_fn())
 
-        yield ManifestChange(lm, rm)        
+            yield ManifestChange(lm, rm)        
 
 
 
@@ -190,13 +192,9 @@ class DistJarChange(SuperChange, DistContentChange):
 
 
     def collect_impl(self):
-        from .jardiff import JarChange
-        from os.path import join
-
-        lf = join(self.ldata, self.entry)
-        rf = join(self.rdata, self.entry)
-
         if self.is_change():
+            lf = join(self.ldata, self.entry)
+            rf = join(self.rdata, self.entry)
             yield JarChange(lf, rf)
     
 
@@ -216,9 +214,6 @@ class DistJarReport(DistJarChange):
 
 
     def collect_impl(self):
-        from .jardiff import JarReport
-        from os.path import join
-
         lf = join(self.ldata, self.entry)
         rf = join(self.rdata, self.entry)
 
@@ -247,17 +242,13 @@ class DistClassChange(SuperChange, DistContentChange):
 
 
     def collect_impl(self):
-        from javatools import unpack_classfile
-        from .classdiff import JavaClassChange
-        from os.path import join
-
-        lf = join(self.ldata, self.entry)
-        rf = join(self.rdata, self.entry)
-
-        linfo = unpack_classfile(lf)
-        rinfo = unpack_classfile(rf)
-
         if self.is_change():
+            lf = join(self.ldata, self.entry)
+            rf = join(self.rdata, self.entry)
+
+            linfo = unpack_classfile(lf)
+            rinfo = unpack_classfile(rf)
+
             yield JavaClassChange(linfo, rinfo)
     
 
@@ -277,17 +268,13 @@ class DistClassReport(DistClassChange):
 
 
     def collect_impl(self):
-        from javatools import unpack_classfile
-        from .classdiff import JavaClassReport
-        from os.path import join
-
-        lf = join(self.ldata, self.entry)
-        rf = join(self.rdata, self.entry)
-
-        linfo = unpack_classfile(lf)
-        rinfo = unpack_classfile(rf)
-
         if self.is_change():
+            lf = join(self.ldata, self.entry)
+            rf = join(self.rdata, self.entry)
+
+            linfo = unpack_classfile(lf)
+            rinfo = unpack_classfile(rf)
+
             yield JavaClassReport(linfo, rinfo, self.reporter)
 
 
@@ -337,10 +324,6 @@ class DistChange(SuperChange):
 
         """ emits change instances based on the delta of the two
         distribution directories """
-
-        from .dirutils import LEFT, RIGHT, SAME, DIFF
-        from .dirutils import compare
-        from .jarinfo import JAR_PATTERNS
 
         ld = self.ldata
         rd = self.rdata
