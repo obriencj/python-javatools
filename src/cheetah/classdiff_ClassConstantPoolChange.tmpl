@@ -48,13 +48,13 @@ row_class = (" changed")[(lt, lv) == (rt, rv)]
 <tr>
 <td class="const-index"><%= index %></td>
 <td class="const-type"><%= lt or "" %></td>
-<td class="const-value"><%= escape(lv or "") %></td>
+<td class="const-value"><%= escape(str(lv or "")) %></td>
 #if (lt, lv) == (rt, rv)
 <td class="const-type empty"></td>
 <td class="const-value empty"></td>
 #else
 <td class="const-type changed"><%= rt or "" %></td>
-<td class="const-value changed"><%= escape(rv or "") %></td>
+<td class="const-value changed"><%= escape(str(rv or "")) %></td>
 </tr>
 #end if
 #end for
