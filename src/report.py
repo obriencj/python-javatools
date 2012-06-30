@@ -31,7 +31,7 @@ from .dirutils import copydir, makedirsp
 
 
 
-_BUFFERING = 2 ** 14
+_BUFFERING = 2 ** 16
 
 
 
@@ -177,7 +177,8 @@ class ReportFormat(object):
     def run(self, change, entry, out=None):
 
         """ setup for run, including creating an output file if
-        needed. Calls run_impl when ready """
+        needed. Calls run_impl when ready. If out and entry are both
+        None, sys.stdout is used """
 
         if out:
             self.run_impl(change, entry, out)
@@ -189,7 +190,7 @@ class ReportFormat(object):
             makedirsp(basedir)
 
             fn = join(basedir, entry + self.extension)
-            with open(fn, "wt", _BUFFERING) as out:
+            with open(fn, "wb", _BUFFERING) as out:
                 self.run_impl(change, entry, out)
             return fn
 
