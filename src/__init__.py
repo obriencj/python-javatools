@@ -1477,6 +1477,9 @@ class JavaExceptionInfo(object):
 
 
     def pretty_catch_type(self):
+        
+        """ pretty version of get_catch_type """
+
         ct = self.get_catch_type()
         if ct:
             return "Class " + ct
@@ -1682,76 +1685,120 @@ def _pretty_const_type_val(typecode, val):
 
 
 def _next_argsig(buff):
+
+    """ given a buffer, find the next complete argument signature and
+    return it and a new buffer advanced past that point """
+
     c = buff[0]
+
     if c in "VZBCSIJDF":
-        return c, buffer(buff,1)
+        result = (c, buffer(buff, 1))
+
     elif c == "[":
-        d,buff = _next_argsig(buffer(buff,1))
-        return c+d, buff
+        d, buff = _next_argsig(buffer(buff, 1))
+        result =  (c + d, buff)
+
     elif c == "L":
         s = buff[:]
-        i = s.find(';')+1
-        return s[:i],buffer(buff,i)
+        i = s.find(';') + 1
+        result = (s[:i], buffer(buff, i))
+
     elif c == "(":
         s = buff[:]
-        i = s.find(')')+1
-        return s[:i],buffer(buff,i)
+        i = s.find(')') + 1
+        result = (s[:i], buffer(buff, i))
+
     else:
-        raise Unimplemented("_next_argsig is %r in %s" % (c, str(buff)))
+        raise Unimplemented("_next_argsig is %r in %s" % (c, buff))
+
+    return result
 
 
 
 def _typeseq_iter(s):
+
+    """ iterate through all of the type signatures in a sequence """
+
     buff = buffer(str(s))
     while buff:
-        t,buff = _next_argsig(buff)
+        t, buff = _next_argsig(buff)
         yield t
 
 
-def _typeseq(s):
-    return tuple(_typeseq_iter(s))
+
+def _typeseq(type_s):
+
+    """ tuple version of _typeseq_iter """
+
+    return tuple(_typeseq_iter(type_s))
     
 
 
-def _pretty_typeseq(s):
-    return (_pretty_type(t) for t in _typeseq_iter(s))
+def _pretty_typeseq(type_s):
+
+    """ iterator of pretty versions of _typeseq_iter """
+
+    return (_pretty_type(t) for t in _typeseq_iter(type_s))
 
 
 
-def _pretty_type(s):
-    tc = s[0]
-    if tc == "(":
-        return "(%s)" % ",".join(_pretty_typeseq(s[1:-1]))
-    elif tc == "V":
+def _pretty_type(s, offset=0):
+    #pylint: disable=R0911, R0912
+    # too many returns, too many branches. Not converting this to a
+    # dict lookup. Waiving instead.
+
+    """ returns the pretty version of a type code """
+
+    tc = s[offset]
+
+    if tc == "V":
         return "void"
+
     elif tc == "Z":
         return "boolean"
+
     elif tc == "C":
         return "char"
+
     elif tc == "B":
         return "byte"
+
     elif tc == "S":
         return "short"
+
     elif tc == "I":
         return "int"
+
     elif tc == "J":
         return "long"
+
     elif tc == "D":
         return "double"
+
     elif tc == "F":
         return "float"
-    elif tc == "T":
-        return "generic " + s[1:]
+
     elif tc == "L":
-        return _pretty_class(s[1:-1])
+        return _pretty_class(s[offset + 1:-1])
+
     elif tc == "[":
-        return "%s[]" % _pretty_type(s[1:])
+        return "%s[]" % _pretty_type(s, offset + 1)
+
+    elif tc == "(":
+        return "(%s)" % ",".join(_pretty_typeseq(s[offset + 1:-1]))
+
+    elif tc == "T":
+        return "generic " + s[offset + 1:]
+
     else:
         raise Unimplemented("unknown type, %r" % tc)
-        
+
 
 
 def _pretty_class(s):
+    
+    """ convert the internal class name representation into what users
+    expect to see. Currently that just means swapping '/' for '.' """
     
     # well that's easy.
     return s.replace("/", ".")
@@ -1759,6 +1806,9 @@ def _pretty_class(s):
 
 
 def _clean_array_const(s):
+
+    """ de-array a constant type. """
+
     t, b = _next_argsig(buffer(s))
     return (t, str(b))
 

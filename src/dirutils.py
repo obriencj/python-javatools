@@ -101,6 +101,9 @@ def compare(left, right):
     
 
 def _gen_from_dircmp(dc, lpath, rpath):
+
+    """ do the work of comparing the dircmp """
+
     left_only = dc.left_only
     left_only.sort()
     
@@ -148,22 +151,33 @@ def _gen_from_dircmp(dc, lpath, rpath):
 
 
 def collect_compare(left, right):
+    
+    """ returns a tuple of four lists describing the file paths that
+    have been (in order) added, removed, altered, or left the same """
+    
     return collect_compare_into(left, right, [], [], [], [])
 
 
 
 def collect_compare_into(left, right, added, removed, altered, same):
 
+    """ collect the results of compare into the given lists (or None
+    if you do not wish to collect results of that type. Returns a
+    tuple of (added, removed, altered, same) """
+
     for event, filename in compare(left, right):
-        
         if event == LEFT:
             group = removed
+
         elif event == RIGHT:
             group = added
+
         elif event == DIFF:
             group = altered
+
         elif event == BOTH:
             group = same
+
         else:
             assert(False)
 

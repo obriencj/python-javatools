@@ -530,6 +530,9 @@ def create_optparser():
 
 
 def main(args):
+
+    """ main entry point for the manifest CLI """
+
     parser = create_optparser()
     return cli(*parser.parse_args(args))
 
