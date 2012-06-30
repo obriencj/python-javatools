@@ -81,11 +81,11 @@ class DistContentChange(Change):
         return join(self.rdata, self.entry)
 
 
-    def open_left(self, mode="rt"):
+    def open_left(self, mode="rb"):
         return open(self.left_fn(), mode)
 
 
-    def open_right(self, mode="rt"):
+    def open_right(self, mode="rb"):
         return open(self.right_fn(), mode)
 
 
@@ -139,11 +139,11 @@ class DistTextChange(DistContentChange):
         # check if the only difference is in the trailing whitespace,
         # and if so, set lineending to true so we can optionally
         # ignore the change later.
-
-        with open(self.left_fn()) as lf:
-            with open(self.right_fn()) as rf:
-                for li,ri in izip_longest(lf, rf, fillvalue=""):
+        with self.open_left(mode="rt") as lfd:
+            with self.open_right(mode="rt") as rfd:
+                for li, ri in izip_longest(lfd, rfd, fillvalue=""):
                     if li.rstrip() != ri.rstrip():
+                        self.lineending = False
                         break
                 else:
                     # we went through every line, and they were all equal
@@ -171,13 +171,15 @@ class DistManifestChange(SuperChange, DistContentChange):
 
     def collect_impl(self):
         if self.is_change():
-            lm = Manifest()
-            rm = Manifest()
+            with self.open_left(mode="rt") as fd:
+                left_m = Manifest()
+                left_m.parse(fd)
 
-            lm.parse_file(self.left_fn())
-            rm.parse_file(self.right_fn())
+            with self.open_right(mode="rt") as fd:
+                right_m = Manifest()
+                right_m.parse(fd)
 
-            yield ManifestChange(lm, rm)
+            yield ManifestChange(left_m, right_m)
 
 
 
