@@ -57,7 +57,7 @@ _INSTRUCTION_BASE = '''
       <action class="com.jboss.jbossnetwork.product.jbpm.handlers.JONServerDownloadActionHandler" config-type="bean" />
       <transition name="success" to="pre_2" />
     </node>
-     
+
     <node name="pre_2">
       <action class="com.jboss.jbossnetwork.product.jbpm.handlers.CompareDigestActionHandler" config-type="bean">
         <algorithm>MD5</algorithm>
@@ -66,7 +66,7 @@ _INSTRUCTION_BASE = '''
       </action>
       <transition name="success" to="pre_3" />
     </node>
-  
+
     <node name="pre_3">
       <action class="com.jboss.jbossnetwork.product.jbpm.handlers.UnzipActionHandler" config-type="bean">
         <fileToBeUnzippedLocation>#{downloadFolder}/#{software.filename}</fileToBeUnzippedLocation>
@@ -74,7 +74,7 @@ _INSTRUCTION_BASE = '''
       </action>
       <transition name="success" to="pre_4" />
     </node>
-  
+
     <node name="pre_4">
       <action class='com.jboss.jbossnetwork.product.jbpm.handlers.ControlActionHandler' config-type='bean'>
       <actionName>stopIfRunning</actionName>
@@ -90,17 +90,17 @@ _INSTRUCTION_BASE = '''
       </action>
       <transition name="success" to="../end" />
     </node>
- 
+
     <transition name="error" to="end">
       <action class="com.jboss.jbossnetwork.product.jbpm.handlers.SetProcessStatusActionHandler" config-type="bean">
       <status>false</status>
       </action>
     </transition>
-  
+
   </super-state>
 
   <end-state name="end" />
-  
+
 </process-definition>
 '''
 
@@ -120,7 +120,7 @@ def append_node(state, index):
 
 def append_transition(node, name, targetname):
     #print "append_transition", node, name, targetname
-    
+
     doc = node.ownerDocument
     trans = doc.createElement("transition")
     trans.setAttribute("name", name)
@@ -238,7 +238,7 @@ def repath(pathmap, pathstr):
         if pathstr.startswith(key):
             if len(key) > len(found):
                 found = key
-    
+
     if found:
         return pathmap[found] + pathstr[len(found):]
     else:
@@ -251,7 +251,7 @@ def generate_patch(delta, options):
     from os.path import join
     from xml.dom.minidom import parseString
     import xml.xpath
-    
+
     # get the lists of files we'll be copying, removing, or patching
     copies, removals, patches = [], [], []
     sieve_changes(delta, options, copies, removals, patches)
@@ -276,7 +276,7 @@ def generate_patch(delta, options):
 
         node = append_node(state, index)
         act = append_action(node, _BackupAndReplaceFile)
-        
+
         o = doc.createElement("originalFileLocation")
         act.appendChild(o)
         t = doc.createTextNode(fn)
@@ -300,7 +300,7 @@ def generate_patch(delta, options):
         act.appendChild(o)
         t = doc.createTextNode("Remove the old file " + fn)
         o.appendChild(t)
-        
+
         index = index + 1
         append_transition(node, "success", index)
 
@@ -374,7 +374,7 @@ def cli(parser, options, rest):
 
 
 def _opt_cb_path_map(opt, opt_str, value, parser):
-    
+
     """ handle the --path-map CLI option """
 
     options = parser.values
@@ -394,7 +394,7 @@ def _opt_cb_path_map(opt, opt_str, value, parser):
 
 
 def patchgen_optgroup(parser):
-    
+
     """ Option group relating to the patch generation actions of
     distpatchgen """
 
@@ -426,7 +426,7 @@ def create_optparser():
     from .jardiff import jardiff_optgroup
     from .classdiff import classdiff_optgroup, general_optgroup
     from javatools import report
-    
+
     parser = OptionParser(usage="%prog [OPTIONS] OLD_DIST NEW_DIST")
 
     parser.add_option_group(general_optgroup(parser))

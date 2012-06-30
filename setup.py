@@ -145,7 +145,7 @@ class build_py(_build_py):
         else:
             return True
 
-    
+
     def run(self):
         if self.packages:
             self.build_package_templates()
@@ -193,7 +193,7 @@ class pylint_cmd(Command):
         else:
             return True
 
-        
+
     def announce_overview(self, linter, report_fn):
         from itertools import izip
 
@@ -211,7 +211,7 @@ class pylint_cmd(Command):
         else:
             self.announce(" overall score: %.1f%%" % (note * 10), 2)
 
-        self.announce(" full details at %s" % report_fn, 2)        
+        self.announce(" full details at %s" % report_fn, 2)
 
 
     def run_linter(self):
@@ -224,7 +224,7 @@ class pylint_cmd(Command):
         # same, but not all pylint versions have load_default_plugins
         #linter.load_default_plugins()
         checkers.initialize(linter)
-        
+
         linter.read_config_file()
         linter.load_config_file()
 
@@ -267,21 +267,21 @@ class pylint_cmd(Command):
         finally:
             sys.path.pop(0)
 
-        
+
 
 setup(name = "javatools",
       version = "1.3",
-      
+
       packages = ["javatools",
                   "javatools.cheetah"],
 
       package_dir = {"javatools": "src",
                      "javatools.cheetah": "src/cheetah"},
-      
+
       package_data = {"javatools.cheetah": ["data/*.css",
                                             "data/*.js",
                                             "data/*.png"]},
-      
+
       scripts = ["scripts/classdiff",
                  "scripts/classinfo",
                  "scripts/distdiff",

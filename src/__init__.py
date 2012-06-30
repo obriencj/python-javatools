@@ -103,8 +103,8 @@ class NoPoolException(Exception):
 
     pass
 
-        
-        
+
+
 class Unimplemented(Exception):
 
     """ raised when something unexpected happens, which usually
@@ -124,9 +124,9 @@ class ClassUnpackException(Exception):
 
 
 class JavaConstantPool(object):
-    
+
     """ A constants pool """
-    
+
 
     def __init__(self):
         self.consts = tuple()
@@ -134,16 +134,16 @@ class JavaConstantPool(object):
 
 
     def unpack(self, unpacker):
- 
+
         """ Unpacks the constant pool from an unpacker stream """
-        
+
         (count,) = unpacker.unpack_struct(_H)
-        
+
         # first item is never present in the actual data buffer, but
         # the count number acts like it would be.
         items = [(None, None), ]
         count -= 1
-        
+
         # Long and Double const types will "consume" an item count,
         # but not data
         hackpass = False
@@ -187,23 +187,23 @@ class JavaConstantPool(object):
             raise Exception("Requested const 0")
 
         t, v = self.consts[index]
-        
+
         if t in (CONST_Utf8, CONST_Integer, CONST_Float,
                  CONST_Long, CONST_Double):
             return v
 
         elif t in (CONST_Class, CONST_String):
             return self.deref_const(v)
-        
+
         elif t in (CONST_Fieldref, CONST_Methodref,
                    CONST_InterfaceMethodref, CONST_NameAndType,
                    CONST_ModuleIdInfo):
             return tuple(self.deref_const(i) for i in v)
-    
+
         else:
             raise Unimplemented("Unknown constant pool type %r" % t)
 
-    
+
 
     def constants(self):
 
@@ -211,10 +211,10 @@ class JavaConstantPool(object):
         the constant pool entries. """
 
         for i in xrange(1, len(self.consts)):
-            t, _v = self.consts[i]            
+            t, _v = self.consts[i]
             if t:
                 yield (i, t, self.deref_const(i))
-    
+
 
 
     def pretty_constants(self):
@@ -230,7 +230,7 @@ class JavaConstantPool(object):
 
 
     def pretty_const(self, index):
-        
+
         """ a tuple of the pretty type and val, or (None, None) for
         invalid indexes (such as the second part of a long or double
         value) """
@@ -275,7 +275,7 @@ class JavaConstantPool(object):
 
         elif t in (CONST_Methodref,
                    CONST_InterfaceMethodref):
-            
+
             cn = self.deref_const(v[0])
             cn = _pretty_class(cn)
 
@@ -319,7 +319,7 @@ class JavaAttributes(dict):
 
 
     def unpack(self, unpacker):
-        
+
         """ Unpack an attributes table from an unpacker stream.
         Modifies the structure of this instance. """
 
@@ -399,7 +399,7 @@ class JavaClassInfo(object):
 
         # unpack constant pool
         self.cpool.unpack(unpacker)
-        
+
         (a, b, c) = unpacker.unpack_struct(_HHH)
         self.access_flags = a
         self.this_ref = b
@@ -408,13 +408,13 @@ class JavaClassInfo(object):
         # unpack interfaces
         (count,) = unpacker.unpack_struct(_H)
         self.interfaces = unpacker.unpack(">%iH" % count)
-        
+
         uobjs = unpacker.unpack_objects
 
         # unpack fields
         self.fields = tuple(uobjs(JavaMemberInfo,
                                   self.cpool, is_method=False))
-        
+
         # unpack methods
         self.methods = tuple(uobjs(JavaMemberInfo,
                                    self.cpool, is_method=True))
@@ -428,7 +428,7 @@ class JavaClassInfo(object):
 
         """ the field member matching name, or None if no such field
         is found """
-        
+
         for f in self.fields:
             if f.get_name() == name:
                 return f
@@ -460,11 +460,11 @@ class JavaClassInfo(object):
 
 
     def get_method_bridges(self, name, arg_types=()):
-        
+
         """ generator of bridge methods found that adapt the return
         types of a named method and having argument type descriptors
         matching those in arg_types."""
-        
+
         # I am not entirely certain if a class will generate more
         # than one synthetic bridge method to adapt the return type. I
         # know it will generate one at least if someone subclasses and
@@ -484,7 +484,7 @@ class JavaClassInfo(object):
 
 
     def get_version(self):
-        
+
         """ the (major, minor) version of Java required by this Java
         class """
 
@@ -597,10 +597,10 @@ class JavaClassInfo(object):
         buff = self.get_attribute("SourceFile")
         if buff is None:
             return None
-        
+
         with unpack(buff) as up:
             (ref,) = up.unpack_struct(_H)
-        
+
         return self.deref_const(ref)
 
 
@@ -619,7 +619,7 @@ class JavaClassInfo(object):
         buff = self.get_attribute("InnerClasses")
         if buff is None:
             return tuple()
-        
+
         with unpack(buff) as up:
             return tuple(up.unpack_objects(JavaInnerClassInfo, self.cpool))
 
@@ -677,7 +677,7 @@ class JavaClassInfo(object):
 
 
     def _pretty_access_flags_gen(self):
-        
+
         """ generator of the pretty access flags """
 
         if self.is_public():
@@ -698,7 +698,7 @@ class JavaClassInfo(object):
 
 
     def pretty_access_flags(self):
-        
+
         """ generator of the pretty access flag names """
 
         return self._pretty_access_flags_gen()
@@ -728,7 +728,7 @@ class JavaClassInfo(object):
 
         return (_pretty_class(t) for t in self.get_interfaces())
 
-    
+
 
     def pretty_descriptor(self):
 
@@ -823,7 +823,7 @@ class JavaClassInfo(object):
             provides = self._provides
 
         return [prov for prov in provides if not fnmatches(prov, *ignored)]
-    
+
 
 
     def get_requires(self, ignored=tuple()):
@@ -918,7 +918,7 @@ class JavaMemberInfo(object):
 
 
     def get_name(self):
-        
+
         """ the name of this member """
 
         return self.deref_const(self.name_ref)
@@ -998,7 +998,7 @@ class JavaMemberInfo(object):
 
 
     def is_strict(self):
-        
+
         """ is this member strict """
 
         return self.access_flags & ACC_STRICT
@@ -1063,7 +1063,7 @@ class JavaMemberInfo(object):
 
 
     def is_deprecated(self):
-        
+
         """ is this member deprecated """
 
         return bool(self.get_attribute("Deprecated"))
@@ -1136,7 +1136,7 @@ class JavaMemberInfo(object):
         """ the type descriptor for a field, or the return type
         descriptor for a method. Type descriptors are shorthand
         identifiers for the builtin java types. """
-        
+
         return _typeseq(self.get_descriptor())[-1]
 
 
@@ -1178,15 +1178,15 @@ class JavaMemberInfo(object):
 
 
     def pretty_descriptor(self):
-        
+
         """ assemble a long member name from access flags, type,
         argument types, exceptions as applicable """
-        
+
         f = " ".join(self.pretty_access_flags())
         p = self.pretty_type()
         n = self.get_name()
         t = ",".join(self.pretty_exceptions())
-        
+
         if n == "<init>":
             # we pretend that there's no return type, even though it's
             # V for constructors
@@ -1233,7 +1233,7 @@ class JavaMemberInfo(object):
         if self.is_method:
             if self.is_synchronized():
                 yield "synchronized"
-                
+
             if showall and self.is_bridge():
                 yield "bridge"
             if showall and self.is_varargs():
@@ -1341,7 +1341,7 @@ class JavaCodeInfo(object):
         structure of this instance """
 
         (a, b, c) = unpacker.unpack_struct(_HHI)
-        
+
         self.max_stack = a
         self.max_locals = b
         self.code = unpacker.read(c)
@@ -1351,7 +1351,7 @@ class JavaCodeInfo(object):
 
         self.attribs.unpack(unpacker)
 
-    
+
 
     def get_linenumbertable(self):
 
@@ -1371,18 +1371,18 @@ class JavaCodeInfo(object):
         """ a sequence of (code_offset, line_number) pairs. Similar to
         the get_linenumbertable method, but the line numbers start at
         0 (they are relative to the method, not to the class file) """
-        
+
         lnt = self.get_linenumbertable()
         if lnt:
             lineoff = lnt[0][1]
             return tuple((o, l - lineoff) for (o, l) in lnt)
         else:
             return tuple()
-        
+
 
 
     def get_localvariabletable(self):
-        
+
         """ a sequence of (code_offset, length, name_index,
         desc_index, index) tuples """
 
@@ -1392,11 +1392,11 @@ class JavaCodeInfo(object):
 
         with unpack(buff) as up:
             return tuple(up.unpack_array(">HHHHH"))
-    
+
 
 
     def get_localvariabletypetable(self):
-        
+
         """ a sequence of (code_offset, length, name_index,
         signature_index, index) tuples """
 
@@ -1428,7 +1428,7 @@ class JavaCodeInfo(object):
 
 
     def disassemble(self):
-        
+
         """ disassembles the underlying bytecode instructions and
         generates a sequence of (offset, code, args) tuples """
 
@@ -1450,7 +1450,7 @@ class JavaExceptionInfo(object):
     def __init__(self, code):
         self.code = code
         self.cpool = code.cpool
-        
+
         self.start_pc = 0
         self.end_pc = 0
         self.handler_pc = 0
@@ -1482,7 +1482,7 @@ class JavaExceptionInfo(object):
 
 
     def pretty_catch_type(self):
-        
+
         """ pretty version of get_catch_type """
 
         ct = self.get_catch_type()
@@ -1519,7 +1519,7 @@ class JavaExceptionInfo(object):
 
 class JavaInnerClassInfo(object):
 
-    """ Information about an inner class """    
+    """ Information about an inner class """
 
     def __init__(self, cpool):
         self.cpool = cpool
@@ -1535,7 +1535,7 @@ class JavaInnerClassInfo(object):
         """ unpack this instance with data from unpacker """
 
         (a, b, c, d) = unpacker.unpack_struct(_HHHH)
-        
+
         self.inner_info_ref = a
         self.outer_info_ref = b
         self.name_ref = c
@@ -1543,7 +1543,7 @@ class JavaInnerClassInfo(object):
 
 
     def get_name(self):
-        
+
         """ the name of this inner-class """
 
         return self.cpool.deref_const(self.name_ref)
@@ -1574,7 +1574,7 @@ def platform_from_version(major, minor):
     """ returns the minimum platform version that can load the given
     class version indicated by major.minor or None if no known
     platforms match the given version """
-    
+
     v = (major, minor)
     for low, high, name in _platforms:
         if low <= v <= high:
@@ -1604,7 +1604,7 @@ def _unpack_const_item(unpacker):
         except UnicodeDecodeError:
             # easiest hack to handle java's modified utf-8 encoding
             val = val.replace("\xC0\x80", "\00").decode("utf8")
-    
+
     elif typecode == CONST_Integer:
         (val,) = unpacker.unpack(">i")
 
@@ -1677,7 +1677,7 @@ def _pretty_const_type_val(typecode, val):
         val = "#%i@#%i" % val
     else:
         raise Unimplemented("unknown type, %r", typecode)
-    
+
     return typestr, val
 
 
@@ -1736,7 +1736,7 @@ def _typeseq(type_s):
     """ tuple version of _typeseq_iter """
 
     return tuple(_typeseq_iter(type_s))
-    
+
 
 
 def _pretty_typeseq(type_s):
@@ -1801,10 +1801,10 @@ def _pretty_type(s, offset=0):
 
 
 def _pretty_class(s):
-    
+
     """ convert the internal class name representation into what users
     expect to see. Currently that just means swapping '/' for '.' """
-    
+
     # well that's easy.
     return s.replace("/", ".")
 
@@ -1872,7 +1872,7 @@ def unpack_class(data, magic=None):
         magic = magic or up.unpack(">BBBB")
         if magic != JAVA_CLASS_MAGIC:
             raise ClassUnpackException("Not a Java class file")
-    
+
         o = JavaClassInfo()
         o.unpack(up, magic=magic)
 

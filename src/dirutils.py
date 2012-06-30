@@ -75,7 +75,7 @@ def copydir(orig, dest):
         for d in ds:
             # ensure directories exist
             makedirsp(join(dest, d))
-                
+
         for f in fs:
             rf = join(r, f)
             df = join(dest, relpath(rf, orig))
@@ -94,11 +94,11 @@ def compare(left, right):
     BOTH constants. This generator recursively walks both trees."""
 
     from filecmp import dircmp
-    
+
     dc = dircmp(left, right, ignore=[])
     return _gen_from_dircmp(dc, left, right)
-    
-    
+
+
 
 def _gen_from_dircmp(dc, lpath, rpath):
 
@@ -106,7 +106,7 @@ def _gen_from_dircmp(dc, lpath, rpath):
 
     left_only = dc.left_only
     left_only.sort()
-    
+
     for f in left_only:
         fp = join(dc.left, f)
         if isdir(fp):
@@ -116,7 +116,7 @@ def _gen_from_dircmp(dc, lpath, rpath):
                     yield(LEFT, join(r, f))
         else:
             yield (LEFT, relpath(fp, lpath))
-        
+
     right_only = dc.right_only
     right_only.sort()
 
@@ -151,10 +151,10 @@ def _gen_from_dircmp(dc, lpath, rpath):
 
 
 def collect_compare(left, right):
-    
+
     """ returns a tuple of four lists describing the file paths that
     have been (in order) added, removed, altered, or left the same """
-    
+
     return collect_compare_into(left, right, [], [], [], [])
 
 

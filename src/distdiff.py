@@ -38,7 +38,7 @@ from .classdiff import JavaClassChange, JavaClassReport
 from .dirutils import compare, fnmatches
 from .dirutils import LEFT, RIGHT, SAME, DIFF
 from .manifest import Manifest, ManifestChange
-from .jardiff import JarChange, JarReport        
+from .jardiff import JarChange, JarReport
 from .jarinfo import JAR_PATTERNS
 
 
@@ -71,7 +71,7 @@ class DistContentChange(Change):
         self.entry = entry
         self.changed = change
         self.lineending = False
-    
+
 
     def left_fn(self):
         return join(self.ldata, self.entry)
@@ -87,7 +87,7 @@ class DistContentChange(Change):
 
     def open_right(self, mode="rt"):
         return open(self.right_fn(), mode)
-    
+
 
     def get_description(self):
         c = ("has changed","is unchanged")[not self.is_change()]
@@ -103,7 +103,7 @@ class DistContentAdded(DistContentChange, Addition):
 
     label = "Distributed Content Added"
 
-    
+
     def get_description(self):
         return "%s: %s" % (self.label, self.entry)
 
@@ -113,7 +113,7 @@ class DistContentRemoved(DistContentChange, Removal):
 
     label = "Distributed Content Removed"
 
-    
+
     def get_description(self):
         return "%s: %s" % (self.label, self.entry)
 
@@ -162,7 +162,7 @@ class DistTextChange(DistContentChange):
 class DistManifestChange(SuperChange, DistContentChange):
 
     label = "Distributed Manifest"
-    
+
 
     def __init__(self, ldata, rdata, entry, change=True):
         SuperChange.__init__(self, ldata, rdata)
@@ -177,7 +177,7 @@ class DistManifestChange(SuperChange, DistContentChange):
             lm.parse_file(self.left_fn())
             rm.parse_file(self.right_fn())
 
-            yield ManifestChange(lm, rm)        
+            yield ManifestChange(lm, rm)
 
 
 
@@ -196,7 +196,7 @@ class DistJarChange(SuperChange, DistContentChange):
             lf = join(self.ldata, self.entry)
             rf = join(self.rdata, self.entry)
             yield JarChange(lf, rf)
-    
+
 
     def get_description(self):
         return DistContentChange.get_description(self)
@@ -250,7 +250,7 @@ class DistClassChange(SuperChange, DistContentChange):
             rinfo = unpack_classfile(rf)
 
             yield JavaClassChange(linfo, rinfo)
-    
+
 
     def get_description(self):
         return DistContentChange.get_description(self)
@@ -469,7 +469,7 @@ class DistReport(DistChange):
             # infrequent edge case, but don't bother starting more
             # helpers than we'll ever use
             process_count = min(process_count, task_count)
-        
+
             # start the number of helper processes, and make sure
             # there are that many stop sentinels at the end of the
             # tasks queue
@@ -483,7 +483,7 @@ class DistReport(DistChange):
             for change in changes:
                 if change:
                     change.check()
-        
+
             # get all of the results and feed them back into our change
             for _i in xrange(0, task_count):
                 index, change = results.get()
@@ -551,14 +551,14 @@ def _mp_run_check(tasks, results, options):
             # produces side-effects like writing out files for all of
             # the report formats.
             change.check()
-            
+
             # rather than serializing the completed change (which
             # could be rather large now that it's been realized), we
             # send back only what we want, which is the squashed
             # overview, and throw away the used bits.
             squashed = squash(change, options=options)
             change.clear()
-            
+
             results.put((index, squashed))
 
     except KeyboardInterrupt:
@@ -596,18 +596,18 @@ def cli_dist_diff(parser, options, left, right):
             quick_report(JSONReportFormat, delta, options)
         else:
             quick_report(TextReportFormat, delta, options)
-    
+
     if (not delta.is_change()) or delta.is_ignored(options):
         return 0
     else:
         return 1
-    
+
 
 
 def cli(parser, options, rest):
     if len(rest) != 3:
         parser.error("wrong number of arguments.")
-    
+
     left, right = rest[1:3]
     return cli_dist_diff(parser, options, left, right)
 
@@ -657,7 +657,7 @@ def create_optparser():
     from .jardiff import jardiff_optgroup
     from .classdiff import classdiff_optgroup, general_optgroup
     from javatools import report
-    
+
     parser = OptionParser(usage="%prog [OPTIONS] OLD_DIST NEW_DIST")
 
     parser.add_option_group(general_optgroup(parser))
@@ -674,12 +674,12 @@ def create_optparser():
 
 
 def default_distdiff_options(updates=None):
-    
+
     """ generate an options object with the appropriate default values
     in place for API usage of distdiff features. overrides is an
     optional dictionary which will be used to update fields on the
     options object. """
-    
+
     parser = create_optparser()
     options, _args = parser.parse_args(list())
 

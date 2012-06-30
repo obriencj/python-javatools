@@ -45,7 +45,7 @@ def compile_struct(fmt, cache=dict()):
 
 
 class _Unpacker(object):
-    
+
     """ (abstract) base class for StreamUnpacker and BufferUnpacker,
     hold common code"""
 
@@ -91,10 +91,10 @@ class _Unpacker(object):
         """ close this unpacker and release the underlying data """
 
         pass
-    
+
 
     def unpack_array(self, fmt):
-        
+
         """ reads a count from the unpacker, and unpacks fmt count
         times. Yields a sequence of the unpacked data tuples """
 
@@ -170,7 +170,7 @@ class BufferUnpacker(_Unpacker):
 
 
     def read(self, count):
-        
+
         """ read count bytes from the underlying buffer and return
         them as a str. Raises an UnpackException if there is not
         enough data in the underlying buffer."""
@@ -222,7 +222,7 @@ class StreamUnpacker(_Unpacker):
         buff = self.data.read(size)
         if len(buff) < size:
             raise UnpackException(fmt, size, len(buff))
-        
+
         return sfmt.unpack(buff)
 
 
@@ -236,7 +236,7 @@ class StreamUnpacker(_Unpacker):
         buff = self.data.read(size)
         if len(buff) < size:
             raise UnpackException(struct.format, size, len(buff))
-        
+
         return struct.unpack(buff)
 
 

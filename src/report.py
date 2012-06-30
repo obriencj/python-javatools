@@ -78,7 +78,7 @@ class Reporter(object):
 
 
     def add_report_format(self, report_format):
-        
+
         """ Add an output format to this reporter. report_format
         should be a ReportFormat subtype. It will be instantiated when
         the reporter is run. """
@@ -156,7 +156,7 @@ class ReportFormat(object):
 
     """ Base class of a report format provider. Override to describe a
     concrete format type """
-    
+
 
     extension = ".report"
 
@@ -168,7 +168,7 @@ class ReportFormat(object):
 
 
     def run_impl(self, change, entry, out):
-        
+
         """ override to actually produce output """
 
         pass
@@ -182,7 +182,7 @@ class ReportFormat(object):
         if out:
             self.run_impl(change, entry, out)
             return None
-        
+
         elif entry:
             basedir = self.basedir or "./"
 
@@ -223,7 +223,7 @@ def _opt_cb_report(_opt, _optstr, value, parser):
     """ callback for the --report option in general_report_optgroup """
 
     options = parser.values
-    
+
     if not hasattr(options, "reports"):
         options.reports = list()
 
@@ -256,7 +256,7 @@ class JSONReportFormat(ReportFormat):
 
     """ renders a Change and all of its children to a JSON object. Can
     use options from the jon_report_optgroup option group """
-    
+
     extension = ".json"
 
 
@@ -327,7 +327,7 @@ class JSONChangeEncoder(JSONEncoder):
 
         return JSONEncoder.default(self, o)
 
-        
+
 
 class TextReportFormat(ReportFormat):
 
@@ -348,7 +348,7 @@ def _indent_change(change, out, options, indent):
 
     show_unchanged = getattr(options, "show_unchanged", False)
     show_ignored = getattr(options, "show_ignored", False)
-    
+
     show = False
     desc = change.get_description()
 
@@ -387,14 +387,14 @@ def _indent(stream, indent, *msgs):
 class CheetahReportFormat(ReportFormat):
 
     """ HTML output for a Change """
-    
+
     extension = ".html"
 
 
     def _relative(self, uri):
 
         """ if uri is relative, re-relate it to our basedir """
-        
+
         if (uri.startswith("http:") or
             uri.startswith("https:") or
             uri.startswith("file:") or
@@ -424,7 +424,7 @@ class CheetahReportFormat(ReportFormat):
 
         options = self.options
         datadir = getattr(options, "html_copy_data", None)
-        
+
         if getattr(options, "html_data_copied", False) or not datadir:
             # either already run by a parent report, or not supposed
             # to run at all.
@@ -443,7 +443,7 @@ class CheetahReportFormat(ReportFormat):
                 javascripts.append(copied)
             elif copied.endswith(".css"):
                 stylesheets.append(copied)
-        
+
         javascripts.extend(getattr(options, "html_javascripts", tuple()))
         stylesheets.extend(getattr(options, "html_stylesheets", tuple()))
 
@@ -455,11 +455,11 @@ class CheetahReportFormat(ReportFormat):
 
 
     def run_impl(self, change, entry, out):
-        
+
         """ sets up the report directory for an HTML report. Obtains
         the top-level Cheetah template that is appropriate for the
         change instance, and runs it.
-        
+
         The cheetah templates are supplied the following values:
          * change - the Change instance to report on
          * entry - the string name of the entry for this report
@@ -471,13 +471,13 @@ class CheetahReportFormat(ReportFormat):
         The cheetah templates are also given a render_change method
         which can be called on another Change instance to cause its
         template to be resolved and run in-line. """
-        
+
         options = self.options
 
         # translate relative paths if necessary
         javascripts = self._relative_uris(options.html_javascripts)
         stylesheets = self._relative_uris(options.html_stylesheets)
-        
+
         # map the class of the change to a template class
         template_class = resolve_cheetah_template(type(change))
 
@@ -562,7 +562,7 @@ def _compose_cheetah_template_map(cache):
         cache[cc] = template_type
 
     return cache
-    
+
 
 
 def cheetah_template_map(cache=dict()):
@@ -607,7 +607,7 @@ def html_report_optgroup(parser):
     g.add_option("--html-stylesheet", action="append",
                  dest="html_stylesheets", default=list())
 
-    g.add_option("--html-javascript", action="append", 
+    g.add_option("--html-javascript", action="append",
                  dest="html_javascripts", default=list())
 
     g.add_option("--html-copy-data", action="store", default=None,
@@ -624,7 +624,7 @@ def quick_report(report_type, change, options):
     sys.stdout """
 
     report = report_type(None, options)
-    
+
     if options.output:
         with open(options.output, "wt") as out:
             report.run(change, None, out)

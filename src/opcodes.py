@@ -106,7 +106,7 @@ def get_arg_format(code):
 def has_const_arg(code):
 
     """ which arg is a const for this opcode """
-    
+
     return __OPTABLE[code][_OPINDEX_CONST]
 
 
@@ -171,7 +171,7 @@ def _unpack_wide(bc, offset):
 
 
 def disassemble(bytecode):
-    
+
     """ Generator. Disassembles Java bytecode into a sequence of
     (offset, code, args) tuples"""
 

@@ -38,7 +38,7 @@ PROV_BY_CLASS = "class.provides"
 
 
 class JarInfo(object):
-    
+
     def __init__(self, filename=None, zipfile=None):
         if not (filename or zipfile):
             raise TypeError("one of pathname or zipinfo must be specified")
@@ -48,7 +48,7 @@ class JarInfo(object):
 
         self._requires = None
         self._provides = None
-        
+
 
     def __del__(self):
         self.close()
@@ -72,7 +72,7 @@ class JarInfo(object):
         # to private members of their parents. This is only used to
         # filter out false-positive requirements.
         p = set()
-        
+
         for entry in self.get_classes():
             ci = self.get_classinfo(entry)
             for sym in ci.get_requires():
@@ -125,7 +125,7 @@ class JarInfo(object):
 
 
     def get_classinfo(self, entry):
-        
+
         """ fetch a class entry as a JavaClassInfo instance """
 
         from javatools import unpack_class
@@ -190,7 +190,7 @@ def cli_jar_manifest_info(options, jarinfo):
 
 def cli_jar_zip_info(options, jarinfo):
     from .ziputils import zip_entry_rollup
-    
+
     zipfile = jarinfo.get_zipfile()
 
     files, dirs, comp, uncomp = zip_entry_rollup(zipfile)
@@ -216,7 +216,7 @@ def cli_jar_classes(options, jarinfo):
 
 def cli_jar_provides(options, jarinfo):
     from .dirutils import fnmatches
-    
+
     print "jar provides:"
 
     for provided in sorted(jarinfo.get_provides().iterkeys()):
@@ -293,11 +293,11 @@ def cli(parser, options, rest):
         options.disassemble = True
         options.sigs = True
         options.constpool = True
-    
+
     options.indent = not(options.lines or
                          options.disassemble or
                          options.sigs)
-    
+
     for fn in rest[1:]:
         with JarInfo(filename=fn) as ji:
             if options.json:
@@ -313,7 +313,7 @@ def jarinfo_optgroup(parser):
     from optparse import OptionGroup
 
     g = OptionGroup(parser, "JAR Info Options")
-    
+
     g.add_option("--zip", action="store_true", default=False,
                  help="print zip information")
 

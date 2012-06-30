@@ -109,7 +109,7 @@ class ManifestChange(SuperChange):
 
 
 class ManifestSection(dict):
-    
+
     primary_key = "Name"
 
 
@@ -131,7 +131,7 @@ class ManifestSection(dict):
     def primary(self):
         return self.get(self.primary_key)
 
-    
+
     def load(self, items):
         for k,vals in items:
             self[k] = "".join(vals)
@@ -147,7 +147,7 @@ class ManifestSection(dict):
         keys.remove(prim)
 
         store_item(prim, self[prim], stream)
-        
+
         for k in keys:
             store_item(k, self[k], stream)
 
@@ -177,10 +177,10 @@ class Manifest(ManifestSection):
     def parse_file(self, filename):
         with open(filename, "rt", _BUFFERING) as stream:
             self.parse(stream)
-    
+
 
     def parse(self, data):
-        
+
         """ populate instance with values and sub-sections from data
         in a stream or a string"""
 
@@ -252,10 +252,10 @@ def parse_sections(data):
     in which case simply concatenate the vals together to get the full
     value.
     """
-    
+
     if not data:
         return
-    
+
     if isinstance(data, (str, buffer)):
         data = StringIO(data)
 
@@ -266,7 +266,7 @@ def parse_sections(data):
 
         # Clean up the line
         cleanline = line.replace('\0','').splitlines()[0]
-        
+
         if not cleanline:
             # blank line means end of current section (if any)
             if curr:
@@ -284,14 +284,14 @@ def parse_sections(data):
             # otherwise the beginning of a new k:v pair
             if curr is None:
                 curr = list()
-        
+
             key, val = cleanline.split(':', 1)
             curr.append((key, [val[1:]]))
-    
+
     # yield and leftovers
     if curr:
         yield curr
-    
+
 
 
 def digest_chunks(chunks):
@@ -305,7 +305,7 @@ def digest_chunks(chunks):
     from base64 import b64encode
 
     hashes = (md5(), sha1())
-    
+
     for chunk in chunks:
         for h in hashes:
             h.update(chunk)
@@ -317,7 +317,7 @@ def digest_chunks(chunks):
 def file_chunk(filename, size=_BUFFERING):
 
     """ returns a generator function which when called will emit
-    x-sized chunks of filename's contents""" 
+    x-sized chunks of filename's contents"""
 
     def chunks():
         with open(filename, "rb", _BUFFERING) as fd:
@@ -410,7 +410,7 @@ def cli_create(options, rest):
         entries = single_path_generator(rest[1])
 
     mf = Manifest()
-    
+
     ignores = options.ignore
 
     for name,chunks in entries:
@@ -460,7 +460,7 @@ def cli_query(options, rest):
                 print q, "=", mfs.get(s[1])
             else:
                 print q, ": No such section"
-            
+
         else:
             print q, "=", mf.get(s[0])
 
@@ -469,7 +469,7 @@ def cli_query(options, rest):
 def cli_verify(options, rest):
     # TODO: read in the manifest, and then verify the digests for every
     # file listed.
-    
+
     print "NYI"
     return 0
 
@@ -493,10 +493,10 @@ def cli(options, rest):
 
 def create_optparser():
     from optparse import OptionParser
-    
+
     parse = OptionParser(usage="Create or verify a MANIFEST for a JAR/ZIP"
                          " or directory")
-    
+
     parse.add_option("-v", "--verify", action="store_true")
     parse.add_option("-c", "--create", action="store_true")
     parse.add_option("-q", "--query", action="append",

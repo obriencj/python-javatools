@@ -55,7 +55,7 @@ class DistInfo(object):
 
     def __del__(self):
         self.close()
-        
+
 
     def _working_path(self):
         from os.path import isdir
@@ -173,7 +173,7 @@ class DistInfo(object):
     def get_classinfo(self, entry):
         from javatools import unpack_classfile
         from os.path import join
-        
+
         return unpack_classfile(join(self.base_path,entry))
 
 
@@ -286,7 +286,7 @@ def distinfo_optgroup(parser):
 
     g.add_option("--dist-requires", dest="dist_requires",
                  action="store_true", default=False,
-                 help="API requires information at the distribution level")    
+                 help="API requires information at the distribution level")
 
     return g
 
@@ -296,7 +296,7 @@ def create_optparser():
     from optparse import OptionParser
     from .jarinfo import jarinfo_optgroup
     from .classinfo import classinfo_optgroup
-    
+
     parser = OptionParser("%prog [OPTIONS] DISTRIBUTION")
 
     parser.add_option("--json", dest="json", action="store_true",

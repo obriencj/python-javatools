@@ -37,7 +37,7 @@ class ClassNameChange(GenericChange):
 
     label = "Class name"
 
-    
+
     def fn_data(self, c):
         return c.get_this()
 
@@ -166,10 +166,10 @@ class ClassInfoChange(SuperChange):
 
 
 class MemberSuperChange(SuperChange):
-    
+
     """ basis for FieldChange and MethodChange """
 
-    
+
     label = "Member"
 
 
@@ -179,10 +179,10 @@ class MemberSuperChange(SuperChange):
 
 
 class MemberAdded(Addition):
-    
+
     """ basis for FieldAdded and MethodAdded """
 
-    
+
     label = "Member added"
 
 
@@ -192,10 +192,10 @@ class MemberAdded(Addition):
 
 
 class MemberRemoved(Removal):
-    
+
     """ basis for FieldChange and MethodChange """
 
-    
+
     label = "Member removed"
 
 
@@ -208,20 +208,20 @@ class ClassMembersChange(SuperChange):
 
     """ basis for ClassFieldsChange and ClassMethodsChange """
 
-    
+
     label = "Members"
 
     member_added = MemberAdded
     member_removed = MemberRemoved
     member_changed = MemberSuperChange
 
-    
+
     def collect_impl(self):
         li = {}
-        
+
         for member in self.ldata:
             li[member.get_identifier()] = member
-    
+
         for member in self.rdata:
             key = member.get_identifier()
             lf = li.get(key, None)
@@ -231,12 +231,12 @@ class ClassMembersChange(SuperChange):
                 yield self.member_changed(lf, member)
             else:
                 yield self.member_added(None, member)
-    
+
         for member in li.values():
             yield self.member_removed(member, None)
 
 
-    
+
 class CodeAbsoluteLinesChange(GenericChange):
 
     label = "Absolute line numbers"
@@ -258,8 +258,8 @@ class CodeRelativeLinesChange(GenericChange):
 
     def fn_data(self, c):
         return c.get_relativelinenumbertable()
-    
-        
+
+
     def is_ignored(self, options):
         return options.ignore_relative_lines
 
@@ -273,7 +273,7 @@ class CodeStackChange(GenericChange):
     def fn_data(self, c):
         return c.max_stack
 
-    
+
 
 class CodeLocalsChange(GenericChange):
 
@@ -330,7 +330,7 @@ class CodeConstantsChange(GenericChange):
 
     def fn_pretty(self, c):
         from javatools import opcodes
-        
+
         if not self.offsets:
             return None
 
@@ -341,14 +341,14 @@ class CodeConstantsChange(GenericChange):
                 name = opcodes.get_opname_by_code(code)
                 data = c.cpool.pretty_deref_const(args[0])
                 pr.append((offset, name, data))
-                
+
         return pr
 
 
     def check_impl(self):
         from javatools import opcodes
         from itertools import izip
-        
+
         left = self.ldata
         right = self.rdata
         offsets = list()
@@ -356,7 +356,7 @@ class CodeConstantsChange(GenericChange):
         if len(left.code) != len(right.code):
             # code body change, can't determine constants
             return True, None
-        
+
         for l, r in izip(left.disassemble(), right.disassemble()):
             if not ((l[0] == r[0]) and (l[1] == r[1])):
                 # code body change, can't determine constants
@@ -375,7 +375,7 @@ class CodeConstantsChange(GenericChange):
 
         self.offsets = offsets
         return bool(self.offsets), None
-        
+
 
 
 class CodeBodyChange(GenericChange):
@@ -393,21 +393,21 @@ class CodeBodyChange(GenericChange):
 
     def fn_pretty(self, c):
         from javatools import opcodes
-        
+
         pr = list()
         for offset, code, args in c.disassemble():
             name = opcodes.get_opname_by_code(code)
             pr.append((offset, name, args))
-            
+
         return pr
-    
+
 
     def check_impl(self):
         from itertools import izip
 
         left = self.ldata
         right = self.rdata
-                
+
         if len(left.code) != len(right.code):
             desc = "Code length changed from %r to %r" % \
                    (len(left.code), len(right.code))
@@ -428,8 +428,8 @@ class MethodNameChange(GenericChange):
 
     def fn_data(self, c):
         return c.get_name()
-    
-    
+
+
 
 class MethodTypeChange(GenericChange):
 
@@ -442,7 +442,7 @@ class MethodTypeChange(GenericChange):
 
     def fn_pretty(self, c):
         return c.pretty_type()
-        
+
 
 
 class MethodSignatureChange(GenericChange):
@@ -467,7 +467,7 @@ class MethodParametersChange(GenericChange):
     def fn_pretty(self, c):
         return tuple(c.pretty_arg_types())
 
-    
+
 
 class MethodAccessflagsChange(GenericChange):
 
@@ -511,7 +511,7 @@ class MethodExceptionsChange(GenericChange):
 
     def fn_pretty(self, c):
         return tuple(c.pretty_exceptions())
-        
+
 
 
 class MethodCodeChange(SuperChange):
@@ -550,12 +550,12 @@ class MethodCodeChange(SuperChange):
             return SuperChange.check_impl(self)
         else:
             return (self.ldata == self.rdata), None
-        
-            
+
+
 
 class MethodChange(MemberSuperChange):
     label = "Method"
-    
+
 
     change_types = (MethodNameChange,
                     MethodTypeChange,
@@ -565,7 +565,7 @@ class MethodChange(MemberSuperChange):
                     MethodExceptionsChange,
                     MethodAbstractChange,
                     MethodCodeChange)
-    
+
 
 
 class FieldNameChange(GenericChange):
@@ -639,7 +639,7 @@ class FieldChange(MemberSuperChange):
                     FieldAccessflagsChange,
                     FieldConstvalueChange)
 
-        
+
 
 class FieldAdded(MemberAdded):
     label = "Field added"
@@ -649,7 +649,7 @@ class FieldAdded(MemberAdded):
 class FieldRemoved(MemberRemoved):
     label = "Field removed"
 
-    
+
 
 class ClassFieldsChange(ClassMembersChange):
     label = "Fields"
@@ -714,7 +714,7 @@ class ClassConstantPoolChange(GenericChange):
 
     def get_description(self):
         return self.label + ((" unaltered", " altered")[self.is_change()])
-        
+
 
 
 class JavaClassChange(SuperChange):
@@ -736,7 +736,7 @@ class JavaClassChange(SuperChange):
 class JavaClassReport(JavaClassChange):
 
     """ a JavaClassChange with the side-effect of writing reports """
-    
+
 
     def __init__(self, l, r, reporter):
         JavaClassChange.__init__(self, l, r)
@@ -755,7 +755,7 @@ class JavaClassReport(JavaClassChange):
 
 
 def pretty_merge_constants(left_cpool, right_cpool):
-    
+
     """ sequence of tuples containing (index, left type, left pretty
     value, right type, right pretty value). If the constant pools are
     of inequal length, a value of None will be set in place of the
@@ -820,7 +820,7 @@ def cli_classes_diff(parser, options, left, right):
 
 def cli(parser, options, rest):
     from javatools import unpack_classfile
-    
+
     if len(rest) != 3:
         parser.error("wrong number of arguments.")
 
@@ -936,26 +936,26 @@ def _opt_cb_verbose(_opt, _opt_str, _value, parser):
 def general_optgroup(parser):
 
     """ option group for general-use features of all javatool CLIs """
-    
+
     from optparse import OptionGroup
 
     g = OptionGroup(parser, "General Options")
 
     g.add_option("-q", "--quiet", dest="silent",
                  action="store_true", default=False)
-    
+
     g.add_option("-v", "--verbose",
                  action="callback", callback=_opt_cb_verbose)
-    
+
     g.add_option("-o", "--output", dest="output",
                  action="store", default=None)
-    
+
     g.add_option("-j", "--json", dest="json",
                  action="store_true", default=False)
-    
+
     g.add_option("--show-ignored", action="store_true", default=False)
     g.add_option("--show-unchanged", action="store_true", default=False)
-    
+
     g.add_option("--ignore", type="string",
                  action="callback", callback=_opt_cb_ignore,
                  help="comma-separated list of ignores")
@@ -986,12 +986,12 @@ def create_optparser():
 
 
 def default_classdiff_options(updates=None):
-    
+
     """ generate an options object with the appropriate default values
     in place for API usage of classdiff features. overrides is an
     optional dictionary which will be used to update fields on the
     options object. """
-    
+
     parser = create_optparser()
     options, _args = parser.parse_args(list())
 

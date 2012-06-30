@@ -66,7 +66,7 @@ class JarContentChange(Change):
 
     label = "Jar Content"
 
-    
+
     def __init__(self, lzip, rzip, entry, is_change=True):
         Change.__init__(self, lzip, rzip)
         self.entry = entry
@@ -127,7 +127,7 @@ class JarClassChange(SuperChange, JarContentChange):
 
     label = "Java Class"
 
-    
+
     def __init__(self, ldata, rdata, entry, is_change=True):
         SuperChange.__init__(self, ldata, rdata)
         JarContentChange.__init__(self, ldata, rdata, entry, is_change)
@@ -137,7 +137,7 @@ class JarClassChange(SuperChange, JarContentChange):
         if self.is_change():
             with self.open_left() as lfd:
                 linfo = unpack_class(lfd.read())
-            
+
             with self.open_right() as rfd:
                 rinfo = unpack_class(rfd.read())
 
@@ -155,7 +155,7 @@ class JarClassChange(SuperChange, JarContentChange):
 
 
 class JarClassReport(JarClassChange):
-    
+
     report_name = "JavaClassReport"
 
 
@@ -171,7 +171,7 @@ class JarClassReport(JarClassChange):
 
             with self.open_right() as rfd:
                 rinfo = unpack_class(rfd.read())
-                
+
             yield JavaClassReport(linfo, rinfo, self.reporter)
 
 
@@ -180,7 +180,7 @@ class JarManifestChange(SuperChange, JarContentChange):
 
     label = "Jar Manifest"
 
-    
+
     def __init__(self, ldata, rdata, entry, is_change=True):
         SuperChange.__init__(self, ldata, rdata)
         JarContentChange.__init__(self, ldata, rdata, entry, is_change)
@@ -264,7 +264,7 @@ class JarContentsChange(SuperChange):
                 # TODO: should we split by file type to more specific
                 # types of (un)changes? For now just emit a content
                 # change with is_change set to False.
-                
+
                 if entry == "META-INF/MANIFEST.MF":
                     yield JarManifestChange(left, right, entry, False)
 
@@ -273,20 +273,20 @@ class JarContentsChange(SuperChange):
 
                 elif fnmatches(entry, "*.class"):
                     yield JarClassChange(left, right, entry, False)
-                    
+
                 else:
                     yield JarContentChange(left, right, entry, False)
 
             elif event == DIFF:
                 if entry == "META-INF/MANIFEST.MF":
                     yield JarManifestChange(left, right, entry)
-                
+
                 elif fnmatches(entry, "*.RSA", "*.DSA", "*.SF"):
                     yield JarSignatureChange(left, right, entry)
 
                 elif fnmatches(entry, "*.class"):
                     yield JarClassChange(left, right, entry)
-                    
+
                 else:
                     yield JarContentChange(left, right, entry)
 
@@ -298,8 +298,8 @@ class JarContentsChange(SuperChange):
                     yield JarClassRemoved(left, right, entry)
 
                 else:
-                    yield JarContentRemoved(left, right, entry) 
-                
+                    yield JarContentRemoved(left, right, entry)
+
             elif event == RIGHT:
                 if fnmatches(entry, "*.RSA","*.DSA","*.SF"):
                     yield JarSignatureAdded(left, right, entry)
@@ -361,7 +361,7 @@ class JarContentsReport(JarContentsChange):
         # a filter on the collect_impl of JarContentsChange which
         # replaces JarClassChange instances with a JarClassReport
         # instance instead.
-        
+
         for change in JarContentsChange.collect_impl(self):
             if isinstance(change, JarClassChange) and change.is_change():
                 name = JarClassReport.report_name
@@ -385,7 +385,7 @@ class JarContentsReport(JarContentsChange):
                 for change in self.collect_impl():
                     change.check()
                     c = c or change.is_change()
-                    
+
                     if isinstance(change, JarClassReport):
                         changes.append(squash(change, options=options))
                         change.clear()
@@ -393,15 +393,15 @@ class JarContentsReport(JarContentsChange):
                         changes.append(change)
 
         self.lzip = None
-        self.rzip = None  
-        
+        self.rzip = None
+
         self.changes = changes
         return c, None
 
 
 
 class JarReport(JarChange):
-    
+
     """ This class has side-effects. Running the check method with the
     reportdir options set to True will cause the deep checks to be
     written to file in that directory """
@@ -512,7 +512,7 @@ def create_optparser():
     from javatools import report
 
     parser = OptionParser(usage="%prog [OPTIONS] OLD_JAR NEW_JAR")
-    
+
     parser.add_option_group(general_optgroup(parser))
     parser.add_option_group(jardiff_optgroup(parser))
     parser.add_option_group(classdiff_optgroup(parser))
@@ -526,12 +526,12 @@ def create_optparser():
 
 
 def default_jardiff_options(updates=None):
-    
+
     """ generate an options object with the appropriate default values
     in place for API usage of jardiff features. overrides is an
     optional dictionary which will be used to update fields on the
     options object. """
-    
+
     parser = create_optparser()
     options, _args = parser.parse_args(list())
 

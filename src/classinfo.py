@@ -232,7 +232,7 @@ def cli_print_classinfo(options, info):
                 # comprising the second half of a long or double value
                 print "const #%i = %s\t%s;" % (i, t, v)
         print
-        
+
     if options.show == HEADER:
         return
 
@@ -362,7 +362,7 @@ def cli_json_class(options, classfile):
     from javatools import unpack_classfile
     from json import dump
     from sys import stdout
-    
+
     info = unpack_classfile(classfile)
     data = cli_simplify_classinfo(options, info)
     dump(data, stdout, sort_keys=True, indent=2)
@@ -391,7 +391,7 @@ def cli(parser, options, rest):
 
     for f in rest[1:]:
         style(options, f)
-        
+
     return 0
 
 
@@ -404,7 +404,7 @@ def classinfo_optgroup(parser):
     g.add_option("--class-provides", dest="class_provides",
                  action="store_true", default=False,
                  help="API provides information at the class level")
-    
+
     g.add_option("--class-requires", dest="class_requires",
                  action="store_true", default=False,
                  help="API requires information at the class level")
@@ -447,7 +447,7 @@ def classinfo_optgroup(parser):
 
     g.add_option("--verbose", dest="verbose", action="store_true",
                  help="sets -locsp options and shows stack bounds")
-    
+
     return g
 
 

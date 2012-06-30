@@ -118,7 +118,7 @@ class Change(object):
 
 
     def is_ignored(self, options):
-        
+
         """ is this change ignorable, given parameters on the options
         object. """
 
@@ -172,7 +172,7 @@ class Removal(Change):
 
 
 class Addition(Change):
-    
+
     """ Something was added """
 
     def is_change(self):
@@ -181,7 +181,7 @@ class Addition(Change):
 
 
 class GenericChange(Change):
-    
+
     """ A generalized test for a single change on two objects: a left
     and a right. Subclasses should override the label and the check_impl """
 
@@ -194,7 +194,7 @@ class GenericChange(Change):
 
 
     def fn_data(self, c):
-        
+
         """ Get the data to be used in fn_differ from c. By default,
         this method is the identity """
 
@@ -207,7 +207,7 @@ class GenericChange(Change):
 
         return self.fn_data(c)
 
-    
+
     def fn_pretty_desc(self, c):
         """ override to provide a way to describe the data left or right
         data. Defaults to fn_pretty """
@@ -254,7 +254,7 @@ class GenericChange(Change):
 
     def pretty_rdata_desc(self):
         """ returns fn_pretty_desc of rdata """
-        
+
         return self.fn_pretty_desc(self.rdata)
 
 
@@ -268,7 +268,7 @@ class GenericChange(Change):
         self.fn_differ. If they do differ, a message will be
         constructed using self.fn_pretty to create human-readable
         versions of the data that changed. """
-        
+
         l, r = self.get_ldata(), self.get_rdata()
         if self.fn_differ(l, r):
             l, r = self.pretty_ldata_desc(), self.pretty_rdata_desc()
@@ -297,7 +297,7 @@ class GenericChange(Change):
         rd = self.pretty_rdata()
         if rd is not None:
             simple["new_data"] = rd
-        
+
         return simple
 
 
@@ -327,12 +327,12 @@ class SuperChange(GenericChange):
         for c in self.changes:
             c.clear()
         self.changes = tuple()
-        
+
 
     def collect_impl(self):
         """ instanciates each of the entries in in the overriden
         change_types field with the left and right data """
-        
+
         l, r = self.ldata, self.rdata
         return (c(l,r) for c in self.change_types)
 
@@ -356,7 +356,7 @@ class SuperChange(GenericChange):
             change.check()
             c = c or change.is_change()
         return c, None
-            
+
 
     def is_ignored(self, options):
         if self.is_change():
@@ -465,7 +465,7 @@ def squash(change, is_ignored=False, options=None):
         result = SquashedAddition(change, is_ignored)
     else:
         result = SquashedChange(change, is_ignored)
-        
+
     return result
 
 

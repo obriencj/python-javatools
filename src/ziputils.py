@@ -77,7 +77,7 @@ def _different(left, right, f):
     if (l.file_size == r.file_size) and (l.CRC == r.CRC):
         # ok, they seem passibly similar, let's deep check them.
         return _deep_different(left, right, f)
-        
+
     else:
         # yup, they're different
         return True
@@ -142,7 +142,7 @@ def collect_compare_into(left, right, added, removed, altered, same):
 
 
 def collect_compare_zips(left, right):
-    
+
     """ collects the differences between left and right ZipFile
     instances into a tuple of lists: added, removed, altered, same """
 
@@ -151,7 +151,7 @@ def collect_compare_zips(left, right):
 
 
 def collect_compare_zips_into(left, right, added, removed, altered, same):
-    
+
     """ collects the differences between left and right ZipFile
     instances into the lists added, removed, altered, and same.
     Returns a tuple of added, removed, altered, same"""
@@ -246,7 +246,7 @@ def _collect_infos(dirname):
 
             if islink(df):
                 pass
-                
+
             elif isfile(df):
                 i = ZipInfo()
                 i.filename = relfn
@@ -254,7 +254,7 @@ def _collect_infos(dirname):
                 i.compress_size = i.file_size
                 i.CRC = _crc32(df)
                 yield i.filename, i
-            
+
             else:
                 # TODO: is there any more special treatment?
                 pass
@@ -276,7 +276,7 @@ class ExplodedZipFile(object):
 
     def refresh(self):
         self.members = dict(_collect_infos(self.fn))
-        
+
 
     def getinfo(self, name):
         return self.members.get(name)
@@ -337,7 +337,7 @@ def zip_file(fn, mode="r"):
     """ returns either a zipfile.ZipFile instance or an
     ExplodedZipFile instance, depending on whether fn is the name of a
     valid zip file, or a directory."""
-    
+
     import zipfile
     import os.path
 
@@ -351,7 +351,7 @@ def zip_file(fn, mode="r"):
 
 
 def open_zip(filename, mode="r"):
-    
+
     """ returns a ZipFileContext which will manage closing the zip for
     you. Use eg: with open_zip('my.zip') as z: ... """
 
@@ -360,13 +360,13 @@ def open_zip(filename, mode="r"):
 
 
 def zip_entry_rollup(zipfile):
-    
+
     """ returns a tuple of (files, dirs, size_uncompressed,
     size_compressed). files+dirs will equal len(zipfile.infolist) """
-    
+
     files, dirs = 0, 0
     total_c, total_u = 0, 0
-    
+
     for i in zipfile.infolist():
         if i.filename[-1] == '/':
             # I wonder if there's a better detection method than this
@@ -375,9 +375,9 @@ def zip_entry_rollup(zipfile):
             files += 1
             total_c += i.compress_size
             total_u += i.file_size
-    
+
     return files, dirs, total_c, total_u
-    
+
 
 
 #
