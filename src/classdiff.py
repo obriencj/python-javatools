@@ -745,6 +745,39 @@ class JavaClassReport(JavaClassChange):
 
 
 
+# ---- Utility functions ----
+#
+
+
+
+def pretty_merge_constants(left_cpool, right_cpool):
+    
+    """ sequence of tuples containing (index, left type, left pretty
+    value, right type, right pretty value). If the constant pools are
+    of inequal length, a value of None will be set in place of the
+    type and pretty value for indexes past its end """
+
+    lsize = len(left_cpool.consts)
+    rsize = len(right_cpool.consts)
+
+    index = 1
+    for index in xrange(1, min(lsize, rsize)):
+        lt, lv = left_cpool.pretty_const(index)
+        rt, rv = right_cpool.pretty_const(index)
+        yield (index, lt, lv, rt, rv)
+
+    if lsize > rsize:
+        for index in xrange(index, lsize):
+            lt, lv = left_cpool.pretty_const(index)
+            yield (index, lt, lv, None, None)
+
+    elif rsize > lsize:
+        for index in xrange(index, rsize):
+            rt, rv = right_cpool.pretty_const(index)
+            yield (index, None, None, rt, rv)
+
+
+
 # ---- Begin classdiff CLI code ----
 #
 

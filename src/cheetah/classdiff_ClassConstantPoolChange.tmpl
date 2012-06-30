@@ -1,10 +1,11 @@
 #extends change_Change
-
-
-#def render_constants(caption, consts)
 #from xml.sax.saxutils import escape
+#from javatools.classdiff import pretty_merge_constants
 
-<table>
+
+
+#def render_constant_pool(caption, consts)
+<table class="constant-pool">
 <caption><%= caption %></caption>
 <thead>
 <tr>
@@ -14,7 +15,7 @@
 </tr>
 </thead>
 
-#for i,t,v in consts
+#for i, t, v in consts
 <tr>
 <td class="const-index"><%= i %></td>
 <td class="const-type"><%= t %></td>
@@ -26,24 +27,56 @@
 #end def
 
 
+
+#def render_dual_constant_pool(caption, left, right)
+<table class="dual-constant-pool">
+<caption><%= caption %></caption>
+<thead>
+<tr>
+<th>Index</th>
+<th>Original Type</th>
+<th>Original Value</th>
+<th>Modified Type</th>
+<th>Modified Value</th>
+</tr>
+</thead>
+
+#for index, lt, lv, rt, rv in pretty_merge_constants(left, right)
+<%
+row_class = (" changed")[(lt, lv) == (rt, rv)]
+%>
+<tr>
+<td class="const-index"><%= index %></td>
+<td class="const-type"><%= lt or "" %></td>
+<td class="const-value"><%= escape(lv or "") %></td>
+#if (lt, lv) == (rt, rv)
+<td class="const-type empty"></td>
+<td class="const-value empty"></td>
+#else
+<td class="const-type changed"><%= rt or "" %></td>
+<td class="const-value changed"><%= escape(rv or "") %></td>
+</tr>
+#end if
+#end for
+
+</table>
+#end def
+
+
+
 #block details
 <div class="details">
-
-<div class="vertical ldata">
-$render_constants("Original", $change.pretty_ldata())
-</div>
-
-<div class="vertical rdata">
+<div class="lrdata">
 #if $change.is_change()
-#set caption = "Changed"
+$render_dual_constant_pool("Constant Pools Changes",
+                           $change.ldata.cpool, $change.rdata.cpool)
 #else
-#set caption = "Unchanged"
+$render_constant_pool("Constant Pool Listing", $change.pretty_ldata())
 #end if
-$render_constants($caption, $change.pretty_rdata())
 </div>
-
 </div>
 #end block
+
 
 
 ##
