@@ -157,21 +157,41 @@ class ManifestSection(dict):
 
 class Manifest(ManifestSection):
 
+    """ Represents a Java Manifest. In essence a dictionary
+    representing the key:value pairs from the main section of the
+    manifest, and zero or more sub-dictionaries of key:value pairs
+    representing the sections following the main section. The sections
+    are referenced by the value of their 'Name' pair, which must be
+    unique to the Manifest as a whole. """
+
+
     primary_key = "Manifest-Version"
+
 
     def __init__(self, version="1.0"):
         ManifestSection.__init__(self, version)
         self.sub_sections = {}
 
 
-    def create_section(self, name):
+    def create_section(self, name, overwrite=True):
 
         """ create and return a new sub-section of this manifest, with
-        the given Name attribute """
+        the given Name attribute. If a sub-section already exists with
+        that name, it will be lost unless overwrite is False in which
+        case the existing sub-section will be returned. """
 
-        sect = ManifestSection(name)
-        self.sub_sections[name] = sect
+        if overwrite:
+            sect = ManifestSection(name)
+            self.sub_sections[name] = sect
+
+        else:
+            sect = self.sub_sections.get(name, None)
+            if sect is None:
+                sect = ManifestSection(name)
+                self.sub_sections[name] = sect
+
         return sect
+
 
 
     def parse_file(self, filename):
@@ -200,6 +220,22 @@ class Manifest(ManifestSection):
         ManifestSection.store(self, stream)
         for _name, sect in sorted(self.sub_sections.items()):
             sect.store(stream)
+
+
+    def clear(self):
+        
+        """ removes all items from this manifest, and clears and
+        removes all sub-sections """
+
+        for sub in self.sub_sections.values():
+            sub.clear()
+        self.sub_sections.clear()
+
+        ManifestSection.clear(self)
+
+
+    def __del__(self):
+        self.clear()
 
 
 
@@ -345,6 +381,11 @@ def zipentry_chunk(zipfile, name, size=_BUFFERING):
 
 
 def directory_generator(dirname, trim=0):
+
+    """ yields a tuple of (relative filename, chunking function). The
+    chunking function can be called to open and iterate over the
+    contents of the filename. """
+
     def gather(collect, dirname, fnames):
         for fname in fnames:
             df = join(dirname, fname)
