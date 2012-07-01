@@ -223,7 +223,7 @@ class Manifest(ManifestSection):
 
 
     def clear(self):
-        
+
         """ removes all items from this manifest, and clears and
         removes all sub-sections """
 
