@@ -1,4 +1,6 @@
 #extends change_Change
+#from javatools.distdiff import DistJarReport, DistClassReport
+#from javatools.jardiff import JarClassReport
 #implements respond
 
 
@@ -31,9 +33,6 @@ $escape($change.entry)
 
 #block details
 <%
-from javatools.distdiff import DistJarReport, DistClassReport
-from javatools.jardiff import JarClassReport
-
 change = getattr(self, "change")
 oc = change.origclass
 if oc is DistJarReport:
