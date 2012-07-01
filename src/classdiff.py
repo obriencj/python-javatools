@@ -782,6 +782,34 @@ def pretty_merge_constants(left_cpool, right_cpool):
 
 
 
+def merge_code(left_code, right_code):
+
+    """
+    { relative_line:
+      ((left_abs_line, ((offset, op, args), ...)),
+       (right_abs_line, ((offset, op, args), ...))), 
+      ... }
+    """
+
+    data = dict()
+
+    code_lines = (left_code and left_code.iter_code_by_lines()) or tuple()
+    for abs_line, rel_line, dis in code_lines:
+        data[rel_line] = [(abs_line, dis), None]
+
+    code_lines = (right_code and right_code.iter_code_by_lines()) or tuple()
+    for abs_line, rel_line, dis in code_lines:
+        found = data.get(rel_line, None)
+        if found is None:
+            found = [None, (abs_line, dis)]
+            data[rel_line] = found
+        else:
+            found[1] = (abs_line, dis)
+
+    return data
+
+
+
 # ---- Begin classdiff CLI code ----
 #
 

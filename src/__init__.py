@@ -255,7 +255,7 @@ class JavaConstantPool(object):
         result = ""
 
         if t == CONST_String:
-            result = str(self.deref_const(v))
+            result = self.deref_const(v)
 
         elif t in (CONST_Utf8,
                    CONST_Integer, CONST_Float,
@@ -1316,6 +1316,9 @@ class JavaCodeInfo(object):
         # cache of disassembled code
         self._dis_code = None
 
+        # cache of linenumbertable
+        self._lnt = None
+
 
 
     def deref_const(self, index):
@@ -1357,12 +1360,16 @@ class JavaCodeInfo(object):
 
         """ a sequence of (code_offset, line_number) pairs """
 
-        buff = self.get_attribute("LineNumberTable")
-        if buff is None:
-            return tuple()
-
-        with unpack(buff) as up:
-            return tuple(up.unpack_array(">HH"))
+        lnt = self._lnt
+        if lnt is None:
+            buff = self.get_attribute("LineNumberTable")
+            if buff is None:
+                lnt = tuple()
+            else:
+                with unpack(buff) as up:
+                    lnt = tuple(up.unpack_array(">HH"))
+            self._lnt = lnt
+        return lnt
 
 
 
@@ -1413,17 +1420,51 @@ class JavaCodeInfo(object):
 
         """ returns the line number given a code offset """
 
-        prev = -1
+        prev_line = 0
 
         for (offset, line) in self.get_linenumbertable():
             if offset < code_offset:
-                prev = offset
+                prev_line = line
             elif offset == code_offset:
                 return line
             else:
-                return prev
+                return prev_line
 
-        return prev
+        return prev_line
+
+
+
+    def iter_code_by_lines(self):
+
+        """
+        ((abs_line, rel_line, [(offset, code, args), ...]),
+         ...)
+        """
+
+        lnt = self.get_linenumbertable()
+        if not lnt:
+            yield (None, None, self.disassemble())
+            return
+            
+        lnt_offset = lnt[0][1]
+
+        cur_line = None
+        current = None
+
+        for codelet in self.disassemble():
+            abs_line = self.get_line_for_offset(codelet[0])
+
+            if cur_line == abs_line:
+                current.append(codelet)
+
+            else:
+                if cur_line is not None:
+                    yield (cur_line, cur_line - lnt_offset, current)
+                cur_line = abs_line
+                current = [codelet]
+
+        if current:
+            yield (cur_line, cur_line - lnt_offset, current)
 
 
 
