@@ -330,14 +330,15 @@ class SuperChange(GenericChange):
 
 
     def collect_impl(self):
+
         """ instanciates each of the entries in in the overriden
         change_types field with the left and right data """
 
-        l, r = self.ldata, self.rdata
-        return (c(l,r) for c in self.change_types)
+        return (c(self.ldata, self.rdata) for c in self.change_types)
 
 
     def collect(self):
+
         """ calls collect_impl and stores the results as the child
         changes of this super-change """
 
@@ -359,11 +360,17 @@ class SuperChange(GenericChange):
 
 
     def is_ignored(self, options):
-        if self.is_change():
-            for change in self.collect():
-                if change.is_change() and not change.is_ignored(options):
+
+        """ If we have children and they are all ignored, then we are
+        ignored. Otherwise, we are not ignored """
+
+        changes = self.collect()
+        if changes:
+            for change in changes:
+                if not change.is_ignored(options):
                     return False
-            return True
+            else:
+                return True
         else:
             return False
 
