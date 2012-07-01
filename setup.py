@@ -196,6 +196,7 @@ class pylint_cmd(Command):
 
     def announce_overview(self, linter, report_fn):
         from itertools import izip
+        import sys
 
         stats = linter.stats
 
@@ -212,6 +213,11 @@ class pylint_cmd(Command):
             self.announce(" overall score: %.1f%%" % (note * 10), 2)
 
         self.announce(" full details at %s" % report_fn, 2)
+
+        errs = stats.get('error', 0)
+        if errs:
+            self.warn("There were %i errors, terminating" % errs)
+            sys.exit(1)
 
 
     def run_linter(self):
