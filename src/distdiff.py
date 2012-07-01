@@ -31,8 +31,7 @@ from itertools import izip_longest
 from os.path import join
 
 from javatools import unpack_classfile
-from .change import Change, SuperChange
-from .change import Addition, Removal
+from .change import SuperChange, Addition, Removal
 from .change import squash, yield_sorted_by_type
 from .classdiff import JavaClassChange, JavaClassReport
 from .dirutils import compare, fnmatches
@@ -61,16 +60,15 @@ TEXT_PATTERNS = (
 
 
 
-class DistContentChange(Change):
+class DistContentChange(SuperChange):
 
     label = "Distributed Content"
 
 
     def __init__(self, ldir, rdir, entry, change=True):
-        Change.__init__(self, ldir, rdir)
+        SuperChange.__init__(self, ldir, rdir)
         self.entry = entry
         self.changed = change
-        self.lineending = False
 
 
     def left_fn(self):
@@ -89,13 +87,18 @@ class DistContentChange(Change):
         return open(self.right_fn(), mode)
 
 
+    def collect_impl(self):
+        return tuple()
+
+
     def get_description(self):
         c = ("has changed","is unchanged")[not self.is_change()]
         return "%s %s: %s" % (self.label, c, self.entry)
 
 
     def is_ignored(self, options):
-        return fnmatches(self.entry, *options.ignore_filenames)
+        return (fnmatches(self.entry, *options.ignore_filenames) or
+                SuperChange.is_ignored(self, options))
 
 
 
@@ -159,13 +162,12 @@ class DistTextChange(DistContentChange):
 
 
 
-class DistManifestChange(SuperChange, DistContentChange):
+class DistManifestChange(DistContentChange):
 
     label = "Distributed Manifest"
 
 
     def __init__(self, ldata, rdata, entry, change=True):
-        SuperChange.__init__(self, ldata, rdata)
         DistContentChange.__init__(self, ldata, rdata, entry, change)
 
 
@@ -183,13 +185,12 @@ class DistManifestChange(SuperChange, DistContentChange):
 
 
 
-class DistJarChange(SuperChange, DistContentChange):
+class DistJarChange(DistContentChange):
 
     label = "Distributed JAR"
 
 
     def __init__(self, ldata, rdata, entry, change=True):
-        SuperChange.__init__(self, ldata, rdata)
         DistContentChange.__init__(self, ldata, rdata, entry, change)
 
 
@@ -234,12 +235,11 @@ class DistJarRemoved(DistContentRemoved):
 
 
 
-class DistClassChange(SuperChange, DistContentChange):
+class DistClassChange(DistContentChange):
     label = "Distributed Java Class"
 
 
     def __init__(self, ldata, rdata, entry, change=True):
-        SuperChange.__init__(self, ldata, rdata)
         DistContentChange.__init__(self, ldata, rdata, entry, change)
 
 
