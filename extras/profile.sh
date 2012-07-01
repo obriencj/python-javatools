@@ -1,17 +1,27 @@
 #! /bin/sh
 
 
+
+# Grabs two copies of JBoss AS (6.0.0 and 6.1.0) and uses them to
+# produce a timed, multi-processing-enabled run of distdiff with all
+# reports enabled, and a profiled (via cProfile) single-process run of
+# distdiff with all reports enabled.
+
+
+# this is currently the closest that we come to having test-suite
+# coverage.
+
+
+
 PROFILE_DIR=build/profiling
 
+SAMPLE_URL_LEFT=http://sourceforge.net/projects/jboss/files/JBoss/JBoss-6.0.0.Final/jboss-as-distribution-6.0.0.Final.zip/download
+SAMPLE_FILE_LEFT=$PROFILE_DIR/jboss-as-distribution-6.0.0.Final.zip
+SAMPLE_DIR_LEFT=$PROFILE_DIR/jboss-6.0.0.Final
 
-SAMPLE_URL_LEFT=http://download.jboss.org/jbossas/7.0/jboss-as-7.0.2.Final/jboss-as-web-7.0.2.Final.zip
-SAMPLE_FILE_LEFT=$PROFILE_DIR/jboss-as-web-7.0.2.Final.zip
-SAMPLE_DIR_LEFT=$PROFILE_DIR/jboss-as-web-7.0.2.Final
-
-
-SAMPLE_URL_RIGHT=http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/jboss-as-7.1.1.Final.zip
-SAMPLE_FILE_RIGHT=$PROFILE_DIR/jboss-as-7.1.1.Final.zip
-SAMPLE_DIR_RIGHT=$PROFILE_DIR/jboss-as-7.1.1.Final
+SAMPLE_URL_RIGHT=http://download.jboss.org/jbossas/6.1/jboss-as-distribution-6.1.0.Final.zip
+SAMPLE_FILE_RIGHT=$PROFILE_DIR/jboss-as-distribution-6.1.0.Final.zip
+SAMPLE_DIR_RIGHT=$PROFILE_DIR/jboss-6.1.0.Final
 
 
 
@@ -37,12 +47,9 @@ echo "Building"
 
 
 
-export PYTHONPATH=build/lib/
-
-
-
 echo "Running full-speed report for timing"
 
+PYTHONPATH=build/lib/ \
 /usr/bin/time -v -o $PROFILE_DIR/distdiff.time \
     build/scripts-2.7/distdiff \
     -q --show-ignored \
@@ -61,6 +68,7 @@ cat $PROFILE_DIR/distdiff.time
 
 echo "Running single-process report for profiling dump"
 
+PYTHONPATH=build/lib/ \
 python -m cProfile -o $PROFILE_DIR/distdiff.dump \
     build/scripts-2.7/distdiff \
     -q --show-ignored --processes=0 \
@@ -74,8 +82,8 @@ python -m cProfile -o $PROFILE_DIR/distdiff.dump \
 
 
 
-unset PYTHONPATH
 echo "Done!"
+
 
 
 #
