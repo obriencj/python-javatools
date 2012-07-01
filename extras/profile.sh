@@ -25,6 +25,10 @@ SAMPLE_DIR_RIGHT=$PROFILE_DIR/jboss-6.1.0.Final
 
 
 
+mkdir -p $PROFILE_DIR
+
+
+
 echo "Fetching sample data if needed"
 if test ! -d "$SAMPLE_DIR_LEFT" ; then
     if test ! -f "$SAMPLE_FILE_LEFT" ; then
