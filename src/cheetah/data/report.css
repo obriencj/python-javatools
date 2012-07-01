@@ -57,6 +57,7 @@ td.const-value {
 
 caption, th {
     color: black;
+    vertical-align: top;
 }
 
 ul.breadcrumbs li {
