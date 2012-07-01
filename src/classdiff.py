@@ -876,12 +876,12 @@ def _opt_cb_ignore(_opt, _opt_str, value, parser):
 
     ignore = getattr(options, "ignore", None)
     if ignore is None:
-        options.ignore = value
-    else:
-        options.ignore = ",".join((value,ignore))
+        options.ignore = ignore = list()
 
     ign = (i.strip() for i in value.split(","))
-    for i in (i for i in ign if i):
+    ign = (i for i in ign if i)
+    for i in ign:
+        ignore.append(i)
         iopt_str = "--ignore-" + i.replace("_","-")
         iopt = parser.get_option(iopt_str)
         if iopt:
