@@ -65,8 +65,7 @@ lastrow = (rowspan - min(len(left_code), len(right_code)))
 <% offset, code, args = lcode %>
 <td><%= offset %></td>
 <td><%= get_opname_by_code(code) %></td>
-<td><%= ((has_const_arg(code)
-          and ldata.cpool.pretty_const(args[0])[1])
+<td><%= ((has_const_arg(code) and ("#%s" % args[0]))
          or ", ".join(map(str, args))) %></td>
 #else
 #if not last
@@ -86,8 +85,7 @@ lastrow = (rowspan - min(len(left_code), len(right_code)))
 <% offset, code, args = rcode %>
 <td><%= offset %></td>
 <td><%= get_opname_by_code(code) %></td>
-<td><%= ((has_const_arg(code)
-          and rdata.cpool.pretty_const(args[0])[1])
+<td><%= ((has_const_arg(code) and ("#%s" % args[0]))
          or ", ".join(map(str, args))) %></td>
 #else
 #if not last
@@ -143,8 +141,7 @@ first = True
 #end if
 <td><%= offset %></td>
 <td><%= get_opname_by_code(code) %></td>
-<td><%= ((has_const_arg(code)
-          and ldata.cpool.pretty_const(args[0])[1])
+<td><%= ((has_const_arg(code) and ("#%s" % args[0]))
          or ", ".join(map(str, args))) %></td>
 </tr>
 <%
