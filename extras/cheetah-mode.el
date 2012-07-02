@@ -1,7 +1,9 @@
 ;; updated derivation of cheetah-mode
 ;; original from http://www.emacswiki.org/emacs/CheetahMode
 ;;
-;; updated to understand block and implements, possibly with further hacking later.
+;; updated to understand block and implements, possibly with further
+;; hacking later.
+;;
 ;; wishlist: make PSP <% %> sections look like python-mode
 
 (define-derived-mode cheetah-mode html-mode "Cheetah"
@@ -9,7 +11,7 @@
   (font-lock-add-keywords
    nil
    '(
-     ("\\(#\\(from\\|else\\|include\\|extends\\|implements\\|block\\|set\\|def\\|import\\|for\\|if\\|end\\)+\\)\\>" 1 font-lock-type-face)
+     ("\\(#\\(from\\|else\\|include\\|extends\\|implements\\|block\\|set\\|def\\|import\\|for\\|if\\|elif\\|end\\)+\\)\\>" 1 font-lock-type-face)
      ("\\(#\\(from\\|for\\|end\\)\\).*\\<\\(for\\|import\\|block\\|def\\|if\\|in\\)\\>" 3 font-lock-type-face)
      ("\\(##.*\\)\n" 1 font-lock-comment-face)
      ("\\(\\$\\(?:\\sw\\|}\\|{\\|\\s_\\)+\\)" 1 font-lock-variable-name-face))
