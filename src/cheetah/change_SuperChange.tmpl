@@ -3,13 +3,19 @@
 
 
 #block details
+#if $change.collect()
+$subchanges
+#end if
+#end block
+
+
+
 #block subchanges
-<div class="subchanges">
-#for $child in $change.collect()
-$render_change($child)
+<div class="collect">
+#for child in $change.collect
+$render_change(child)
 #end for
 </div>
-#end block
 #end block
 
 

@@ -1,29 +1,35 @@
+#from xml.sax.saxutils import escape
+
+
 <%
 ch = getattr(self, "change")
 opts = getattr(self, "options")
 
-cl = list()
+cl = ["Change"]
 cl.append(type(ch).__name__)
 
 if ch.is_change():
-    cl.append("changed")
+    cl.append("is_changed")
     if ch.is_ignored(opts):
-        cl.append("ignored")
+        cl.append("is_ignored")
 else:
-    cl.append("unchanged")
+    cl.append("is_unchanged")
 
 cl = " ".join(cl)
 %>
 
+
 <div class="<%= cl %>">
 #block description
-#from xml.sax.saxutils import escape
-$escape($change.get_description())
+<div class="description">
+$escape($change.label)
+</div>
 #end block
 
 #block details
 #end block
 </div>
+
 
 ##
 ## The end.

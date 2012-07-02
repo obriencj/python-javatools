@@ -7,17 +7,23 @@ div {
 }
 
 
-.unchanged {
+.Change .description {
+    margin: 0;
+    font: 12pt sans;
+}
+
+
+.is_unchanged {
     color: green;
 }
 
 
-.changed {
+.is_changed {
     color: red;
 }
 
 
-.ignored {
+.is_ignored {
     color: orange;
 }
 
@@ -39,9 +45,8 @@ div {
 
 .lrdata {
     min-width: 20em;
-    max-width: 90%;
     padding: 0 2em 1em 0;
-    margin: 0;
+    margin: 0 2em;
 }
 
 

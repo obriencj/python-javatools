@@ -1,6 +1,20 @@
-#extends change_Change
+#extends subreport
 #from javatools.classdiff import pretty_merge_constants
 #from xml.sax.saxutils import escape
+
+
+
+#block details
+<div class="details">
+<div class="lrdata">
+#if $change.is_change()
+$render_dual_constant_pool($change.get_ldata(), $change.get_rdata())
+#else
+$render_constant_pool($change.pretty_ldata())
+#end if
+</div>
+</div>
+#end block
 
 
 
@@ -59,20 +73,6 @@ row_class = (" changed")[(lt, lv) == (rt, rv)]
 
 </table>
 #end def
-
-
-
-#block details
-<div class="details">
-<div class="lrdata">
-#if $change.is_change()
-$render_dual_constant_pool($change.get_ldata(), $change.get_rdata())
-#else
-$render_constant_pool($change.pretty_ldata())
-#end if
-</div>
-</div>
-#end block
 
 
 
