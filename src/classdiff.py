@@ -553,6 +553,20 @@ class MethodCodeChange(SuperChange):
 
 
 
+class MethodDeprecationChange(GenericChange):
+
+    label = "Method deprecation"
+
+
+    def fn_data(self, c):
+        return c.is_deprecated()
+
+
+    def is_ignored(self, o):
+        return o.ignore_deprecated
+
+
+
 class MethodChange(MemberSuperChange):
 
     label = "Method"
@@ -565,6 +579,7 @@ class MethodChange(MemberSuperChange):
                     MethodAccessflagsChange,
                     MethodExceptionsChange,
                     MethodAbstractChange,
+                    MethodDeprecationChange,
                     MethodCodeChange)
 
 
@@ -635,6 +650,20 @@ class FieldConstvalueChange(GenericChange):
 
 
 
+class FieldDeprecationChange(GenericChange):
+
+    label = "Field deprecation"
+
+
+    def fn_data(self, c):
+        return c.is_deprecated()
+
+
+    def is_ignored(self, o):
+        return o.ignore_deprecated
+
+
+
 class FieldChange(MemberSuperChange):
 
     label = "Field"
@@ -644,7 +673,8 @@ class FieldChange(MemberSuperChange):
                     FieldTypeChange,
                     FieldSignatureChange,
                     FieldAccessflagsChange,
-                    FieldConstvalueChange)
+                    FieldConstvalueChange,
+                    FieldDeprecationChange)
 
 
 
