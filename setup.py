@@ -74,7 +74,9 @@ class build_py(_build_py):
 
 
     def build_template(self, template, template_file, package):
-        # Compile the cheetah template in src into a python file in build
+
+        """ Compile the cheetah template in src into a python file in
+        build """
 
         from Cheetah.Compiler import Compiler
         from os import makedirs
