@@ -196,9 +196,7 @@ class DistJarChange(DistContentChange):
 
     def collect_impl(self):
         if self.is_change():
-            lf = join(self.ldata, self.entry)
-            rf = join(self.rdata, self.entry)
-            yield JarChange(lf, rf)
+            yield JarChange(self.left_fn(), self.right_fn())
 
 
     def get_description(self):
@@ -217,11 +215,8 @@ class DistJarReport(DistJarChange):
 
 
     def collect_impl(self):
-        lf = join(self.ldata, self.entry)
-        rf = join(self.rdata, self.entry)
-
         if self.is_change():
-            yield JarReport(lf, rf, self.reporter)
+            yield JarReport(self.left_fn(), self.right_fn(), self.reporter)
 
 
 
@@ -244,11 +239,8 @@ class DistClassChange(DistContentChange):
 
     def collect_impl(self):
         if self.is_change():
-            lf = join(self.ldata, self.entry)
-            rf = join(self.rdata, self.entry)
-
-            linfo = unpack_classfile(lf)
-            rinfo = unpack_classfile(rf)
+            linfo = unpack_classfile(self.left_fn())
+            rinfo = unpack_classfile(self.right_fn())
 
             yield JavaClassChange(linfo, rinfo)
 
@@ -270,11 +262,8 @@ class DistClassReport(DistClassChange):
 
     def collect_impl(self):
         if self.is_change():
-            lf = join(self.ldata, self.entry)
-            rf = join(self.rdata, self.entry)
-
-            linfo = unpack_classfile(lf)
-            rinfo = unpack_classfile(rf)
+            linfo = unpack_classfile(self.left_fn())
+            rinfo = unpack_classfile(self.right_fn())
 
             yield JavaClassReport(linfo, rinfo, self.reporter)
 
@@ -337,7 +326,7 @@ class DistChange(SuperChange):
                 elif event == RIGHT:
                     yield DistJarAdded(ld, rd, entry)
                 elif event == DIFF:
-                    yield DistJarChange(ld, rd, entry)
+                    yield DistJarChange(ld, rd, entry, True)
                 elif event == SAME:
                     yield DistJarChange(ld, rd, entry, False)
 
@@ -347,7 +336,7 @@ class DistChange(SuperChange):
                 elif event == RIGHT:
                     yield DistClassAdded(ld, rd, entry)
                 elif event == DIFF:
-                    yield DistClassChange(ld, rd, entry)
+                    yield DistClassChange(ld, rd, entry, True)
                 elif event == SAME:
                     yield DistClassChange(ld, rd, entry, False)
 
@@ -367,7 +356,7 @@ class DistChange(SuperChange):
                 elif event == RIGHT:
                     yield DistContentAdded(ld, rd, entry)
                 elif event == DIFF:
-                    yield DistManifestChange(ld, rd, entry)
+                    yield DistManifestChange(ld, rd, entry, True)
                 elif event == SAME:
                     yield DistManifestChange(ld, rd, entry, False)
 
@@ -377,7 +366,7 @@ class DistChange(SuperChange):
                 elif event == RIGHT:
                     yield DistContentAdded(ld, rd, entry)
                 elif event == DIFF:
-                    yield DistContentChange(ld, rd, entry)
+                    yield DistContentChange(ld, rd, entry, True)
                 elif event == SAME:
                     yield DistContentChange(ld, rd, entry, False)
 
