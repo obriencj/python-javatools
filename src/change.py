@@ -258,7 +258,7 @@ class GenericChange(Change):
     def fn_differ(self, left_data, right_data):
 
         """ override to provide the check for whether get_ldata() and
-        get_rdata() differ.  defaults to an equality check"""
+        get_rdata() differ. defaults to an inequality (!=) check"""
 
         return left_data != right_data
 
@@ -319,10 +319,8 @@ class GenericChange(Change):
         constructed using self.fn_pretty to create human-readable
         versions of the data that changed. """
 
-        left = self.get_ldata()
-        right = self.get_rdata()
+        if self.fn_differ(self.get_ldata(), self.get_rdata()):
 
-        if self.fn_differ(left, right):
             left = self.pretty_ldata_desc()
             right = self.pretty_rdata_desc()
             msg = "%s changed: %s to %s" % (self.label, left, right)

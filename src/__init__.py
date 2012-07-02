@@ -133,6 +133,17 @@ class JavaConstantPool(object):
 
 
 
+    def __eq__(self, other):
+        return (isinstance(other, JavaConstantPool) and
+                (self.consts == other.consts))
+
+
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+
     def unpack(self, unpacker):
 
         """ Unpacks the constant pool from an unpacker stream """
@@ -519,7 +530,10 @@ class JavaClassInfo(object):
 
     def is_super(self):
 
-        """ class has the Super flag set """
+        """ class has the Super flag set.
+
+        This flag is used by the JVM to differentiate the behavior in
+        the method resolution order of the class. """
 
         return self.access_flags & ACC_SUPER
 
@@ -1542,15 +1556,13 @@ class JavaExceptionInfo(object):
                 self.handler_pc, self.get_catch_type())
 
 
-    def __hash__(self):
-        return hash(self.info())
-
-
     def __eq__(self, other):
-        if isinstance(other, JavaExceptionInfo):
-            return self.info() == other.info()
-        else:
-            return self.info() == other
+        return (isinstance(other, JavaExceptionInfo) and
+                (self.info() == other.info()))
+
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
     def __str__(self):
