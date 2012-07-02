@@ -554,6 +554,7 @@ class MethodCodeChange(SuperChange):
 
 
 class MethodChange(MemberSuperChange):
+
     label = "Method"
 
 
@@ -569,6 +570,7 @@ class MethodChange(MemberSuperChange):
 
 
 class FieldNameChange(GenericChange):
+
     label = "Field name"
 
 
@@ -578,6 +580,7 @@ class FieldNameChange(GenericChange):
 
 
 class FieldTypeChange(GenericChange):
+
     label = "Field type"
 
 
@@ -591,6 +594,7 @@ class FieldTypeChange(GenericChange):
 
 
 class FieldSignatureChange(GenericChange):
+
     label = "Field Generic Signature"
 
 
@@ -600,6 +604,7 @@ class FieldSignatureChange(GenericChange):
 
 
 class FieldAccessflagsChange(GenericChange):
+
     label = "Field accessflags"
 
 
@@ -617,6 +622,7 @@ class FieldAccessflagsChange(GenericChange):
 
 
 class FieldConstvalueChange(GenericChange):
+
     label = "Field constvalue"
 
 
@@ -630,6 +636,7 @@ class FieldConstvalueChange(GenericChange):
 
 
 class FieldChange(MemberSuperChange):
+
     label = "Field"
 
 
@@ -642,17 +649,21 @@ class FieldChange(MemberSuperChange):
 
 
 class FieldAdded(MemberAdded):
+
     label = "Field added"
 
 
 
 class FieldRemoved(MemberRemoved):
+
     label = "Field removed"
 
 
 
 class ClassFieldsChange(ClassMembersChange):
+
     label = "Fields"
+
 
     member_added = FieldAdded
     member_removed = FieldRemoved
@@ -669,17 +680,21 @@ class ClassFieldsChange(ClassMembersChange):
 
 
 class MethodAdded(MemberAdded):
+
     label = "Method added"
 
 
 
 class MethodRemoved(MemberRemoved):
+
     label = "Method removed"
 
 
 
 class ClassMethodsChange(ClassMembersChange):
+
     label = "Methods"
+
 
     member_added = MethodAdded
     member_removed = MethodRemoved
@@ -691,17 +706,18 @@ class ClassMethodsChange(ClassMembersChange):
         return ClassMembersChange.collect_impl(self)
 
 
-    def __init__(self,lclass,rclass):
-        ClassMembersChange.__init__(self,lclass.methods,rclass.methods)
+    def __init__(self, lclass, rclass):
+        ClassMembersChange.__init__(self, lclass.methods, rclass.methods)
 
 
 
 class ClassConstantPoolChange(GenericChange):
+
     label = "Constant pool"
 
 
     def fn_data(self, c):
-        return c.cpool.consts
+        return c.cpool
 
 
     def fn_pretty(self, c):
