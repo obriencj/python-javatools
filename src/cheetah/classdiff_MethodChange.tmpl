@@ -3,12 +3,16 @@
 #from xml.sax.saxutils import escape
 
 
-#block description
-<h3>$change.get_ldata().get_identifier()</h3>
 
-<div class="description">
-$escape($change.get_description())
-</div>
+#block description
+<%
+change = getattr(self, "change")
+ldata = change.get_ldata()
+a = ldata.get_name()
+b = ", ".join(ldata.pretty_arg_types())
+c = ldata.pretty_type()
+%>
+<h3><%= escape("%s(%s):%s" % (a, b, c)) %></h3>
 #end block
 
 
@@ -23,17 +27,29 @@ data = collect_by_typename(change.collect())
 <div class="lrdata">
 
 <table class="left-headers">
-$sub_name(data["MethodNameChange"][0])
-$sub_type(data["MethodTypeChange"][0])
-$sub_args(data["MethodParametersChange"][0])
-$sub_flags(data["MethodAccessflagsChange"][0])
-$sub_signature(data["MethodSignatureChange"][0])
-$sub_throws(data["MethodExceptionsChange"][0])
-$sub_abstract(data["MethodAbstractChange"][0])
-$sub_deprecation(data["MethodDeprecationChange"][0])
+$sub_name(data.pop("MethodNameChange")[0])
+$sub_type(data.pop("MethodTypeChange")[0])
+$sub_args(data.pop("MethodParametersChange")[0])
+$sub_flags(data.pop("MethodAccessflagsChange")[0])
+$sub_signature(data.pop("MethodSignatureChange")[0])
+$sub_throws(data.pop("MethodExceptionsChange")[0])
+$sub_abstract(data.pop("MethodAbstractChange")[0])
+$sub_deprecation(data.pop("MethodDeprecationChange")[0])
 </table>
 
 </div>
+</div>
+#end block
+
+
+
+#block collect
+<%
+change = getattr(self, "change")
+data = collect_by_typename(change.collect())
+%>
+<div class="collect">
+$render_change(data.pop("MethodCodeChange")[0])
 </div>
 #end block
 
@@ -44,15 +60,15 @@ $sub_deprecation(data["MethodDeprecationChange"][0])
 #if subch.is_change()
 <tr>
 <th rowspan="2">$label</th>
-<td><%= subch.pretty_ldata() %></td>
+<td><%= escape(subch.pretty_ldata()) %></td>
 </tr>
 <tr>
-<td><%= subch.pretty_rdata() %></td>
+<td><%= escape(subch.pretty_rdata()) %></td>
 </tr>
 #else
 <tr>
 <th>$label</th>
-<td><%= subch.pretty_ldata() %>
+<td><%= escape(subch.pretty_ldata()) %>
 </tr>
 #end if
 #end def
@@ -144,7 +160,7 @@ $sub_deprecation(data["MethodDeprecationChange"][0])
 
 
 
-#def sub_throw(subch)
+#def sub_throws(subch)
 #set label = "Exceptions"
 #if subch.is_change()
 <tr>

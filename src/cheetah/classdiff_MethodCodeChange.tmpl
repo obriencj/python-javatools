@@ -39,34 +39,34 @@ first = True
 last = False
 
 left_line = None
-left_code = tuple()
+left_dis = tuple()
 if left is not None:
-    left_line, left_code = left
+    left_line, left_dis = left
 
 right_line = None
-right_code = tuple()
+right_dis = tuple()
 if right is not None:
-    right_line, right_code = right
+    right_line, right_dis = right
 
-rowspan = max(len(left_code), len(right_code))
-lastrow = (rowspan - min(len(left_code), len(right_code)))
+rowspan = max(len(left_dis), len(right_dis))
+lastrow = (rowspan - min(len(left_dis), len(right_dis)))
 %>
-#for lcode, rcode in izip_longest(left_code, right_code)
+#for l_instruction, r_instruction in izip_longest(left_dis, right_dis)
 <tr>
 
 #if first
 <td rowspan="<%= rowspan %>"><%= rel_line %></td>
 #end if
 
-#if lcode is not None
+#if l_instruction is not None
 #if first
 <td rowspan="<%= rowspan %>"><%= left[0] %></td>
 #end if
-<% offset, code, args = lcode %>
-<td><%= offset %></td>
-<td><%= get_opname_by_code(code) %></td>
-<td><%= ((has_const_arg(code) and ("#%s" % args[0]))
-         or ", ".join(map(str, args))) %></td>
+<% l_offset, l_code, l_args = l_instruction %>
+<td><%= l_offset %></td>
+<td><%= get_opname_by_code(l_code) %></td>
+<td><%= ((has_const_arg(l_code) and ("#%s" % l_args[0]))
+         or ", ".join(map(str, l_args))) %></td>
 #else
 #if not last
 #if first
@@ -78,15 +78,15 @@ lastrow = (rowspan - min(len(left_code), len(right_code)))
 #end if
 #end if
 
-#if rcode is not None
+#if r_instruction is not None
 #if first
 <td rowspan="<%= rowspan %>"><%= right[0] %></td>
 #end if
-<% offset, code, args = rcode %>
-<td><%= offset %></td>
-<td><%= get_opname_by_code(code) %></td>
-<td><%= ((has_const_arg(code) and ("#%s" % args[0]))
-         or ", ".join(map(str, args))) %></td>
+<% r_offset, r_code, r_args = r_instruction %>
+<td><%= r_offset %></td>
+<td><%= get_opname_by_code(r_code) %></td>
+<td><%= ((has_const_arg(r_code) and ("#%s" % r_args[0]))
+         or ", ".join(map(str, r_args))) %></td>
 #else
 #if not last
 #if first
@@ -165,7 +165,11 @@ $details_unchanged
 #end if
 </div>
 </div>
-$subchanges
+#end block
+
+
+
+#block collect
 #end block
 
 

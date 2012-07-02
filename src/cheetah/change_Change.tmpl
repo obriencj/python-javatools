@@ -20,14 +20,28 @@ cl = " ".join(cl)
 
 
 <div class="<%= cl %>">
+
 #block description
 <div class="description">
 $escape($change.label)
 </div>
 #end block
 
+
 #block details
 #end block
+
+
+#block collect
+#if $change.collect()
+<div class="collect">
+#for child in $change.collect()
+$render_change(child)
+#end for
+</div>
+#end if
+#end block
+
 </div>
 
 
