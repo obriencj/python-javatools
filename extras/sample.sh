@@ -18,19 +18,26 @@ DO_PROFILED=
 
 
 
+function run_help() {
+    echo "Usage: $0 [OPTIONS]"
+    echo "Fetches sample distributions and runs a full report"
+    echo
+    echo " Options:"
+    echo "   --help        print this message"
+    echo "   --time        run a timed report"
+    echo "   --profile     run a profiled report"
+    echo "   --all         run both timed and profiled reports"
+    echo "   --output=DIR  directory to write work into"
+    echo "                 default: $OUTPUT_DIR"
+    echo
+}
+
+
+
 for arg in "$@" ; do
     case "$arg" in 
 	--help)
-	    echo "Usage: $0 [OPTIONS]"
-	    echo "Fetches sample distributions and runs a full report"
-	    echo
-	    echo " Options:"
-	    echo "   --help     print this message"
-	    echo "   --time     run a timed report"
-	    echo "   --profile  run a profiled report"
-            echo "   --all      run both timed and profiled reports"
-	    echo "   --output=DIR directory to write work into"
-	    echo
+	    run_help
 	    exit 1
 	    ;;
 
@@ -52,6 +59,13 @@ for arg in "$@" ; do
 	    ;;
     esac
 done
+
+
+
+if test ! "$DO_TIMED" -o ! "DO_PROFILED" ; then
+    run_help
+    exit 1
+fi
 
 
 
