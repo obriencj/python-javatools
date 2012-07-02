@@ -243,7 +243,7 @@ class CodeAbsoluteLinesChange(GenericChange):
 
 
     def fn_data(self, c):
-        return c.get_linenumbertable()
+        return (c and c.get_linenumbertable()) or tuple()
 
 
     def is_ignored(self, options):
@@ -257,7 +257,7 @@ class CodeRelativeLinesChange(GenericChange):
 
 
     def fn_data(self, c):
-        return c.get_relativelinenumbertable()
+        return (c and c.get_relativelinenumbertable()) or tuple()
 
 
     def is_ignored(self, options):
@@ -271,7 +271,7 @@ class CodeStackChange(GenericChange):
 
 
     def fn_data(self, c):
-        return c.max_stack
+        return (c and c.max_stack) or 0
 
 
 
@@ -281,7 +281,7 @@ class CodeLocalsChange(GenericChange):
 
 
     def fn_data(self, c):
-        return c.max_locals
+        return (c and c.max_locals) or 0
 
 
 
@@ -291,12 +291,12 @@ class CodeExceptionChange(GenericChange):
 
 
     def fn_data(self, c):
-        return c.exceptions
+        return (c and c.exceptions) or tuple()
 
 
     def fn_pretty(self, c):
         a = list()
-        for e in c.exceptions:
+        for e in self.fn_data(c):
             p = (e.start_pc, e.end_pc,
                  e.handler_pc, e.pretty_catch_type())
             a.append(p)
@@ -353,6 +353,9 @@ class CodeConstantsChange(GenericChange):
         right = self.rdata
         offsets = list()
 
+        if left is None or right is None:
+            return True, None
+
         if len(left.code) != len(right.code):
             # code body change, can't determine constants
             return True, None
@@ -388,14 +391,14 @@ class CodeBodyChange(GenericChange):
 
 
     def fn_data(self, c):
-        return c.disassemble()
+        return (c and c.disassemble()) or tuple()
 
 
     def fn_pretty(self, c):
         from javatools import opcodes
 
         pr = list()
-        for offset, code, args in c.disassemble():
+        for offset, code, args in self.fn_data(c):
             name = opcodes.get_opname_by_code(code)
             pr.append((offset, name, args))
 
@@ -407,6 +410,9 @@ class CodeBodyChange(GenericChange):
 
         left = self.ldata
         right = self.rdata
+
+        if left is None or right is None:
+            return True, None
 
         if len(left.code) != len(right.code):
             desc = "Code length changed from %r to %r" % \
@@ -533,13 +539,12 @@ class MethodCodeChange(SuperChange):
 
 
     def collect_impl(self):
-        # if one side has gone abstract, don't bother trying to collect
-        # subchanges
+        # if both sides are abstract, don't bother collecting subchanges
 
-        if None not in (self.ldata, self.rdata):
-            return SuperChange.collect_impl(self)
-        else:
+        if self.ldata == self.rdata == None:
             return tuple()
+        else:
+            return SuperChange.collect_impl(self)
 
 
     def check_impl(self):

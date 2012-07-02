@@ -1,0 +1,208 @@
+#extends change_Change
+#from javatools.change import collect_by_typename
+#from xml.sax.saxutils import escape
+
+
+#block description
+<h3>$change.get_ldata().get_identifier()</h3>
+
+<div class="description">
+$escape($change.get_description())
+</div>
+#end block
+
+
+
+#block details
+<%
+change = getattr(self, "change")
+data = collect_by_typename(change.collect())
+%>
+
+<div class="details">
+<div class="lrdata">
+
+<table class="left-headers">
+$sub_name(data["MethodNameChange"][0])
+$sub_type(data["MethodTypeChange"][0])
+$sub_args(data["MethodParametersChange"][0])
+$sub_flags(data["MethodAccessflagsChange"][0])
+$sub_signature(data["MethodSignatureChange"][0])
+$sub_throws(data["MethodExceptionsChange"][0])
+$sub_abstract(data["MethodAbstractChange"][0])
+$sub_deprecation(data["MethodDeprecationChange"][0])
+</table>
+
+</div>
+</div>
+#end block
+
+
+
+#def sub_name(subch)
+#set label = "Method Name"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td><%= subch.pretty_ldata() %></td>
+</tr>
+<tr>
+<td><%= subch.pretty_rdata() %></td>
+</tr>
+#else
+<tr>
+<th>$label</th>
+<td><%= subch.pretty_ldata() %>
+</tr>
+#end if
+#end def
+
+
+
+#def sub_type(subch)
+#set label = "Return Type"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td><%= subch.pretty_ldata() %></td>
+</tr>
+<tr>
+<td><%= subch.pretty_rdata() %></td>
+</tr>
+#else
+<tr>
+<th>$label</th>
+<td><%= subch.pretty_ldata() %>
+</tr>
+#end if
+#end def
+
+
+
+#def sub_args(subch)
+#set label = "Argument Types"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td>(<%= ", ".join(subch.pretty_ldata()) %>)</td>
+</tr>
+<tr>
+<td>(<%= ", ".join(subch.pretty_rdata()) %>)</td>
+</tr>
+#else
+<tr>
+<th>$label</th>
+<td>(<%= ", ".join(subch.pretty_ldata()) %>)</td>
+</tr>
+#end if
+#end def
+
+
+
+#def sub_flags(subch)
+#set label = "Method Flags"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td><%= "0x%04x" % subch.get_ldata() %>:
+    <%= " ".join(subch.pretty_ldata()) %></td>
+</tr>
+<tr>
+<td class="is_changed">
+<%= "0x%04x" % subch.get_rdata() %>:
+<%= " ".join(subch.pretty_rdata()) %></td>
+</tr>
+#else
+<tr>
+<th>$label</th>
+<td><%= "0x%04x" % subch.get_ldata() %>:
+    <%= " ".join(subch.pretty_ldata()) %></td>
+</tr>
+#end if
+#end def
+
+
+
+#def sub_signature(subch)
+#set label = "Generics Signature"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td><%= escape(subch.pretty_ldata() or "(None)") %></td>
+</tr>
+<tr>
+<td class="is_changed">
+ <%= escape(subch.pretty_rdata() or "(None)") %></td>
+</tr>
+#elif subch.get_ldata()
+<tr>
+<th>$label</th>
+<td><%= escape(subch.pretty_ldata()) %></td>
+</tr>
+#end if
+#end def
+
+
+
+#def sub_throw(subch)
+#set label = "Exceptions"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td>(<%= ", ".join(subch.pretty_ldata()) %>)</td>
+</tr>
+<tr>
+<td class="is_changed">(<%= ", ".join(subch.pretty_rdata()) %>)</td>
+</tr>
+#elif subch.get_ldata()
+<tr>
+<th>$label</th>
+<td>(<%= ", ".join(subch.pretty_ldata()) %>)</td>
+</tr>
+#end if
+#end def
+
+
+
+#def sub_abstract(subch)
+#set label = "Abstract"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td><%= subch.pretty_ldata() %></td>
+</tr>
+<tr>
+<td class="is_changed"><%= subch.pretty_rdata() %></td>
+</tr>
+#elif subch.get_ldata()
+<tr>
+<th>$label</th>
+<td><%= subch.pretty_ldata() %></td>
+</tr>
+#end if
+#end def
+
+
+
+#def sub_deprecation(subch)
+#set label = "Deprecated"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td><%= subch.pretty_ldata() %></td>
+</tr>
+<tr>
+<td class="is_changed"><%= subch.pretty_rdata() %></td>
+</tr>
+#elif subch.get_ldata()
+<tr>
+<th>$label</th>
+<td><%= subch.pretty_ldata() %></td>
+</tr>
+#end if
+#end def
+
+
+
+##
+## The end.
