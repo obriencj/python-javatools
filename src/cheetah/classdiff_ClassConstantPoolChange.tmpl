@@ -4,9 +4,8 @@
 
 
 
-#def render_constant_pool(caption, consts)
+#def render_constant_pool(consts)
 <table class="constant-pool">
-<caption><%= caption %></caption>
 <thead>
 <tr>
 <th>Index</th>
@@ -28,9 +27,8 @@
 
 
 
-#def render_dual_constant_pool(caption, left, right)
+#def render_dual_constant_pool(left, right)
 <table class="dual-constant-pool">
-<caption><%= caption %></caption>
 <thead>
 <tr>
 <th>Index</th>
@@ -68,10 +66,9 @@ row_class = (" changed")[(lt, lv) == (rt, rv)]
 <div class="details">
 <div class="lrdata">
 #if $change.is_change()
-$render_dual_constant_pool("Constant Pools Changes",
-                           $change.ldata.cpool, $change.rdata.cpool)
+$render_dual_constant_pool($change.get_ldata(), $change.get_rdata())
 #else
-$render_constant_pool("Constant Pool Listing", $change.pretty_ldata())
+$render_constant_pool($change.pretty_ldata())
 #end if
 </div>
 </div>

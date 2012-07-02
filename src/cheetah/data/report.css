@@ -6,22 +6,27 @@ div {
     font: 10pt sans;
 }
 
+
 .unchanged {
     color: green;
 }
+
 
 .changed {
     color: red;
 }
 
+
 .ignored {
     color: orange;
 }
+
 
 .vertical {
     clear: none;
     float: left;
 }
+
 
 .vertical.ldata, .vertical.rdata {
     width: auto;
@@ -31,6 +36,7 @@ div {
     margin: 0;
 }
 
+
 .lrdata {
     min-width: 20em;
     max-width: 90%;
@@ -38,10 +44,12 @@ div {
     margin: 0;
 }
 
+
 table {
     border-collapse: collapse;
     color: black;
 }
+
 
 td {
     vertical-align: top;
@@ -49,16 +57,25 @@ td {
     padding: 0.2em 1em;
 }
 
+
 td.const-value {
     /* max-width: 24em; */
     word-wrap: break-word;
     font-family: "Verdana", "monospace";
 }
 
-caption, th {
+
+th {
     color: black;
     vertical-align: top;
+    padding: 0 1em;
 }
+
+
+table.left-headers th {
+    text-align: right;
+}
+
 
 ul.breadcrumbs li {
     border: thin solid grey;
@@ -67,6 +84,7 @@ ul.breadcrumbs li {
     padding: 0 0.5em;
     margin: 0;
 }
+
 
 ul.breadcrumbs a {
     text-decoration: none;
