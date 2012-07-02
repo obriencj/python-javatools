@@ -88,6 +88,10 @@ class DistContentChange(SuperChange):
 
 
     def collect_impl(self):
+
+        """ Content changes refer to more concrete children, but by
+        default are empty """
+
         return tuple()
 
 
@@ -164,11 +168,11 @@ class DistTextChange(DistContentChange):
 
 class DistManifestChange(DistContentChange):
 
+    """ A MANIFEST.MF file found in the directory structure of the
+    distribution """
+
+
     label = "Distributed Manifest"
-
-
-    def __init__(self, ldata, rdata, entry, change=True):
-        DistContentChange.__init__(self, ldata, rdata, entry, change)
 
 
     def collect_impl(self):
@@ -188,10 +192,6 @@ class DistManifestChange(DistContentChange):
 class DistJarChange(DistContentChange):
 
     label = "Distributed JAR"
-
-
-    def __init__(self, ldata, rdata, entry, change=True):
-        DistContentChange.__init__(self, ldata, rdata, entry, change)
 
 
     def collect_impl(self):
@@ -226,21 +226,20 @@ class DistJarReport(DistJarChange):
 
 
 class DistJarAdded(DistContentAdded):
+
     label = "Distributed JAR Added"
 
 
 
 class DistJarRemoved(DistContentRemoved):
+
     label = "Distributed JAR Removed"
 
 
 
 class DistClassChange(DistContentChange):
+
     label = "Distributed Java Class"
-
-
-    def __init__(self, ldata, rdata, entry, change=True):
-        DistContentChange.__init__(self, ldata, rdata, entry, change)
 
 
     def collect_impl(self):
@@ -300,8 +299,8 @@ class DistChange(SuperChange):
     label = "Distribution"
 
 
-    def __init__(self, l, r, shallow=False):
-        SuperChange.__init__(self, l, r)
+    def __init__(self, left, right, shallow=False):
+        SuperChange.__init__(self, left, right)
         self.shallow = shallow
 
 
