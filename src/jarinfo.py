@@ -63,6 +63,11 @@ class JarInfo(object):
         return (exc_type is None)
 
 
+    def open(self, entry, mode='r'):
+        from .ziputils import open_zip_entry
+        return open_zip_entry(self.get_zipfile(), entry, mode)
+
+
     def _collect_requires_provides(self):
         req = {}
         prov = {}
@@ -129,7 +134,7 @@ class JarInfo(object):
         """ fetch a class entry as a JavaClassInfo instance """
 
         from javatools import unpack_class
-        with self.get_zipfile().open(entry) as cfd:
+        with self.open(entry) as cfd:
             return unpack_class(cfd)
 
 
@@ -147,7 +152,7 @@ class JarInfo(object):
             return None
 
         mf = Manifest()
-        with zipfile.open(mf_entry) as data:
+        with self.open(mf_entry) as data:
             mf.parse(data)
         return mf
 

@@ -50,7 +50,6 @@ def fnmatches(entry, *pattern_list):
 
 
 
-
 def makedirsp(dirname):
 
     """ create dirname if it doesn't exist """
@@ -185,6 +184,49 @@ def collect_compare_into(left, right, added, removed, altered, same):
             group.append(filename)
 
     return (added, removed, altered, same)
+
+
+
+class ClosingContext(object):
+    #pylint: disable=R0903
+    # too few public methods (none)
+
+    """ A simple context manager which is created with an object
+    instance, and will return that instance from __enter__ and call
+    the close method on the instance in __exit__ """
+
+
+    def __init__(self, managed):
+        self.managed = managed
+
+
+    def __enter__(self):
+        return self.managed
+
+
+    def __exit__(self, exc_type, _exc_val, _exc_tb):
+        managed = self.managed
+        self.managed = None
+
+        if managed is not None and hasattr(managed, "close"):
+            managed.close()
+
+        return (exc_type is None)
+
+
+
+def closing(managed):
+
+    """ If the managed object already provides its own context
+    management via the __enter__ and __exit__ methods, it is returned
+    unchanged. However, if the instance does not, a ClosingContext
+    will be created to wrap it. When the ClosingContext exits, it will
+    call managed.close() """
+
+    if managed is None or hasattr(managed, "__enter__"):
+        return managed
+    else:
+        return ClosingContext(managed)
 
 
 

@@ -35,7 +35,7 @@ from .change import squash, yield_sorted_by_type
 from .classdiff import JavaClassChange, JavaClassReport
 from .dirutils import fnmatches
 from .manifest import Manifest, ManifestChange
-from .ziputils import compare_zips, open_zip
+from .ziputils import compare_zips, open_zip, open_zip_entry
 from .ziputils import LEFT, RIGHT, DIFF, SAME
 
 
@@ -74,11 +74,11 @@ class JarContentChange(Change):
 
 
     def open_left(self):
-        return self.ldata.open(self.entry)
+        return open_zip_entry(self.ldata, self.entry)
 
 
     def open_right(self):
-        return self.rdata.open(self.entry)
+        return open_zip_entry(self.rdata, self.entry)
 
 
     def get_description(self):

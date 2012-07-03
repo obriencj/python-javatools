@@ -23,7 +23,18 @@ license: LGPL
 
 
 
+from cStringIO import StringIO
+from itertools import izip_longest
+from zipfile import is_zipfile, ZipFile, ZipInfo, _EndRecData
+from zlib import crc32
+from os import walk
+from os.path import getsize, isdir, isfile, islink, join, relpath
 from .dirutils import LEFT, RIGHT, DIFF, SAME
+from .dirutils import closing
+
+
+
+_CHUNKSIZE = 2 ** 14
 
 
 
@@ -84,35 +95,28 @@ def _different(left, right, f):
 
 
 
-def _chunk(stream, size=10240):
-
-    """ yields chunked reads from stream in the given size. The last
-    chunk may be smaller than the rest """
-
-    d = stream.read(size)
-    while d:
-        yield d
-        d = stream.read(size)
+def open_chunks(filename, mode='rb', chunksize=_CHUNKSIZE):
+    with open(filename, mode) as stream:
+        data = stream.read(chunksize)
+        while data:
+            yield data
+            data = stream.read(chunksize)
 
 
 
-def _deep_different(left, right, f):
+def _deep_different(left, right, entry):
 
-    """ checks that entry f is identical between ZipFile instances
+    """ checks that entry is identical between ZipFile instances
     left and right """
 
-    from itertools import izip_longest
+    left = chunk_zip_entry(left, entry)
+    right = chunk_zip_entry(right, entry)
 
-    differ = False
-
-    with left.open(f) as lfd:
-        with right.open(f) as rfd:
-            for l,r in izip_longest(_chunk(lfd), _chunk(rfd)):
-                if l != r:
-                    differ = True
-                    break
-
-    return differ
+    for ldata, rdata in izip_longest(left, right):
+        if ldata != rdata:
+            return True
+    else:
+        return False
 
 
 
@@ -175,50 +179,49 @@ def collect_compare_zips_into(left, right, added, removed, altered, same):
 
 
 
-def is_zipfile(f):
+def is_zipstream(data):
 
-    """ just like zipfile.is_zipfile, but also works upon stream-like
-    objects (and not just filenames) """
+    """ just like zipfile.is_zipfile, but works upon buffers and
+    streams rather than filenames.
 
-    import zipfile
+    If data supports the read method, it will be treated as a stream
+    and read from to test whether it is a valid ZipFile.
 
-    ret = False
+    If data also supports the tell and seek methods, it will be
+    rewound after being tested."""
 
-    if isinstance(f, str):
-        ret = zipfile.is_zipfile(f)
+    if isinstance(data, (str, buffer)):
+        result = is_zipstream(StringIO(data))
 
-    elif hasattr(f, "read") and hasattr(f, "seek"):
-        if hasattr(f, "tell"):
-            t = f.tell()
-        else:
-            t = 0
+    elif hasattr(data, "read"):
+
+        tell = 0
+        if hasattr(data, "tell"):
+            tell = data.tell()
+
         try:
-            #pylint: disable=W0212
-            # unfortunately not otherwise available
-            ret = bool(zipfile._EndRecData(f))
+            result = bool(_EndRecData(data))
         except IOError:
-            ret = False
+            result = False
 
-        f.seek(t)
+        if hasattr(data, "seek"):
+            data.seek(tell)
 
     else:
-        raise TypeError("requies filename or stream-like object")
+        raise TypeError("requies str, buffer, or stream-like object")
 
-    return ret
+    return result
 
 
 
-def _crc32(fname):
+def file_crc32(filename):
 
-    """ gets the CRC32 of a file named fname """
+    """ calculate the CRC32 of the contents of filename """
 
-    import zlib
-
-    with open(fname, 'rb') as fd:
-        c = 0
-        for chunk in _chunk(fd):
-            c = zlib.crc32(chunk, c)
-    return c
+    check = 0
+    for data in open_chunks(filename, 'rb'):
+        check = crc32(data, check)
+    return check
 
 
 
@@ -226,10 +229,6 @@ def _collect_infos(dirname):
 
     """ Utility function used by ExplodedZipFile to generate ZipInfo
     entries for all of the files and directories under dirname """
-
-    from zipfile import ZipInfo
-    from os.path import relpath, join, getsize, islink, isfile
-    from os import walk
 
     for r, _ds, fs in walk(dirname):
         if not islink(r) and r != dirname:
@@ -252,7 +251,7 @@ def _collect_infos(dirname):
                 i.filename = relfn
                 i.file_size = getsize(df)
                 i.compress_size = i.file_size
-                i.CRC = _crc32(df)
+                i.CRC = file_crc32(df)
                 yield i.filename, i
 
             else:
@@ -291,7 +290,6 @@ class ExplodedZipFile(object):
 
 
     def open(self, name, mode='rb'):
-        from os.path import join
         return open(join(self.fn, name), mode)
 
 
@@ -305,46 +303,16 @@ class ExplodedZipFile(object):
 
 
 
-class ZipFileContext(object):
-    #pylint: disable=R0903
-    # too few public methods (none). It's a context manager.
-
-    """ A context manager for ZipFile instances. Creates an internal
-    ZipFile, and closes it when the context exits. See open_zip """
-
-
-    def __init__(self, filename, mode="r"):
-        self.fn = filename
-        self.zf = None
-        self.mode = mode
-
-
-    def __enter__(self):
-        self.zf = zip_file(self.fn, self.mode)
-        return self.zf
-
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.zf:
-            self.zf.close()
-            self.zf = None
-        return (exc_type is None)
-
-
-
 def zip_file(fn, mode="r"):
 
     """ returns either a zipfile.ZipFile instance or an
     ExplodedZipFile instance, depending on whether fn is the name of a
     valid zip file, or a directory."""
 
-    import zipfile
-    import os.path
-
-    if os.path.isdir(fn):
+    if isdir(fn):
         return ExplodedZipFile(fn)
     elif is_zipfile(fn):
-        return zipfile.ZipFile(fn, mode)
+        return ZipFile(fn, mode)
     else:
         raise Exception("cannot treat as an archive: %r" % fn)
 
@@ -352,10 +320,43 @@ def zip_file(fn, mode="r"):
 
 def open_zip(filename, mode="r"):
 
-    """ returns a ZipFileContext which will manage closing the zip for
-    you. Use eg: with open_zip('my.zip') as z: ... """
+    """ opens a zip file archive at filename in the given mode and
+    returns a context manager which will close the archive when the
+    context exits. Use eg: with open_zip('my.zip') as z: ...
 
-    return ZipFileContext(filename, mode)
+    In Python 2.6, this will be a ClosingContext instance. In 2.7
+    onward, the zipfile.ZipFile class provides its own managed context
+    and so the instance is returned unwrapped """
+
+    return closing(zip_file(filename, mode))
+
+
+
+def open_zip_entry(zipfile, name, mode='r'):
+
+    """ opens an entry from an opened zip file archive in the given
+    mode and returns a context manager which will close the stream
+    when the context exits. Use eg: with open_zip_entry(my_zip,
+    'MANIFEST.MF') as data: ...
+
+    In Python 2.6, this will be a ClosingContext instance. In 2.7
+    onward, the zipfile.ZipExtFile class provides its own managed
+    context and so the instance is returned unwrapped """
+
+    return closing(zipfile.open(name, mode))
+
+
+
+def chunk_zip_entry(zipfile, name, chunksize=_CHUNKSIZE):
+
+    """ opens an entry from an openex zip file archive and yields
+    sequential chunks of data from the resulting stream. """
+
+    with open_zip_entry(zipfile, name, mode='r') as stream:
+        data = stream.read(chunksize)
+        while data:
+            yield data
+            data = stream.read(chunksize)
 
 
 
