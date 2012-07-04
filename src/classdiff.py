@@ -148,6 +148,10 @@ class ClassSignatureChange(GenericChange):
         return c.get_signature()
 
 
+    def fn_pretty(self, c):
+        return c.pretty_signature()
+
+
 
 class ClassInfoChange(SuperChange):
 
@@ -460,6 +464,10 @@ class MethodSignatureChange(GenericChange):
         return c.get_signature()
 
 
+    def fn_pretty(self, c):
+        return c.pretty_signature()
+
+
 
 class MethodParametersChange(GenericChange):
 
@@ -620,6 +628,10 @@ class FieldSignatureChange(GenericChange):
 
     def fn_data(self, c):
         return c.get_signature()
+
+
+    def fn_pretty(self, c):
+        return c.pretty_signature()
 
 
 

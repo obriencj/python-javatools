@@ -654,6 +654,14 @@ class JavaClassInfo(object):
 
 
 
+    def pretty_signature(self):
+
+        """ pretty version of the signature """
+
+        return pretty_generic(self.get_signature())
+
+
+
     def get_enclosingmethod(self):
 
         """ the class.method or class (if the definition is not from
@@ -899,6 +907,14 @@ class JavaMemberInfo(object):
             (ti,) = up.unpack_struct(_H)
 
         return self.deref_const(ti)
+
+
+
+    def pretty_signature(self):
+
+        """ pretty version of the signature """
+
+        return pretty_generic(self.get_signature())
 
 
 
@@ -1742,6 +1758,16 @@ def _pretty_const_type_val(typecode, val):
 
 
 
+def pretty_generic(signature):
+
+    """ Pretty version of the given generics signature """
+
+    # TODO: this format is annoying in so many ways.
+
+    return signature
+
+
+
 def _next_argsig(buff):
 
     """ given a buffer, find the next complete argument signature and
@@ -1749,7 +1775,7 @@ def _next_argsig(buff):
 
     c = buff[0]
 
-    if c in "VZBCSIJDF":
+    if c in "BCDFIJSVZ":
         result = (c, buffer(buff, 1))
 
     elif c == "[":
