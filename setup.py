@@ -296,8 +296,7 @@ setup(name = "javatools",
                  "src/scripts/distinfo",
                  "src/scripts/jardiff",
                  "src/scripts/jarinfo",
-                 "src/scripts/manifest",
-                 "src/scripts/distpatchgen"],
+                 "src/scripts/manifest"],
 
       # PyPI information
       author = "Christopher O'Brien",

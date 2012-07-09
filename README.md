@@ -64,7 +64,7 @@ If you'd prefer to build an RPM, see the wiki entry for [Building as an RPM](htt
 * jardiff - prints the deltas between the contents of a JAR, and runs
   classdiff on differing Java class files contained in the JARs
 
-* manifest - creates and verifies class checksum manifests
+* manifest - creates and verifies class checksum manifests (needs work)
 
 * distinfo - prints information about a mixed multi-jar/class
   distribution, such as provides/requires lists.
