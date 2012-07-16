@@ -158,7 +158,12 @@ first = False
 #block details
 <div class="details">
 <div class="lrdata">
-#if $change.is_change()
+<%
+change = getattr(self, "change")
+lcode = (change.ldata and change.ldata.code) or tuple()
+rcode = (change.rdata and change.rdata.code) or tuple()
+%>
+#if (lcode != rcode)
 $details_changed
 #else
 $details_unchanged
