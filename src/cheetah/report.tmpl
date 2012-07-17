@@ -5,6 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
 
+
 #def title
 $change.__class__.__name__
 #end def
@@ -23,31 +24,16 @@ $change.__class__.__name__
 
 
 #block head_stylesheets
-#if $stylesheets
 #for ss in $stylesheets
 <link rel="stylesheet" type="text/css" href="$ss" />
 #end for
-#else
-<style type="text/css">
-div {
-  margin-left: 1em;
-  font: 10pt sans;
-}
-.unchanged {
-  color: green;
-}
-.changed {
-  color: red;
-}
-.ignored {
-  color: orange;
-}
-</style>
-#end if
 #end block
 
 
 #block head_javascripts
+#if not getattr($options, "html_no_jquery", False)
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+#end if
 #for js in $javascripts
 <script type="text/javascript" src="$js"></script>
 #end for
