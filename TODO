@@ -26,12 +26,14 @@
 
 - flesh out the cheetah templates for classdiff reports
 
+- generics type signature handling
+
+- default annotation value attribute
+
 - pomdiff? maven-repo-diff?
 
 - [silly] output class files from classinfo data
 
 - [silly] implement jar signing capabilities
-
-- pylint integration with build. Attach a pylint config in extras
 
 #
