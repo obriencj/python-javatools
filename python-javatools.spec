@@ -60,6 +60,7 @@ rm -rf %{buildroot}
 - significantly more testing before tagging a release
 - distdiff and distpatchgen now use multiprocessing by default
 - removed distpatchgen and javatools.patchgen
+- added support for checking runtime annotations
 
 * Thu Jun 14 2012 Christopher O'Brien <obriencj@gmail.com> - 1.2-1
 - require python 2.6 and later rather than trying to fight with
