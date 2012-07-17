@@ -55,7 +55,7 @@ $render_constant_pool($change.pretty_ldata())
 
 #for index, lt, lv, rt, rv in pretty_merge_constants(left, right)
 <%
-row_class = (" changed")[(lt, lv) == (rt, rv)]
+row_class = (" is_changed")[(lt, lv) == (rt, rv)]
 %>
 <tr>
 <td class="const-index"><%= index %></td>
@@ -65,8 +65,8 @@ row_class = (" changed")[(lt, lv) == (rt, rv)]
 <td class="const-type empty"></td>
 <td class="const-value empty"></td>
 #else
-<td class="const-type changed"><%= rt or "" %></td>
-<td class="const-value changed"><%= escape(str(rv or "")) %></td>
+<td class="const-type is_changed"><%= rt or "" %></td>
+<td class="const-value is_changed"><%= escape(str(rv or "")) %></td>
 </tr>
 #end if
 #end for

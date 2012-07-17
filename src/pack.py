@@ -104,6 +104,19 @@ class _Unpacker(object):
             yield self.unpack_struct(sfmt)
 
 
+
+    def unpack_struct_array(self, struct):
+
+        """ reads a count from the unpacker, and unpacks the
+        precompiled struct count times. Yields a sequence of the
+        unpacked data tuples """
+
+        (count,) = self.unpack_struct(_H)
+        for _i in xrange(count):
+            yield self.unpack_struct(struct)
+        
+
+
     def unpack_objects(self, atype, *params, **kwds):
 
         """ reads a count from the unpacker, and instanciates that

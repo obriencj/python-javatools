@@ -153,6 +153,27 @@ class ClassSignatureChange(GenericChange):
 
 
 
+class AnnotationsChange(GenericChange):
+
+    label = "Runtime annotations"
+
+
+    def fn_data(self, c):
+        return c.get_annotations() or tuple()
+
+
+    def fn_pretty(self, c):
+        annos = c.get_annotations() or tuple()
+        return [anno.pretty_annotation() for anno in annos]
+
+
+
+class ClassAnnotationsChange(AnnotationsChange):
+
+    label = "Class runtime annotations"
+
+
+
 class ClassInfoChange(SuperChange):
 
     label = "Class information"
@@ -457,7 +478,7 @@ class MethodTypeChange(GenericChange):
 
 class MethodSignatureChange(GenericChange):
 
-    label = "Method Generic Signature"
+    label = "Method generic signature"
 
 
     def fn_data(self, c):
@@ -530,7 +551,7 @@ class MethodExceptionsChange(GenericChange):
 
 class MethodCodeChange(SuperChange):
 
-    label = "Method code"
+    label = "Method Code"
 
 
     change_types = (CodeAbsoluteLinesChange,
@@ -580,6 +601,12 @@ class MethodDeprecationChange(GenericChange):
 
 
 
+class MethodAnnotationsChange(AnnotationsChange):
+
+    label = "Method runtime annotations"
+
+
+
 class MethodChange(MemberSuperChange):
 
     label = "Method"
@@ -588,6 +615,7 @@ class MethodChange(MemberSuperChange):
     change_types = (MethodNameChange,
                     MethodTypeChange,
                     MethodSignatureChange,
+                    MethodAnnotationsChange,
                     MethodParametersChange,
                     MethodAccessflagsChange,
                     MethodExceptionsChange,
@@ -681,6 +709,12 @@ class FieldDeprecationChange(GenericChange):
 
 
 
+class FieldAnnotationsChange(AnnotationsChange):
+
+    label = "Field runtime annotations"
+
+
+
 class FieldChange(MemberSuperChange):
 
     label = "Field"
@@ -689,6 +723,7 @@ class FieldChange(MemberSuperChange):
     change_types = (FieldNameChange,
                     FieldTypeChange,
                     FieldSignatureChange,
+                    FieldAnnotationsChange,
                     FieldAccessflagsChange,
                     FieldConstvalueChange,
                     FieldDeprecationChange)
@@ -786,6 +821,7 @@ class JavaClassChange(SuperChange):
 
 
     change_types = (ClassInfoChange,
+                    ClassAnnotationsChange,
                     ClassConstantPoolChange,
                     ClassFieldsChange,
                     ClassMethodsChange)

@@ -59,6 +59,12 @@ def print_field(options, field):
         print "  Signature:", field.get_signature()
 
     if options.verbose:
+        if field.get_annotations():
+            print "  RuntimeVisibleAnnotations:"
+            index = 0
+            for anno in field.get_annotations():
+                print "  %i: %s" % index, anno.pretty_annotation()
+
         cv = field.get_constantvalue()
         if cv is not None:
             t,v = field.cpool.pretty_const(cv)
@@ -78,6 +84,12 @@ def print_method(options, method):
 
     if options.sigs:
         print "  Signature:", method.get_signature()
+
+    if method.get_annotations():
+        print "  RuntimeVisibleAnnotations:"
+        index = 0
+        for anno in method.get_annotations():
+            print "  %i: %s" % index, anno.pretty_annotation()
 
     code = method.get_code()
     if options.disassemble and code:
@@ -209,6 +221,13 @@ def cli_print_classinfo(options, info):
             print "  SourceFile: \"%s\"" % info.get_sourcefile()
         if info.get_signature():
             print "  Signature:", info.get_signature()
+
+        if info.get_annotations():
+            print "  RuntimeVisibleAnnotations:"
+            index = 0
+            for anno in info.get_annotations():
+                print "  %i: %s" % index, anno.pretty_annotation()
+
         if info.get_enclosingmethod():
             print "  EnclosingMethod:", info.get_enclosingmethod()
         major, minor = info.get_version()

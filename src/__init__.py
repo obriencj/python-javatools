@@ -87,10 +87,12 @@ ACC_MODULE = 0x8000
 
 
 # commonly re-occurring struct formats
+_B = compile_struct(">B")
 _H = compile_struct(">H")
 _HH = compile_struct(">HH")
 _HHH = compile_struct(">HHH")
 _HHHH = compile_struct(">HHHH")
+_HHHHH = compile_struct(">HHHHH")
 _HI = compile_struct(">HI")
 _HHI = compile_struct(">HHI")
 
@@ -360,6 +362,7 @@ class JavaClassInfo(object):
         self.interfaces = tuple()
         self.fields = tuple()
         self.methods = tuple()
+        self.annotations = None
 
         self._provides = None
         self._provides_private = None
@@ -603,6 +606,29 @@ class JavaClassInfo(object):
 
 
 
+    def get_annotations(self):
+
+        """ The RuntimeVisibleAnnotations attribute. A tuple of
+        JavaAnnotaion instances """
+
+        annos = self.annotations
+
+        if annos is None:
+            buff = self.get_attribute("RuntimeVisibleAnnotations")
+            if buff is None:
+                annos = tuple()
+
+            else:
+                with unpack(buff) as up:
+                    annos = up.unpack_objects(JavaAnnotation, self.cpool)
+                    annos = tuple(annos)
+
+            self.annotations = annos
+
+        return annos
+
+
+
     def get_sourcefile(self):
 
         """ the name of thie file this class was compiled from, or
@@ -707,13 +733,16 @@ class JavaClassInfo(object):
         if self.is_final():
             yield "final"
         if self.is_interface():
-            yield "interface"
+            if self.is_annotation():
+                yield "@interface"
+            else:
+                yield "interface"
         if self.is_abstract():
             yield "abstract"
         #if self.is_super():
         #    yield "super"
-        if self.is_annotation():
-            yield "annotation"
+        #if self.is_annotation():
+        #    yield "annotation"
         if self.is_enum():
             yield "enum"
 
@@ -875,6 +904,7 @@ class JavaMemberInfo(object):
         self.name_ref = 0
         self.descriptor_ref = 0
         self.is_method = is_method
+        self.annotations = None
 
 
 
@@ -1100,6 +1130,57 @@ class JavaMemberInfo(object):
 
 
 
+    def get_annotations(self):
+
+        """ The RuntimeVisibleAnnotations attribute. A tuple of
+        JavaAnnotaion instances """
+
+        annos = self.annotations
+
+        if annos is None:
+            buff = self.get_attribute("RuntimeVisibleAnnotations")
+            if buff is None:
+                annos = tuple()
+
+            else:
+                with unpack(buff) as up:
+                    annos = up.unpack_objects(JavaAnnotation, self.cpool)
+                    annos = tuple(annos)
+
+            self.annotations = annos
+
+        return annos
+
+
+
+    def get_annotationdefault(self):
+
+        """ The AnnotationDefault attribute, only present upon fields
+        in an annotaion.  """
+
+        buff = self.get_attribute("AnnotationDefault")
+        if buff is None:
+            return None
+
+        with unpack(buff) as up:
+            (ti,) = up.unpack_struct(_H)
+
+        return ti
+
+
+
+    def deref_annotationdefault(self):
+
+        """ dereferences the AnnotationDefault attribute """
+
+        index = self.get_annotationdefault()
+        if index is None:
+            return None
+        else:
+            return self.deref_const(index)
+
+
+
     def get_code(self):
 
         """ the JavaCodeInfo of this member if it is a non-abstract
@@ -1128,7 +1209,7 @@ class JavaMemberInfo(object):
 
         with unpack(buff) as up:
             return tuple(self.deref_const(e[0]) for e
-                         in up.unpack_array(">H"))
+                         in up.unpack_struct_array(_H))
 
 
 
@@ -1397,7 +1478,7 @@ class JavaCodeInfo(object):
                 lnt = tuple()
             else:
                 with unpack(buff) as up:
-                    lnt = tuple(up.unpack_array(">HH"))
+                    lnt = tuple(up.unpack_struct_array(_HH))
             self._lnt = lnt
         return lnt
 
@@ -1428,7 +1509,7 @@ class JavaCodeInfo(object):
             return tuple()
 
         with unpack(buff) as up:
-            return tuple(up.unpack_array(">HHHHH"))
+            return tuple(up.unpack_struct_array(_HHHHH))
 
 
 
@@ -1442,7 +1523,7 @@ class JavaCodeInfo(object):
             return tuple()
 
         with unpack(buff) as up:
-            return tuple(up.unpack_array(">HHHHH"))
+            return tuple(up.unpack_struct_array(_HHHHH))
 
 
 
@@ -1475,7 +1556,7 @@ class JavaCodeInfo(object):
         if not lnt:
             yield (None, None, self.disassemble())
             return
-            
+
         lnt_offset = lnt[0][1]
 
         cur_line = None
@@ -1617,6 +1698,170 @@ class JavaInnerClassInfo(object):
 
         return self.cpool.deref_const(self.name_ref)
 
+
+
+class JavaAnnotation(dict):
+
+    """ Java Annotations info """
+
+
+    def __init__(self, cpool):
+        dict.__init__(self)
+        self.cpool = cpool
+        self.type_ref = 0
+
+
+    def unpack(self, unpacker):
+        self.type_ref, count = unpacker.unpack_struct(_HH)
+
+        for _i in xrange(0, count):
+            key_ref, = unpacker.unpack_struct(_H)
+            val = _unpack_annotation_val(unpacker, self.cpool)
+
+            key = self.cpool.deref_const(key_ref)
+            self[key] = val
+
+
+    def pretty_type(self):
+        return _pretty_type(self.cpool.deref_const(self.type_ref))
+
+
+    def pretty_elements(self):
+        result = list()
+
+        for key, val in self.items():
+            val = _pretty_annotation_val(val, self.cpool)
+            result.append("%s=%s" % (key, val))
+
+        return result
+
+
+    def pretty_annotation(self):
+        typename = self.pretty_type()
+        elements = self.pretty_elements()
+        return "%s(%s)" % (typename, ", ".join(elements))
+
+
+    def __eq__(self, other):
+        if not isinstance(other, JavaAnnotation):
+            return False
+
+        # if we have a different type name, not equal
+        if (self.cpool.deref_const(self.type_ref) !=
+            other.cpool.deref_const(other.type_ref)):
+            return False
+
+        # if we have differing sets of keys, not equal
+        if (self.keys() != other.keys()):
+            return False
+
+        # for each of the key/val pairs, check equality
+        for key, lval in self.items():
+            rval = other[key]
+            if not _annotation_val_eq(lval[0], lval[1], self.cpool,
+                                      rval[0], rval[1], other.cpool):
+                return False
+        else:
+            return True
+
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+
+def _annotation_val_eq(left_tag, left_data, left_cpool,
+                       right_tag, right_data, right_cpool):
+    
+    if left_tag != right_tag:
+        return False
+
+    lconst = left_cpool.deref_const
+    rconst = right_cpool.deref_const
+
+    if left_tag in 'BCDFIJSZs':
+        return lconst(left_data) == rconst(right_data)
+
+    elif left_tag == 'e':
+        return ((lconst(left_data[0]) == rconst(right_data[0])) and
+                (lconst(left_data[1]) == rconst(right_data[1])))
+
+    elif left_tag == 'c':
+        return (lconst(left_data) == rconst(right_data))
+
+    elif left_tag == '@':
+        return (left_data == right_data)
+
+    elif left_tag == '[':
+        if len(left_data) != len(right_data):
+            return False
+
+        for index in xrange(0, len(left_data)):
+            ld = left_data[index]
+            rd = right_data[index]
+            if not _annotation_val_eq(ld[0], ld[1], left_cpool,
+                                      rd[0], rd[1], right_cpool):
+                return False
+        else:
+            return True
+
+
+
+def _unpack_annotation_val(unpacker, cpool):
+
+    """ tag, data tuple of an annotation """
+
+    tag, = unpacker.unpack_struct(_B)
+    tag = chr(tag)
+
+    if tag in 'BCDFIJSZs':
+        data, = unpacker.unpack_struct(_H)
+
+    elif tag == 'e':
+        data = unpacker.unpack_struct(_HH)
+
+    elif tag == 'c':
+        data, = unpacker.unpack_struct(_H)
+
+    elif tag == '@':
+        data = JavaAnnotation(cpool)
+        data.unpack(unpacker)
+
+    elif tag == '[':
+        data = list()
+        count, = unpacker.unpack_struct(_H)
+        for _i in xrange(0, count):
+            data.append(_unpack_annotation_val(unpacker, cpool))
+
+    return (tag, data)
+
+
+
+def _pretty_annotation_val(val, cpool):
+    
+    """ a pretty display of a tag and data pair annotation value """
+
+    tag, data = val
+
+    if tag in 'BCDFIJSZs':
+        data = "%s#%i" % (tag, data)
+
+    elif tag == 'e':
+        data = "e#%i.#%i" % data
+
+    elif tag == 'c':
+        data = "c#%i" % data
+
+    elif tag == '@':
+        data = "@" + data.pretty_annotation()
+
+    elif tag == '[':
+        combine = list()
+        for val in data:
+            combine.append(_pretty_annotation_val(val, cpool))
+        data = "[%s]" % ", ".join(combine)
+
+    return data
 
 
 # -----
