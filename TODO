@@ -36,4 +36,34 @@
 
 - [silly] implement jar signing capabilities
 
+- given the way ACC_SUPER works, it's probably not at all useful to do
+  symbol-level dependency tracking. Instead it should likely just be
+  class-based. I'll need to change distinfo/jarinfo/classinfo
+  accordingly.
+
+- the cheetah MethodCodeChange template needs to show the locals, stack,
+  and exception table.
+
+- MethodCodeChange also needs to colorize the unified lines of code
+  table
+
+- the cheetah ManifestChange template needs a lot of work. What should
+  a manifest delta look like?
+
+- need some javascript magic to make cpool refs have a cute
+  clicky-effect that shows their dereferenced value.
+
+- need some javascript magic that allows hiding unchanged/ignored, or
+  collapsing individual sections with a twisty.
+
+- distreport needs a class-oriented page that allows quick jumping to
+  the class reports, rather than requiring users to know which jar
+  report to look in.
+
+- dist/jar/class html reports need to link to the json and text
+  variants
+
+- for distributed text, I could use diff to generate a delta, how
+  insane is that? Or perhaps the python diff module...
+
 #
