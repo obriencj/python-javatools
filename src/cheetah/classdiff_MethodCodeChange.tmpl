@@ -163,7 +163,7 @@ change = getattr(self, "change")
 lcode = (change.ldata and change.ldata.code) or tuple()
 rcode = (change.rdata and change.rdata.code) or tuple()
 %>
-#if (lcode != rcode)
+#if change.is_change() or (lcode != rcode)
 $details_changed
 #else
 $details_unchanged
