@@ -29,8 +29,8 @@ licence: LGPL
 from os.path import isdir
 
 from javatools import unpack_class
-from .change import Change, GenericChange
-from .change import SuperChange, Addition, Removal
+from .change import GenericChange, SuperChange
+from .change import Addition, Removal
 from .change import squash, yield_sorted_by_type
 from .classdiff import JavaClassChange, JavaClassReport
 from .dirutils import fnmatches
@@ -52,14 +52,18 @@ class JarTypeChange(GenericChange):
         # TODO: create some kind of menial zipinfo output showing type
         # (exploded/zipped) and compression level
 
-        if(isdir(c)):
+        return isdir(c)
+
+
+    def fn_pretty(self, c):
+        if isdir(c):
             return "exploded JAR"
         else:
             return "zipped JAR file"
 
 
 
-class JarContentChange(Change):
+class JarContentChange(SuperChange):
 
     """ a file or directory changed between JARs """
 
@@ -68,7 +72,7 @@ class JarContentChange(Change):
 
 
     def __init__(self, lzip, rzip, entry, is_change=True):
-        Change.__init__(self, lzip, rzip)
+        SuperChange.__init__(self, lzip, rzip)
         self.entry = entry
         self.changed = is_change
 
@@ -81,13 +85,22 @@ class JarContentChange(Change):
         return open_zip_entry(self.rdata, self.entry)
 
 
+    def collect_impl(self):
+
+        """ Content changes refer to more concrete children, but by
+        default are empty """
+
+        return tuple()
+
+
     def get_description(self):
-        c = ("has changed","is unchanged")[not self.is_change()]
+        c = ("has changed", "is unchanged")[not self.is_change()]
         return "%s %s: %s" % (self.label, c, self.entry)
 
 
     def is_ignored(self, options):
-        return fnmatches(self.entry, *options.ignore_jar_entry)
+        return (fnmatches(self.entry, *options.ignore_jar_entry) or
+                SuperChange.is_ignored(self, options))
 
 
 
@@ -123,14 +136,9 @@ class JarClassRemoved(JarContentRemoved):
 
 
 
-class JarClassChange(SuperChange, JarContentChange):
+class JarClassChange(JarContentChange):
 
     label = "Java Class"
-
-
-    def __init__(self, ldata, rdata, entry, is_change=True):
-        SuperChange.__init__(self, ldata, rdata)
-        JarContentChange.__init__(self, ldata, rdata, entry, is_change)
 
 
     def collect_impl(self):
@@ -142,15 +150,6 @@ class JarClassChange(SuperChange, JarContentChange):
                 rinfo = unpack_class(rfd.read())
 
             yield JavaClassChange(linfo, rinfo)
-
-
-    def is_ignored(self, options):
-        return (JarContentChange.is_ignored(self, options) or
-                SuperChange.is_ignored(self, options))
-
-
-    def get_description(self):
-        return JarContentChange.get_description(self)
 
 
 
@@ -176,14 +175,9 @@ class JarClassReport(JarClassChange):
 
 
 
-class JarManifestChange(SuperChange, JarContentChange):
+class JarManifestChange(JarContentChange):
 
     label = "Jar Manifest"
-
-
-    def __init__(self, ldata, rdata, entry, is_change=True):
-        SuperChange.__init__(self, ldata, rdata)
-        JarContentChange.__init__(self, ldata, rdata, entry, is_change)
 
 
     def collect_impl(self):
