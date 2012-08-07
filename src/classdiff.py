@@ -583,7 +583,7 @@ class MethodCodeChange(SuperChange):
         if None not in (self.ldata, self.rdata):
             return SuperChange.check_impl(self)
         else:
-            return (self.ldata == self.rdata), None
+            return (self.ldata != self.rdata), None
 
 
 

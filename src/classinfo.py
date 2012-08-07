@@ -89,7 +89,7 @@ def print_method(options, method):
         print "  RuntimeVisibleAnnotations:"
         index = 0
         for anno in method.get_annotations():
-            print "  %i: %s" % index, anno.pretty_annotation()
+            print "  %i: %s" % (index, anno.pretty_annotation())
 
     code = method.get_code()
     if options.disassemble and code:

@@ -43,13 +43,10 @@ $sub_deprecation(data.pop("FieldDeprecationChange")[0])
 <%
 change = getattr(self, "change")
 data = collect_by_typename(change.collect())
-annoch = data.pop("FieldAnnotationsChange")[0]
 %>
-#if annoch.is_change()
 <div class="collect">
-$render_change(annoch)
+$render_change(data.pop("FieldAnnotationsChange")[0])
 </div>
-#end if
 #end block
 
 
