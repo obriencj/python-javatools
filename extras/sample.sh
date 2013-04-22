@@ -62,7 +62,7 @@ done
 
 
 
-if test ! "$DO_TIMED" -o ! "DO_PROFILED" ; then
+if test ! "$DO_TIMED$DO_PROFILED" ; then
     run_help
     exit 1
 fi
