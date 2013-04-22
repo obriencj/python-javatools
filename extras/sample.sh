@@ -118,6 +118,7 @@ function run_timed() {
 
     cat $OUTPUT_DIR/distdiff.time
     echo "Timing data saved at $OUTPUT_DIR/distdiff.time"
+    echo "Report output written at $OUTPUT_DIR/timed/reports"
 }
 
 
@@ -138,6 +139,7 @@ function run_profiled() {
 	"$SAMPLE_DIR_LEFT" "$SAMPLE_DIR_RIGHT"
 
     echo "Profiling data saved at $OUTPUT_DIR/distdiff.dump"
+    echo "Report output written at $OUTPUT_DIR/profiled/reports"
 }
 
 
