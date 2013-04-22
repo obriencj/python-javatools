@@ -301,7 +301,7 @@ def parse_sections(data):
     for line in data:
 
         # Clean up the line
-        cleanline = line.replace('\0','').splitlines()[0]
+        cleanline = line.replace('\x00', '').splitlines()[0]
 
         if not cleanline:
             # blank line means end of current section (if any)
@@ -335,7 +335,7 @@ def digest_chunks(chunks):
     """ returns a base64 rep of the MD5 and SHA1 digests from the
     chunks of data """
 
-    #pylint: disable=E0611
+    #pylint: disable=E0611, E1101
     from hashlib import md5, sha1
 
     from base64 import b64encode
