@@ -53,7 +53,8 @@ rm -rf %{buildroot}
 
 %changelog
 
-* Wed Jun 27 2012 Christopher O'Brien <obriencj@gmail.com> - 1.3-0
+* Thu May 23 2013 Christopher O'Brien <obriencj@gmail.com> - 1.3-1
+- I think we've sat on these changes long enough, let's make a release
 - expand on cheetah html reporting
 - requires PyXML for xml.xpath
 - renamed to python-javatools as there was already a javaclass
@@ -61,6 +62,7 @@ rm -rf %{buildroot}
 - distdiff and distpatchgen now use multiprocessing by default
 - removed distpatchgen and javatools.patchgen
 - added support for checking runtime annotations
+- keep pylint happy
 
 * Thu Jun 14 2012 Christopher O'Brien <obriencj@gmail.com> - 1.2-1
 - require python 2.6 and later rather than trying to fight with
