@@ -1,7 +1,7 @@
 Summary: Tools for inspecting and comparing binary Java class files
 Name: python-javatools
-Version: 1.3
-Release: 1
+Version: 1.3.1
+Release: 0
 License: LGPL
 Group: Application/System
 URL: https://github.com/obriencj/python-javatools/
@@ -52,6 +52,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+
+* Thu Jun 27 2013 Christopher O'Brien <obriencj@gmail.com> - 1.3.1-0
+- fixed issues with auto-exploding a dist and cleaning up afterwards
 
 * Thu May 23 2013 Christopher O'Brien <obriencj@gmail.com> - 1.3-1
 - I think we've sat on these changes long enough, let's make a release
