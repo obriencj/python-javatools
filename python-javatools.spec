@@ -55,6 +55,7 @@ rm -rf %{buildroot}
 
 * Thu Jun 27 2013 Christopher O'Brien <obriencj@gmail.com> - 1.3.1-0
 - fixed issues with auto-exploding a dist and cleaning up afterwards
+- InvokeDynamic, MethodType, and MethodHandle CONSTANT types
 
 * Thu May 23 2013 Christopher O'Brien <obriencj@gmail.com> - 1.3-1
 - I think we've sat on these changes long enough, let's make a release
