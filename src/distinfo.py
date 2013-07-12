@@ -71,7 +71,7 @@ class DistInfo(object):
         else:
             self.tmpdir = mkdtemp()
             with open_zip(self.base_path, "r") as zf:
-                zf.extractall(path="self.tmpdir")
+                zf.extractall(path=self.tmpdir)
             return self.tmpdir
 
 
@@ -188,10 +188,10 @@ class DistInfo(object):
         may have resulted in opening or creating temporary files.
         Call close in order to clean up. """
 
-        from os import rmdir
+        from shutil import rmtree
 
         if self.tmpdir:
-            rmdir(self.tmpdir)
+            rmtree(self.tmpdir)
             self.tmpdir = None
 
         self._contents = None
