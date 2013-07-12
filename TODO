@@ -66,4 +66,6 @@
 - for distributed text, I could use diff to generate a delta, how
   insane is that? Or perhaps the python diff module...
 
+- invokedynamic and all of its friends need support
+
 #
