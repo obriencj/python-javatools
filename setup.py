@@ -230,8 +230,10 @@ class pylint_cmd(Command):
         linter = PyLinter(pylintrc=self.lint_config)
 
         # same, but not all pylint versions have load_default_plugins
-        #linter.load_default_plugins()
-        checkers.initialize(linter)
+        if hasattr(linter, 'load_default_plugins'):
+            linter.load_default_plugins()
+        else:
+            checkers.initialize(linter)
 
         linter.read_config_file()
         linter.load_config_file()
