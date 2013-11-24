@@ -867,7 +867,8 @@ class JavaClassInfo(object):
             if t in (CONST_Class, CONST_Fieldref,
                      CONST_Methodref, CONST_InterfaceMethodref):
 
-                pv = cpool.pretty_deref_const(i)
+                # convert this away from unicode so we can 
+                pv = str(cpool.pretty_deref_const(i))
 
                 if pv[0] == "[":
                     # sometimes when calling operations on an array
@@ -2112,7 +2113,7 @@ def _next_argsig(buff):
         result = (s[:i], buffer(buff, i))
 
     else:
-        raise Unimplemented("_next_argsig is %r in %s" % (c, buff))
+        raise Unimplemented("_next_argsig is %r in %r" % (c, str(buff)))
 
     return result
 
