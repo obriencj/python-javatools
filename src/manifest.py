@@ -55,7 +55,7 @@ class ManifestSectionChange(GenericChange):
         if getattr(options, "ignore_manifest_subsections", False):
             return True
 
-        ikeys = set(getattr(options, "ignore_manifest_keys", set()))
+        ikeys = set(getattr(options, "ignore_manifest_key", set()))
         if ikeys:
             lset = set(self.ldata.items())
             rset = set(self.rdata.items())
@@ -102,7 +102,7 @@ class ManifestMainChange(GenericChange):
 
 
     def is_ignored(self, options):
-        ikeys = set(getattr(options, "ignore_manifest_keys", set()))
+        ikeys = set(getattr(options, "ignore_manifest_key", set()))
         if ikeys:
             lset = set(self.ldata.items())
             rset = set(self.rdata.items())
