@@ -492,6 +492,10 @@ def jardiff_optgroup(parser):
                   action="store_true", default=False,
                   help="Ignore changes to manifest subsections")
 
+    og.add_option("--ignore-manifest-key",
+                  action="append", default=[],
+                  help="case-insensitive manifest keys to ignore")
+
     return og
 
 
