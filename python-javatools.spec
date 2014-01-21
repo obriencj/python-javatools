@@ -46,7 +46,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc LICENSE README.md TODO
+%doc ChangeLog LICENSE README.md TODO
 %{python2_sitelib}/*
 %{_bindir}/*
 
@@ -55,6 +55,7 @@ rm -rf %{buildroot}
 
 * Thu Jan 21 2014 Christopher O'Brien <obriencj@gmail.com> - 1.4.0-0
 - bump to 1.4.0
+- added ChangeLog as its own file
 
 * Thu May 23 2013 Christopher O'Brien <obriencj@gmail.com> - 1.3-1
 - bump to 1.3
