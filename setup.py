@@ -280,7 +280,7 @@ class pylint_cmd(Command):
 
 
 setup(name = "javatools",
-      version = "1.3",
+      version = "1.4.0",
 
       packages = ["javatools",
                   "javatools.cheetah"],
@@ -317,7 +317,6 @@ setup(name = "javatools",
                      "Environment :: Console",
                      "Intended Audience :: Developers",
                      "Intended Audience :: Information Technology",
-                     "Natural Language :: English",
                      "Programming Language :: Python :: 2",
                      "Topic :: Software Development :: Disassemblers"],
 

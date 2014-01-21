@@ -1,6 +1,6 @@
 Summary: Tools for inspecting and comparing binary Java class files
 Name: python-javatools
-Version: 1.3.1
+Version: 1.4.0
 Release: 0
 License: LGPL
 Group: Application/System
@@ -53,9 +53,10 @@ rm -rf %{buildroot}
 
 %changelog
 
-* Thu Jun 27 2013 Christopher O'Brien <obriencj@gmail.com> - 1.3.1-0
+* Thu Jan 21 2014 Christopher O'Brien <obriencj@gmail.com> - 1.4.0-0
 - fixed issues with auto-exploding a dist and cleaning up afterwards
 - InvokeDynamic, MethodType, and MethodHandle CONSTANT types
+- added --ignore-manifest-key option
 
 * Thu May 23 2013 Christopher O'Brien <obriencj@gmail.com> - 1.3-1
 - I think we've sat on these changes long enough, let's make a release
