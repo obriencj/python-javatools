@@ -614,7 +614,7 @@ def quick_report(report_type, change, options):
     report = report_type(None, options)
 
     if options.output:
-        with open(options.output, "wt") as out:
+        with open(options.output, "w") as out:
             report.run(change, None, out)
     else:
         report.run(change, None, stdout)
