@@ -52,7 +52,18 @@ class ManifestSectionChange(GenericChange):
 
 
     def is_ignored(self, options):
-        return getattr(options, "ignore_manifest_subsections", False)
+        if getattr(options, "ignore_manifest_subsections", False):
+            return True
+
+        ikeys = set(getattr(options, "ignore_manifest_keys", set()))
+        if ikeys:
+            lset = set(self.ldata.items())
+            rset = set(self.rdata.items())
+            changed = set(k for k,v in lset.symmetric_difference(rset))
+            return changed.issubset(ikeys)
+
+        else:
+            return False
 
 
 
@@ -63,12 +74,20 @@ class ManifestSectionAdded(ManifestSectionChange, Addition):
         return "%s: %s" % (self.label, self.rdata.primary())
 
 
+    def is_ignored(self, options):
+        return getattr(options, "ignore_manifest_subsections", False)
+
+
 
 class ManifestSectionRemoved(ManifestSectionChange, Removal):
     label = "Manifest Subsection Removed"
 
     def get_description(self):
         return "%s: %s" % (self.label, self.ldata.primary())
+
+
+    def is_ignored(self, options):
+        return getattr(options, "ignore_manifest_subsections", False)
 
 
 
@@ -80,6 +99,18 @@ class ManifestMainChange(GenericChange):
             return "%s has changed" % self.label
         else:
             return "%s is unchanged" % self.label
+
+
+    def is_ignored(self, options):
+        ikeys = set(getattr(options, "ignore_manifest_keys", set()))
+        if ikeys:
+            lset = set(self.ldata.items())
+            rset = set(self.rdata.items())
+            changed = set(k for k,v in lset.symmetric_difference(rset))
+            return changed.issubset(ikeys)
+
+        else:
+            return False
 
 
 
@@ -104,7 +135,8 @@ class ManifestChange(SuperChange):
 
 
     def is_ignored(self, options):
-        return getattr(options, "ignore_manifest", False)
+        return getattr(options, "ignore_manifest", False) or \
+            SuperChange.is_ignored(self, options)
 
 
 
@@ -195,7 +227,7 @@ class Manifest(ManifestSection):
 
 
     def parse_file(self, filename):
-        with open(filename, "rt", _BUFFERING) as stream:
+        with open(filename, "r", _BUFFERING) as stream:
             self.parse(stream)
 
 
@@ -473,7 +505,7 @@ def cli_create(options, rest):
         # even create parent directories for it, if necessary
 
         makedirsp(split(options.manifest)[0])
-        output = open(options.manifest, "wt")
+        output = open(options.manifest, "w")
 
     mf.store(output)
 
