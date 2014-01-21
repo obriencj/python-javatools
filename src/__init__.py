@@ -131,7 +131,7 @@ class ClassUnpackException(Exception):
 class JavaConstantPool(object):
 
     """ A constants pool
-    
+
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.4
     """
 
@@ -694,7 +694,7 @@ class JavaClassInfo(object):
     def get_signature(self):
 
         """ the generics class signature
-        
+
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.9
         """
 
@@ -1133,7 +1133,7 @@ class JavaMemberInfo(object):
     def is_synthetic(self):
 
         """ is this a synthetic method
-        
+
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.8
         """
 
@@ -1198,7 +1198,7 @@ class JavaMemberInfo(object):
     def get_annotationdefault(self):
 
         """ The AnnotationDefault attribute, only present upon fields
-        in an annotaion. 
+        in an annotaion.
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.20
         """
@@ -1230,7 +1230,7 @@ class JavaMemberInfo(object):
 
         """ the JavaCodeInfo of this member if it is a non-abstract
         method, None otherwise
-        
+
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.3
         """
 
@@ -1526,7 +1526,7 @@ class JavaCodeInfo(object):
 
     def get_linenumbertable(self):
 
-        """ a sequence of (code_offset, line_number) pairs. 
+        """ a sequence of (code_offset, line_number) pairs.
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.12
         """
@@ -1736,7 +1736,7 @@ class JavaExceptionInfo(object):
 class JavaInnerClassInfo(object):
 
     """ Information about an inner class
-    
+
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.6
     """
 
@@ -1844,7 +1844,7 @@ class JavaAnnotation(dict):
 
 def _annotation_val_eq(left_tag, left_data, left_cpool,
                        right_tag, right_data, right_cpool):
-    
+
     if left_tag != right_tag:
         return False
 
@@ -1910,7 +1910,7 @@ def _unpack_annotation_val(unpacker, cpool):
 
 
 def _pretty_annotation_val(val, cpool):
-    
+
     """ a pretty display of a tag and data pair annotation value """
 
     tag, data = val
