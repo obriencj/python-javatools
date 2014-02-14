@@ -475,7 +475,7 @@ class JavaClassInfo(object):
         """
 
         for m in self.get_methods_by_name(name):
-            if ((not m.is_bridge) and
+            if ((not m.is_bridge()) and
                 m.get_arg_type_descriptors() == arg_types):
                 return m
         return None
