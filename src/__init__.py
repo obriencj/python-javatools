@@ -372,6 +372,7 @@ class JavaClassInfo(object):
         self.fields = tuple()
         self.methods = tuple()
         self.annotations = None
+        self.invisible_annotations = None
 
         self._provides = None
         self._provides_private = None
@@ -618,18 +619,12 @@ class JavaClassInfo(object):
 
 
 
-    def get_annotations(self):
+    def _get_annotations(self, python_attr_name, java_attr_name):
 
-        """ The RuntimeVisibleAnnotations attribute. A tuple of
-        JavaAnnotaion instances
-
-        reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
-        """
-
-        annos = self.annotations
+        annos = getattr(self, python_attr_name)
 
         if annos is None:
-            buff = self.get_attribute("RuntimeVisibleAnnotations")
+            buff = self.get_attribute(java_attr_name)
             if buff is None:
                 annos = tuple()
 
@@ -638,9 +633,33 @@ class JavaClassInfo(object):
                     annos = up.unpack_objects(JavaAnnotation, self.cpool)
                     annos = tuple(annos)
 
-            self.annotations = annos
+            setattr(self, python_attr_name, annos)
 
         return annos
+
+
+
+    def get_annotations(self):
+
+        """ The RuntimeVisibleAnnotations attribute. A tuple of
+        JavaAnnotation instances
+
+        reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
+        """
+
+        return self._get_annotations("annotations", "RuntimeVisibleAnnotations")
+
+
+
+    def get_invisible_annotations(self):
+
+        """ The RuntimeInvisibleAnnotations attribute. A tuple of
+        JavaAnnotation instances
+
+        reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.17
+        """
+
+        return self._get_annotations("invisible_annotations", "RuntimeInvisibleAnnotations")
 
 
 
@@ -938,6 +957,7 @@ class JavaMemberInfo(object):
         self.descriptor_ref = 0
         self.is_method = is_method
         self.annotations = None
+        self.invisible_annotations = None
 
 
 
@@ -1169,18 +1189,12 @@ class JavaMemberInfo(object):
 
 
 
-    def get_annotations(self):
+    def _get_annotations(self, python_attr_name, java_attr_name):
 
-        """ The RuntimeVisibleAnnotations attribute. A tuple of
-        JavaAnnotaion instances
-
-        reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
-        """
-
-        annos = self.annotations
+        annos = getattr(self, python_attr_name)
 
         if annos is None:
-            buff = self.get_attribute("RuntimeVisibleAnnotations")
+            buff = self.get_attribute(java_attr_name)
             if buff is None:
                 annos = tuple()
 
@@ -1189,9 +1203,33 @@ class JavaMemberInfo(object):
                     annos = up.unpack_objects(JavaAnnotation, self.cpool)
                     annos = tuple(annos)
 
-            self.annotations = annos
+            setattr(self, python_attr_name, annos)
 
         return annos
+
+
+
+    def get_annotations(self):
+
+        """ The RuntimeVisibleAnnotations attribute. A tuple of
+        JavaAnnotation instances
+
+        reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
+        """
+
+        return self._get_annotations("annotations", "RuntimeVisibleAnnotations")
+
+
+
+    def get_invisible_annotations(self):
+
+        """ The RuntimeInvisibleAnnotations attribute. A tuple of
+        JavaAnnotation instances
+
+        reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.17
+        """
+
+        return self._get_annotations("invisible_annotations", "RuntimeInvisibleAnnotations")
 
 
 
