@@ -501,7 +501,7 @@ class JavaClassInfo(object):
         # conditions.
 
         for m in self.get_methods_by_name(name):
-            if (m.is_bridge and
+            if (m.is_bridge() and
                 m.get_arg_type_descriptors() == arg_types):
                 yield m
 
@@ -886,7 +886,7 @@ class JavaClassInfo(object):
             if t in (CONST_Class, CONST_Fieldref,
                      CONST_Methodref, CONST_InterfaceMethodref):
 
-                # convert this away from unicode so we can 
+                # convert this away from unicode so we can
                 pv = str(cpool.pretty_deref_const(i))
 
                 if pv[0] == "[":
