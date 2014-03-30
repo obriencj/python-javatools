@@ -163,14 +163,30 @@ class AnnotationsChange(GenericChange):
 
 
     def fn_pretty(self, c):
-        annos = c.get_annotations() or tuple()
+        annos = self.fn_data(c)
         return [anno.pretty_annotation() for anno in annos]
+
+
+
+class InvisibleAnnotationsChange(AnnotationsChange):
+
+    label = "Runtime Invisible annotations"
+
+
+    def fn_data(self, c):
+        return c.get_invisible_annotations() or tuple()
 
 
 
 class ClassAnnotationsChange(AnnotationsChange):
 
     label = "Class runtime annotations"
+
+
+
+class ClassInvisibleAnnotationsChange(InvisibleAnnotationsChange):
+
+    label = "Class runtime invisible annotations"
 
 
 
@@ -607,6 +623,12 @@ class MethodAnnotationsChange(AnnotationsChange):
 
 
 
+class MethodInvisibleAnnotationsChange(InvisibleAnnotationsChange):
+
+    label = "Method runtime invisible annotations"
+
+
+
 class MethodChange(MemberSuperChange):
 
     label = "Method"
@@ -616,6 +638,7 @@ class MethodChange(MemberSuperChange):
                     MethodTypeChange,
                     MethodSignatureChange,
                     MethodAnnotationsChange,
+                    MethodInvisibleAnnotationsChange,
                     MethodParametersChange,
                     MethodAccessflagsChange,
                     MethodExceptionsChange,
@@ -715,6 +738,12 @@ class FieldAnnotationsChange(AnnotationsChange):
 
 
 
+class FieldInvisibleAnnotationsChange(InvislbleAnnotationsChange):
+
+    label = "Field runtime invisible annotations"
+
+
+
 class FieldChange(MemberSuperChange):
 
     label = "Field"
@@ -724,6 +753,7 @@ class FieldChange(MemberSuperChange):
                     FieldTypeChange,
                     FieldSignatureChange,
                     FieldAnnotationsChange,
+                    FieldInvisibleAnnotationsChange,
                     FieldAccessflagsChange,
                     FieldConstvalueChange,
                     FieldDeprecationChange)
@@ -822,6 +852,7 @@ class JavaClassChange(SuperChange):
 
     change_types = (ClassInfoChange,
                     ClassAnnotationsChange,
+                    ClassInvisibleAnnotationsChange,
                     ClassConstantPoolChange,
                     ClassFieldsChange,
                     ClassMethodsChange)
@@ -886,7 +917,7 @@ def merge_code(left_code, right_code):
     """
     { relative_line:
       ((left_abs_line, ((offset, op, args), ...)),
-       (right_abs_line, ((offset, op, args), ...))), 
+       (right_abs_line, ((offset, op, args), ...))),
       ... }
     """
 

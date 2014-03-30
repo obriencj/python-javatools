@@ -50,6 +50,7 @@ data = collect_by_typename(change.collect())
 %>
 <div class="collect">
 $render_change(data.pop("MethodAnnotationsChange")[0])
+$render_change(data.pop("MethodInvisibleAnnotationsChange")[0])
 $render_change(data.pop("MethodCodeChange")[0])
 </div>
 #end block
