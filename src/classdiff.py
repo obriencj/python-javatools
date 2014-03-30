@@ -738,7 +738,7 @@ class FieldAnnotationsChange(AnnotationsChange):
 
 
 
-class FieldInvisibleAnnotationsChange(InvislbleAnnotationsChange):
+class FieldInvisibleAnnotationsChange(InvisibleAnnotationsChange):
 
     label = "Field runtime invisible annotations"
 
