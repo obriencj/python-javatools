@@ -15,42 +15,45 @@
 # <http://www.gnu.org/licenses/>.
 
 
-
 """
+Python Javatools
 
 author: Christopher O'Brien  <obriencj@gmail.com>
 license: LGPL
 """
 
 
+from distutils.util import newer
+from glob import glob
+from itertools import izip
+from os import makedirs
+from os.path import basename, exists, join, splitext
+from setuptools import setup, Command
+from setuptools.command.build_py import build_py as _build_py
 
-from distutils.core import setup, Command
-from distutils.command.build_py import build_py as _build_py
-
+import sys
 
 
 class build_py(_build_py):
-
-    """ Distutils build_py command with some special handling for
-    Cheetah tmpl files. Takes tmpl from package source directories and
+    """
+    setuptools build_py command with some special handling for Cheetah
+    template files. Takes tmpl from package source directories and
     compiles them for distribution. This allows me to write tmpl files
     in the src dir of my project, and have them get compiled to
-    py/pyc/pyo files during the build process. """
+    py/pyc/pyo files during the build process.
+    """
 
     # Note: it's important to override build_py rather than to add a
     # sub-command to build. The build command doesn't collate the
     # get_outputs of its sub-commands, and install specifically looks
     # for build_py and build_ext for the list of files to install.
 
-    def initialize_options(self):
-        _build_py.initialize_options(self)
-
+    # Update: now that I've switched from distutils to setuptools, it
+    # may be possible to put this into a subcommand instead. Have to
+    # investigate.
 
     def find_package_templates(self, package, package_dir):
         # template files will be located under src, and will end in .tmpl
-
-        from os.path import basename, join, splitext
-        from glob import glob
 
         self.check_package(package, package_dir)
         template_files = glob(join(package_dir, "*.tmpl"))
@@ -74,14 +77,11 @@ class build_py(_build_py):
 
 
     def build_template(self, template, template_file, package):
-
-        """ Compile the cheetah template in src into a python file in
-        build """
+        """
+        Compile the cheetah template in src into a python file in build
+        """
 
         from Cheetah.Compiler import Compiler
-        from os import makedirs
-        from os.path import exists, join
-        from distutils.util import newer
 
         comp = Compiler(file=template_file, moduleName=template)
 
@@ -108,8 +108,6 @@ class build_py(_build_py):
 
 
     def get_template_outputs(self, include_bytecode=1):
-        from os.path import join
-
         built = list()
 
         for package in self.packages:
@@ -131,7 +129,8 @@ class build_py(_build_py):
 
 
     def get_outputs(self, include_bytecode=1):
-        # Overridden to append our compiled templates
+        # Overridden to append our compiled templates in addition to
+        # the normal build outputs.
 
         outputs = _build_py.get_outputs(self, include_bytecode)
         outputs.extend(self.get_template_outputs(include_bytecode))
@@ -155,14 +154,15 @@ class build_py(_build_py):
         _build_py.run(self)
 
 
-
 class pylint_cmd(Command):
+    """
+    Distutils command to run pylint on the built output and emit its
+    results into build/pylint
+    """
 
-    """ Distutils command to run pylint on the built output and emit
-    its results into build/pylint """
-
-
-    user_options = [("lint-config=", None, "pylint configuration to load")]
+    user_options = [
+        ("lint-config=", None, "pylint configuration to load"),
+    ]
 
 
     def initialize_options(self):
@@ -173,8 +173,6 @@ class pylint_cmd(Command):
 
 
     def finalize_options(self):
-        from os.path import join
-
         self.set_undefined_options('build',
                                    ('build_base', 'build_base'),
                                    ('build_lib', 'build_lib'),
@@ -197,9 +195,6 @@ class pylint_cmd(Command):
 
 
     def announce_overview(self, linter, report_fn):
-        from itertools import izip
-        import sys
-
         stats = linter.stats
 
         m_types = ('error', 'warning', 'refactor', 'convention')
@@ -225,7 +220,6 @@ class pylint_cmd(Command):
     def run_linter(self):
         from pylint.lint import PyLinter
         from pylint import checkers
-        from os.path import join
 
         linter = PyLinter(pylintrc=self.lint_config)
 
@@ -260,8 +254,6 @@ class pylint_cmd(Command):
 
 
     def run(self):
-        import sys
-
         if not self.has_pylint():
             self.warn("pylint not present")
             return
@@ -278,27 +270,26 @@ class pylint_cmd(Command):
             sys.path.pop(0)
 
 
-
 setup(name = "javatools",
       version = "1.4.0",
 
-      packages = ["javatools",
-                  "javatools.cheetah"],
+      packages = [ "javatools",
+                   "javatools.cheetah" ],
 
-      package_dir = {"javatools": "src",
-                     "javatools.cheetah": "src/cheetah"},
+      package_dir = { "javatools": "src",
+                      "javatools.cheetah": "src/cheetah" },
 
-      package_data = {"javatools.cheetah": ["data/*.css",
-                                            "data/*.js",
-                                            "data/*.png"]},
+      package_data = { "javatools.cheetah": [ "data/*.css",
+                                              "data/*.js",
+                                              "data/*.png" ] },
 
-      scripts = ["src/scripts/classdiff",
-                 "src/scripts/classinfo",
-                 "src/scripts/distdiff",
-                 "src/scripts/distinfo",
-                 "src/scripts/jardiff",
-                 "src/scripts/jarinfo",
-                 "src/scripts/manifest"],
+      scripts = [ "src/scripts/classdiff",
+                  "src/scripts/classinfo",
+                  "src/scripts/distdiff",
+                  "src/scripts/distinfo",
+                  "src/scripts/jardiff",
+                  "src/scripts/jarinfo",
+                  "src/scripts/manifest" ],
 
       # PyPI information
       author = "Christopher O'Brien",
@@ -309,21 +300,20 @@ setup(name = "javatools",
       description = "Tools for finding meaningful deltas in Java"
       " class files and JARs",
 
-      provides = ["javatools"],
-      requires = ["Cheetah", "PyXML"],
-      platforms = ["python2 >= 2.6"],
+      provides = [ "javatools" ],
+      requires = [ "Cheetah", "PyXML" ],
+      platforms = [ "python2 >= 2.6" ],
 
-      classifiers = ["Development Status :: 5 - Production/Stable",
-                     "Environment :: Console",
-                     "Intended Audience :: Developers",
-                     "Intended Audience :: Information Technology",
-                     "Programming Language :: Python :: 2",
-                     "Topic :: Software Development :: Disassemblers"],
+      classifiers = [ "Development Status :: 5 - Production/Stable",
+                      "Environment :: Console",
+                      "Intended Audience :: Developers",
+                      "Intended Audience :: Information Technology",
+                      "Programming Language :: Python :: 2",
+                      "Topic :: Software Development :: Disassemblers" ],
 
       # dirty stuff
-      cmdclass = {'build_py': build_py,
-                  'pylint': pylint_cmd})
-
+      cmdclass = { 'build_py': build_py,
+                   'pylint': pylint_cmd } )
 
 
 #
