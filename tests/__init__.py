@@ -208,7 +208,7 @@ class ClassfileTest(TestCase):
         self.assertEqual(len(mis), 2)
 
         mi0 = ci.get_method("<init>")
-        mi1 = ci.get_method("<init>", ("Ljava/lang/String;",))
+        mi1 = ci.get_method("<init>", ["Ljava/lang/String;"])
 
         self.assertEqual(mis, [mi0, mi1])
 

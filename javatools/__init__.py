@@ -475,6 +475,10 @@ class JavaClassInfo(object):
         return any bridge methods. None if no matching method is found
         """
 
+        # ensure any lists or iterables are converted to tuple for
+        # comparison against get_arg_type_descriptors()
+        arg_types = tuple(arg_types)
+
         for m in self.get_methods_by_name(name):
             if ((not m.is_bridge()) and
                 m.get_arg_type_descriptors() == arg_types):
