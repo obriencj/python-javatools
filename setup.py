@@ -276,20 +276,17 @@ setup(name = "javatools",
       packages = [ "javatools",
                    "javatools.cheetah" ],
 
-      package_dir = { "javatools": "src",
-                      "javatools.cheetah": "src/cheetah" },
-
       package_data = { "javatools.cheetah": [ "data/*.css",
                                               "data/*.js",
                                               "data/*.png" ] },
 
-      scripts = [ "src/scripts/classdiff",
-                  "src/scripts/classinfo",
-                  "src/scripts/distdiff",
-                  "src/scripts/distinfo",
-                  "src/scripts/jardiff",
-                  "src/scripts/jarinfo",
-                  "src/scripts/manifest" ],
+      scripts = [ "scripts/classdiff",
+                  "scripts/classinfo",
+                  "scripts/distdiff",
+                  "scripts/distinfo",
+                  "scripts/jardiff",
+                  "scripts/jarinfo",
+                  "scripts/manifest" ],
 
       # PyPI information
       author = "Christopher O'Brien",
