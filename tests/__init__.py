@@ -97,6 +97,8 @@ class ClassfileTest(TestCase):
         ci = load("Sample1")
         fi = ci.get_field_by_name("name")
 
+        self.assertEqual(type(fi), jt.JavaMemberInfo)
+
         self.assertEqual(fi.get_name(), "name")
         self.assertEqual(fi.get_type_descriptor(),
                          "Ljava/lang/String;")
@@ -130,6 +132,8 @@ class ClassfileTest(TestCase):
         ci = load("Sample1")
         fi = ci.get_field_by_name("recent_name")
 
+        self.assertEqual(type(fi), jt.JavaMemberInfo)
+
         self.assertEqual(fi.get_name(), "recent_name")
         self.assertEqual(fi.get_type_descriptor(),
                          "Ljava/lang/String;")
@@ -162,6 +166,8 @@ class ClassfileTest(TestCase):
     def test_sample1_field_default_name(self):
         ci = load("Sample1")
         fi = ci.get_field_by_name("DEFAULT_NAME")
+
+        self.assertEqual(type(fi), jt.JavaMemberInfo)
 
         self.assertEqual(fi.get_name(), "DEFAULT_NAME")
         self.assertEqual(fi.get_type_descriptor(),
