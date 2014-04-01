@@ -9,4 +9,5 @@ tmp
 *.gz
 *.tar
 *.bak
+*.egg-info
 MANIFEST

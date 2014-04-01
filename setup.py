@@ -19,7 +19,7 @@
 Python Javatools
 
 author: Christopher O'Brien  <obriencj@gmail.com>
-license: LGPL
+license: LGPL v.3
 """
 
 
@@ -287,6 +287,8 @@ setup(name = "javatools",
                   "scripts/jardiff",
                   "scripts/jarinfo",
                   "scripts/manifest" ],
+
+      test_suite = "tests",
 
       # PyPI information
       author = "Christopher O'Brien",
