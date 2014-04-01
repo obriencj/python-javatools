@@ -1,6 +1,6 @@
 public class Sample1 extends Object {
 
-    private static final String DEFAULT_NAME = "Daphne";
+    public static final String DEFAULT_NAME = "Daphne";
 
     private String name = null;
     protected static String recent_name = null;

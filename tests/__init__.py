@@ -93,14 +93,110 @@ class ClassfileTest(TestCase):
         self.assertEqual(ci.get_invisible_annotations(), tuple())
 
 
-    def test_sample1_fields(self):
+    def test_sample1_field_name(self):
         ci = load("Sample1")
+        fi = ci.get_field_by_name("name")
+
+        self.assertEqual(fi.get_name(), "name")
+        self.assertEqual(fi.get_type_descriptor(),
+                         "Ljava/lang/String;")
+        self.assertEqual(fi.get_descriptor(),
+                         "Ljava/lang/String;")
+        self.assertEqual(fi.pretty_type(),
+                         "java.lang.String")
+        self.assertEqual(fi.pretty_descriptor(),
+                         "private java.lang.String name")
+        self.assertFalse(fi.is_public())
+        self.assertTrue(fi.is_private())
+        self.assertFalse(fi.is_protected())
+        self.assertFalse(fi.is_static())
+        self.assertFalse(fi.is_final())
+        self.assertFalse(fi.is_synchronized())
+        self.assertFalse(fi.is_native())
+        self.assertFalse(fi.is_abstract())
+        self.assertFalse(fi.is_strict())
+        self.assertFalse(fi.is_volatile())
+        self.assertFalse(fi.is_transient())
+        self.assertFalse(fi.is_bridge())
+        self.assertFalse(fi.is_varargs())
+        self.assertFalse(fi.is_synthetic())
+        self.assertFalse(fi.is_enum())
+        self.assertFalse(fi.is_module())
+        self.assertFalse(fi.is_deprecated())
+        self.assertFalse(fi.is_method)
+
+
+    def test_sample1_field_recent_name(self):
+        ci = load("Sample1")
+        fi = ci.get_field_by_name("recent_name")
+
+        self.assertEqual(fi.get_name(), "recent_name")
+        self.assertEqual(fi.get_type_descriptor(),
+                         "Ljava/lang/String;")
+        self.assertEqual(fi.get_descriptor(),
+                         "Ljava/lang/String;")
+        self.assertEqual(fi.pretty_type(),
+                         "java.lang.String")
+        self.assertEqual(fi.pretty_descriptor(),
+                         "protected static java.lang.String recent_name")
+        self.assertFalse(fi.is_public())
+        self.assertFalse(fi.is_private())
+        self.assertTrue(fi.is_protected())
+        self.assertTrue(fi.is_static())
+        self.assertFalse(fi.is_final())
+        self.assertFalse(fi.is_synchronized())
+        self.assertFalse(fi.is_native())
+        self.assertFalse(fi.is_abstract())
+        self.assertFalse(fi.is_strict())
+        self.assertFalse(fi.is_volatile())
+        self.assertFalse(fi.is_transient())
+        self.assertFalse(fi.is_bridge())
+        self.assertFalse(fi.is_varargs())
+        self.assertFalse(fi.is_synthetic())
+        self.assertFalse(fi.is_enum())
+        self.assertFalse(fi.is_module())
+        self.assertFalse(fi.is_deprecated())
+        self.assertFalse(fi.is_method)
+
+
+    def test_sample1_field_default_name(self):
+        ci = load("Sample1")
+        fi = ci.get_field_by_name("DEFAULT_NAME")
+
+        self.assertEqual(fi.get_name(), "DEFAULT_NAME")
+        self.assertEqual(fi.get_type_descriptor(),
+                         "Ljava/lang/String;")
+        self.assertEqual(fi.get_descriptor(),
+                         "Ljava/lang/String;")
+        self.assertEqual(fi.pretty_type(),
+                         "java.lang.String")
+        self.assertEqual(fi.pretty_descriptor(),
+                         "public static final java.lang.String DEFAULT_NAME")
+        self.assertTrue(fi.is_public())
+        self.assertFalse(fi.is_private())
+        self.assertFalse(fi.is_protected())
+        self.assertTrue(fi.is_static())
+        self.assertTrue(fi.is_final())
+        self.assertFalse(fi.is_synchronized())
+        self.assertFalse(fi.is_native())
+        self.assertFalse(fi.is_abstract())
+        self.assertFalse(fi.is_strict())
+        self.assertFalse(fi.is_volatile())
+        self.assertFalse(fi.is_transient())
+        self.assertFalse(fi.is_bridge())
+        self.assertFalse(fi.is_varargs())
+        self.assertFalse(fi.is_synthetic())
+        self.assertFalse(fi.is_enum())
+        self.assertFalse(fi.is_module())
+        self.assertFalse(fi.is_deprecated())
+        self.assertFalse(fi.is_method)
+
+        self.assertEqual(fi.deref_constantvalue(),
+                         "Daphne")
 
 
     def test_sample1_methods(self):
         ci = load("Sample1")
-
-
 
 
 #
