@@ -201,8 +201,72 @@ class ClassfileTest(TestCase):
                          "Daphne")
 
 
-    def test_sample1_methods(self):
+    def test_sample1_method_init(self):
         ci = load("Sample1")
+
+        mis = list(ci.get_methods_by_name("<init>"))
+        self.assertEqual(len(mis), 2)
+
+        mi0 = ci.get_method("<init>")
+        mi1 = ci.get_method("<init>", ("Ljava/lang/String;",))
+
+        self.assertEqual(mis, [mi0, mi1])
+
+        self.assertEqual(mi0.get_name(), "<init>")
+        self.assertEqual(mi0.get_type_descriptor(), "V")
+        self.assertEqual(mi0.get_descriptor(), "()V")
+        self.assertEqual(mi0.get_identifier(), "<init>()")
+        self.assertEqual(mi0.pretty_type(), "void")
+        self.assertEqual(mi0.pretty_descriptor(), "public <init>()")
+        self.assertEqual(mi0.pretty_identifier(), "<init>():void")
+        self.assertTrue(mi0.is_public())
+        self.assertFalse(mi0.is_private())
+        self.assertFalse(mi0.is_protected())
+        self.assertFalse(mi0.is_static())
+        self.assertFalse(mi0.is_final())
+        self.assertFalse(mi0.is_synchronized())
+        self.assertFalse(mi0.is_native())
+        self.assertFalse(mi0.is_abstract())
+        self.assertFalse(mi0.is_strict())
+        self.assertFalse(mi0.is_volatile())
+        self.assertFalse(mi0.is_transient())
+        self.assertFalse(mi0.is_bridge())
+        self.assertFalse(mi0.is_varargs())
+        self.assertFalse(mi0.is_synthetic())
+        self.assertFalse(mi0.is_enum())
+        self.assertFalse(mi0.is_module())
+        self.assertFalse(mi0.is_deprecated())
+        self.assertTrue(mi0.is_method)
+
+        self.assertEqual(mi1.get_name(), "<init>")
+        self.assertEqual(mi1.get_type_descriptor(), "V")
+        self.assertEqual(mi1.get_descriptor(),
+                         "(Ljava/lang/String;)V")
+        self.assertEqual(mi1.get_identifier(),
+                         "<init>(Ljava/lang/String;)")
+        self.assertEqual(mi1.pretty_type(), "void")
+        self.assertEqual(mi1.pretty_descriptor(),
+                         "public <init>(java.lang.String)")
+        self.assertEqual(mi1.pretty_identifier(),
+                         "<init>(java.lang.String):void")
+        self.assertTrue(mi1.is_public())
+        self.assertFalse(mi1.is_private())
+        self.assertFalse(mi1.is_protected())
+        self.assertFalse(mi1.is_static())
+        self.assertFalse(mi1.is_final())
+        self.assertFalse(mi1.is_synchronized())
+        self.assertFalse(mi1.is_native())
+        self.assertFalse(mi1.is_abstract())
+        self.assertFalse(mi1.is_strict())
+        self.assertFalse(mi1.is_volatile())
+        self.assertFalse(mi1.is_transient())
+        self.assertFalse(mi1.is_bridge())
+        self.assertFalse(mi1.is_varargs())
+        self.assertFalse(mi1.is_synthetic())
+        self.assertFalse(mi1.is_enum())
+        self.assertFalse(mi1.is_module())
+        self.assertFalse(mi1.is_deprecated())
+        self.assertTrue(mi1.is_method)
 
 
 #
