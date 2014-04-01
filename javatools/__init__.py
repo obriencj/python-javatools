@@ -449,9 +449,9 @@ class JavaClassInfo(object):
 
 
     def get_field_by_name(self, name):
-
-        """ the field member matching name, or None if no such field
-        is found """
+        """
+        the field member matching name, or None if no such field is found
+        """
 
         for f in self.fields:
             if f.get_name() == name:
@@ -461,18 +461,19 @@ class JavaClassInfo(object):
 
 
     def get_methods_by_name(self, name):
-
-        """ generator of methods matching name """
+        """
+        generator of methods matching name
+        """
 
         return (m for m in self.methods if m.get_name() == name)
 
 
 
     def get_method(self, name, arg_types=()):
-
-        """ returns the method matching the name and having argument
-        type descriptors matching those in arg_types. This does not
-        return any bridge methods. None if no matching method is found
+        """
+        returns the method matching the name and having argument type
+        descriptors matching those in arg_types. This does not return
+        any bridge methods. None if no matching method is found
         """
 
         # ensure any lists or iterables are converted to tuple for
@@ -488,14 +489,15 @@ class JavaClassInfo(object):
 
 
     def get_method_bridges(self, name, arg_types=()):
+        """
+        generator of bridge methods found that adapt the return types of a
+        named method and having argument type descriptors matching
+        those in arg_types.
+        """
 
-        """ generator of bridge methods found that adapt the return
-        types of a named method and having argument type descriptors
-        matching those in arg_types."""
-
-        # I am not entirely certain if a class will generate more
-        # than one synthetic bridge method to adapt the return type. I
-        # know it will generate one at least if someone subclasses and
+        # I am not entirely certain if a class will generate more than
+        # one synthetic bridge method to adapt the return type. I know
+        # it will generate one at least if someone subclasses and
         # overrides the method to return a more specific type. If
         # someone were to then subclass again with an even MORE
         # specific type, I am not sure if only one bridge would be
@@ -512,93 +514,102 @@ class JavaClassInfo(object):
 
 
     def get_version(self):
-
-        """ the (major, minor) version of Java required by this Java
-        class """
+        """
+        the (major, minor) version of Java required by this Java class
+        """
 
         return self.version
 
 
 
     def get_platform(self):
-
-        """ The platform as a string, derived from the major and minor
-        version number """
+        """
+        The platform as a string, derived from the major and minor version
+        number
+        """
 
         return platform_from_version(*self.version)
 
 
 
     def is_public(self):
-
-        """ is this class public """
+        """
+        is this class public
+        """
 
         return self.access_flags & ACC_PUBLIC
 
 
 
     def is_final(self):
-
-        """ is this class final """
+        """
+        is this class final
+        """
 
         return self.access_flags & ACC_FINAL
 
 
 
     def is_super(self):
-
-        """ class has the Super flag set.
+        """
+        class has the Super flag set.
 
         This flag is used by the JVM to differentiate the behavior in
-        the method resolution order of the class. """
+        the method resolution order of the class.
+        """
 
         return self.access_flags & ACC_SUPER
 
 
 
     def is_interface(self):
-
-        """ is this an interface """
+        """
+        is this an interface
+        """
 
         return self.access_flags & ACC_INTERFACE
 
 
 
     def is_abstract(self):
-
-        """ is this an abstract class """
+        """
+        is this an abstract class
+        """
 
         return self.access_flags & ACC_ABSTRACT
 
 
 
     def is_annotation(self):
-
-        """ is this an annotation class """
+        """
+        is this an annotation class
+        """
 
         return self.access_flags & ACC_ANNOTATION
 
 
 
     def is_enum(self):
-
-        """ is this an enum class """
+        """
+        is this an enum class
+        """
 
         return self.access_flags & ACC_ENUM
 
 
 
     def get_this(self):
-
-        """ the name of this class """
+        """
+        the name of this class
+        """
 
         return self.deref_const(self.this_ref)
 
 
 
     def is_deprecated(self):
-
-        """ is this class deprecated
+        """
+        is this class deprecated
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.15
         """
@@ -608,16 +619,18 @@ class JavaClassInfo(object):
 
 
     def get_super(self):
-
-        """ get the parent class that this extends """
+        """
+        get the parent class that this extends
+        """
 
         return self.deref_const(self.super_ref)
 
 
 
     def get_interfaces(self):
-
-        """ tuple of interfaces that this class implements """
+        """
+        tuple of interfaces that this class implements
+        """
 
         return tuple(self.deref_const(i) for i in self.interfaces)
 
@@ -644,9 +657,9 @@ class JavaClassInfo(object):
 
 
     def get_annotations(self):
-
-        """ The RuntimeVisibleAnnotations attribute. A tuple of
-        JavaAnnotation instances
+        """
+        The RuntimeVisibleAnnotations attribute. A tuple of JavaAnnotation
+        instances
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
         """
@@ -657,8 +670,8 @@ class JavaClassInfo(object):
 
 
     def get_invisible_annotations(self):
-
-        """ The RuntimeInvisibleAnnotations attribute. A tuple of
+        """
+        The RuntimeInvisibleAnnotations attribute. A tuple of
         JavaAnnotation instances
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.17
@@ -670,9 +683,9 @@ class JavaClassInfo(object):
 
 
     def get_sourcefile(self):
-
-        """ the name of thie file this class was compiled from, or
-        None if not indicated
+        """
+        the name of thie file this class was compiled from, or None if not
+        indicated
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.10
         """
@@ -689,9 +702,9 @@ class JavaClassInfo(object):
 
 
     def get_source_debug_extension(self):
-
         """
-        reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.11
+        reference:
+        http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.11
         """
 
         buff = self.get_attribute("SourceDebugExtension")
@@ -700,9 +713,9 @@ class JavaClassInfo(object):
 
 
     def get_innerclasses(self):
-
-        """ sequence of JavaInnerClassInfo instances describing the
-        inner classes of this class definition
+        """
+        sequence of JavaInnerClassInfo instances describing the inner
+        classes of this class definition
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.6
         """
@@ -717,8 +730,8 @@ class JavaClassInfo(object):
 
 
     def get_signature(self):
-
-        """ the generics class signature
+        """
+        the generics class signature
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.9
         """
@@ -735,18 +748,19 @@ class JavaClassInfo(object):
 
 
     def pretty_signature(self):
-
-        """ pretty version of the signature """
+        """
+        pretty version of the signature
+        """
 
         return pretty_generic(self.get_signature())
 
 
 
     def get_enclosingmethod(self):
-
-        """ the class.method or class (if the definition is not from
-        within a method) that encloses the definition of this
-        class. Returns None if this was not an inner class.
+        """
+        the class.method or class (if the definition is not from within a
+        method) that encloses the definition of this class. Returns
+        None if this was not an inner class.
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.7
         """
@@ -782,8 +796,9 @@ class JavaClassInfo(object):
 
 
     def _pretty_access_flags_gen(self):
-
-        """ generator of the pretty access flags """
+        """
+        generator of the pretty access flags
+        """
 
         if self.is_public():
             yield "public"
@@ -806,42 +821,46 @@ class JavaClassInfo(object):
 
 
     def pretty_access_flags(self):
-
-        """ generator of the pretty access flag names """
+        """
+        generator of the pretty access flag names
+        """
 
         return self._pretty_access_flags_gen()
 
 
 
     def pretty_this(self):
-
-        """ the pretty version of this class name """
+        """
+        the pretty version of this class name
+        """
 
         return _pretty_class(self.get_this())
 
 
 
     def pretty_super(self):
-
-        """ the pretty version of the parent class """
+        """
+        the pretty version of the parent class name
+        """
 
         return _pretty_class(self.get_super())
 
 
 
     def pretty_interfaces(self):
-
-        """ the pretty versions of any interfaces this class
-        implements """
+        """
+        the pretty versions of any interfaces this class implements
+        """
 
         return (_pretty_class(t) for t in self.get_interfaces())
 
 
 
     def pretty_descriptor(self):
-
-        """ get the class or interface name, it's accessor flags, it's
-        parent class, and any interfaces it implements"""
+        """
+        get the class or interface name, its accessor flags, its parent
+        class, and any interfaces it implements
+        """
 
         f = " ".join(self.pretty_access_flags())
         if not self.is_interface():
@@ -859,8 +878,9 @@ class JavaClassInfo(object):
 
 
     def _get_provides(self, private=False):
-
-        """ iterator of provided classes, fields, methods """
+        """
+        iterator of provided classes, fields, methods
+        """
 
         #TODO I probably need to add inner classes here
 
@@ -878,9 +898,10 @@ class JavaClassInfo(object):
 
 
     def _get_requires(self):
-
-        """ iterator of required classes, fields, methods, determined
-        my mining the constant pool for such types """
+        """
+        iterator of required classes, fields, methods, determined my
+        mining the constant pool for such types
+        """
 
         provided = set(self.get_provides(private=True))
         cpool = self.cpool
@@ -916,9 +937,10 @@ class JavaClassInfo(object):
 
 
     def get_provides(self, ignored=tuple(), private=False):
-
-        """ The provided API, including the class itself, its fields,
-        and its methods. """
+        """
+        The provided API, including the class itself, its fields, and its
+        methods.
+        """
 
         from .dirutils import fnmatches
 
@@ -936,9 +958,10 @@ class JavaClassInfo(object):
 
 
     def get_requires(self, ignored=tuple()):
-
-        """ The required API, including all external classes, fields,
-        and methods that this class references """
+        """
+        The required API, including all external classes, fields, and
+        methods that this class references
+        """
 
         from .dirutils import fnmatches
 
@@ -951,8 +974,9 @@ class JavaClassInfo(object):
 
 
 class JavaMemberInfo(object):
-
-    """ A field or method of a java class """
+    """
+    A field or method of a java class
+    """
 
 
     def __init__(self, cpool, is_method=False):
@@ -968,24 +992,27 @@ class JavaMemberInfo(object):
 
 
     def deref_const(self, index):
-
-        """ Dereference a constant in the parent constant pool """
+        """
+        Dereference a constant in the parent constant pool
+        """
 
         return self.cpool.deref_const(index)
 
 
 
     def get_attribute(self, name):
-
-        """ Get an attribute buffer by name """
+        """
+        Get an attribute buffer by name
+        """
 
         return self.attribs.get(name)
 
 
 
     def get_signature(self):
-
-        """ the Signature attribute """
+        """
+        the Signature attribute
+        """
 
         buff = self.get_attribute("Signature")
         if buff is None:
@@ -1000,16 +1027,18 @@ class JavaMemberInfo(object):
 
 
     def pretty_signature(self):
-
-        """ pretty version of the signature """
+        """
+        pretty version of the signature
+        """
 
         return pretty_generic(self.get_signature())
 
 
 
     def get_module(self):
-
-        """ the Module attribute """
+        """
+        the Module attribute
+        """
 
         buff = self.get_attribute("Module")
         if buff is None:
@@ -1023,9 +1052,9 @@ class JavaMemberInfo(object):
 
 
     def unpack(self, unpacker):
-
-        """ unpack the contents of this instance from the values in
-        unpacker """
+        """
+        unpack the contents of this instance from the values in unpacker
+        """
 
         (a, b, c) = unpacker.unpack_struct(_HHH)
 
@@ -1037,128 +1066,143 @@ class JavaMemberInfo(object):
 
 
     def get_name(self):
-
-        """ the name of this member """
+        """
+        the name of this member
+        """
 
         return self.deref_const(self.name_ref)
 
 
 
     def get_descriptor(self):
-
-        """ the descriptor of this member """
+        """
+        the descriptor of this member
+        """
 
         return self.deref_const(self.descriptor_ref)
 
 
 
     def is_public(self):
-
-        """ is this member public """
+        """
+        is this member public
+        """
 
         return self.access_flags & ACC_PUBLIC
 
 
 
     def is_private(self):
-
-        """ is this member private """
+        """
+        is this member private
+        """
 
         return self.access_flags & ACC_PRIVATE
 
 
 
     def is_protected(self):
-
-        """ is this member protected """
+        """
+        is this member protected
+        """
 
         return self.access_flags & ACC_PROTECTED
 
 
 
     def is_static(self):
-
-        """ is this member static """
+        """
+        is this member static
+        """
 
         return self.access_flags & ACC_STATIC
 
 
 
     def is_final(self):
-
-        """ is this member final """
+        """
+        is this member final
+        """
 
         return self.access_flags & ACC_FINAL
 
 
 
     def is_synchronized(self):
-
-        """ is this member synchronized """
+        """
+        is this member synchronized
+        """
 
         return self.access_flags & ACC_SYNCHRONIZED
 
 
 
     def is_native(self):
-
-        """ is this member native """
+        """
+        is this member native
+        """
 
         return self.access_flags & ACC_NATIVE
 
 
 
     def is_abstract(self):
-
-        """ is this member abstract """
+        """
+        is this member abstract
+        """
 
         return self.access_flags & ACC_ABSTRACT
 
 
 
     def is_strict(self):
-
-        """ is this member strict """
+        """
+        is this member strict
+        """
 
         return self.access_flags & ACC_STRICT
 
 
 
     def is_volatile(self):
-
-        """ is this member volatile """
+        """
+        is this member volatile
+        """
 
         return self.access_flags & ACC_VOLATILE
 
 
 
     def is_transient(self):
-
-        """ is this member transient """
+        """
+        is this member transient
+        """
 
         return self.access_flags & ACC_TRANSIENT
 
 
 
     def is_bridge(self):
-
-        """ is this method a bridge to another method """
+        """
+        is this method a bridge to another method
+        """
 
         return self.access_flags & ACC_BRIDGE
 
 
 
     def is_varargs(self):
-
-        """ is this a varargs method """
+        """
+        is this a varargs method
+        """
 
         return self.access_flags & ACC_VARARGS
 
 
 
     def is_synthetic(self):
-
-        """ is this a synthetic method
+        """
+        is this a synthetic method
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.8
         """
@@ -1169,24 +1213,26 @@ class JavaMemberInfo(object):
 
 
     def is_enum(self):
-
-        """ it this member an enum """
+        """
+        it this member an enum
+        """
 
         return self.access_flags & ACC_ENUM
 
 
 
     def is_module(self):
-
-        """ is this a module member """
+        """
+        is this a module member
+        """
 
         return self.access_flags & ACC_MODULE
 
 
 
     def is_deprecated(self):
-
-        """ is this member deprecated
+        """
+        is this member deprecated
 
         reference: http://docs.oracle.com/javase/specs/jvms/se5.0/html/ClassFile.doc.html#78232
         """
@@ -1216,33 +1262,35 @@ class JavaMemberInfo(object):
 
 
     def get_annotations(self):
-
-        """ The RuntimeVisibleAnnotations attribute. A tuple of
-        JavaAnnotation instances
+        """
+        The RuntimeVisibleAnnotations attribute. A tuple of JavaAnnotation
+        instances
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
         """
 
-        return self._get_annotations("annotations", "RuntimeVisibleAnnotations")
+        return self._get_annotations("annotations",
+                                     "RuntimeVisibleAnnotations")
 
 
 
     def get_invisible_annotations(self):
-
-        """ The RuntimeInvisibleAnnotations attribute. A tuple of
+        """
+        The RuntimeInvisibleAnnotations attribute. A tuple of
         JavaAnnotation instances
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.17
         """
 
-        return self._get_annotations("invisible_annotations", "RuntimeInvisibleAnnotations")
+        return self._get_annotations("invisible_annotations",
+                                     "RuntimeInvisibleAnnotations")
 
 
 
     def get_annotationdefault(self):
-
-        """ The AnnotationDefault attribute, only present upon fields
-        in an annotaion.
+        """
+        The AnnotationDefault attribute, only present upon fields in an
+        annotaion.
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.20
         """
@@ -1259,8 +1307,9 @@ class JavaMemberInfo(object):
 
 
     def deref_annotationdefault(self):
-
-        """ dereferences the AnnotationDefault attribute """
+        """
+        dereferences the AnnotationDefault attribute
+        """
 
         index = self.get_annotationdefault()
         if index is None:
@@ -1271,9 +1320,9 @@ class JavaMemberInfo(object):
 
 
     def get_code(self):
-
-        """ the JavaCodeInfo of this member if it is a non-abstract
-        method, None otherwise
+        """
+        the JavaCodeInfo of this member if it is a non-abstract method,
+        None otherwise
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.3
         """
@@ -1291,9 +1340,9 @@ class JavaMemberInfo(object):
 
 
     def get_exceptions(self):
-
-        """ a tuple of class names for the exception types this method
-        may raise, or None if this is not a method
+        """
+        a tuple of class names for the exception types this method may
+        raise, or None if this is not a method
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.5
         """
@@ -1309,9 +1358,9 @@ class JavaMemberInfo(object):
 
 
     def get_constantvalue(self):
-
-        """ the constant pool index for this field, or None if this is
-        not a contant field
+        """
+        the constant pool index for this field, or None if this is not a
+        contant field
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.2
         """
@@ -1328,9 +1377,9 @@ class JavaMemberInfo(object):
 
 
     def deref_constantvalue(self):
-
-        """ the value in the constant pool at the get_constantvalue()
-        index """
+        """
+        the value in the constant pool at the get_constantvalue() index
+        """
 
         index = self.get_constantvalue()
         if index is None:
@@ -1341,20 +1390,22 @@ class JavaMemberInfo(object):
 
 
     def get_type_descriptor(self):
-
-        """ the type descriptor for a field, or the return type
-        descriptor for a method. Type descriptors are shorthand
-        identifiers for the builtin java types. """
+        """
+        the type descriptor for a field, or the return type descriptor for
+        a method. Type descriptors are shorthand identifiers for the
+        builtin java types.
+        """
 
         return _typeseq(self.get_descriptor())[-1]
 
 
 
     def get_arg_type_descriptors(self):
-
-        """ The parameter type descriptor list for a method, or None
-        for a field.  Type descriptors are shorthand identifiers for
-        the builtin java types."""
+        """
+        The parameter type descriptor list for a method, or None for a
+        field.  Type descriptors are shorthand identifiers for the
+        builtin java types.
+        """
 
         if not self.is_method:
             return tuple()
@@ -1367,16 +1418,18 @@ class JavaMemberInfo(object):
 
 
     def pretty_type(self):
-
-        """ The pretty version of get_type_descriptor. """
+        """
+        The pretty version of get_type_descriptor.
+        """
 
         return _pretty_type(self.get_type_descriptor())
 
 
 
     def pretty_arg_types(self):
-
-        """ Sequence of pretty argument types. """
+        """
+        Sequence of pretty argument types.
+        """
 
         if self.is_method:
             types = self.get_arg_type_descriptors()
@@ -1387,9 +1440,10 @@ class JavaMemberInfo(object):
 
 
     def pretty_descriptor(self):
-
-        """ assemble a long member name from access flags, type,
-        argument types, exceptions as applicable """
+        """
+        assemble a long member name from access flags, type, argument
+        types, exceptions as applicable
+        """
 
         f = " ".join(self.pretty_access_flags())
         p = self.pretty_type()
@@ -1457,31 +1511,33 @@ class JavaMemberInfo(object):
 
 
     def pretty_access_flags(self, showall=False):
-
-        """ generator of the keywords determined from the access flags"""
+        """
+        generator of the keywords determined from the access flags
+        """
 
         return self._pretty_access_flags_gen(showall)
 
 
 
     def pretty_exceptions(self):
-
-        """ sequence of pretty names for get_exceptions() """
+        """
+        sequence of pretty names for get_exceptions()
+        """
 
         return (_pretty_class(e) for e in self.get_exceptions())
 
 
 
     def get_identifier(self):
-
-        """  For methods this  is the  return type,  the name  and the
-        (non-pretty) argument descriptor. For  fields it is simply the
-        name.
+        """
+        For methods this is the return type, the name and the (non-pretty)
+        argument descriptor. For fields it is simply the name.
 
         The return-type of methods is attached to the identifier when
         it is a bridge method, which can technically allow two methods
         with the same name and argument type list, but with different
-        return type."""
+        return type.
+        """
 
         ident = self.get_name()
 
@@ -1497,8 +1553,9 @@ class JavaMemberInfo(object):
 
 
     def pretty_identifier(self):
-
-        """ The pretty version of get_identifier """
+        """
+        The pretty version of get_identifier
+        """
 
         ident = self.get_name()
         if self.is_method:
@@ -1510,8 +1567,8 @@ class JavaMemberInfo(object):
 
 
 class JavaCodeInfo(object):
-
-    """ The 'Code' attribue of a method member of a java class
+    """
+    The 'Code' attribue of a method member of a java class
 
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.3
     """
@@ -1534,26 +1591,28 @@ class JavaCodeInfo(object):
 
 
     def deref_const(self, index):
-
-        """ dereference a constant by index from the parent constant
-        pool """
+        """
+        dereference a constant by index from the parent constant pool
+        """
 
         return self.cpool.deref_const(index)
 
 
 
     def get_attribute(self, name):
-
-        """ get an attribute buffer by name """
+        """
+        get an attribute buffer by name
+        """
 
         return self.attribs.get(name)
 
 
 
     def unpack(self, unpacker):
-
-        """ unpacks a code block from a buffer. Updates the internal
-        structure of this instance """
+        """
+        unpacks a code block from a buffer. Updates the internal structure
+        of this instance
+        """
 
         (a, b, c) = unpacker.unpack_struct(_HHI)
 
@@ -1569,8 +1628,8 @@ class JavaCodeInfo(object):
 
 
     def get_linenumbertable(self):
-
-        """ a sequence of (code_offset, line_number) pairs.
+        """
+        a sequence of (code_offset, line_number) pairs.
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.12
         """
@@ -1589,10 +1648,11 @@ class JavaCodeInfo(object):
 
 
     def get_relativelinenumbertable(self):
-
-        """ a sequence of (code_offset, line_number) pairs. Similar to
-        the get_linenumbertable method, but the line numbers start at
-        0 (they are relative to the method, not to the class file) """
+        """
+        a sequence of (code_offset, line_number) pairs. Similar to the
+        get_linenumbertable method, but the line numbers start at 0
+        (they are relative to the method, not to the class file)
+        """
 
         lnt = self.get_linenumbertable()
         if lnt:
@@ -1604,9 +1664,9 @@ class JavaCodeInfo(object):
 
 
     def get_localvariabletable(self):
-
-        """ a sequence of (code_offset, length, name_index,
-        desc_index, index) tuples
+        """
+        a sequence of (code_offset, length, name_index, desc_index, index)
+        tuples
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.13
         """
@@ -1621,9 +1681,9 @@ class JavaCodeInfo(object):
 
 
     def get_localvariabletypetable(self):
-
-        """ a sequence of (code_offset, length, name_index,
-        signature_index, index) tuples
+        """
+        a sequence of (code_offset, length, name_index, signature_index,
+        index) tuples
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.14
         """
@@ -1638,8 +1698,9 @@ class JavaCodeInfo(object):
 
 
     def get_line_for_offset(self, code_offset):
-
-        """ returns the line number given a code offset """
+        """
+        returns the line number given a code offset
+        """
 
         prev_line = 0
 
@@ -1656,7 +1717,6 @@ class JavaCodeInfo(object):
 
 
     def iter_code_by_lines(self):
-
         """
         ((abs_line, rel_line, [(offset, code, args), ...]),
          ...)
@@ -1690,9 +1750,10 @@ class JavaCodeInfo(object):
 
 
     def disassemble(self):
-
-        """ disassembles the underlying bytecode instructions and
-        generates a sequence of (offset, code, args) tuples """
+        """
+        disassembles the underlying bytecode instructions and generates a
+        sequence of (offset, code, args) tuples
+        """
 
         dis = self._dis_code
         if dis is None:
@@ -1704,9 +1765,9 @@ class JavaCodeInfo(object):
 
 
 class JavaExceptionInfo(object):
-
-    """ Information about an exception handler entry in an exception
-    table """
+    """
+    Information about an exception handler entry in an exception table
+    """
 
 
     def __init__(self, code):
@@ -1720,9 +1781,10 @@ class JavaExceptionInfo(object):
 
 
     def unpack(self, unpacker):
-
-        """ unpacks an exception handler entry in an exception
-        table. Updates the internal structure of this instance """
+        """
+        unpacks an exception handler entry in an exception table. Updates
+        the internal structure of this instance
+        """
 
         (a, b, c, d) = unpacker.unpack_struct(_HHHH)
 
@@ -1733,9 +1795,10 @@ class JavaExceptionInfo(object):
 
 
     def get_catch_type(self):
-
-        """ dereferences the catch_type_ref to its class name, or None
-        if the catch type is unspecified """
+        """
+        dereferences the catch_type_ref to its class name, or None if the
+        catch type is unspecified
+        """
 
         if self.catch_type_ref:
             return self.cpool.deref_const(self.catch_type_ref)
@@ -1744,8 +1807,9 @@ class JavaExceptionInfo(object):
 
 
     def pretty_catch_type(self):
-
-        """ pretty version of get_catch_type """
+        """
+        pretty version of get_catch_type
+        """
 
         ct = self.get_catch_type()
         if ct:
@@ -1755,9 +1819,9 @@ class JavaExceptionInfo(object):
 
 
     def info(self):
-
-        """ tuple of the start_pc, end_pc, handler_pc and
-        catch_type_ref """
+        """
+        tuple of the start_pc, end_pc, handler_pc and catch_type_ref
+        """
 
         return (self.start_pc, self.end_pc,
                 self.handler_pc, self.get_catch_type())
@@ -1778,8 +1842,8 @@ class JavaExceptionInfo(object):
 
 
 class JavaInnerClassInfo(object):
-
-    """ Information about an inner class
+    """
+    Information about an inner class
 
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.6
     """
@@ -1794,8 +1858,9 @@ class JavaInnerClassInfo(object):
 
 
     def unpack(self, unpacker):
-
-        """ unpack this instance with data from unpacker """
+        """
+        unpack this instance with data from unpacker
+        """
 
         (a, b, c, d) = unpacker.unpack_struct(_HHHH)
 
@@ -1806,16 +1871,17 @@ class JavaInnerClassInfo(object):
 
 
     def get_name(self):
-
-        """ the name of this inner-class """
+        """
+        the name of this inner-class
+        """
 
         return self.cpool.deref_const(self.name_ref)
 
 
 
 class JavaAnnotation(dict):
-
-    """ Java Annotations info
+    """
+    Java Annotations info
 
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
     """
@@ -1924,8 +1990,9 @@ def _annotation_val_eq(left_tag, left_data, left_cpool,
 
 
 def _unpack_annotation_val(unpacker, cpool):
-
-    """ tag, data tuple of an annotation """
+    """
+    tag, data tuple of an annotation
+    """
 
     tag, = unpacker.unpack_struct(_B)
     tag = chr(tag)
@@ -1954,8 +2021,9 @@ def _unpack_annotation_val(unpacker, cpool):
 
 
 def _pretty_annotation_val(val, cpool):
-
-    """ a pretty display of a tag and data pair annotation value """
+    """
+    a pretty display of a tag and data pair annotation value
+    """
 
     tag, data = val
 
@@ -2000,10 +2068,11 @@ _platforms = ( ((45, 0), (45, 3), "1.0.2"),
 
 
 def platform_from_version(major, minor):
-
-    """ returns the minimum platform version that can load the given
-    class version indicated by major.minor or None if no known
-    platforms match the given version """
+    """
+    returns the minimum platform version that can load the given class
+    version indicated by major.minor or None if no known platforms
+    match the given version
+    """
 
     v = (major, minor)
     for low, high, name in _platforms:
@@ -2019,10 +2088,11 @@ def platform_from_version(major, minor):
 
 
 def _unpack_const_item(unpacker):
-
-    """ unpack a constant pool item, which will consist of a type byte
+    """
+    unpack a constant pool item, which will consist of a type byte
     (see the CONST_ values in this module) and a value of the
-    appropriate type """
+    appropriate type
+    """
 
     (typecode,) = unpacker.unpack(">B")
 
@@ -2066,9 +2136,10 @@ def _unpack_const_item(unpacker):
 
 
 def _pretty_const_type_val(typecode, val):
-
-    """ given a typecode and a value, returns the appropriate pretty
-    version of that value (not the dereferenced data) """
+    """
+    given a typecode and a value, returns the appropriate pretty
+    version of that value (not the dereferenced data)
+    """
 
     if typecode == CONST_Utf8:
         typestr = "Utf8" # formerly Asciz, which was considered Java bug
@@ -2123,8 +2194,9 @@ def _pretty_const_type_val(typecode, val):
 
 
 def pretty_generic(signature):
-
-    """ Pretty version of the given generics signature """
+    """
+    Pretty version of the given generics signature
+    """
 
     # TODO: this format is annoying in so many ways.
 
@@ -2133,9 +2205,10 @@ def pretty_generic(signature):
 
 
 def _next_argsig(buff):
-
-    """ given a buffer, find the next complete argument signature and
-    return it and a new buffer advanced past that point """
+    """
+    given a buffer, find the next complete argument signature and
+    return it and a new buffer advanced past that point
+    """
 
     c = buff[0]
 
@@ -2164,8 +2237,9 @@ def _next_argsig(buff):
 
 
 def _typeseq_iter(s):
-
-    """ iterate through all of the type signatures in a sequence """
+    """
+    iterate through all of the type signatures in a sequence
+    """
 
     buff = buffer(str(s))
     while buff:
@@ -2175,16 +2249,18 @@ def _typeseq_iter(s):
 
 
 def _typeseq(type_s):
-
-    """ tuple version of _typeseq_iter """
+    """
+    tuple version of _typeseq_iter
+    """
 
     return tuple(_typeseq_iter(type_s))
 
 
 
 def _pretty_typeseq(type_s):
-
-    """ iterator of pretty versions of _typeseq_iter """
+    """
+    iterator of pretty versions of _typeseq_iter
+    """
 
     return (_pretty_type(t) for t in _typeseq_iter(type_s))
 
@@ -2195,7 +2271,9 @@ def _pretty_type(s, offset=0):
     # too many returns, too many branches. Not converting this to a
     # dict lookup. Waiving instead.
 
-    """ returns the pretty version of a type code """
+    """
+    returns the pretty version of a type code
+    """
 
     tc = s[offset]
 
@@ -2244,9 +2322,10 @@ def _pretty_type(s, offset=0):
 
 
 def _pretty_class(s):
-
-    """ convert the internal class name representation into what users
-    expect to see. Currently that just means swapping '/' for '.' """
+    """
+    convert the internal class name representation into what users
+    expect to see. Currently that just means swapping '/' for '.'
+    """
 
     # well that's easy.
     return s.replace("/", ".")
@@ -2254,8 +2333,9 @@ def _pretty_class(s):
 
 
 def _clean_array_const(s):
-
-    """ de-array a constant type. """
+    """
+    de-array a constant type.
+    """
 
     t, b = _next_argsig(buffer(s))
     return (t, str(b))
@@ -2268,11 +2348,12 @@ def _clean_array_const(s):
 
 
 def is_class(data):
-
-    """ checks that the data (which is a string, buffer, or a stream
+    """
+    checks that the data (which is a string, buffer, or a stream
     supporting the read method) has the magic numbers indicating it is
     a Java class file. Returns False if the magic numbers do not
-    match, or for any errors. """
+    match, or for any errors.
+    """
 
     try:
         with unpack(data) as up:
@@ -2286,9 +2367,10 @@ def is_class(data):
 
 
 def is_class_file(filename):
-
-    """ checks whether the given file is a Java class file, by opening
-    it and checking for the magic header """
+    """
+    checks whether the given file is a Java class file, by opening it
+    and checking for the magic header
+    """
 
     with open(filename, "rb") as fd:
         c = fd.read(4)
@@ -2298,10 +2380,10 @@ def is_class_file(filename):
 
 
 def unpack_class(data, magic=None):
-
-    """ unpacks a Java class from data, which can be a string, a
-    buffer, or a stream supporting the read method. Returns a
-    populated JavaClassInfo instance.
+    """
+    unpacks a Java class from data, which can be a string, a buffer,
+    or a stream supporting the read method. Returns a populated
+    JavaClassInfo instance.
 
     If data is a stream which has already been confirmed to be a java
     class, it may have had the first four bytes read from it already.
@@ -2309,7 +2391,9 @@ def unpack_class(data, magic=None):
     unpacker will not attempt to read them again.
 
     Raises a ClassUnpackException or an UnpackException if the class
-    data is malformed """
+    data is malformed. Raises Unimplemented if a feature is discovered
+    which isn't understood by javatools yet.
+    """
 
     with unpack(data) as up:
         magic = magic or up.unpack(">BBBB")
@@ -2324,10 +2408,11 @@ def unpack_class(data, magic=None):
 
 
 def unpack_classfile(filename):
-
-    """ returns a newly allocated JavaClassInfo object populated with
-    the data unpacked from the specified file. Raises an
-    UnpackException if the class data is malformed """
+    """
+    returns a newly allocated JavaClassInfo object populated with the
+    data unpacked from the specified file. Raises an UnpackException
+    if the class data is malformed
+    """
 
     with open(filename, "rb", _BUFFERING) as fd:
         return unpack_class(fd)
