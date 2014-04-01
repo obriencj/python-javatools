@@ -647,7 +647,8 @@ class JavaClassInfo(object):
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
         """
 
-        return self._get_annotations("annotations", "RuntimeVisibleAnnotations")
+        return self._get_annotations("annotations",
+                                     "RuntimeVisibleAnnotations")
 
 
 
@@ -659,7 +660,8 @@ class JavaClassInfo(object):
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.17
         """
 
-        return self._get_annotations("invisible_annotations", "RuntimeInvisibleAnnotations")
+        return self._get_annotations("invisible_annotations",
+                                     "RuntimeInvisibleAnnotations")
 
 
 
@@ -2285,7 +2287,7 @@ def is_class_file(filename):
     it and checking for the magic header """
 
     with open(filename, "rb") as fd:
-        c = is_class(fd.read(4))
+        c = fd.read(4)
 
     return c == JAVA_CLASS_MAGIC_STR
 
