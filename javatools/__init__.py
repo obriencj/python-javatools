@@ -15,8 +15,8 @@
 
 
 """
-Simple Java Classfile unpacking module. Can be made to act an awful
-lot like the javap utility included with most Java SDKs.
+Simple Java Classfile unpacking module. Can be made to act an
+awful lot like the javap utility included with most Java SDKs.
 
 Most of the information used to write this was gathered from the
 following web pages
@@ -91,6 +91,8 @@ ACC_MODULE = 0x8000
 
 # commonly re-occurring struct formats
 _B = compile_struct(">B")
+_BBBB = compile_struct(">BBBB")
+_BH = compile_struct(">BH")
 _H = compile_struct(">H")
 _HH = compile_struct(">HH")
 _HHH = compile_struct(">HHH")
@@ -102,35 +104,38 @@ _HHI = compile_struct(">HHI")
 
 
 class NoPoolException(Exception):
-
-    """ raised by methods that need a JavaConstantPool, but aren't
-    provided one on the owning instance """
+    """
+    raised by methods that need a JavaConstantPool, but aren't
+    provided one on the owning instance
+    """
 
     pass
 
 
 
 class Unimplemented(Exception):
-
-    """ raised when something unexpected happens, which usually
-    indicates part of the classfile specification that wasn't
-    implemented in this module yet"""
+    """
+    raised when something unexpected happens, which usually indicates
+    part of the classfile specification that wasn't implemented in
+    this module yet
+    """
 
     pass
 
 
 
 class ClassUnpackException(Exception):
-
-    """ raised when a class couldn't be unpacked """
+    """
+    raised when a class couldn't be unpacked
+    """
 
     pass
 
 
 
 class JavaConstantPool(object):
-
-    """ A constants pool
+    """
+    A constants pool
 
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.4
     """
@@ -153,8 +158,9 @@ class JavaConstantPool(object):
 
 
     def unpack(self, unpacker):
-
-        """ Unpacks the constant pool from an unpacker stream """
+        """
+        Unpacks the constant pool from an unpacker stream
+        """
 
         (count,) = unpacker.unpack_struct(_H)
 
@@ -188,19 +194,21 @@ class JavaConstantPool(object):
 
 
     def get_const(self, index):
-
-        """ returns the type and value of the constant at index """
+        """
+        returns the type and value of the constant at index
+        """
 
         return self.consts[index]
 
 
 
     def deref_const(self, index):
-
-        """ returns the dereferenced value from the const pool. For
-        simple types, this will be a single value indicating the
-        constant. For more complex types, such as fieldref, methodref,
-        etc, this will return a tuple."""
+        """
+        returns the dereferenced value from the const pool. For simple
+        types, this will be a single value indicating the constant.
+        For more complex types, such as fieldref, methodref, etc, this
+        will return a tuple.
+        """
 
         if not index:
             raise Exception("Requested const 0")
@@ -225,9 +233,10 @@ class JavaConstantPool(object):
 
 
     def constants(self):
-
-        """ sequence of tuples (index, type, dereferenced value) of
-        the constant pool entries. """
+        """
+        sequence of tuples (index, type, dereferenced value) of the
+        constant pool entries.
+        """
 
         for i in xrange(1, len(self.consts)):
             t, _v = self.consts[i]
@@ -237,9 +246,10 @@ class JavaConstantPool(object):
 
 
     def pretty_constants(self):
-
-        """ the sequence of tuples (index, pretty type, value) of the
-        constant pool entries."""
+        """
+        the sequence of tuples (index, pretty type, value) of the constant
+        pool entries.
+        """
 
         for i in xrange(1, len(self.consts)):
             t, v = self.pretty_const(i)
@@ -249,10 +259,10 @@ class JavaConstantPool(object):
 
 
     def pretty_const(self, index):
-
-        """ a tuple of the pretty type and val, or (None, None) for
-        invalid indexes (such as the second part of a long or double
-        value) """
+        """
+        a tuple of the pretty type and val, or (None, None) for invalid
+        indexes (such as the second part of a long or double value)
+        """
 
         t, v = self.consts[index]
         if not t:
@@ -263,12 +273,13 @@ class JavaConstantPool(object):
 
 
     def pretty_deref_const(self, index):
-
-        """ A string representation of the end-value of a constant.
-        This will deref the constant index, and if it is a compound
-        type, will continue dereferencing until it can compose the
-        full value (eg: a CONST_Methodref will be composed of its
-        class, name, and value derefenced constants)"""
+        """
+        A string representation of the end-value of a constant.  This will
+        deref the constant index, and if it is a compound type, will
+        continue dereferencing until it can compose the full value
+        (eg: a CONST_Methodref will be composed of its class, name,
+        and value derefenced constants)
+        """
 
         t, v = self.consts[index]
         result = ""
@@ -326,10 +337,11 @@ class JavaConstantPool(object):
 
 
 class JavaAttributes(dict):
-
-    """ attributes table, as used in class, member, and code
+    """
+    attributes table, as used in class, member, and code
     structures. Requires access to a JavaConstantPool instance for
-    many of its methods to work correctly. """
+    many of its methods to work correctly.
+    """
 
 
     def __init__(self, cpool):
@@ -338,9 +350,10 @@ class JavaAttributes(dict):
 
 
     def unpack(self, unpacker):
-
-        """ Unpack an attributes table from an unpacker stream.
-        Modifies the structure of this instance. """
+        """
+        Unpack an attributes table from an unpacker stream.  Modifies the
+        structure of this instance.
+        """
 
         # bound method for dereferencing constants
         cval = self.cpool.deref_const
@@ -353,8 +366,8 @@ class JavaAttributes(dict):
 
 
 class JavaClassInfo(object):
-
-    """ Information from a disassembled Java class file.
+    """
+    Information from a disassembled Java class file.
 
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
     """
@@ -381,32 +394,35 @@ class JavaClassInfo(object):
 
 
     def deref_const(self, index):
-
-        """ dereference a value from the parent constant pool """
+        """
+        dereference a value from the parent constant pool
+        """
 
         return self.cpool.deref_const(index)
 
 
 
     def get_attribute(self, name):
-
-        """ get an attribute buffer by name """
+        """
+        get an attribute buffer by name
+        """
 
         return self.attribs.get(name)
 
 
 
     def unpack(self, unpacker, magic=None):
-
-        """ Unpacks a Java class from an unpacker stream. Updates the
+        """
+        Unpacks a Java class from an unpacker stream. Updates the
         structure of this instance.
 
         If the unpacker has already had the magic header read off of
         it, the read value may be passed via the optional magic
-        parameter and it will not attempt to read the value again. """
+        parameter and it will not attempt to read the value again.
+        """
 
         # only unpack the magic bytes if it wasn't specified
-        magic = magic or unpacker.unpack(">BBBB")
+        magic = magic or unpacker.unpack_struct(_BBBB)
 
         if isinstance(magic, str) or isinstance(magic, buffer):
             magic = tuple(ord(m) for m in magic)
@@ -2094,7 +2110,7 @@ def _unpack_const_item(unpacker):
     appropriate type
     """
 
-    (typecode,) = unpacker.unpack(">B")
+    (typecode,) = unpacker.unpack_struct(_B)
 
     if typecode == CONST_Utf8:
         (slen,) = unpacker.unpack_struct(_H)
@@ -2126,7 +2142,7 @@ def _unpack_const_item(unpacker):
         val = unpacker.unpack_struct(_HH)
 
     elif typecode == CONST_MethodHandle:
-        val = unpacker.unpack(">BH")
+        val = unpacker.unpack_struct(_BH)
 
     else:
         raise Unimplemented("unknown constant type %r" % type)
@@ -2357,7 +2373,7 @@ def is_class(data):
 
     try:
         with unpack(data) as up:
-            magic = up.unpack(">BBBB")
+            magic = up.unpack_struct(_BBBB)
 
         return magic == JAVA_CLASS_MAGIC
 
@@ -2396,7 +2412,7 @@ def unpack_class(data, magic=None):
     """
 
     with unpack(data) as up:
-        magic = magic or up.unpack(">BBBB")
+        magic = magic or up.unpack_struct(_BBBB)
         if magic != JAVA_CLASS_MAGIC:
             raise ClassUnpackException("Not a Java class file")
 
