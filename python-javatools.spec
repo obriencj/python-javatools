@@ -19,6 +19,7 @@ Requires: PyXML
 
 BuildRequires: python2-devel
 BuildRequires: python-cheetah
+BuildRequires: python-setuptools
 BuildRequires: coreutils
 
 
@@ -56,6 +57,7 @@ rm -rf %{buildroot}
 * Thu Jan 21 2014 Christopher O'Brien <obriencj@gmail.com> - 1.4.0-0
 - bump to 1.4.0
 - added ChangeLog as its own file
+- move to setuptools
 
 * Thu May 23 2013 Christopher O'Brien <obriencj@gmail.com> - 1.3-1
 - bump to 1.3
