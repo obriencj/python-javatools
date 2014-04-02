@@ -583,8 +583,8 @@ class Sample2Test(TestCase):
 
     def test_abstract_method_bridges(self):
         ci = load("Sample2A")
-        bis = tuple(ci.get_method_bridges("getSample"))
 
+        bis = tuple(ci.get_method_bridges("getSample"))
         self.assertEqual(len(bis), 1)
 
         mi = bis[0]
@@ -666,6 +666,122 @@ class Sample2Test(TestCase):
         self.assertEqual(ci.get_innerclasses(), tuple())
         self.assertEqual(ci.get_annotations(), tuple())
         self.assertEqual(ci.get_invisible_annotations(), tuple())
+
+
+    def test_class_methods(self):
+        ci = load("Sample2")
+        mi = ci.get_method("getSample")
+
+        self.assertEqual(type(mi), jt.JavaMemberInfo)
+
+        self.assertEqual(mi.get_name(), "getSample")
+        self.assertEqual(mi.get_type_descriptor(), "LSample2;")
+        self.assertEqual(mi.get_descriptor(), "()LSample2;")
+        self.assertEqual(mi.get_identifier(), "getSample()")
+        self.assertEqual(mi.pretty_type(), "Sample2")
+        self.assertEqual(mi.pretty_descriptor(),
+                         "public Sample2 getSample()")
+        self.assertEqual(mi.pretty_identifier(),
+                         "getSample():Sample2")
+
+        self.assertTrue(mi.is_public())
+        self.assertTrue(mi.is_method)
+
+        self.assertFalse(mi.is_private())
+        self.assertFalse(mi.is_protected())
+        self.assertFalse(mi.is_static())
+        self.assertFalse(mi.is_final())
+        self.assertFalse(mi.is_synchronized())
+        self.assertFalse(mi.is_native())
+        self.assertFalse(mi.is_abstract())
+        self.assertFalse(mi.is_strict())
+        self.assertFalse(mi.is_volatile())
+        self.assertFalse(mi.is_transient())
+        self.assertFalse(mi.is_bridge())
+        self.assertFalse(mi.is_varargs())
+        self.assertFalse(mi.is_synthetic())
+        self.assertFalse(mi.is_enum())
+        self.assertFalse(mi.is_module())
+        self.assertFalse(mi.is_deprecated())
+
+
+    def test_class_method_bridges(self):
+        ci = load("Sample2")
+
+        # Sample2 extends Sample2A which implements Sample2I, and each
+        # level has its own getSample definition with a different,
+        # more specific, return type. This results in Sample2 having
+        # two bridges.
+        bis = tuple(ci.get_method_bridges("getSample"))
+        self.assertEqual(len(bis), 2)
+
+        mi = bis[0]
+        self.assertEqual(type(mi), jt.JavaMemberInfo)
+
+        self.assertEqual(mi.get_name(), "getSample")
+        self.assertEqual(mi.get_type_descriptor(), "LSample2A;")
+        self.assertEqual(mi.get_descriptor(), "()LSample2A;")
+        self.assertEqual(mi.get_identifier(),
+                         "getSample():()LSample2A;")
+        self.assertEqual(mi.pretty_type(), "Sample2A")
+        self.assertEqual(mi.pretty_descriptor(),
+                         "public Sample2A getSample()")
+        self.assertEqual(mi.pretty_identifier(),
+                         "getSample():Sample2A")
+
+        self.assertTrue(mi.is_public())
+        self.assertTrue(mi.is_volatile())
+        self.assertTrue(mi.is_bridge())
+        self.assertTrue(mi.is_synthetic())
+        self.assertTrue(mi.is_method)
+
+        self.assertFalse(mi.is_private())
+        self.assertFalse(mi.is_protected())
+        self.assertFalse(mi.is_static())
+        self.assertFalse(mi.is_final())
+        self.assertFalse(mi.is_synchronized())
+        self.assertFalse(mi.is_native())
+        self.assertFalse(mi.is_abstract())
+        self.assertFalse(mi.is_strict())
+        self.assertFalse(mi.is_transient())
+        self.assertFalse(mi.is_varargs())
+        self.assertFalse(mi.is_enum())
+        self.assertFalse(mi.is_module())
+        self.assertFalse(mi.is_deprecated())
+
+        mi = bis[1]
+        self.assertEqual(type(mi), jt.JavaMemberInfo)
+
+        self.assertEqual(mi.get_name(), "getSample")
+        self.assertEqual(mi.get_type_descriptor(), "LSample2I;")
+        self.assertEqual(mi.get_descriptor(), "()LSample2I;")
+        self.assertEqual(mi.get_identifier(),
+                         "getSample():()LSample2I;")
+        self.assertEqual(mi.pretty_type(), "Sample2I")
+        self.assertEqual(mi.pretty_descriptor(),
+                         "public Sample2I getSample()")
+        self.assertEqual(mi.pretty_identifier(),
+                         "getSample():Sample2I")
+
+        self.assertTrue(mi.is_public())
+        self.assertTrue(mi.is_volatile())
+        self.assertTrue(mi.is_bridge())
+        self.assertTrue(mi.is_synthetic())
+        self.assertTrue(mi.is_method)
+
+        self.assertFalse(mi.is_private())
+        self.assertFalse(mi.is_protected())
+        self.assertFalse(mi.is_static())
+        self.assertFalse(mi.is_final())
+        self.assertFalse(mi.is_synchronized())
+        self.assertFalse(mi.is_native())
+        self.assertFalse(mi.is_abstract())
+        self.assertFalse(mi.is_strict())
+        self.assertFalse(mi.is_transient())
+        self.assertFalse(mi.is_varargs())
+        self.assertFalse(mi.is_enum())
+        self.assertFalse(mi.is_module())
+        self.assertFalse(mi.is_deprecated())
 
 
 #
