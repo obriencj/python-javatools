@@ -820,17 +820,13 @@ class JavaClassInfo(object):
             yield "public"
         if self.is_final():
             yield "final"
+        if self.is_abstract():
+            yield "abstract"
         if self.is_interface():
             if self.is_annotation():
                 yield "@interface"
             else:
                 yield "interface"
-        if self.is_abstract():
-            yield "abstract"
-        #if self.is_super():
-        #    yield "super"
-        #if self.is_annotation():
-        #    yield "annotation"
         if self.is_enum():
             yield "enum"
 
