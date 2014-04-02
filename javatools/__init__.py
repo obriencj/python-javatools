@@ -211,7 +211,7 @@ class JavaConstantPool(object):
         """
 
         if not index:
-            raise Exception("Requested const 0")
+            raise IndexError("Requested const 0")
 
         t, v = self.consts[index]
 
