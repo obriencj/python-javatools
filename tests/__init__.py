@@ -540,6 +540,23 @@ class Sample2Test(TestCase):
         self.assertEqual(ci.get_invisible_annotations(), tuple())
 
 
+    def test_abstract_methods(self):
+        ci = load("Sample2A")
+        mi = ci.get_method("getSample")
+
+        self.assertEqual(type(mi), jt.JavaMemberInfo)
+
+        self.assertEqual(mi.get_name(), "getSample")
+
+
+    def test_abstract_method_bridges(self):
+        ci = load("Sample2A")
+        bis = ci.get_method_bridges("getSample")
+        bis = tuple(bis)
+
+        self.assertEqual(len(bis), 1)
+
+
     def test_classinfo(self):
         ci = load("Sample2")
 

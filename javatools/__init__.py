@@ -478,7 +478,8 @@ class JavaClassInfo(object):
 
     def get_methods_by_name(self, name):
         """
-        generator of methods matching name
+        generator of methods matching name. This will include any bridges
+        present.
         """
 
         return (m for m in self.methods if m.get_name() == name)
@@ -487,9 +488,19 @@ class JavaClassInfo(object):
 
     def get_method(self, name, arg_types=()):
         """
-        returns the method matching the name and having argument type
-        descriptors matching those in arg_types. This does not return
-        any bridge methods. None if no matching method is found
+        searches for the method matching the name and having argument type
+        descriptors matching those in arg_types.
+
+        Parameters
+        ==========
+        arg_types : sequence of strings
+          each string is a parameter type, in the non-pretty format.
+
+        Returns
+        =======
+        method : `JavaMemberInfo` or `None`
+          the single matching, non-bridging method of matching name
+          and parameter types.
         """
 
         # ensure any lists or iterables are converted to tuple for
@@ -510,17 +521,6 @@ class JavaClassInfo(object):
         named method and having argument type descriptors matching
         those in arg_types.
         """
-
-        # I am not entirely certain if a class will generate more than
-        # one synthetic bridge method to adapt the return type. I know
-        # it will generate one at least if someone subclasses and
-        # overrides the method to return a more specific type. If
-        # someone were to then subclass again with an even MORE
-        # specific type, I am not sure if only one bridge would be
-        # generated (adapting to the first super's type) or two
-        # (adapting to the first super's type, and another to the
-        # original type). I will need to research such insane
-        # conditions.
 
         for m in self.get_methods_by_name(name):
             if (m.is_bridge() and
