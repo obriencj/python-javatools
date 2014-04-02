@@ -129,6 +129,10 @@ class Sample1Tests(TestCase):
 
         self.assertEqual(col, exp)
 
+        # requesting
+        x = lambda: ci.cpool.deref_const(0)
+        self.assertRaises(IndexError, x)
+
 
     def test_field_name(self):
         ci = load("Sample1")
