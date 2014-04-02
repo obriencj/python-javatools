@@ -1,4 +1,4 @@
-public class Sample2 extends Sample2A implements Sample2I {
+public final class Sample2 extends Sample2A {
     public boolean getBoolean(boolean b) {
 	return b;
     }
