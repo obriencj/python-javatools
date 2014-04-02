@@ -58,13 +58,11 @@ class Sample1Tests(TestCase):
         self.assertEqual(ci.get_sourcefile(), "Sample1.java")
 
         self.assertTrue(ci.is_public())
-        self.assertFalse(ci.is_final())
-
-        self.assertFalse(ci.is_interface())
-        self.assertFalse(ci.is_abstract())
-
         self.assertTrue(ci.is_super())
 
+        self.assertFalse(ci.is_final())
+        self.assertFalse(ci.is_interface())
+        self.assertFalse(ci.is_abstract())
         self.assertFalse(ci.is_annotation())
         self.assertFalse(ci.is_enum())
         self.assertFalse(ci.is_deprecated())
@@ -149,8 +147,10 @@ class Sample1Tests(TestCase):
                          "java.lang.String")
         self.assertEqual(fi.pretty_descriptor(),
                          "private java.lang.String name")
-        self.assertFalse(fi.is_public())
+
         self.assertTrue(fi.is_private())
+
+        self.assertFalse(fi.is_public())
         self.assertFalse(fi.is_protected())
         self.assertFalse(fi.is_static())
         self.assertFalse(fi.is_final())
@@ -186,10 +186,12 @@ class Sample1Tests(TestCase):
                          "java.lang.String")
         self.assertEqual(fi.pretty_descriptor(),
                          "protected static java.lang.String recent_name")
-        self.assertFalse(fi.is_public())
-        self.assertFalse(fi.is_private())
+
         self.assertTrue(fi.is_protected())
         self.assertTrue(fi.is_static())
+
+        self.assertFalse(fi.is_public())
+        self.assertFalse(fi.is_private())
         self.assertFalse(fi.is_final())
         self.assertFalse(fi.is_synchronized())
         self.assertFalse(fi.is_native())
@@ -223,11 +225,13 @@ class Sample1Tests(TestCase):
                          "java.lang.String")
         self.assertEqual(fi.pretty_descriptor(),
                          "public static final java.lang.String DEFAULT_NAME")
+
         self.assertTrue(fi.is_public())
-        self.assertFalse(fi.is_private())
-        self.assertFalse(fi.is_protected())
         self.assertTrue(fi.is_static())
         self.assertTrue(fi.is_final())
+
+        self.assertFalse(fi.is_private())
+        self.assertFalse(fi.is_protected())
         self.assertFalse(fi.is_synchronized())
         self.assertFalse(fi.is_native())
         self.assertFalse(fi.is_abstract())
@@ -266,7 +270,10 @@ class Sample1Tests(TestCase):
         self.assertEqual(mi0.pretty_type(), "void")
         self.assertEqual(mi0.pretty_descriptor(), "public <init>()")
         self.assertEqual(mi0.pretty_identifier(), "<init>():void")
+
         self.assertTrue(mi0.is_public())
+        self.assertTrue(mi0.is_method)
+
         self.assertFalse(mi0.is_private())
         self.assertFalse(mi0.is_protected())
         self.assertFalse(mi0.is_static())
@@ -283,7 +290,6 @@ class Sample1Tests(TestCase):
         self.assertFalse(mi0.is_enum())
         self.assertFalse(mi0.is_module())
         self.assertFalse(mi0.is_deprecated())
-        self.assertTrue(mi0.is_method)
 
         self.assertEqual(mi1.get_name(), "<init>")
         self.assertEqual(mi1.get_type_descriptor(), "V")
@@ -296,7 +302,10 @@ class Sample1Tests(TestCase):
                          "public <init>(java.lang.String)")
         self.assertEqual(mi1.pretty_identifier(),
                          "<init>(java.lang.String):void")
+
         self.assertTrue(mi1.is_public())
+        self.assertTrue(mi1.is_method)
+
         self.assertFalse(mi1.is_private())
         self.assertFalse(mi1.is_protected())
         self.assertFalse(mi1.is_static())
@@ -313,7 +322,6 @@ class Sample1Tests(TestCase):
         self.assertFalse(mi1.is_enum())
         self.assertFalse(mi1.is_module())
         self.assertFalse(mi1.is_deprecated())
-        self.assertTrue(mi1.is_method)
 
 
     def test_method_get_name(self):
@@ -333,6 +341,8 @@ class Sample1Tests(TestCase):
                          "getName():java.lang.String")
 
         self.assertTrue(mi.is_public())
+        self.assertTrue(mi.is_method)
+
         self.assertFalse(mi.is_private())
         self.assertFalse(mi.is_protected())
         self.assertFalse(mi.is_static())
@@ -349,7 +359,6 @@ class Sample1Tests(TestCase):
         self.assertFalse(mi.is_enum())
         self.assertFalse(mi.is_module())
         self.assertFalse(mi.is_deprecated())
-        self.assertTrue(mi.is_method)
 
 
     def test_method_code_name(self):
@@ -399,9 +408,11 @@ class Sample1Tests(TestCase):
                          "getRecentName():java.lang.String")
 
         self.assertTrue(mi.is_public())
+        self.assertTrue(mi.is_static())
+        self.assertTrue(mi.is_method)
+
         self.assertFalse(mi.is_private())
         self.assertFalse(mi.is_protected())
-        self.assertTrue(mi.is_static())
         self.assertFalse(mi.is_final())
         self.assertFalse(mi.is_synchronized())
         self.assertFalse(mi.is_native())
@@ -415,7 +426,6 @@ class Sample1Tests(TestCase):
         self.assertFalse(mi.is_enum())
         self.assertFalse(mi.is_module())
         self.assertFalse(mi.is_deprecated())
-        self.assertTrue(mi.is_method)
 
 
     def test_method_code_recent_name(self):
@@ -460,16 +470,11 @@ class Sample2Test(TestCase):
         self.assertEqual(ci.get_sourcefile(), "Sample2I.java")
 
         self.assertTrue(ci.is_public())
-        self.assertFalse(ci.is_final())
-
         self.assertTrue(ci.is_interface())
-
-        # interfaces are implicitly abstract
         self.assertTrue(ci.is_abstract())
 
-        # interfaces don't get this flag set
+        self.assertFalse(ci.is_final())
         self.assertFalse(ci.is_super())
-
         self.assertFalse(ci.is_annotation())
         self.assertFalse(ci.is_enum())
         self.assertFalse(ci.is_deprecated())
@@ -507,12 +512,11 @@ class Sample2Test(TestCase):
         self.assertEqual(ci.get_sourcefile(), "Sample2A.java")
 
         self.assertTrue(ci.is_public())
-        self.assertFalse(ci.is_final())
-
-        self.assertFalse(ci.is_interface())
         self.assertTrue(ci.is_abstract())
         self.assertTrue(ci.is_super())
 
+        self.assertFalse(ci.is_final())
+        self.assertFalse(ci.is_interface())
         self.assertFalse(ci.is_annotation())
         self.assertFalse(ci.is_enum())
         self.assertFalse(ci.is_deprecated())
@@ -547,14 +551,75 @@ class Sample2Test(TestCase):
         self.assertEqual(type(mi), jt.JavaMemberInfo)
 
         self.assertEqual(mi.get_name(), "getSample")
+        self.assertEqual(mi.get_type_descriptor(), "LSample2A;")
+        self.assertEqual(mi.get_descriptor(), "()LSample2A;")
+        self.assertEqual(mi.get_identifier(), "getSample()")
+        self.assertEqual(mi.pretty_type(), "Sample2A")
+        self.assertEqual(mi.pretty_descriptor(),
+                         "public Sample2A getSample()")
+        self.assertEqual(mi.pretty_identifier(),
+                         "getSample():Sample2A")
+
+        self.assertTrue(mi.is_public())
+        self.assertTrue(mi.is_method)
+
+        self.assertFalse(mi.is_private())
+        self.assertFalse(mi.is_protected())
+        self.assertFalse(mi.is_static())
+        self.assertFalse(mi.is_final())
+        self.assertFalse(mi.is_synchronized())
+        self.assertFalse(mi.is_native())
+        self.assertFalse(mi.is_abstract())
+        self.assertFalse(mi.is_strict())
+        self.assertFalse(mi.is_volatile())
+        self.assertFalse(mi.is_transient())
+        self.assertFalse(mi.is_bridge())
+        self.assertFalse(mi.is_varargs())
+        self.assertFalse(mi.is_synthetic())
+        self.assertFalse(mi.is_enum())
+        self.assertFalse(mi.is_module())
+        self.assertFalse(mi.is_deprecated())
 
 
     def test_abstract_method_bridges(self):
         ci = load("Sample2A")
-        bis = ci.get_method_bridges("getSample")
-        bis = tuple(bis)
+        bis = tuple(ci.get_method_bridges("getSample"))
 
         self.assertEqual(len(bis), 1)
+
+        mi = bis[0]
+        self.assertEqual(type(mi), jt.JavaMemberInfo)
+
+        self.assertEqual(mi.get_name(), "getSample")
+        self.assertEqual(mi.get_type_descriptor(), "LSample2I;")
+        self.assertEqual(mi.get_descriptor(), "()LSample2I;")
+        self.assertEqual(mi.get_identifier(),
+                         "getSample():()LSample2I;")
+        self.assertEqual(mi.pretty_type(), "Sample2I")
+        self.assertEqual(mi.pretty_descriptor(),
+                         "public Sample2I getSample()")
+        self.assertEqual(mi.pretty_identifier(),
+                         "getSample():Sample2I")
+
+        self.assertTrue(mi.is_public())
+        self.assertTrue(mi.is_volatile())
+        self.assertTrue(mi.is_bridge())
+        self.assertTrue(mi.is_synthetic())
+        self.assertTrue(mi.is_method)
+
+        self.assertFalse(mi.is_private())
+        self.assertFalse(mi.is_protected())
+        self.assertFalse(mi.is_static())
+        self.assertFalse(mi.is_final())
+        self.assertFalse(mi.is_synchronized())
+        self.assertFalse(mi.is_native())
+        self.assertFalse(mi.is_abstract())
+        self.assertFalse(mi.is_strict())
+        self.assertFalse(mi.is_transient())
+        self.assertFalse(mi.is_varargs())
+        self.assertFalse(mi.is_enum())
+        self.assertFalse(mi.is_module())
+        self.assertFalse(mi.is_deprecated())
 
 
     def test_classinfo(self):
@@ -569,11 +634,10 @@ class Sample2Test(TestCase):
 
         self.assertTrue(ci.is_public())
         self.assertTrue(ci.is_final())
+        self.assertTrue(ci.is_super())
 
         self.assertFalse(ci.is_interface())
         self.assertFalse(ci.is_abstract())
-        self.assertTrue(ci.is_super())
-
         self.assertFalse(ci.is_annotation())
         self.assertFalse(ci.is_enum())
         self.assertFalse(ci.is_deprecated())
