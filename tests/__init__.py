@@ -443,5 +443,145 @@ class Sample1Tests(TestCase):
                          "Sample1.recent_name:java.lang.String")
 
 
+class Sample2Test(TestCase):
+
+    def test_interface(self):
+        ci = load("Sample2I")
+
+        self.assertEqual(type(ci), jt.JavaClassInfo)
+
+        self.assertEqual(ci.get_this(), "Sample2I")
+        self.assertEqual(ci.pretty_this(), "Sample2I")
+
+        self.assertEqual(ci.get_sourcefile(), "Sample2I.java")
+
+        self.assertTrue(ci.is_public())
+        self.assertFalse(ci.is_final())
+
+        self.assertTrue(ci.is_interface())
+
+        # interfaces are implicitly abstract
+        self.assertTrue(ci.is_abstract())
+
+        # interfaces don't get this flag set
+        self.assertFalse(ci.is_super())
+
+        self.assertFalse(ci.is_annotation())
+        self.assertFalse(ci.is_enum())
+        self.assertFalse(ci.is_deprecated())
+
+        self.assertEqual(ci.get_super(), "java/lang/Object")
+        self.assertEqual(ci.pretty_super(), "java.lang.Object")
+
+        # not a generic class, no signature
+        self.assertEqual(ci.get_signature(), None)
+        self.assertEqual(ci.pretty_signature(), None)
+
+        self.assertEqual(ci.pretty_descriptor(),
+                         "public abstract interface Sample2I"
+                         " extends java.lang.Object")
+
+        self.assertEqual(ci.get_interfaces(), tuple())
+        self.assertEqual(tuple(ci.pretty_interfaces()), tuple())
+
+        # not an inner class, so no enclosing method
+        self.assertEqual(ci.get_enclosingmethod(), None)
+
+        self.assertEqual(ci.get_innerclasses(), tuple())
+        self.assertEqual(ci.get_annotations(), tuple())
+        self.assertEqual(ci.get_invisible_annotations(), tuple())
+
+
+    def test_abstract(self):
+        ci = load("Sample2A")
+
+        self.assertEqual(type(ci), jt.JavaClassInfo)
+
+        self.assertEqual(ci.get_this(), "Sample2A")
+        self.assertEqual(ci.pretty_this(), "Sample2A")
+
+        self.assertEqual(ci.get_sourcefile(), "Sample2A.java")
+
+        self.assertTrue(ci.is_public())
+        self.assertFalse(ci.is_final())
+
+        self.assertFalse(ci.is_interface())
+        self.assertTrue(ci.is_abstract())
+        self.assertTrue(ci.is_super())
+
+        self.assertFalse(ci.is_annotation())
+        self.assertFalse(ci.is_enum())
+        self.assertFalse(ci.is_deprecated())
+
+        self.assertEqual(ci.get_super(), "java/lang/Object")
+        self.assertEqual(ci.pretty_super(), "java.lang.Object")
+
+        # not a generic class, no signature
+        self.assertEqual(ci.get_signature(), None)
+        self.assertEqual(ci.pretty_signature(), None)
+
+        self.assertEqual(ci.pretty_descriptor(),
+                         "public abstract class Sample2A"
+                         " extends java.lang.Object"
+                         " implements Sample2I")
+
+        self.assertEqual(ci.get_interfaces(), ("Sample2I",))
+        self.assertEqual(tuple(ci.pretty_interfaces()), ("Sample2I",))
+
+        # not an inner class, so no enclosing method
+        self.assertEqual(ci.get_enclosingmethod(), None)
+
+        self.assertEqual(ci.get_innerclasses(), tuple())
+        self.assertEqual(ci.get_annotations(), tuple())
+        self.assertEqual(ci.get_invisible_annotations(), tuple())
+
+
+    def test_classinfo(self):
+        ci = load("Sample2")
+
+        self.assertEqual(type(ci), jt.JavaClassInfo)
+
+        self.assertEqual(ci.get_this(), "Sample2")
+        self.assertEqual(ci.pretty_this(), "Sample2")
+
+        self.assertEqual(ci.get_sourcefile(), "Sample2.java")
+
+        self.assertTrue(ci.is_public())
+        self.assertTrue(ci.is_final())
+
+        self.assertFalse(ci.is_interface())
+        self.assertFalse(ci.is_abstract())
+        self.assertTrue(ci.is_super())
+
+        self.assertFalse(ci.is_annotation())
+        self.assertFalse(ci.is_enum())
+        self.assertFalse(ci.is_deprecated())
+
+        self.assertEqual(ci.get_super(), "Sample2A")
+        self.assertEqual(ci.pretty_super(), "Sample2A")
+
+        # not a generic class, no signature
+        self.assertEqual(ci.get_signature(), None)
+        self.assertEqual(ci.pretty_signature(), None)
+
+        self.assertEqual(ci.pretty_descriptor(),
+                         "public final class Sample2"
+                         " extends Sample2A")
+
+        # even though it extends an abstract which implements
+        # interfaces this class doesn't EXPLICITLY claim any
+        # interfaces, so there are none in the classfile ... it's
+        # added at runtime.
+        self.assertEqual(ci.get_interfaces(), tuple())
+        self.assertEqual(tuple(ci.pretty_interfaces()), tuple())
+
+        # not an inner class, so no enclosing method
+        self.assertEqual(ci.get_enclosingmethod(), None)
+
+        self.assertEqual(ci.get_innerclasses(), tuple())
+        self.assertEqual(ci.get_annotations(), tuple())
+        self.assertEqual(ci.get_invisible_annotations(), tuple())
+
+
 #
 # The end.
