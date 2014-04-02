@@ -3,12 +3,19 @@
 This directory contains sample Java class files for the
 python-javatools unit tests to run against.
 
-Both the source files and the built binaries are included. You may opt
-to rebuild the sources, but be warned that doing so may change the
+
+## Rebuilding
+
+Both the source files and the binaries are included in git. You may
+opt to rebuild the sources, but be warned that doing so may change the
 validity of some of the tests. For example, the ordering of the
 constants pool may vary depending on the version of the javac used to
 compile the binaries, and this will most certainly result in some of
 the tests failing.
+
+Suitably warned, to rebuild the samples simply run:
+
+```make clean all```
 
 
 ## Sample 1
