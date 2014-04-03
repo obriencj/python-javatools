@@ -30,10 +30,9 @@ license: LGPL
 """
 
 
-
-from .pack import compile_struct, unpack, UnpackException
+from .dirutils import fnmatches
 from .opcodes import disassemble
-
+from .pack import compile_struct, unpack, UnpackException
 
 
 # the four bytes at the start of every class file
@@ -41,9 +40,7 @@ JAVA_CLASS_MAGIC = (0xCA, 0xFE, 0xBA, 0xBE)
 JAVA_CLASS_MAGIC_STR = "\xca\xfe\xba\xbe"
 
 
-
 _BUFFERING = 2 ** 14
-
 
 
 # The constant pool types
@@ -63,7 +60,6 @@ CONST_ModuleId = 13 # Removed? Maybe OpenJDK only?
 CONST_MethodHandle = 15 # TODO
 CONST_MethodType = 16 # TODO
 CONST_InvokeDynamic = 18 # TODO
-
 
 
 # class and member flags
@@ -88,7 +84,6 @@ ACC_ENUM = 0x4000
 ACC_MODULE = 0x8000
 
 
-
 # commonly re-occurring struct formats
 _B = compile_struct(">B")
 _BBBB = compile_struct(">BBBB")
@@ -102,7 +97,6 @@ _HI = compile_struct(">HI")
 _HHI = compile_struct(">HHI")
 
 
-
 class NoPoolException(Exception):
     """
     raised by methods that need a JavaConstantPool, but aren't
@@ -110,7 +104,6 @@ class NoPoolException(Exception):
     """
 
     pass
-
 
 
 class Unimplemented(Exception):
@@ -123,14 +116,12 @@ class Unimplemented(Exception):
     pass
 
 
-
 class ClassUnpackException(Exception):
     """
     raised when a class couldn't be unpacked
     """
 
     pass
-
 
 
 class JavaConstantPool(object):
@@ -140,10 +131,8 @@ class JavaConstantPool(object):
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.4
     """
 
-
     def __init__(self):
         self.consts = tuple()
-
 
 
     def __eq__(self, other):
@@ -151,10 +140,8 @@ class JavaConstantPool(object):
                 (self.consts == other.consts))
 
 
-
     def __ne__(self, other):
         return not self.__eq__(other)
-
 
 
     def unpack(self, unpacker):
@@ -192,14 +179,12 @@ class JavaConstantPool(object):
         self.consts = items
 
 
-
     def get_const(self, index):
         """
         returns the type and value of the constant at index
         """
 
         return self.consts[index]
-
 
 
     def deref_const(self, index):
@@ -231,7 +216,6 @@ class JavaConstantPool(object):
             raise Unimplemented("Unknown constant pool type %r" % t)
 
 
-
     def constants(self):
         """
         sequence of tuples (index, type, dereferenced value) of the
@@ -242,7 +226,6 @@ class JavaConstantPool(object):
             t, _v = self.consts[i]
             if t:
                 yield (i, t, self.deref_const(i))
-
 
 
     def pretty_constants(self):
@@ -257,7 +240,6 @@ class JavaConstantPool(object):
                 yield (i, t, v)
 
 
-
     def pretty_const(self, index):
         """
         a tuple of the pretty type and val, or (None, None) for invalid
@@ -269,7 +251,6 @@ class JavaConstantPool(object):
             return (None, None)
         else:
             return _pretty_const_type_val(t, v)
-
 
 
     def pretty_deref_const(self, index):
@@ -335,14 +316,12 @@ class JavaConstantPool(object):
         return result
 
 
-
 class JavaAttributes(dict):
     """
     attributes table, as used in class, member, and code
     structures. Requires access to a JavaConstantPool instance for
     many of its methods to work correctly.
     """
-
 
     def __init__(self, cpool):
         dict.__init__(self)
@@ -362,7 +341,6 @@ class JavaAttributes(dict):
         for _i in xrange(0, count):
             (name, size) = unpacker.unpack_struct(_HI)
             self[cval(name)] = unpacker.read(size)
-
 
 
 class JavaClassInfo(object):
@@ -392,7 +370,6 @@ class JavaClassInfo(object):
         self._requires = None
 
 
-
     def deref_const(self, index):
         """
         dereference a value from the parent constant pool
@@ -401,14 +378,12 @@ class JavaClassInfo(object):
         return self.cpool.deref_const(index)
 
 
-
     def get_attribute(self, name):
         """
         get an attribute buffer by name
         """
 
         return self.attribs.get(name)
-
 
 
     def unpack(self, unpacker, magic=None):
@@ -424,7 +399,7 @@ class JavaClassInfo(object):
         # only unpack the magic bytes if it wasn't specified
         magic = magic or unpacker.unpack_struct(_BBBB)
 
-        if isinstance(magic, str) or isinstance(magic, buffer):
+        if isinstance(magic, (str, buffer)):
             magic = tuple(ord(m) for m in magic)
         else:
             magic = tuple(magic)
@@ -463,7 +438,6 @@ class JavaClassInfo(object):
         self.attribs.unpack(unpacker)
 
 
-
     def get_field_by_name(self, name):
         """
         the field member matching name, or None if no such field is found
@@ -475,7 +449,6 @@ class JavaClassInfo(object):
         return None
 
 
-
     def get_methods_by_name(self, name):
         """
         generator of methods matching name. This will include any bridges
@@ -483,7 +456,6 @@ class JavaClassInfo(object):
         """
 
         return (m for m in self.methods if m.get_name() == name)
-
 
 
     def get_method(self, name, arg_types=()):
@@ -514,7 +486,6 @@ class JavaClassInfo(object):
         return None
 
 
-
     def get_method_bridges(self, name, arg_types=()):
         """
         generator of bridge methods found that adapt the return types of a
@@ -528,14 +499,12 @@ class JavaClassInfo(object):
                 yield m
 
 
-
     def get_version(self):
         """
         the (major, minor) version of Java required by this Java class
         """
 
         return self.version
-
 
 
     def get_platform(self):
@@ -547,7 +516,6 @@ class JavaClassInfo(object):
         return platform_from_version(*self.version)
 
 
-
     def is_public(self):
         """
         is this class public
@@ -556,14 +524,12 @@ class JavaClassInfo(object):
         return self.access_flags & ACC_PUBLIC
 
 
-
     def is_final(self):
         """
         is this class final
         """
 
         return self.access_flags & ACC_FINAL
-
 
 
     def is_super(self):
@@ -577,14 +543,12 @@ class JavaClassInfo(object):
         return self.access_flags & ACC_SUPER
 
 
-
     def is_interface(self):
         """
         is this an interface
         """
 
         return self.access_flags & ACC_INTERFACE
-
 
 
     def is_abstract(self):
@@ -595,14 +559,12 @@ class JavaClassInfo(object):
         return self.access_flags & ACC_ABSTRACT
 
 
-
     def is_annotation(self):
         """
         is this an annotation class
         """
 
         return self.access_flags & ACC_ANNOTATION
-
 
 
     def is_enum(self):
@@ -613,14 +575,12 @@ class JavaClassInfo(object):
         return self.access_flags & ACC_ENUM
 
 
-
     def get_this(self):
         """
         the name of this class
         """
 
         return self.deref_const(self.this_ref)
-
 
 
     def is_deprecated(self):
@@ -633,7 +593,6 @@ class JavaClassInfo(object):
         return bool(self.get_attribute("Deprecated"))
 
 
-
     def get_super(self):
         """
         get the parent class that this extends
@@ -642,14 +601,12 @@ class JavaClassInfo(object):
         return self.deref_const(self.super_ref)
 
 
-
     def get_interfaces(self):
         """
         tuple of interfaces that this class implements
         """
 
         return tuple(self.deref_const(i) for i in self.interfaces)
-
 
 
     def _get_annotations(self, python_attr_name, java_attr_name):
@@ -671,7 +628,6 @@ class JavaClassInfo(object):
         return annos
 
 
-
     def get_annotations(self):
         """
         The RuntimeVisibleAnnotations attribute. A tuple of JavaAnnotation
@@ -684,7 +640,6 @@ class JavaClassInfo(object):
                                      "RuntimeVisibleAnnotations")
 
 
-
     def get_invisible_annotations(self):
         """
         The RuntimeInvisibleAnnotations attribute. A tuple of
@@ -695,7 +650,6 @@ class JavaClassInfo(object):
 
         return self._get_annotations("invisible_annotations",
                                      "RuntimeInvisibleAnnotations")
-
 
 
     def get_sourcefile(self):
@@ -716,7 +670,6 @@ class JavaClassInfo(object):
         return self.deref_const(ref)
 
 
-
     def get_source_debug_extension(self):
         """
         reference:
@@ -725,7 +678,6 @@ class JavaClassInfo(object):
 
         buff = self.get_attribute("SourceDebugExtension")
         return (buff and str(buff)) or None
-
 
 
     def get_innerclasses(self):
@@ -742,7 +694,6 @@ class JavaClassInfo(object):
 
         with unpack(buff) as up:
             return tuple(up.unpack_objects(JavaInnerClassInfo, self.cpool))
-
 
 
     def get_signature(self):
@@ -762,14 +713,12 @@ class JavaClassInfo(object):
         return self.deref_const(ref)
 
 
-
     def pretty_signature(self):
         """
         pretty version of the signature
         """
 
         return pretty_generic(self.get_signature())
-
 
 
     def get_enclosingmethod(self):
@@ -810,7 +759,6 @@ class JavaClassInfo(object):
         return result
 
 
-
     def _pretty_access_flags_gen(self):
         """
         generator of the pretty access flags
@@ -831,14 +779,12 @@ class JavaClassInfo(object):
             yield "enum"
 
 
-
     def pretty_access_flags(self):
         """
         generator of the pretty access flag names
         """
 
         return self._pretty_access_flags_gen()
-
 
 
     def pretty_this(self):
@@ -849,7 +795,6 @@ class JavaClassInfo(object):
         return _pretty_class(self.get_this())
 
 
-
     def pretty_super(self):
         """
         the pretty version of the parent class name
@@ -858,14 +803,12 @@ class JavaClassInfo(object):
         return _pretty_class(self.get_super())
 
 
-
     def pretty_interfaces(self):
         """
         the pretty versions of any interfaces this class implements
         """
 
         return (_pretty_class(t) for t in self.get_interfaces())
-
 
 
     def pretty_descriptor(self):
@@ -888,7 +831,6 @@ class JavaClassInfo(object):
             return "%s %s extends %s" % (f, n, e)
 
 
-
     def _get_provides(self, private=False):
         """
         iterator of provided classes, fields, methods
@@ -906,7 +848,6 @@ class JavaClassInfo(object):
         for method in self.methods:
             if private or method.is_public():
                 yield "%s.%s" % (me, method.pretty_identifier())
-
 
 
     def _get_requires(self):
@@ -947,14 +888,11 @@ class JavaClassInfo(object):
                     yield pv
 
 
-
     def get_provides(self, ignored=tuple(), private=False):
         """
         The provided API, including the class itself, its fields, and its
         methods.
         """
-
-        from .dirutils import fnmatches
 
         if private:
             if self._provides_private is None:
@@ -968,14 +906,11 @@ class JavaClassInfo(object):
         return [prov for prov in provides if not fnmatches(prov, *ignored)]
 
 
-
     def get_requires(self, ignored=tuple()):
         """
         The required API, including all external classes, fields, and
         methods that this class references
         """
-
-        from .dirutils import fnmatches
 
         if self._requires is None:
             self._requires = set(self._get_requires())
@@ -984,12 +919,10 @@ class JavaClassInfo(object):
         return [req for req in requires if not fnmatches(req, *ignored)]
 
 
-
 class JavaMemberInfo(object):
     """
     A field or method of a java class
     """
-
 
     def __init__(self, cpool, is_method=False):
         self.cpool = cpool
@@ -1002,7 +935,6 @@ class JavaMemberInfo(object):
         self.invisible_annotations = None
 
 
-
     def deref_const(self, index):
         """
         Dereference a constant in the parent constant pool
@@ -1011,14 +943,12 @@ class JavaMemberInfo(object):
         return self.cpool.deref_const(index)
 
 
-
     def get_attribute(self, name):
         """
         Get an attribute buffer by name
         """
 
         return self.attribs.get(name)
-
 
 
     def get_signature(self):
@@ -1037,14 +967,12 @@ class JavaMemberInfo(object):
         return self.deref_const(ti)
 
 
-
     def pretty_signature(self):
         """
         pretty version of the signature
         """
 
         return pretty_generic(self.get_signature())
-
 
 
     def get_module(self):
@@ -1062,7 +990,6 @@ class JavaMemberInfo(object):
         return self.deref_const(ti)
 
 
-
     def unpack(self, unpacker):
         """
         unpack the contents of this instance from the values in unpacker
@@ -1076,14 +1003,12 @@ class JavaMemberInfo(object):
         self.attribs.unpack(unpacker)
 
 
-
     def get_name(self):
         """
         the name of this member
         """
 
         return self.deref_const(self.name_ref)
-
 
 
     def get_descriptor(self):
@@ -1094,14 +1019,12 @@ class JavaMemberInfo(object):
         return self.deref_const(self.descriptor_ref)
 
 
-
     def is_public(self):
         """
         is this member public
         """
 
         return self.access_flags & ACC_PUBLIC
-
 
 
     def is_private(self):
@@ -1112,14 +1035,12 @@ class JavaMemberInfo(object):
         return self.access_flags & ACC_PRIVATE
 
 
-
     def is_protected(self):
         """
         is this member protected
         """
 
         return self.access_flags & ACC_PROTECTED
-
 
 
     def is_static(self):
@@ -1130,14 +1051,12 @@ class JavaMemberInfo(object):
         return self.access_flags & ACC_STATIC
 
 
-
     def is_final(self):
         """
         is this member final
         """
 
         return self.access_flags & ACC_FINAL
-
 
 
     def is_synchronized(self):
@@ -1148,14 +1067,12 @@ class JavaMemberInfo(object):
         return self.access_flags & ACC_SYNCHRONIZED
 
 
-
     def is_native(self):
         """
         is this member native
         """
 
         return self.access_flags & ACC_NATIVE
-
 
 
     def is_abstract(self):
@@ -1166,14 +1083,12 @@ class JavaMemberInfo(object):
         return self.access_flags & ACC_ABSTRACT
 
 
-
     def is_strict(self):
         """
         is this member strict
         """
 
         return self.access_flags & ACC_STRICT
-
 
 
     def is_volatile(self):
@@ -1184,14 +1099,12 @@ class JavaMemberInfo(object):
         return self.access_flags & ACC_VOLATILE
 
 
-
     def is_transient(self):
         """
         is this member transient
         """
 
         return self.access_flags & ACC_TRANSIENT
-
 
 
     def is_bridge(self):
@@ -1202,14 +1115,12 @@ class JavaMemberInfo(object):
         return self.access_flags & ACC_BRIDGE
 
 
-
     def is_varargs(self):
         """
         is this a varargs method
         """
 
         return self.access_flags & ACC_VARARGS
-
 
 
     def is_synthetic(self):
@@ -1223,14 +1134,12 @@ class JavaMemberInfo(object):
                 bool(self.get_attribute("Synthetic")))
 
 
-
     def is_enum(self):
         """
         it this member an enum
         """
 
         return self.access_flags & ACC_ENUM
-
 
 
     def is_module(self):
@@ -1241,7 +1150,6 @@ class JavaMemberInfo(object):
         return self.access_flags & ACC_MODULE
 
 
-
     def is_deprecated(self):
         """
         is this member deprecated
@@ -1250,7 +1158,6 @@ class JavaMemberInfo(object):
         """
 
         return bool(self.get_attribute("Deprecated"))
-
 
 
     def _get_annotations(self, python_attr_name, java_attr_name):
@@ -1272,7 +1179,6 @@ class JavaMemberInfo(object):
         return annos
 
 
-
     def get_annotations(self):
         """
         The RuntimeVisibleAnnotations attribute. A tuple of JavaAnnotation
@@ -1285,7 +1191,6 @@ class JavaMemberInfo(object):
                                      "RuntimeVisibleAnnotations")
 
 
-
     def get_invisible_annotations(self):
         """
         The RuntimeInvisibleAnnotations attribute. A tuple of
@@ -1296,7 +1201,6 @@ class JavaMemberInfo(object):
 
         return self._get_annotations("invisible_annotations",
                                      "RuntimeInvisibleAnnotations")
-
 
 
     def get_annotationdefault(self):
@@ -1317,7 +1221,6 @@ class JavaMemberInfo(object):
         return ti
 
 
-
     def deref_annotationdefault(self):
         """
         dereferences the AnnotationDefault attribute
@@ -1328,7 +1231,6 @@ class JavaMemberInfo(object):
             return None
         else:
             return self.deref_const(index)
-
 
 
     def get_code(self):
@@ -1350,7 +1252,6 @@ class JavaMemberInfo(object):
         return code
 
 
-
     def get_exceptions(self):
         """
         a tuple of class names for the exception types this method may
@@ -1366,7 +1267,6 @@ class JavaMemberInfo(object):
         with unpack(buff) as up:
             return tuple(self.deref_const(e[0]) for e
                          in up.unpack_struct_array(_H))
-
 
 
     def get_constantvalue(self):
@@ -1387,7 +1287,6 @@ class JavaMemberInfo(object):
         return cval_ref
 
 
-
     def deref_constantvalue(self):
         """
         the value in the constant pool at the get_constantvalue() index
@@ -1400,7 +1299,6 @@ class JavaMemberInfo(object):
             return self.deref_const(index)
 
 
-
     def get_type_descriptor(self):
         """
         the type descriptor for a field, or the return type descriptor for
@@ -1409,7 +1307,6 @@ class JavaMemberInfo(object):
         """
 
         return _typeseq(self.get_descriptor())[-1]
-
 
 
     def get_arg_type_descriptors(self):
@@ -1428,14 +1325,12 @@ class JavaMemberInfo(object):
         return tp
 
 
-
     def pretty_type(self):
         """
         The pretty version of get_type_descriptor.
         """
 
         return _pretty_type(self.get_type_descriptor())
-
 
 
     def pretty_arg_types(self):
@@ -1448,7 +1343,6 @@ class JavaMemberInfo(object):
             return (_pretty_type(t) for t in types)
         else:
             return tuple()
-
 
 
     def pretty_descriptor(self):
@@ -1476,7 +1370,6 @@ class JavaMemberInfo(object):
             t = "throws " + t
 
         return " ".join(z for z in (f, p, n, t) if z)
-
 
 
     def _pretty_access_flags_gen(self, showall=False):
@@ -1521,7 +1414,6 @@ class JavaMemberInfo(object):
                 yield "volatile"
 
 
-
     def pretty_access_flags(self, showall=False):
         """
         generator of the keywords determined from the access flags
@@ -1530,14 +1422,12 @@ class JavaMemberInfo(object):
         return self._pretty_access_flags_gen(showall)
 
 
-
     def pretty_exceptions(self):
         """
         sequence of pretty names for get_exceptions()
         """
 
         return (_pretty_class(e) for e in self.get_exceptions())
-
 
 
     def get_identifier(self):
@@ -1563,7 +1453,6 @@ class JavaMemberInfo(object):
         return ident
 
 
-
     def pretty_identifier(self):
         """
         The pretty version of get_identifier
@@ -1577,14 +1466,12 @@ class JavaMemberInfo(object):
         return "%s:%s" % (ident, self.pretty_type())
 
 
-
 class JavaCodeInfo(object):
     """
     The 'Code' attribue of a method member of a java class
 
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.3
     """
-
 
     def __init__(self, cpool):
         self.cpool = cpool
@@ -1601,7 +1488,6 @@ class JavaCodeInfo(object):
         self._lnt = None
 
 
-
     def deref_const(self, index):
         """
         dereference a constant by index from the parent constant pool
@@ -1610,14 +1496,12 @@ class JavaCodeInfo(object):
         return self.cpool.deref_const(index)
 
 
-
     def get_attribute(self, name):
         """
         get an attribute buffer by name
         """
 
         return self.attribs.get(name)
-
 
 
     def unpack(self, unpacker):
@@ -1636,7 +1520,6 @@ class JavaCodeInfo(object):
         self.exceptions = tuple(uobjs(JavaExceptionInfo, self))
 
         self.attribs.unpack(unpacker)
-
 
 
     def get_linenumbertable(self):
@@ -1658,7 +1541,6 @@ class JavaCodeInfo(object):
         return lnt
 
 
-
     def get_relativelinenumbertable(self):
         """
         a sequence of (code_offset, line_number) pairs. Similar to the
@@ -1672,7 +1554,6 @@ class JavaCodeInfo(object):
             return tuple((o, l - lineoff) for (o, l) in lnt)
         else:
             return tuple()
-
 
 
     def get_localvariabletable(self):
@@ -1691,7 +1572,6 @@ class JavaCodeInfo(object):
             return tuple(up.unpack_struct_array(_HHHHH))
 
 
-
     def get_localvariabletypetable(self):
         """
         a sequence of (code_offset, length, name_index, signature_index,
@@ -1706,7 +1586,6 @@ class JavaCodeInfo(object):
 
         with unpack(buff) as up:
             return tuple(up.unpack_struct_array(_HHHHH))
-
 
 
     def get_line_for_offset(self, code_offset):
@@ -1725,7 +1604,6 @@ class JavaCodeInfo(object):
                 return prev_line
 
         return prev_line
-
 
 
     def iter_code_by_lines(self):
@@ -1760,7 +1638,6 @@ class JavaCodeInfo(object):
             yield (cur_line, cur_line - lnt_offset, current)
 
 
-
     def disassemble(self):
         """
         disassembles the underlying bytecode instructions and generates a
@@ -1775,12 +1652,10 @@ class JavaCodeInfo(object):
         return dis
 
 
-
 class JavaExceptionInfo(object):
     """
     Information about an exception handler entry in an exception table
     """
-
 
     def __init__(self, code):
         self.code = code
@@ -1852,7 +1727,6 @@ class JavaExceptionInfo(object):
         return "(%s)" % ",".join(self.info())
 
 
-
 class JavaInnerClassInfo(object):
     """
     Information about an inner class
@@ -1890,14 +1764,12 @@ class JavaInnerClassInfo(object):
         return self.cpool.deref_const(self.name_ref)
 
 
-
 class JavaAnnotation(dict):
     """
     Java Annotations info
 
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
     """
-
 
     def __init__(self, cpool):
         dict.__init__(self)
@@ -1963,7 +1835,6 @@ class JavaAnnotation(dict):
         return not self.__eq__(other)
 
 
-
 def _annotation_val_eq(left_tag, left_data, left_cpool,
                        right_tag, right_data, right_cpool):
 
@@ -2000,7 +1871,6 @@ def _annotation_val_eq(left_tag, left_data, left_cpool,
             return True
 
 
-
 def _unpack_annotation_val(unpacker, cpool):
     """
     tag, data tuple of an annotation
@@ -2029,7 +1899,6 @@ def _unpack_annotation_val(unpacker, cpool):
             data.append(_unpack_annotation_val(unpacker, cpool))
 
     return (tag, data)
-
 
 
 def _pretty_annotation_val(val, cpool):
@@ -2066,7 +1935,6 @@ def _pretty_annotation_val(val, cpool):
 # inclusive, and the string of the platform version.
 
 
-
 _platforms = ( ((45, 0), (45, 3), "1.0.2"),
                ((45, 4), (45, 65535), "1.1"),
                ((46, 0), (46, 65535), "1.2"),
@@ -2076,7 +1944,6 @@ _platforms = ( ((45, 0), (45, 3), "1.0.2"),
                ((50, 0), (50, 65535), "1.6"),
                ((51, 0), (51, 65535), "1.7"),
                ((52, 0), (52, 65535), "1.8") )
-
 
 
 def platform_from_version(major, minor):
@@ -2093,10 +1960,8 @@ def platform_from_version(major, minor):
     return None
 
 
-
 # -----
 # Utility functions for the constants pool
-
 
 
 def _unpack_const_item(unpacker):
@@ -2144,7 +2009,6 @@ def _unpack_const_item(unpacker):
         raise Unimplemented("unknown constant type %r" % type)
 
     return (typecode, val)
-
 
 
 def _pretty_const_type_val(typecode, val):
@@ -2197,12 +2061,10 @@ def _pretty_const_type_val(typecode, val):
     return typestr, val
 
 
-
 # -----
 # Utility functions for dealing with exploding internal type
 # signatures into sequences, and converting type signatures into
 # "pretty" strings
-
 
 
 def pretty_generic(signature):
@@ -2213,7 +2075,6 @@ def pretty_generic(signature):
     # TODO: this format is annoying in so many ways.
 
     return signature
-
 
 
 def _next_argsig(buff):
@@ -2247,7 +2108,6 @@ def _next_argsig(buff):
     return result
 
 
-
 def _typeseq_iter(s):
     """
     iterate through all of the type signatures in a sequence
@@ -2259,7 +2119,6 @@ def _typeseq_iter(s):
         yield t
 
 
-
 def _typeseq(type_s):
     """
     tuple version of _typeseq_iter
@@ -2268,14 +2127,12 @@ def _typeseq(type_s):
     return tuple(_typeseq_iter(type_s))
 
 
-
 def _pretty_typeseq(type_s):
     """
     iterator of pretty versions of _typeseq_iter
     """
 
     return (_pretty_type(t) for t in _typeseq_iter(type_s))
-
 
 
 def _pretty_type(s, offset=0):
@@ -2332,7 +2189,6 @@ def _pretty_type(s, offset=0):
         raise Unimplemented("unknown type, %r" % tc)
 
 
-
 def _pretty_class(s):
     """
     convert the internal class name representation into what users
@@ -2341,7 +2197,6 @@ def _pretty_class(s):
 
     # well that's easy.
     return s.replace("/", ".")
-
 
 
 def _clean_array_const(s):
@@ -2353,10 +2208,8 @@ def _clean_array_const(s):
     return (t, str(b))
 
 
-
 # -----
 # Functions for dealing with buffers and files
-
 
 
 def is_class(data):
@@ -2377,7 +2230,6 @@ def is_class(data):
         return False
 
 
-
 def is_class_file(filename):
     """
     checks whether the given file is a Java class file, by opening it
@@ -2388,7 +2240,6 @@ def is_class_file(filename):
         c = fd.read(4)
 
     return c == JAVA_CLASS_MAGIC_STR
-
 
 
 def unpack_class(data, magic=None):
@@ -2418,7 +2269,6 @@ def unpack_class(data, magic=None):
     return o
 
 
-
 def unpack_classfile(filename):
     """
     returns a newly allocated JavaClassInfo object populated with the
@@ -2428,7 +2278,6 @@ def unpack_classfile(filename):
 
     with open(filename, "rb", _BUFFERING) as fd:
         return unpack_class(fd)
-
 
 
 #
