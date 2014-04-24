@@ -15,14 +15,13 @@ github](https://github.com/obriencj/python-javatools/issues). Or heck,
 just fork it!
 
 
-## Project Renamed
+## Switching to Setuptools
 
-Originally python-javaclass, now python-javatools
+Please see [issue #3][issue] and leave a comment with your thoughts on
+switching from distutils to setuptools. You can preview the change in
+the setuptools branch.
 
-"javaclass" was a very generic name, and indeed I had found a
-conflictingly-named [javaclass](http://pypi.python.org/pypi/javaclass)
-package that does something else entirely. Thus this package became
-named "javatools" and hopefully that will be the end of it.
+[issue]: https://github.com/obriencj/python-javatools/issues/4
 
 
 ## Requirements
@@ -101,4 +100,3 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, see
 <http://www.gnu.org/licenses/>.
-
