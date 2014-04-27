@@ -180,7 +180,10 @@ class BufferUnpacker(Unpacker):
         size = sfmt.size
 
         offset = self.offset
-        avail = len(self.data) - offset
+        if self.data:
+            avail = len(self.data) - offset
+        else:
+            avail = 0
 
         if avail < size:
             raise UnpackException(fmt, size, avail)
@@ -196,10 +199,13 @@ class BufferUnpacker(Unpacker):
         enough data to satisfy the format of the structure
         """
 
-        offset = self.offset
-        avail = len(self.data) - offset
-
         size = struct.size
+
+        offset = self.offset
+        if self.data:
+            avail = len(self.data) - offset
+        else:
+            avail = 0
 
         if avail < size:
             raise UnpackException(struct.format, size, avail)
@@ -215,11 +221,11 @@ class BufferUnpacker(Unpacker):
         the underlying buffer.
         """
 
-        if not self.data:
-            raise UnpackException(None, count, 0)
-
         offset = self.offset
-        avail = len(self.data) - offset
+        if self.data:
+            avail = len(self.data) - offset
+        else:
+            avail = 0
 
         if avail < count:
             raise UnpackException(None, count, avail)
@@ -260,6 +266,10 @@ class StreamUnpacker(Unpacker):
 
         sfmt = compile_struct(fmt)
         size = sfmt.size
+
+        if not self.data:
+            raise UnpackException(fmt, size, 0)
+
         buff = self.data.read(size)
         if len(buff) < size:
             raise UnpackException(fmt, size, len(buff))
@@ -275,6 +285,10 @@ class StreamUnpacker(Unpacker):
         """
 
         size = struct.size
+
+        if not self.data:
+            raise UnpackException(struct.format, size, 0)
+
         buff = self.data.read(size)
         if len(buff) < size:
             raise UnpackException(struct.format, size, len(buff))
