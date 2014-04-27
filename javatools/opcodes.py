@@ -13,22 +13,19 @@
 # <http://www.gnu.org/licenses/>.
 
 
-
 """
-A module to hold all the java opcodes. Data taken from publicly
+A module to hold all the Java opcodes. Data taken from publicly
 available sources (see following for more information)
 
 http://java.sun.com/docs/books/jvms/second_edition/html/VMSpecTOC.doc.html
 
 author: Christopher O'Brien  <obriencj@gmail.com>
-license: LGPL
+license: LGPL v.3
 """
-
 
 
 from functools import partial
 from .pack import compile_struct
-
 
 
 # the op table itself
@@ -43,7 +40,6 @@ _OPINDEX_PRODUCE = 4
 _OPINDEX_CONST = 5
 
 
-
 # commonly re-occurring struct formats
 #pylint: disable=C0103
 _struct_i = compile_struct(">i")
@@ -53,11 +49,11 @@ _struct_BH = compile_struct(">BH")
 _struct_BHh = compile_struct(">BHh")
 
 
-
 def __op(name, val, fmt=None, const=False, consume=0, produce=0):
-
-    """ provides sensible defaults for a code, and registers it with
-    the __OPTABLE for lookup. """
+    """
+    provides sensible defaults for a code, and registers it with the
+    __OPTABLE for lookup.
+    """
 
     name = name.lower()
 
@@ -78,49 +74,52 @@ def __op(name, val, fmt=None, const=False, consume=0, produce=0):
     return val
 
 
-
 def get_opcode_by_name(name):
-
-    """ get the integer opcode by its name """
+    """
+    get the integer opcode by its name
+    """
 
     return __OPTABLE[name.lower()][_OPINDEX_VAL]
 
 
-
 def get_opname_by_code(code):
-
-    """ get the name of an opcode """
+    """
+    get the name of an opcode
+    """
 
     return __OPTABLE[code][_OPINDEX_NAME]
 
 
-
 def get_arg_format(code):
-
-    """ get the format of arguments to this opcode """
+    """
+    get the format of arguments to this opcode
+    """
 
     return __OPTABLE[code][_OPINDEX_FMT]
 
 
-
 def has_const_arg(code):
-
-    """ which arg is a const for this opcode """
+    """
+    which arg is a const for this opcode
+    """
 
     return __OPTABLE[code][_OPINDEX_CONST]
 
 
-
 def _unpack(struct, bc, offset=0):
-
-    """ returns the unpacked data tuple, and the next offset past the
-    unpacked data"""
+    """
+    returns the unpacked data tuple, and the next offset past the
+    unpacked data
+    """
 
     return (struct.unpack_from(bc, offset), offset + struct.size)
 
 
-
 def _unpack_lookupswitch(bc, offset):
+    """
+    function for unpacking the lookupswitch op arguments
+    """
+
     jump = (offset % 4)
     if jump:
         offset += (4 - jump)
@@ -135,8 +134,11 @@ def _unpack_lookupswitch(bc, offset):
     return (default, switches), offset
 
 
-
 def _unpack_tableswitch(bc, offset):
+    """
+    function for unpacking the tableswitch op arguments
+    """
+
     jump = (offset % 4)
     if jump:
         offset += (4 - jump)
@@ -151,8 +153,11 @@ def _unpack_tableswitch(bc, offset):
     return (default, low, high, joffs), offset
 
 
-
 def _unpack_wide(bc, offset):
+    """
+    unpacker for wide ops
+    """
+
     code = ord(bc[offset])
 
     if code == OP_iinc:
@@ -165,15 +170,16 @@ def _unpack_wide(bc, offset):
         return _unpack(_struct_BH, bc, offset)
 
     else:
-        # nothing else is valid, so it shouldn't have been passed here.
+        # no other opcodes are valid, so shouldn't have fallen through
+        # to here.
         assert(False)
 
 
-
 def disassemble(bytecode):
-
-    """ Generator. Disassembles Java bytecode into a sequence of
-    (offset, code, args) tuples"""
+    """
+    Generator. Disassembles Java bytecode into a sequence of (offset,
+    code, args) tuples
+    """
 
     offset = 0
     end = len(bytecode)
@@ -190,7 +196,6 @@ def disassemble(bytecode):
             args, offset = fmt(bytecode, offset)
 
         yield (orig_offset, code, args)
-
 
 
 # And now, the OP codes themselves
@@ -417,7 +422,6 @@ OP_swap = __op('swap', 0x5f)
 OP_tableswitch = __op('tableswitch', 0xaa, fmt=_unpack_tableswitch)
 
 OP_wide = __op('wide', 0xc4, fmt=_unpack_wide)
-
 
 
 #
