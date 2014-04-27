@@ -41,7 +41,6 @@ def load(which):
 
 class Sample1Tests(TestCase):
 
-
     def test_is_class_file(self):
         fn = get_class_fn("Sample1")
         self.assertTrue(jt.is_class_file(fn))
