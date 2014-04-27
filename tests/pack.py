@@ -95,11 +95,11 @@ class UnpackerTests(object):
             self.assertEqual(b, 66)
 
         with self.unpack(data) as up:
-            a,b = up.unpack_array("B")
+            a,b = up.unpack_array(">B")
             self.assertEqual(a, (65,))
             self.assertEqual(b, (66,))
 
-        _B = compile_struct("B")
+        _B = compile_struct(">B")
         with self.unpack(data) as up:
             a,b = up.unpack_struct_array(_B)
             self.assertEqual(a, (65,))
