@@ -164,7 +164,7 @@ class BufferUnpacker(Unpacker):
     """
 
     def __init__(self, data, offset=0):
-        super(Unpacker, self).__init__()
+        super(BufferUnpacker, self).__init__()
         self.data = data
         self.offset = offset
 
@@ -247,7 +247,7 @@ class StreamUnpacker(Unpacker):
     """
 
     def __init__(self, data):
-        super(Unpacker, self).__init__()
+        super(StreamUnpacker, self).__init__()
         self.data = data
 
 
@@ -341,7 +341,7 @@ class UnpackException(Exception):
 
     def __init__(self, fmt, wanted, present):
         msg = self.template % (fmt, wanted, present)
-        super(Exception, self).__init__(msg)
+        super(UnpackException, self).__init__(msg)
 
         self.format = fmt
         self.bytes_wanted = wanted
