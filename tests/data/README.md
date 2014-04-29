@@ -38,7 +38,11 @@ methods. It also tests large-sized constants (double and float)
 
 ## Sample 3
 
-TODO -- synchronized methods and exceptions
+- Source: Sample3.java
+- Binary: Sample3.class
+
+Synchronized method, synchronized static method. Methods that throw,
+methods with try/catch.
 
 
 ## Sample 4
