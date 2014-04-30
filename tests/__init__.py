@@ -783,5 +783,144 @@ class Sample2Test(TestCase):
         self.assertFalse(mi.is_deprecated())
 
 
+class Sample3Test(TestCase):
+
+    def test_classinfo(self):
+        ci = load("Sample3")
+
+        self.assertEqual(type(ci), jt.JavaClassInfo)
+
+        self.assertEqual(ci.get_this(), "Sample3")
+        self.assertEqual(ci.pretty_this(), "Sample3")
+
+        self.assertEqual(ci.get_sourcefile(), "Sample3.java")
+
+        self.assertTrue(ci.is_public())
+        self.assertTrue(ci.is_super())
+
+        self.assertFalse(ci.is_interface())
+        self.assertFalse(ci.is_abstract())
+        self.assertFalse(ci.is_final())
+        self.assertFalse(ci.is_annotation())
+        self.assertFalse(ci.is_enum())
+        self.assertFalse(ci.is_deprecated())
+
+        self.assertEqual(ci.get_super(), "java/lang/Object")
+        self.assertEqual(ci.pretty_super(), "java.lang.Object")
+
+        self.assertEqual(ci.get_signature(), None)
+        self.assertEqual(ci.pretty_signature(), None)
+
+        self.assertEqual(ci.pretty_descriptor(),
+                         "public class Sample3 extends java.lang.Object")
+
+        self.assertEqual(ci.get_interfaces(), tuple())
+        self.assertEqual(tuple(ci.pretty_interfaces()), tuple())
+
+        self.assertEqual(ci.get_enclosingmethod(), None)
+
+        self.assertEqual(ci.get_innerclasses(), tuple())
+        self.assertEqual(ci.get_annotations(), tuple())
+        self.assertEqual(ci.get_invisible_annotations(), tuple())
+
+
+    def test_field_data(self):
+        ci = load("Sample3")
+        fi = ci.get_field_by_name("data")
+
+        self.assertEqual(type(fi), jt.JavaMemberInfo)
+
+        self.assertEqual(fi.get_name(), "data")
+        self.assertEqual(fi.get_type_descriptor(),
+                         "Ljava/lang/Object;")
+        self.assertEqual(fi.get_descriptor(),
+                         "Ljava/lang/Object;")
+        self.assertEqual(fi.pretty_type(),
+                         "java.lang.Object")
+        self.assertEqual(fi.pretty_descriptor(),
+                         "private java.lang.Object data")
+
+        self.assertTrue(fi.is_private())
+
+        self.assertFalse(fi.is_public())
+        self.assertFalse(fi.is_protected())
+        self.assertFalse(fi.is_static())
+        self.assertFalse(fi.is_final())
+        self.assertFalse(fi.is_synchronized())
+        self.assertFalse(fi.is_native())
+        self.assertFalse(fi.is_abstract())
+        self.assertFalse(fi.is_strict())
+        self.assertFalse(fi.is_volatile())
+        self.assertFalse(fi.is_transient())
+        self.assertFalse(fi.is_bridge())
+        self.assertFalse(fi.is_varargs())
+        self.assertFalse(fi.is_synthetic())
+        self.assertFalse(fi.is_enum())
+        self.assertFalse(fi.is_module())
+        self.assertFalse(fi.is_deprecated())
+        self.assertFalse(fi.is_method)
+
+        self.assertEqual(fi.deref_constantvalue(), None)
+
+
+    def test_field_recent_name(self):
+        ci = load("Sample3")
+        fi = ci.get_field_by_name("lastData")
+
+        self.assertEqual(type(fi), jt.JavaMemberInfo)
+
+        self.assertEqual(fi.get_name(), "lastData")
+        self.assertEqual(fi.get_type_descriptor(),
+                         "Ljava/lang/Object;")
+        self.assertEqual(fi.get_descriptor(),
+                         "Ljava/lang/Object;")
+        self.assertEqual(fi.pretty_type(),
+                         "java.lang.Object")
+        self.assertEqual(fi.pretty_descriptor(),
+                         "private static java.lang.Object lastData")
+
+        self.assertTrue(fi.is_private())
+        self.assertTrue(fi.is_static())
+
+        self.assertFalse(fi.is_public())
+        self.assertFalse(fi.is_protected())
+        self.assertFalse(fi.is_final())
+        self.assertFalse(fi.is_synchronized())
+        self.assertFalse(fi.is_native())
+        self.assertFalse(fi.is_abstract())
+        self.assertFalse(fi.is_strict())
+        self.assertFalse(fi.is_volatile())
+        self.assertFalse(fi.is_transient())
+        self.assertFalse(fi.is_bridge())
+        self.assertFalse(fi.is_varargs())
+        self.assertFalse(fi.is_synthetic())
+        self.assertFalse(fi.is_enum())
+        self.assertFalse(fi.is_module())
+        self.assertFalse(fi.is_deprecated())
+        self.assertFalse(fi.is_method)
+
+        self.assertEqual(fi.deref_constantvalue(), None)
+
+
+    def test_method_get_data(self):
+        pass
+
+
+    def test_method_get_data_default(self):
+        pass
+
+
+    def test_method_set_data(self):
+        pass
+
+
+    def test_method_get_last_data(self):
+        pass
+
+
+    def test_method_set_last_data(self):
+        pass
+
+
 #
 # The end.
