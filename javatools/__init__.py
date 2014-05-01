@@ -13,7 +13,6 @@
 # <http://www.gnu.org/licenses/>.
 
 
-
 """
 Simple Java Classfile unpacking module. Can be made to act an
 awful lot like the javap utility included with most Java SDKs.
@@ -21,12 +20,12 @@ awful lot like the javap utility included with most Java SDKs.
 Most of the information used to write this was gathered from the
 following web pages
 
-http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
-http://java.sun.com/docs/books/jvms/second_edition/html/VMSpecTOC.doc.html
-http://en.wikipedia.org/wiki/Class_(file_format)
+* http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+* http://java.sun.com/docs/books/jvms/second_edition/html/VMSpecTOC.doc.html
+* http://en.wikipedia.org/wiki/Class_(file_format)
 
-author: Christopher O'Brien  <obriencj@gmail.com>
-license: LGPL
+:author: Christopher O'Brien  <obriencj@gmail.com>
+:license: LGPL
 """
 
 
