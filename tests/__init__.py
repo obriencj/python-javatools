@@ -993,15 +993,140 @@ class Sample3Test(TestCase):
 
 
     def test_method_set_data(self):
-        pass
+        ci = load("Sample3")
+        mi = ci.get_method("setData", ["Ljava/lang/Object;"])
+
+        self.assertEqual(type(mi), jt.JavaMemberInfo)
+
+        self.assertEqual(mi.get_name(), "setData")
+        self.assertEqual(mi.get_type_descriptor(), "V")
+        self.assertEqual(mi.get_descriptor(),
+                         "(Ljava/lang/Object;)V")
+        self.assertEqual(mi.get_identifier(),
+                         "setData(Ljava/lang/Object;)")
+        self.assertEqual(mi.pretty_type(), "void")
+        self.assertEqual(mi.pretty_descriptor(),
+                         "public synchronized void"
+                         " setData(java.lang.Object)")
+        self.assertEqual(mi.pretty_identifier(),
+                         "setData(java.lang.Object):void")
+
+        self.assertTrue(mi.is_public())
+        self.assertTrue(mi.is_synchronized())
+        self.assertTrue(mi.is_method)
+
+        self.assertFalse(mi.is_private())
+        self.assertFalse(mi.is_protected())
+        self.assertFalse(mi.is_static())
+        self.assertFalse(mi.is_final())
+        self.assertFalse(mi.is_native())
+        self.assertFalse(mi.is_abstract())
+        self.assertFalse(mi.is_strict())
+        self.assertFalse(mi.is_volatile())
+        self.assertFalse(mi.is_transient())
+        self.assertFalse(mi.is_bridge())
+        self.assertFalse(mi.is_varargs())
+        self.assertFalse(mi.is_synthetic())
+        self.assertFalse(mi.is_enum())
+        self.assertFalse(mi.is_module())
+        self.assertFalse(mi.is_deprecated())
+
+        excs = mi.get_exceptions()
+        self.assertEquals(excs, tuple())
+
+        excs = tuple(mi.pretty_exceptions())
+        self.assertEquals(excs, tuple())
 
 
     def test_method_get_last_data(self):
-        pass
+        ci = load("Sample3")
+        mi = ci.get_method("getLastData")
+
+        self.assertEqual(type(mi), jt.JavaMemberInfo)
+
+        self.assertEqual(mi.get_name(), "getLastData")
+        self.assertEqual(mi.get_type_descriptor(), "Ljava/lang/Object;")
+        self.assertEqual(mi.get_descriptor(), "()Ljava/lang/Object;")
+        self.assertEqual(mi.get_identifier(), "getLastData()")
+        self.assertEqual(mi.pretty_type(), "java.lang.Object")
+        self.assertEqual(mi.pretty_descriptor(),
+                         "private static synchronized java.lang.Object"
+                         " getLastData()"
+                         " throws java.lang.Exception")
+        self.assertEqual(mi.pretty_identifier(),
+                         "getLastData():java.lang.Object")
+
+        self.assertTrue(mi.is_private())
+        self.assertTrue(mi.is_static())
+        self.assertTrue(mi.is_synchronized())
+        self.assertTrue(mi.is_method)
+
+        self.assertFalse(mi.is_public())
+        self.assertFalse(mi.is_protected())
+        self.assertFalse(mi.is_final())
+        self.assertFalse(mi.is_native())
+        self.assertFalse(mi.is_abstract())
+        self.assertFalse(mi.is_strict())
+        self.assertFalse(mi.is_volatile())
+        self.assertFalse(mi.is_transient())
+        self.assertFalse(mi.is_bridge())
+        self.assertFalse(mi.is_varargs())
+        self.assertFalse(mi.is_synthetic())
+        self.assertFalse(mi.is_enum())
+        self.assertFalse(mi.is_module())
+        self.assertFalse(mi.is_deprecated())
+
+        excs = mi.get_exceptions()
+        self.assertEquals(excs, ("java/lang/Exception",))
+
+        excs = tuple(mi.pretty_exceptions())
+        self.assertEquals(excs, ("java.lang.Exception",))
 
 
     def test_method_set_last_data(self):
-        pass
+        ci = load("Sample3")
+        mi = ci.get_method("setLastData", ["Ljava/lang/Object;"])
+
+        self.assertEqual(type(mi), jt.JavaMemberInfo)
+
+        self.assertEqual(mi.get_name(), "setLastData")
+        self.assertEqual(mi.get_type_descriptor(), "V")
+        self.assertEqual(mi.get_descriptor(),
+                         "(Ljava/lang/Object;)V")
+        self.assertEqual(mi.get_identifier(),
+                         "setLastData(Ljava/lang/Object;)")
+        self.assertEqual(mi.pretty_type(), "void")
+        self.assertEqual(mi.pretty_descriptor(),
+                         "private static synchronized void"
+                         " setLastData(java.lang.Object)")
+        self.assertEqual(mi.pretty_identifier(),
+                         "setLastData(java.lang.Object):void")
+
+        self.assertTrue(mi.is_private())
+        self.assertTrue(mi.is_static())
+        self.assertTrue(mi.is_synchronized())
+        self.assertTrue(mi.is_method)
+
+        self.assertFalse(mi.is_public())
+        self.assertFalse(mi.is_protected())
+        self.assertFalse(mi.is_final())
+        self.assertFalse(mi.is_native())
+        self.assertFalse(mi.is_abstract())
+        self.assertFalse(mi.is_strict())
+        self.assertFalse(mi.is_volatile())
+        self.assertFalse(mi.is_transient())
+        self.assertFalse(mi.is_bridge())
+        self.assertFalse(mi.is_varargs())
+        self.assertFalse(mi.is_synthetic())
+        self.assertFalse(mi.is_enum())
+        self.assertFalse(mi.is_module())
+        self.assertFalse(mi.is_deprecated())
+
+        excs = mi.get_exceptions()
+        self.assertEquals(excs, tuple())
+
+        excs = tuple(mi.pretty_exceptions())
+        self.assertEquals(excs, tuple())
 
 
 #
