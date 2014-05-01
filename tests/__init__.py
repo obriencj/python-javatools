@@ -947,7 +947,49 @@ class Sample3Test(TestCase):
 
 
     def test_method_get_data_default(self):
-        pass
+        ci = load("Sample3")
+        mi = ci.get_method("getData", ["Ljava/lang/Object;"])
+
+        self.assertEqual(type(mi), jt.JavaMemberInfo)
+
+        self.assertEqual(mi.get_name(), "getData")
+        self.assertEqual(mi.get_type_descriptor(), "Ljava/lang/Object;")
+        self.assertEqual(mi.get_descriptor(),
+                         "(Ljava/lang/Object;)Ljava/lang/Object;")
+        self.assertEqual(mi.get_identifier(),
+                         "getData(Ljava/lang/Object;)")
+        self.assertEqual(mi.pretty_type(), "java.lang.Object")
+        self.assertEqual(mi.pretty_descriptor(),
+                         "public java.lang.Object"
+                         " getData(java.lang.Object)")
+        self.assertEqual(mi.pretty_identifier(),
+                         "getData(java.lang.Object):java.lang.Object")
+
+        self.assertTrue(mi.is_public())
+        self.assertTrue(mi.is_method)
+
+        self.assertFalse(mi.is_private())
+        self.assertFalse(mi.is_protected())
+        self.assertFalse(mi.is_static())
+        self.assertFalse(mi.is_synchronized())
+        self.assertFalse(mi.is_final())
+        self.assertFalse(mi.is_native())
+        self.assertFalse(mi.is_abstract())
+        self.assertFalse(mi.is_strict())
+        self.assertFalse(mi.is_volatile())
+        self.assertFalse(mi.is_transient())
+        self.assertFalse(mi.is_bridge())
+        self.assertFalse(mi.is_varargs())
+        self.assertFalse(mi.is_synthetic())
+        self.assertFalse(mi.is_enum())
+        self.assertFalse(mi.is_module())
+        self.assertFalse(mi.is_deprecated())
+
+        excs = mi.get_exceptions()
+        self.assertEquals(excs, tuple())
+
+        excs = tuple(mi.pretty_exceptions())
+        self.assertEquals(excs, tuple())
 
 
     def test_method_set_data(self):
