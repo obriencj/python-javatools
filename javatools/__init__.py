@@ -1699,7 +1699,7 @@ class JavaExceptionInfo(object):
 
         ct = self.get_catch_type()
         if ct:
-            return "Class " + ct
+            return "Class " + _pretty_class(ct)
         else:
             return "any"
 
