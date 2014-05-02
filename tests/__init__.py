@@ -991,6 +991,19 @@ class Sample3Test(TestCase):
         excs = tuple(mi.pretty_exceptions())
         self.assertEquals(excs, tuple())
 
+        code = mi.get_code()
+        code_excs = code.exceptions
+
+        self.assertEqual(len(code_excs), 1)
+
+        ce = code_excs[0]
+        self.assertEqual(type(ce), jt.JavaExceptionInfo)
+
+        self.assertEqual(ce.get_catch_type(), "java/lang/Exception")
+        self.assertEqual(ce.pretty_catch_type(), "Class java.lang.Exception")
+
+        self.assertEqual(ce.info(), (0, 4, 5, "java/lang/Exception"))
+
 
     def test_method_set_data(self):
         ci = load("Sample3")
