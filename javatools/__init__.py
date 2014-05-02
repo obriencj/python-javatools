@@ -1694,7 +1694,12 @@ class JavaExceptionInfo(object):
 
     def pretty_catch_type(self):
         """
-        pretty version of get_catch_type
+        pretty version of `get_catch_type()`
+
+        If the catch type isn't specified, returns "any". Otherwise
+        prefixes the pretty class name with the text "Class ". This is
+        done to emulate the javap output for exceptions caught in a
+        body of code.
         """
 
         ct = self.get_catch_type()
