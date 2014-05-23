@@ -13,7 +13,6 @@
 # <http://www.gnu.org/licenses/>.
 
 
-
 """
 Utility script and module for inspecting binary java class files
 
@@ -24,28 +23,44 @@ license: LGPL
 """
 
 
+from json import dump
+from sys import stdout
 
-HEADER = 0
-PUBLIC = 1
-PACKAGE = 3
-PRIVATE = 7
+import javatools.opcodes as opcodes
+from javatools import platform_from_version, unpack_classfile
 
+
+__all__ = (
+    "SHOW_HEADER", "SHOW_PUBLIC",
+    "SHOW_PACKAGE", "SHOW_PRIVATE",
+    "main", "cli", "classinfo_optgroup",
+    "cli_class_provides", "cli_class_requires",
+    "cli_json_class", "cli_print_class",
+    "cli_print_classinfo", "cli_simplify_classinfo",
+    "cli_simplify_field", "cli_simplify_fields",
+    "cli_simplify_method", "cli_simplify_methods", )
+
+
+SHOW_HEADER = 0
+SHOW_PUBLIC = 1
+SHOW_PACKAGE = 3
+SHOW_PRIVATE = 7
 
 
 def should_show(options, member):
-
-    """ whether to show a member by its access flags and the show
+    """
+    whether to show a member by its access flags and the show
     option. There's probably a faster and smarter way to do this, but
-    eh. """
+    eh.
+    """
 
     show = options.show
-    if show == PUBLIC:
+    if show == SHOW_PUBLIC:
         return member.is_public()
-    elif show == PACKAGE:
+    elif show == SHOW_PACKAGE:
         return member.is_public() or member.is_protected()
-    elif show == PRIVATE:
+    elif show == SHOW_PRIVATE:
         return True
-
 
 
 def print_field(options, field):
@@ -73,10 +88,7 @@ def print_field(options, field):
         print
 
 
-
 def print_method(options, method):
-    import javatools.opcodes as opcodes
-
     if options.indent:
         print "   ",
 
@@ -169,7 +181,6 @@ def print_method(options, method):
                 line = (str(o), str(l), str(i), cval(n), cval(s))
                 print "   %s" % "\t".join(line)
 
-
     if options.verbose:
         exps = method.pretty_exceptions()
         if exps:
@@ -180,14 +191,12 @@ def print_method(options, method):
         print
 
 
-
 def cli_class_provides(options, info):
     print "class %s provides:" % info.pretty_this()
 
     for provided in sorted(info.get_provides(options.api_ignore)):
         print " ", provided
     print
-
 
 
 def cli_class_requires(options, info):
@@ -198,10 +207,7 @@ def cli_class_requires(options, info):
     print
 
 
-
 def cli_print_classinfo(options, info):
-    from javatools import platform_from_version
-
     if options.class_provides or options.class_requires:
         if options.class_provides:
             cli_class_provides(options, info)
@@ -215,7 +221,7 @@ def cli_print_classinfo(options, info):
 
     print info.pretty_descriptor(),
 
-    if options.verbose or options.show == HEADER:
+    if options.verbose or options.show == SHOW_HEADER:
         print
         if info.get_sourcefile():
             print "  SourceFile: \"%s\"" % info.get_sourcefile()
@@ -252,7 +258,7 @@ def cli_print_classinfo(options, info):
                 print "const #%i = %s\t%s;" % (i, t, v)
         print
 
-    if options.show == HEADER:
+    if options.show == SHOW_HEADER:
         return
 
     print "{"
@@ -271,13 +277,9 @@ def cli_print_classinfo(options, info):
     return 0
 
 
-
 def cli_print_class(options, classfile):
-    from javatools import unpack_classfile
-
     info = unpack_classfile(classfile)
     return cli_print_classinfo(options, info)
-
 
 
 def cli_simplify_field(options, field, data=None):
@@ -300,7 +302,6 @@ def cli_simplify_field(options, field, data=None):
     return data
 
 
-
 def cli_simplify_method(options, method, data=None):
     if data is None:
         data = dict()
@@ -316,14 +317,12 @@ def cli_simplify_method(options, method, data=None):
     return data
 
 
-
 def cli_simplify_fields(options, info):
     fields = list()
     for field in info.fields:
         if should_show(options, field):
             fields.append(cli_simplify_field(options, field))
     return fields
-
 
 
 def cli_simplify_methods(options, info):
@@ -334,10 +333,7 @@ def cli_simplify_methods(options, info):
     return methods
 
 
-
 def cli_simplify_classinfo(options, info, data=None):
-    from javatools import platform_from_version
-
     if data is None:
         data = dict()
 
@@ -366,7 +362,6 @@ def cli_simplify_classinfo(options, info, data=None):
     return data
 
 
-
 def ifonly(data, key, val):
 
     """ utility function to set data[key] to val, but only if val has
@@ -376,20 +371,13 @@ def ifonly(data, key, val):
         data[key] = val
 
 
-
 def cli_json_class(options, classfile):
-    from javatools import unpack_classfile
-    from json import dump
-    from sys import stdout
-
     info = unpack_classfile(classfile)
     data = cli_simplify_classinfo(options, info)
     dump(data, stdout, sort_keys=True, indent=2)
 
 
-
 def cli(parser, options, rest):
-
     if options.verbose:
         # verbose also sets all of the following options
         options.lines = True
@@ -414,7 +402,6 @@ def cli(parser, options, rest):
     return 0
 
 
-
 def classinfo_optgroup(parser):
     from optparse import OptionGroup
 
@@ -434,19 +421,19 @@ def classinfo_optgroup(parser):
                  " or requires modes")
 
     g.add_option("--header", dest="show",
-                 action="store_const", default=PUBLIC, const=HEADER,
+                 action="store_const", default=SHOW_PUBLIC, const=SHOW_HEADER,
                  help="show just the class header, no members")
 
     g.add_option("--public", dest="show",
-                 action="store_const", const=PUBLIC,
+                 action="store_const", const=SHOW_PUBLIC,
                  help="show only public members")
 
     g.add_option("--package", dest="show",
-                 action="store_const", const=PACKAGE,
+                 action="store_const", const=SHOW_PACKAGE,
                  help="show public and protected members")
 
     g.add_option("--private", dest="show",
-                 action="store_const", const=PRIVATE,
+                 action="store_const", const=SHOW_PRIVATE,
                  help="show all members")
 
     g.add_option("-l", dest="lines", action="store_true",
@@ -470,7 +457,6 @@ def classinfo_optgroup(parser):
     return g
 
 
-
 def create_optparser():
     from optparse import OptionParser
 
@@ -484,11 +470,9 @@ def create_optparser():
     return parser
 
 
-
 def main(args):
     parser = create_optparser()
     return cli(parser, *parser.parse_args(args))
-
 
 
 #

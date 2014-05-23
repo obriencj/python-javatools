@@ -13,7 +13,6 @@
 # <http://www.gnu.org/licenses/>.
 
 
-
 """
 Module and utility for fetching information out of a JAR file, and
 printing it out.
@@ -21,6 +20,25 @@ printing it out.
 author: Christopher O'Brien  <obriencj@gmail.com>
 license: LGPL
 """
+
+
+from json import dump
+from sys import stdout
+
+from javatools import unpack_class
+from .classinfo import cli_print_classinfo
+from .dirutils import fnmatches
+from .manifest import Manifest
+from .ziputils import open_zip_entry, zip_file, zip_entry_rollup
+
+
+__all__ = (
+    "JAR_PATTERNS", "JarInfo",
+    "main", "cli", "jarinfo_optgroup",
+    "cli_jar_classes", "cli_jar_manifest_info",
+    "cli_jar_provides", "cli_jar_requires",
+    "cli_jar_zip_info", "cli_jarinfo",
+    "cli_jarinfo_json", )
 
 
 # for reference by other modules
@@ -31,10 +49,8 @@ JAR_PATTERNS = ( "*.ear",
                  "*.war", )
 
 
-
 REQ_BY_CLASS = "class.requires"
 PROV_BY_CLASS = "class.provides"
-
 
 
 class JarInfo(object):
@@ -64,7 +80,6 @@ class JarInfo(object):
 
 
     def open(self, entry, mode='r'):
-        from .ziputils import open_zip_entry
         return open_zip_entry(self.get_zipfile(), entry, mode)
 
 
@@ -94,8 +109,6 @@ class JarInfo(object):
 
 
     def get_requires(self, ignored=tuple()):
-        from .dirutils import fnmatches
-
         if self._requires is None:
             self._collect_requires_provides()
 
@@ -107,8 +120,6 @@ class JarInfo(object):
 
 
     def get_provides(self, ignored=tuple()):
-        from .dirutils import fnmatches
-
         if self._provides is None:
             self._collect_requires_provides()
 
@@ -120,20 +131,20 @@ class JarInfo(object):
 
 
     def get_classes(self):
+        """
+        sequence of .class files in the underlying zip
+        """
 
-        """ sequence of .class files in the underlying zip """
-
-        from .dirutils import fnmatches
         for n in self.get_zipfile().namelist():
             if fnmatches(n, "*.class"):
                 yield n
 
 
     def get_classinfo(self, entry):
+        """
+        fetch a class entry as a JavaClassInfo instance
+        """
 
-        """ fetch a class entry as a JavaClassInfo instance """
-
-        from javatools import unpack_class
         with self.open(entry) as cfd:
             return unpack_class(cfd)
 
@@ -142,8 +153,6 @@ class JarInfo(object):
 
         """ fetch the sections from the MANIFEST.MF file as a Manifest
         instance, or None if no MANIFEST.MF entry present """
-
-        from .manifest import Manifest
 
         mf_entry = "META-INF/MANIFEST.MF"
 
@@ -158,7 +167,6 @@ class JarInfo(object):
 
 
     def get_zipfile(self):
-        from .ziputils import zip_file
         if self.zipfile is None:
             self.zipfile = zip_file(self.filename)
         return self.zipfile
@@ -168,7 +176,6 @@ class JarInfo(object):
         if self.zipfile:
             self.zipfile.close()
             self.zipfile = None
-
 
 
 def cli_jar_manifest_info(options, jarinfo):
@@ -192,10 +199,7 @@ def cli_jar_manifest_info(options, jarinfo):
     print
 
 
-
 def cli_jar_zip_info(options, jarinfo):
-    from .ziputils import zip_entry_rollup
-
     zipfile = jarinfo.get_zipfile()
 
     files, dirs, comp, uncomp = zip_entry_rollup(zipfile)
@@ -207,10 +211,7 @@ def cli_jar_zip_info(options, jarinfo):
     print
 
 
-
 def cli_jar_classes(options, jarinfo):
-    from .classinfo import cli_print_classinfo
-
     for entry in jarinfo.get_classes():
         ci = jarinfo.get_classinfo(entry)
         print "Entry: ", entry
@@ -218,10 +219,7 @@ def cli_jar_classes(options, jarinfo):
         print
 
 
-
 def cli_jar_provides(options, jarinfo):
-    from .dirutils import fnmatches
-
     print "jar provides:"
 
     for provided in sorted(jarinfo.get_provides().iterkeys()):
@@ -230,17 +228,13 @@ def cli_jar_provides(options, jarinfo):
     print
 
 
-
 def cli_jar_requires(options, jarinfo):
-    from .dirutils import fnmatches
-
     print "jar requires:"
 
     for required in sorted(jarinfo.get_requires().iterkeys()):
         if not fnmatches(required, *options.api_ignore):
             print " ", required
     print
-
 
 
 def cli_jarinfo(options, info):
@@ -260,12 +254,7 @@ def cli_jarinfo(options, info):
         cli_jar_classes(options, info)
 
 
-
 def cli_jarinfo_json(options, info):
-    from json import dump
-    from sys import stdout
-    from .ziputils import zip_entry_rollup
-
     data = {}
 
     if options.jar_provides:
@@ -289,7 +278,6 @@ def cli_jarinfo_json(options, info):
     dump(data, stdout, sort_keys=True, indent=2)
 
 
-
 def cli(parser, options, rest):
     if options.verbose:
         options.zip = True
@@ -311,7 +299,6 @@ def cli(parser, options, rest):
                 cli_jarinfo(options, ji)
 
     return 0
-
 
 
 def jarinfo_optgroup(parser):
@@ -339,7 +326,6 @@ def jarinfo_optgroup(parser):
     return g
 
 
-
 def create_optparser():
     from optparse import OptionParser
     from .classinfo import classinfo_optgroup
@@ -355,11 +341,9 @@ def create_optparser():
     return parser
 
 
-
 def main(args):
     parser = create_optparser()
     return cli(parser, *parser.parse_args(args))
-
 
 
 #
