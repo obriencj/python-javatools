@@ -1,7 +1,7 @@
 #extends change_Change
 
 #block description
-#from xml.sax.saxutils import escape
+#from javatools.cheetah import xml_entity_escape as escape
 $escape($change.entry)
 #end block
 

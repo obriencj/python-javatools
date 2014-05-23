@@ -23,9 +23,9 @@ license: LGPL
 
 
 def _iter_templates():
-
-    """ uses reflection to yield the Cheetah templates under this
-    module """
+    """
+    uses reflection to yield the Cheetah templates under this module
+    """
 
     from Cheetah.Template import Template
     from pkgutil import iter_modules
@@ -42,11 +42,22 @@ def _iter_templates():
 
 
 def get_templates():
-
-    """ The Cheetah Template classes contained within this module """
+    """
+    The Cheetah Template classes contained within this module
+    """
 
     return tuple(_iter_templates())
 
+
+def xml_entity_escape(data):
+    """
+    replace special characters with their XML entity versions
+    """
+
+    data = data.replace("&", "&amp;")
+    data = data.replace(">", "&gt;")
+    data = data.replace("<", "&lt;")
+    return data
 
 
 #
