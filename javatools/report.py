@@ -294,7 +294,7 @@ class JSONReportFormat(ReportFormat):
         try:
             dump(data, out, sort_keys=True, indent=indent, cls=cls)
 
-        except TypeError as te:
+        except TypeError:
             # XXX for debugging. Otherwise the wrapping try isn't necessary
             print data
             raise
