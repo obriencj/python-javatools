@@ -13,7 +13,6 @@
 # <http://www.gnu.org/licenses/>.
 
 
-
 """
 Module for reading and writing MANIFEST.MF files.
 
@@ -24,18 +23,27 @@ author: Christopher O'Brien  <obriencj@gmail.com>
 license: LGPL
 """
 
-
-
-from os.path import isdir, join, sep, split, walk
+from base64 import b64encode
 from cStringIO import StringIO
+from os.path import isdir, join, sep, split, walk
+from sys import stdout
+from zipfile import ZipFile
 
 from .change import GenericChange, SuperChange
 from .change import Addition, Removal
 from .dirutils import fnmatches, makedirsp
 
 
-_BUFFERING = 2 ** 14
+__all__ = (
+    "ManifestChange",
+    "ManifestSectionChange",
+    "ManifestSectionAdded", "ManifestSectionRemoved",
+    "Manifest", "ManifestSection",
+    "cli", "main",
+)
 
+
+_BUFFERING = 2 ** 14
 
 
 class ManifestSectionChange(GenericChange):
@@ -66,8 +74,8 @@ class ManifestSectionChange(GenericChange):
             return False
 
 
-
 class ManifestSectionAdded(ManifestSectionChange, Addition):
+
     label = "Manifest Subsection Added"
 
     def get_description(self):
@@ -78,8 +86,8 @@ class ManifestSectionAdded(ManifestSectionChange, Addition):
         return getattr(options, "ignore_manifest_subsections", False)
 
 
-
 class ManifestSectionRemoved(ManifestSectionChange, Removal):
+
     label = "Manifest Subsection Removed"
 
     def get_description(self):
@@ -90,9 +98,10 @@ class ManifestSectionRemoved(ManifestSectionChange, Removal):
         return getattr(options, "ignore_manifest_subsections", False)
 
 
-
 class ManifestMainChange(GenericChange):
+
     label = "Manifest Main Section"
+
 
     def get_description(self):
         if self.is_change():
@@ -113,9 +122,10 @@ class ManifestMainChange(GenericChange):
             return False
 
 
-
 class ManifestChange(SuperChange):
+
     label = "Manifest"
+
 
     def collect_impl(self):
         lm, rm = self.ldata, self.rdata
@@ -137,7 +147,6 @@ class ManifestChange(SuperChange):
     def is_ignored(self, options):
         return getattr(options, "ignore_manifest", False) or \
             SuperChange.is_ignored(self, options)
-
 
 
 class ManifestSection(dict):
@@ -186,31 +195,32 @@ class ManifestSection(dict):
         stream.write("\n")
 
 
-
 class Manifest(ManifestSection):
-
-    """ Represents a Java Manifest. In essence a dictionary
-    representing the key:value pairs from the main section of the
-    manifest, and zero or more sub-dictionaries of key:value pairs
-    representing the sections following the main section. The sections
-    are referenced by the value of their 'Name' pair, which must be
-    unique to the Manifest as a whole. """
-
+    """
+    Represents a Java Manifest. In essence a dictionary representing
+    the key:value pairs from the main section of the manifest, and
+    zero or more sub-dictionaries of key:value pairs representing the
+    sections following the main section. The sections are referenced
+    by the value of their 'Name' pair, which must be unique to the
+    Manifest as a whole.
+    """
 
     primary_key = "Manifest-Version"
 
 
     def __init__(self, version="1.0"):
+        # can't use super, because we're a child of a non-object
         ManifestSection.__init__(self, version)
         self.sub_sections = {}
 
 
     def create_section(self, name, overwrite=True):
-
-        """ create and return a new sub-section of this manifest, with
-        the given Name attribute. If a sub-section already exists with
+        """
+        create and return a new sub-section of this manifest, with the
+        given Name attribute. If a sub-section already exists with
         that name, it will be lost unless overwrite is False in which
-        case the existing sub-section will be returned. """
+        case the existing sub-section will be returned.
+        """
 
         if overwrite:
             sect = ManifestSection(name)
@@ -225,16 +235,16 @@ class Manifest(ManifestSection):
         return sect
 
 
-
     def parse_file(self, filename):
         with open(filename, "r", _BUFFERING) as stream:
             self.parse(stream)
 
 
     def parse(self, data):
-
-        """ populate instance with values and sub-sections from data
-        in a stream or a string"""
+        """
+        populate instance with values and sub-sections from data in a
+        stream or a string
+        """
 
         sections = parse_sections(data)
         self.load(sections.next())
@@ -246,8 +256,9 @@ class Manifest(ManifestSection):
 
 
     def store(self, stream):
-
-        """ write Manifest to a stream """
+        """
+        write Manifest to a stream
+        """
 
         ManifestSection.store(self, stream)
         for _name, sect in sorted(self.sub_sections.items()):
@@ -255,9 +266,10 @@ class Manifest(ManifestSection):
 
 
     def clear(self):
-
-        """ removes all items from this manifest, and clears and
-        removes all sub-sections """
+        """
+        removes all items from this manifest, and clears and removes all
+        sub-sections
+        """
 
         for sub in self.sub_sections.values():
             sub.clear()
@@ -270,13 +282,13 @@ class Manifest(ManifestSection):
         self.clear()
 
 
-
 def store_item(key, val, stream):
-
-    """ The MANIFEST specification limits the width of individual
-    lines to 72 bytes (including the terminating newlines). Any key
-    and value pair that would be longer must be split up over multiple
-    continuing lines"""
+    """
+    The MANIFEST specification limits the width of individual lines to
+    72 bytes (including the terminating newlines). Any key and value
+    pair that would be longer must be split up over multiple
+    continuing lines
+    """
 
     key = key or ""
     val = val or ""
@@ -307,10 +319,9 @@ def store_item(key, val, stream):
     stream.write("\n")
 
 
-
 def parse_sections(data):
-
-    """ yields one section at a time in the form
+    """
+    yields one section at a time in the form
 
     [ (key, [val, ...]), ... ]
 
@@ -361,15 +372,11 @@ def parse_sections(data):
         yield curr
 
 
-
 def digest_chunks(chunks, algorithms=("md5", "sha1")):
-
-    """ returns a base64 rep of the requested digests from the
-    chunks of data """
-
-    import hashlib
-
-    from base64 import b64encode
+    """
+    returns a base64 rep of the requested digests from the chunks of
+    data
+    """
 
     hashes = []
     for algorithm in algorithms:
@@ -382,11 +389,11 @@ def digest_chunks(chunks, algorithms=("md5", "sha1")):
     return [b64encode(h.digest()) for h in hashes]
 
 
-
 def file_chunk(filename, size=_BUFFERING):
-
-    """ returns a generator function which when called will emit
-    x-sized chunks of filename's contents"""
+    """
+    returns a generator function which when called will emit x-sized
+    chunks of filename's contents
+    """
 
     def chunks():
         with open(filename, "rb", _BUFFERING) as fd:
@@ -397,11 +404,11 @@ def file_chunk(filename, size=_BUFFERING):
     return chunks
 
 
-
 def zipentry_chunk(zipfile, name, size=_BUFFERING):
-
-    """ returns a generator function which when called will emit
-    x-sized chunks of the named entry in the zipfile object"""
+    """
+    returns a generator function which when called will emit x-sized
+    chunks of the named entry in the zipfile object
+    """
 
     def chunks():
         with zipfile.open(name) as fd:
@@ -412,12 +419,12 @@ def zipentry_chunk(zipfile, name, size=_BUFFERING):
     return chunks
 
 
-
 def directory_generator(dirname, trim=0):
-
-    """ yields a tuple of (relative filename, chunking function). The
+    """
+    yields a tuple of (relative filename, chunking function). The
     chunking function can be called to open and iterate over the
-    contents of the filename. """
+    contents of the filename.
+    """
 
     def gather(collect, dirname, fnames):
         for fname in fnames:
@@ -431,14 +438,14 @@ def directory_generator(dirname, trim=0):
         yield fname[trim:], file_chunk(fname)
 
 
-
 def multi_path_generator(pathnames):
-
-    """ yields (name,chunkgen) for all of the files found under the
-    list of pathnames given. This is recursive, so directories will
-    have their contents emitted. chunkgen is a function that can
-    called and iterated over to obtain the contents of the file in
-    multiple reads. """
+    """
+    yields (name,chunkgen) for all of the files found under the list
+    of pathnames given. This is recursive, so directories will have
+    their contents emitted. chunkgen is a function that can called and
+    iterated over to obtain the contents of the file in multiple
+    reads.
+    """
 
     for pathname in pathnames:
         if isdir(pathname):
@@ -448,16 +455,14 @@ def multi_path_generator(pathnames):
             yield pathname, file_chunk(pathname)
 
 
-
 def single_path_generator(pathname):
-
-    """ emits name,chunkgen pairs for the given file at pathname. If
+    """
+    emits name,chunkgen pairs for the given file at pathname. If
     pathname is a directory, will act recursively and will emit for
     each file in the directory tree chunkgen is a generator that can
     be iterated over to obtain the contents of the file in multiple
-    parts """
-
-    from zipfile import ZipFile
+    parts
+    """
 
     if isdir(pathname):
         trim = len(pathname)
@@ -472,7 +477,6 @@ def single_path_generator(pathname):
             if f[-1] != '/':
                 yield f, zipentry_chunk(zf, f)
         zf.close()
-
 
 
 def cli_create(options, rest):
@@ -531,7 +535,7 @@ def cli_create(options, rest):
                 requested_digests, digest_chunks(chunks(), use_digests)):
             sec[digest + "-Digest"] = digest_value
 
-    output = sys.stdout
+    output = stdout
 
     if options.manifest:
         # we'll output to the manifest file if specified, and we'll
@@ -546,10 +550,7 @@ def cli_create(options, rest):
         output.close()
 
 
-
 def cli_query(options, rest):
-    from zipfile import ZipFile
-
     if(len(rest) != 2):
         print "Usage: manifest --query=key file.jar"
         return 1
@@ -571,14 +572,12 @@ def cli_query(options, rest):
             print q, "=", mf.get(s[0])
 
 
-
 def cli_verify(options, rest):
     # TODO: read in the manifest, and then verify the digests for every
     # file listed.
 
     print "NYI"
     return 0
-
 
 
 def cli(options, rest):
@@ -594,7 +593,6 @@ def cli(options, rest):
     else:
         print "specify one of --verify, --query, or --create"
         return 0
-
 
 
 def create_optparser():
@@ -624,14 +622,13 @@ def create_optparser():
     return parse
 
 
-
 def main(args):
-
-    """ main entry point for the manifest CLI """
+    """
+    main entry point for the manifest CLI
+    """
 
     parser = create_optparser()
     return cli(*parser.parse_args(args))
-
 
 
 #

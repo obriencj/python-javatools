@@ -13,7 +13,6 @@
 # <http://www.gnu.org/licenses/>.
 
 
-
 """
 Utility for comparing two distributions.
 
@@ -24,7 +23,6 @@ be checked for deep differences.
 author: Christopher O'Brien  <obriencj@gmail.com>
 license: LGPL
 """
-
 
 
 from itertools import izip_longest
@@ -40,6 +38,19 @@ from .manifest import Manifest, ManifestChange
 from .jardiff import JarChange, JarReport
 from .jarinfo import JAR_PATTERNS
 
+
+__all__ = (
+    "TEXT_PATTERNS",
+    "DistChange",
+    "DistContentChange", "DistContentAdded", "DistContentRemoved",
+    "DistTextChange", "DistManifestChange",
+    "DistClassChange", "DistClassAdded", "DistClassRemoved",
+    "DistJarChange", "DistJarAdded", "DistJarRemoved",
+    "DistReport", "DistClassReport", "DistJarReport",
+    "cli", "main",
+    "cli_dist_diff",
+    "distdiff_optgroup", "default_distdiff_options",
+)
 
 
 # glob patterns used to trigger a DistTextChange
@@ -59,14 +70,13 @@ TEXT_PATTERNS = (
 )
 
 
-
 class DistContentChange(SuperChange):
 
     label = "Distributed Content"
 
 
     def __init__(self, ldir, rdir, entry, change=True):
-        SuperChange.__init__(self, ldir, rdir)
+        super(DistContentChange, self).__init__(ldir, rdir)
         self.entry = entry
         self.changed = change
 
@@ -105,7 +115,6 @@ class DistContentChange(SuperChange):
                 SuperChange.is_ignored(self, options))
 
 
-
 class DistContentAdded(DistContentChange, Addition):
 
     label = "Distributed Content Added"
@@ -113,7 +122,6 @@ class DistContentAdded(DistContentChange, Addition):
 
     def get_description(self):
         return "%s: %s" % (self.label, self.entry)
-
 
 
 class DistContentRemoved(DistContentChange, Removal):
@@ -125,14 +133,13 @@ class DistContentRemoved(DistContentChange, Removal):
         return "%s: %s" % (self.label, self.entry)
 
 
-
 class DistTextChange(DistContentChange):
 
     label = "Distributed Text"
 
 
     def __init__(self, l, r, entry, change=True):
-        DistContentChange.__init__(self, l, r, entry, change)
+        super(DistTextChange, self).__init__(l, r, entry, change)
         self.lineending = False
 
 
@@ -153,11 +160,11 @@ class DistTextChange(DistContentChange):
                         self.lineending = False
                         break
                 else:
-                    # we went through every line, and they were all equal
-                    # when stripped of their trailing whitespace
+                    # we went through every line, and they were all
+                    # equal when stripped of their trailing whitespace
                     self.lineending = True
 
-        return DistContentChange.check(self)
+        return super(DistTextChange, self).check()
 
 
     def is_ignored(self, options):
@@ -165,12 +172,11 @@ class DistTextChange(DistContentChange):
                 (self.lineending and options.ignore_trailing_whitespace))
 
 
-
 class DistManifestChange(DistContentChange):
-
-    """ A MANIFEST.MF file found in the directory structure of the
-    distribution """
-
+    """
+    A MANIFEST.MF file found in the directory structure of the
+    distribution
+    """
 
     label = "Distributed Manifest"
 
@@ -188,7 +194,6 @@ class DistManifestChange(DistContentChange):
             yield ManifestChange(left_m, right_m)
 
 
-
 class DistJarChange(DistContentChange):
 
     label = "Distributed JAR"
@@ -199,18 +204,13 @@ class DistJarChange(DistContentChange):
             yield JarChange(self.left_fn(), self.right_fn())
 
 
-    def get_description(self):
-        return DistContentChange.get_description(self)
-
-
-
 class DistJarReport(DistJarChange):
 
     report_name = "JarReport"
 
 
     def __init__(self, ldata, rdata, entry, reporter):
-        DistJarChange.__init__(self, ldata, rdata, entry, True)
+        super(DistJarReport, self).__init__(ldata, rdata, entry, True)
         self.reporter = reporter
 
 
@@ -219,17 +219,14 @@ class DistJarReport(DistJarChange):
             yield JarReport(self.left_fn(), self.right_fn(), self.reporter)
 
 
-
 class DistJarAdded(DistContentAdded):
 
     label = "Distributed JAR Added"
 
 
-
 class DistJarRemoved(DistContentRemoved):
 
     label = "Distributed JAR Removed"
-
 
 
 class DistClassChange(DistContentChange):
@@ -245,18 +242,13 @@ class DistClassChange(DistContentChange):
             yield JavaClassChange(linfo, rinfo)
 
 
-    def get_description(self):
-        return DistContentChange.get_description(self)
-
-
-
 class DistClassReport(DistClassChange):
 
     report_name = "JavaClassReport"
 
 
     def __init__(self, l, r, entry, reporter):
-        DistClassChange.__init__(self, l, r, entry, True)
+        super(DistClassReport, self).__init__(l, r, entry, True)
         self.reporter = reporter
 
 
@@ -268,11 +260,9 @@ class DistClassReport(DistClassChange):
             yield JavaClassReport(linfo, rinfo, self.reporter)
 
 
-
 class DistClassAdded(DistContentAdded):
 
     label = "Distributed Java Class Added"
-
 
 
 class DistClassRemoved(DistContentRemoved):
@@ -280,16 +270,16 @@ class DistClassRemoved(DistContentRemoved):
     label = "Distributed Java Class Removed"
 
 
-
 class DistChange(SuperChange):
-
-    """ Top-level change for comparing two distributions """
+    """
+    Top-level change for comparing two distributions
+    """
 
     label = "Distribution"
 
 
     def __init__(self, left, right, shallow=False):
-        SuperChange.__init__(self, left, right)
+        super(DistChange, self).__init__(left, right)
         self.shallow = shallow
 
 
@@ -311,9 +301,10 @@ class DistChange(SuperChange):
                           DistContentRemoved,
                           DistContentChange)
     def collect_impl(self):
-
-        """ emits change instances based on the delta of the two
-        distribution directories """
+        """
+        emits change instances based on the delta of the two distribution
+        directories
+        """
 
         ld = self.ldata
         rd = self.rdata
@@ -371,13 +362,12 @@ class DistChange(SuperChange):
                     yield DistContentChange(ld, rd, entry, False)
 
 
-
 class DistReport(DistChange):
-
-    """ This class has side-effects. Running the check method with the
+    """
+    This class has side-effects. Running the check method with the
     reportdir option set to True will cause the deep checks to be
-    written to file in that directory """
-
+    written to file in that directory
+    """
 
     report_name = "DistReport"
 
@@ -390,10 +380,10 @@ class DistReport(DistChange):
 
 
     def collect_impl(self):
-
-        """ overrides DistJarChange and DistClassChange from the
-        underlying DistChange with DistJarReport and DistClassReport
-        instances """
+        """
+        overrides DistJarChange and DistClassChange from the underlying
+        DistChange with DistJarReport and DistClassReport instances
+        """
 
         for c in DistChange.collect_impl(self):
             if isinstance(c, DistJarChange):
@@ -410,10 +400,11 @@ class DistReport(DistChange):
 
 
     def mp_check_impl(self, process_count):
-
-        """ a multiprocessing-enabled check implementation. Will
-        create up to process_count helper processes and use them to
-        perform the DistJarReport and DistClassReport actions. """
+        """
+        a multiprocessing-enabled check implementation. Will create up to
+        process_count helper processes and use them to perform the
+        DistJarReport and DistClassReport actions.
+        """
 
         from multiprocessing import Process, Queue
 
@@ -479,11 +470,11 @@ class DistReport(DistChange):
                 index, change = results.get()
                 changes[index] = change
 
-        except KeyboardInterrupt, keyint:
+        except KeyboardInterrupt:
             # drain the tasks queue so it will exit gracefully
             for change in iter(tasks.get, None):
                 pass
-            raise keyint
+            raise
 
         # complete the check by setting our internal collection of
         # child changes and returning our overall status
@@ -530,10 +521,10 @@ class DistReport(DistChange):
         self.reporter.run(self)
 
 
-
 def _mp_run_check(tasks, results, options):
-
-    """ a helper function for multiprocessing with DistReport. """
+    """
+    a helper function for multiprocessing with DistReport.
+    """
 
     try:
         for index, change in iter(tasks.get, None):
@@ -557,10 +548,8 @@ def _mp_run_check(tasks, results, options):
         return
 
 
-
 # ---- Begin distdiff CLI ----
 #
-
 
 
 def cli_dist_diff(parser, options, left, right):
@@ -593,7 +582,6 @@ def cli_dist_diff(parser, options, left, right):
         return 1
 
 
-
 def cli(parser, options, rest):
     if len(rest) != 3:
         parser.error("wrong number of arguments.")
@@ -602,10 +590,10 @@ def cli(parser, options, rest):
     return cli_dist_diff(parser, options, left, right)
 
 
-
 def distdiff_optgroup(parser):
-
-    """ Option group relating to the use of a DistChange or DistReport """
+    """
+    Option group relating to the use of a DistChange or DistReport
+    """
 
     from optparse import OptionGroup
     from multiprocessing import cpu_count
@@ -637,11 +625,11 @@ def distdiff_optgroup(parser):
     return og
 
 
-
 def create_optparser():
-
-    """ an OptionParser instance filled with options and groups
-    appropriate for use with the distdiff command """
+    """
+    an OptionParser instance filled with options and groups
+    appropriate for use with the distdiff command
+    """
 
     from optparse import OptionParser
     from .jardiff import jardiff_optgroup
@@ -662,13 +650,13 @@ def create_optparser():
     return parser
 
 
-
 def default_distdiff_options(updates=None):
-
-    """ generate an options object with the appropriate default values
-    in place for API usage of distdiff features. overrides is an
-    optional dictionary which will be used to update fields on the
-    options object. """
+    """
+    generate an options object with the appropriate default values in
+    place for API usage of distdiff features. overrides is an optional
+    dictionary which will be used to update fields on the options
+    object.
+    """
 
     parser = create_optparser()
     options, _args = parser.parse_args(list())
@@ -680,14 +668,13 @@ def default_distdiff_options(updates=None):
     return options
 
 
-
 def main(args):
-
-    """ entry point for the distdiff command-line utility """
+    """
+    entry point for the distdiff command-line utility
+    """
 
     parser = create_optparser()
     return cli(parser, *parser.parse_args(args))
-
 
 
 #

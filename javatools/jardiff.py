@@ -13,7 +13,6 @@
 # <http://www.gnu.org/licenses/>.
 
 
-
 """
 Utility script and module for producing a set of changes in a JAR
 file. Takes the same options as the classdiff script, and in fact uses
@@ -23,7 +22,6 @@ JAR files.
 author: Christopher O'Brien  <obriencj@gmail.com>
 licence: LGPL
 """
-
 
 
 from os.path import isdir
@@ -39,11 +37,24 @@ from .ziputils import compare_zips, open_zip, open_zip_entry
 from .ziputils import LEFT, RIGHT, DIFF, SAME
 
 
+__all__ = (
+    "JarChange",
+    "JarTypeChange", "JarContentsChange",
+    "JarManifestChange",
+    "JarContentChange", "JarContentAdded", "JarContentRemoved",
+    "JarSignatureChange", "JarSignatureAdded", "JarSignatureRemoved",
+    "JarClassChange", "JarClassAdded", "JarClassRemoved",
+    "JarReport", "JarContentsReport", "JarClassReport",
+    "cli", "main",
+    "cli_jars_diff",
+    "jardiff_optgroup", "default_jardiff_options",
+)
+
 
 class JarTypeChange(GenericChange):
-
-    """ exploded vs. zipped and compression level """
-
+    """
+    exploded vs. zipped and compression level
+    """
 
     label = "Jar type"
 
@@ -62,17 +73,16 @@ class JarTypeChange(GenericChange):
             return "zipped JAR file"
 
 
-
 class JarContentChange(SuperChange):
-
-    """ a file or directory changed between JARs """
-
+    """
+    a file or directory changed between JARs
+    """
 
     label = "Jar Content"
 
 
     def __init__(self, lzip, rzip, entry, is_change=True):
-        SuperChange.__init__(self, lzip, rzip)
+        super(JarContentChange, self).__init__(lzip, rzip)
         self.entry = entry
         self.changed = is_change
 
@@ -86,9 +96,10 @@ class JarContentChange(SuperChange):
 
 
     def collect_impl(self):
-
-        """ Content changes refer to more concrete children, but by
-        default are empty """
+        """
+        Content changes refer to more concrete children, but by default
+        are empty
+        """
 
         return tuple()
 
@@ -100,8 +111,7 @@ class JarContentChange(SuperChange):
 
     def is_ignored(self, options):
         return (fnmatches(self.entry, *options.ignore_jar_entry) or
-                SuperChange.is_ignored(self, options))
-
+                super(JarContentChange, self).is_ignored(options))
 
 
 class JarContentAdded(JarContentChange, Addition):
@@ -113,7 +123,6 @@ class JarContentAdded(JarContentChange, Addition):
         return "%s: %s" % (self.label, self.entry)
 
 
-
 class JarContentRemoved(JarContentChange, Removal):
 
     label = "Jar Content Removed"
@@ -123,17 +132,14 @@ class JarContentRemoved(JarContentChange, Removal):
         return "%s: %s" % (self.label, self.entry)
 
 
-
 class JarClassAdded(JarContentAdded):
 
     label = "Java Class Added"
 
 
-
 class JarClassRemoved(JarContentRemoved):
 
     label = "Java Class Removed"
-
 
 
 class JarClassChange(JarContentChange):
@@ -152,14 +158,13 @@ class JarClassChange(JarContentChange):
             yield JavaClassChange(linfo, rinfo)
 
 
-
 class JarClassReport(JarClassChange):
 
     report_name = "JavaClassReport"
 
 
     def __init__(self, l, r, entry, reporter):
-        JarClassChange.__init__(self, l, r, entry)
+        super(JarClassReport, self).__init__(l, r, entry)
         self.reporter = reporter
 
 
@@ -172,7 +177,6 @@ class JarClassReport(JarClassChange):
                 rinfo = unpack_class(rfd.read())
 
             yield JavaClassReport(linfo, rinfo, self.reporter)
-
 
 
 class JarManifestChange(JarContentChange):
@@ -193,7 +197,6 @@ class JarManifestChange(JarContentChange):
             yield ManifestChange(lm, rm)
 
 
-
 class JarSignatureChange(JarContentChange):
 
     label = "Jar Signature Data"
@@ -201,7 +204,6 @@ class JarSignatureChange(JarContentChange):
 
     def is_ignored(self, options):
         return options.ignore_jar_signature
-
 
 
 class JarSignatureAdded(JarContentAdded):
@@ -213,7 +215,6 @@ class JarSignatureAdded(JarContentAdded):
         return options.ignore_jar_signature
 
 
-
 class JarSignatureRemoved(JarContentRemoved):
 
     label = "Jar Signature Removed"
@@ -223,14 +224,13 @@ class JarSignatureRemoved(JarContentRemoved):
         return options.ignore_jar_signature
 
 
-
 class JarContentsChange(SuperChange):
 
     label = "JAR Contents"
 
 
     def __init__(self, left_fn, right_fn):
-        SuperChange.__init__(self, left_fn, right_fn)
+        super(JarContentsChange, self).__init__(left_fn, right_fn)
         self.lzip = None
         self.rzip = None
 
@@ -306,26 +306,25 @@ class JarContentsChange(SuperChange):
 
 
     def check_impl(self):
-
-        """ overridden to open the left and right zipfiles and to
-         provide all subchecks with an open ZipFile instance rather
-         than having them all open and close the ZipFile individually.
-         For the duration of the check (which calls collect_impl), the
-         attributes self.lzip and self.rzip will be available and used
-         as the ldata and rdata of all subchecks. """
+        """
+        Overridden to open the left and right zipfiles and to provide all
+        subchecks with an open ZipFile instance rather than having
+        them all open and close the ZipFile individually. For the
+        duration of the check (which calls collect_impl), the
+        attributes self.lzip and self.rzip will be available and used
+        as the ldata and rdata of all subchecks.
+        """
 
         with open_zip(self.ldata) as lzip:
             with open_zip(self.rdata) as rzip:
                 self.lzip = lzip
                 self.rzip = rzip
-
-                ret = SuperChange.check_impl(self)
+                ret = super(JarContentsChange, self).check_impl()
 
         self.lzip = None
         self.rzip = None
 
         return ret
-
 
 
 class JarChange(SuperChange):
@@ -337,17 +336,17 @@ class JarChange(SuperChange):
                     JarContentsChange)
 
 
-
 class JarContentsReport(JarContentsChange):
-
-    """ overridden JarContentsChange which will swap out
-    JarClassChange with JarClassReport instances. The check_impl
-    method gains the side effect of causing all JarClassReports
-    gathered to write reports of themselves to file. """
+    """
+    overridden JarContentsChange which will swap out JarClassChange
+    with JarClassReport instances. The check_impl method gains the
+    side effect of causing all JarClassReports gathered to write
+    reports of themselves to file.
+    """
 
 
     def __init__(self, left_fn, right_fn, reporter):
-        JarContentsChange.__init__(self, left_fn, right_fn)
+        super(JarContentsReport, self).__init__(left_fn, right_fn)
         self.reporter = reporter
 
 
@@ -393,19 +392,18 @@ class JarContentsReport(JarContentsChange):
         return c, None
 
 
-
 class JarReport(JarChange):
-
-    """ This class has side-effects. Running the check method with the
+    """
+    This class has side-effects. Running the check method with the
     reportdir options set to True will cause the deep checks to be
-    written to file in that directory """
-
+    written to file in that directory
+    """
 
     report_name = "JarReport"
 
 
     def __init__(self, l, r, reporter):
-        JarChange.__init__(self, l, r)
+        super(JarReport, self).__init__(l, r)
         self.reporter = reporter
 
 
@@ -424,10 +422,8 @@ class JarReport(JarChange):
         self.reporter.run(self)
 
 
-
 # ---- Begin jardiff CLI ----
 #
-
 
 
 def cli_jars_diff(parser, options, left, right):
@@ -460,7 +456,6 @@ def cli_jars_diff(parser, options, left, right):
         return 1
 
 
-
 def cli(parser, options, rest):
     if len(rest) != 3:
         parser.error("wrong number of arguments.")
@@ -469,10 +464,10 @@ def cli(parser, options, rest):
     return cli_jars_diff(parser, options, left, right)
 
 
-
 def jardiff_optgroup(parser):
-
-    """ option group specific to the tests in jardiff """
+    """
+    option group specific to the tests in jardiff
+    """
 
     from optparse import OptionGroup
 
@@ -499,11 +494,11 @@ def jardiff_optgroup(parser):
     return og
 
 
-
 def create_optparser():
-
-    """ an OptionParser instance with the appropriate options and
-    groups for the jardiff utility """
+    """
+    an OptionParser instance with the appropriate options and groups
+    for the jardiff utility
+    """
 
     from optparse import OptionParser
     from .classdiff import general_optgroup, classdiff_optgroup
@@ -522,13 +517,13 @@ def create_optparser():
     return parser
 
 
-
 def default_jardiff_options(updates=None):
-
-    """ generate an options object with the appropriate default values
-    in place for API usage of jardiff features. overrides is an
-    optional dictionary which will be used to update fields on the
-    options object. """
+    """
+    generate an options object with the appropriate default values in
+    place for API usage of jardiff features. overrides is an optional
+    dictionary which will be used to update fields on the options
+    object.
+    """
 
     parser = create_optparser()
     options, _args = parser.parse_args(list())
@@ -540,14 +535,13 @@ def default_jardiff_options(updates=None):
     return options
 
 
-
 def main(args):
-
-    """ main entry point for the jardiff CLI """
+    """
+    main entry point for the jardiff CLI
+    """
 
     parser = create_optparser()
     return cli(parser, *parser.parse_args(args))
-
 
 
 #
