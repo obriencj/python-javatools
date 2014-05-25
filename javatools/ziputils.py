@@ -188,7 +188,7 @@ def is_zipstream(data):
     """
 
     if isinstance(data, (str, buffer)):
-        data = is_zipstream(StringIO(data))
+        data = StringIO(data)
 
     if hasattr(data, "read"):
         tell = 0
