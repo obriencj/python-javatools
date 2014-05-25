@@ -39,7 +39,7 @@ __all__ = (
     "quick_report", "general_report_optgroup",
     "JSONReportFormat", "json_report_optgroup",
     "TextReportFormat",
-    "CheetatReportFormat", "html_report_optgroup",
+    "CheetahReportFormat", "html_report_optgroup",
 )
 
 
