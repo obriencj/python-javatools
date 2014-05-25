@@ -13,7 +13,6 @@
 # <http://www.gnu.org/licenses/>.
 
 
-
 """
 Classes for representing changes as formatted text.
 
@@ -22,24 +21,32 @@ license: LGPL
 """
 
 
-
+from abc import ABCMeta, abstractmethod
 from Cheetah.DummyTransaction import DummyTransaction
 from functools import partial
 from json import dump, JSONEncoder
+from optparse import OptionGroup
 from os.path import exists, join, relpath
 from sys import stdout
 from .dirutils import copydir, makedirsp
 
 
-
 _BUFFERING = 2 ** 16
 
 
+__all__ = (
+    "Reporter", "ReportFormat",
+    "quick_report", "general_report_optgroup",
+    "JSONReportFormat", "json_report_optgroup",
+    "TextReportFormat",
+    "CheetatReportFormat", "html_report_optgroup",
+)
+
 
 class Reporter(object):
-
-    """ Collects multiple report formats for use in presenting a
-    change """
+    """
+    Collects multiple report formats for use in presenting a change
+    """
 
 
     def __init__(self, basedir, entry, options):
@@ -55,8 +62,9 @@ class Reporter(object):
 
 
     def get_relative_breadcrumbs(self):
-
-        """ get the breadcrumbs as relative to the basedir """
+        """
+        get the breadcrumbs as relative to the basedir
+        """
 
         basedir = self.basedir
         crumbs = self.breadcrumbs
@@ -65,9 +73,10 @@ class Reporter(object):
 
 
     def add_formats_by_name(self, rfmt_list):
-
-        """ adds formats by short label descriptors, such as 'txt',
-        'json', or 'html' """
+        """
+        adds formats by short label descriptors, such as 'txt', 'json', or
+        'html'
+        """
 
         for fmt in rfmt_list:
             if fmt == "json":
@@ -79,18 +88,20 @@ class Reporter(object):
 
 
     def add_report_format(self, report_format):
-
-        """ Add an output format to this reporter. report_format
-        should be a ReportFormat subtype. It will be instantiated when
-        the reporter is run. """
+        """
+        Add an output format to this reporter. report_format should be a
+        ReportFormat subtype. It will be instantiated when the
+        reporter is run.
+        """
 
         self.formats.add(report_format)
 
 
     def subreporter(self, subpath, entry):
-
-        """ create a reporter for a sub-report, with updated
-        breadcrumbs and the same output formats"""
+        """
+        create a reporter for a sub-report, with updated breadcrumbs and
+        the same output formats
+        """
 
         newbase = join(self.basedir, subpath)
         r = Reporter(newbase, entry, self.options)
@@ -104,9 +115,10 @@ class Reporter(object):
 
 
     def setup(self):
-
-        """ instantiates all report formats that have been added to
-        this reporter, and calls their setup methods. """
+        """
+        instantiates all report formats that have been added to this
+        reporter, and calls their setup methods.
+        """
 
         if self._formats:
             # setup has been run already.
@@ -126,9 +138,10 @@ class Reporter(object):
 
 
     def run(self, change):
-
-        """ runs the report format instances in this reporter. Will
-        call setup if it hasn't been called already """
+        """
+        runs the report format instances in this reporter. Will call setup
+        if it hasn't been called already
+        """
 
         if self._formats is None:
             self.setup()
@@ -142,9 +155,10 @@ class Reporter(object):
 
 
     def clear(self):
-
-        """ calls clear on any report format instances created during
-        setup and drops the cache """
+        """
+        calls clear on any report format instances created during setup
+        and drops the cache
+        """
 
         if self._formats:
             for fmt in self._formats:
@@ -152,13 +166,14 @@ class Reporter(object):
         self._formats = None
 
 
-
 class ReportFormat(object):
+    """
+    Base class of a report format provider. Override to describe a
+    concrete format type
+    """
 
-    """ Base class of a report format provider. Override to describe a
-    concrete format type """
 
-
+    __metaclass__ = ABCMeta
     extension = ".report"
 
 
@@ -168,18 +183,21 @@ class ReportFormat(object):
         self.breadcrumbs = breadcrumbs
 
 
+    @abstractmethod
     def run_impl(self, change, entry, out):
-
-        """ override to actually produce output """
+        """
+        override to actually produce output
+        """
 
         pass
 
 
     def run(self, change, entry, out=None):
-
-        """ setup for run, including creating an output file if
-        needed. Calls run_impl when ready. If out and entry are both
-        None, sys.stdout is used """
+        """
+        setup for run, including creating an output file if needed. Calls
+        run_impl when ready. If out and entry are both None,
+        sys.stdout is used
+        """
 
         if out:
             self.run_impl(change, entry, out)
@@ -201,28 +219,29 @@ class ReportFormat(object):
 
 
     def setup(self):
-
-        """ override if the report format has behavior which can be
-        done ahead of time, such as copying files or creating
-        directories """
+        """
+        override if the report format has behavior which can be done ahead
+        of time, such as copying files or creating directories
+        """
 
         pass
 
 
     def clear(self):
-
-        """ clear up the internal references of this format. Called by
-        the parent reporter at the end of run """
+        """
+        clear up the internal references of this format. Called by the
+        parent reporter at the end of run
+        """
 
         self.basedir = None
         self.options = None
         self.breadcrumbs = None
 
 
-
 def _opt_cb_report(_opt, _optstr, value, parser):
-
-    """ callback for the --report option in general_report_optgroup """
+    """
+    callback for the --report option in general_report_optgroup
+    """
 
     options = parser.values
 
@@ -235,12 +254,10 @@ def _opt_cb_report(_opt, _optstr, value, parser):
         options.reports.append(value)
 
 
-
 def general_report_optgroup(parser):
-
-    """ General Reporting Options """
-
-    from optparse import OptionGroup
+    """
+    General Reporting Options
+    """
 
     g = OptionGroup(parser, "Reporting Options")
 
@@ -253,11 +270,11 @@ def general_report_optgroup(parser):
     return g
 
 
-
 class JSONReportFormat(ReportFormat):
-
-    """ renders a Change and all of its children to a JSON object. Can
-    use options from the jon_report_optgroup option group """
+    """
+    renders a Change and all of its children to a JSON object. Can use
+    options from the jon_report_optgroup option group
+    """
 
     extension = ".json"
 
@@ -277,18 +294,16 @@ class JSONReportFormat(ReportFormat):
         try:
             dump(data, out, sort_keys=True, indent=indent, cls=cls)
 
-        except TypeError, te:
+        except TypeError as te:
             # XXX for debugging. Otherwise the wrapping try isn't necessary
             print data
-            raise(te)
-
+            raise
 
 
 def json_report_optgroup(parser):
-
-    """ Option group for the JON report format """
-
-    from optparse import OptionGroup
+    """
+    Option group for the JON report format
+    """
 
     g = OptionGroup(parser, "JON Report Options")
 
@@ -297,12 +312,12 @@ def json_report_optgroup(parser):
     return g
 
 
-
 class JSONChangeEncoder(JSONEncoder):
-
-    """ A specialty JSONEncoder which knows how to represent Change
+    """
+    A specialty JSONEncoder which knows how to represent Change
     instances (or anything with a simplify method), and sequences (by
-    rendering them into tuples) """
+    rendering them into tuples)
+    """
 
 
     def __init__(self, options, *a, **k):
@@ -330,10 +345,10 @@ class JSONChangeEncoder(JSONEncoder):
         return JSONEncoder.default(self, o)
 
 
-
 class TextReportFormat(ReportFormat):
-
-    """ Renders the change as indented text """
+    """
+    Renders the change as indented text
+    """
 
     extension = ".text"
 
@@ -343,10 +358,10 @@ class TextReportFormat(ReportFormat):
         _indent_change(change, out, options, 0)
 
 
-
 def _indent_change(change, out, options, indent):
-
-    """ recursive function to print indented change descriptions """
+    """
+    recursive function to print indented change descriptions
+    """
 
     show_unchanged = getattr(options, "show_unchanged", False)
     show_ignored = getattr(options, "show_ignored", False)
@@ -372,30 +387,30 @@ def _indent_change(change, out, options, indent):
             _indent_change(sub, out, options, indent)
 
 
-
 def _indent(stream, indent, *msgs):
 
     """ write a message to stream, with indentation. Also ensures that
     the output encoding of the messages is safe for writing. """
 
-    for x in xrange(0,indent):
+    for x in xrange(0, indent):
         stream.write("  ")
     for x in msgs:
         stream.write(x.encode("ascii", "backslashreplace"))
     stream.write("\n")
 
 
-
 class CheetahReportFormat(ReportFormat):
-
-    """ HTML output for a Change """
+    """
+    HTML output for a Change
+    """
 
     extension = ".html"
 
 
     def _relative(self, uri):
-
-        """ if uri is relative, re-relate it to our basedir """
+        """
+        if uri is relative, re-relate it to our basedir
+        """
 
         if (uri.startswith("http:") or
             uri.startswith("https:") or
@@ -411,16 +426,18 @@ class CheetahReportFormat(ReportFormat):
 
 
     def _relative_uris(self, uri_list):
-
-        """ if uris in list are relative, re-relate them to our basedir """
+        """
+        if uris in list are relative, re-relate them to our basedir
+        """
 
         return [u for u in (self._relative(uri) for uri in uri_list) if u]
 
 
     def setup(self):
-
-        """ copies default stylesheets and javascript files if
-        necessary, and appends them to the options """
+        """
+        copies default stylesheets and javascript files if necessary, and
+        appends them to the options
+        """
 
         from javatools import cheetah
 
@@ -457,10 +474,10 @@ class CheetahReportFormat(ReportFormat):
 
 
     def run_impl(self, change, entry, out):
-
-        """ sets up the report directory for an HTML report. Obtains
-        the top-level Cheetah template that is appropriate for the
-        change instance, and runs it.
+        """
+        sets up the report directory for an HTML report. Obtains the
+        top-level Cheetah template that is appropriate for the change
+        instance, and runs it.
 
         The cheetah templates are supplied the following values:
          * change - the Change instance to report on
@@ -472,7 +489,8 @@ class CheetahReportFormat(ReportFormat):
 
         The cheetah templates are also given a render_change method
         which can be called on another Change instance to cause its
-        template to be resolved and run in-line. """
+        template to be resolved and run in-line.
+        """
 
         options = self.options
 
@@ -511,11 +529,11 @@ class CheetahReportFormat(ReportFormat):
         template.shutdown()
 
 
-
 def _compose_cheetah_template_map(cache):
-
-    """ does the work of composing the cheetah template map into the
-    given cache """
+    """
+    does the work of composing the cheetah template map into the given
+    cache
+    """
 
     from .cheetah import get_templates
 
@@ -552,20 +570,25 @@ def _compose_cheetah_template_map(cache):
     return cache
 
 
+_template_cache = dict()
 
-def cheetah_template_map(cache=dict()):
 
-    """ a map of change types to cheetah template types. Used in
-    resolve_cheetah_template """
+def cheetah_template_map(cache=None):
+    """
+    a map of change types to cheetah template types. Used in
+    resolve_cheetah_template
+    """
+
+    if cache is None:
+        cache = _template_cache
 
     return cache or _compose_cheetah_template_map(cache)
 
 
-
 def resolve_cheetah_template(change_type):
-
-    """ return the appropriate cheetah template class for the given
-    change type, using the method-resolution-order of the change type.
+    """
+    return the appropriate cheetah template class for the given change
+    type, using the method-resolution-order of the change type.
     """
 
     tm = cheetah_template_map()
@@ -576,19 +599,17 @@ def resolve_cheetah_template(change_type):
         tmpl = tm.get(t)
         if tmpl:
             return tmpl
-    else:
-        # this should never happen, since we'll provide a
-        # change_Change template, and all of the changes should be
-        # inheriting from that type
-        raise Exception("No template for class %s" % change_type.__name__)
 
+    # this should never happen, since we'll provide a
+    # change_Change template, and all of the changes should be
+    # inheriting from that type
+    raise Exception("No template for class %s" % change_type.__name__)
 
 
 def html_report_optgroup(parser):
-
-    """ Option group for the HTML report format """
-
-    from optparse import OptionGroup
+    """
+    Option group for the HTML report format
+    """
 
     g = OptionGroup(parser, "HTML Report Options")
 
@@ -605,11 +626,11 @@ def html_report_optgroup(parser):
     return g
 
 
-
 def quick_report(report_type, change, options):
-
-    """ writes a change report via report_type to options.output or
-    sys.stdout """
+    """
+    writes a change report via report_type to options.output or
+    sys.stdout
+    """
 
     report = report_type(None, options)
 
@@ -618,7 +639,6 @@ def quick_report(report_type, change, options):
             report.run(change, None, out)
     else:
         report.run(change, None, stdout)
-
 
 
 #
