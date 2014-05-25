@@ -1831,8 +1831,7 @@ class JavaAnnotation(dict):
             if not _annotation_val_eq(lval[0], lval[1], self.cpool,
                                       rval[0], rval[1], other.cpool):
                 return False
-        else:
-            return True
+        return True
 
 
     def __ne__(self, other):
@@ -1871,8 +1870,7 @@ def _annotation_val_eq(left_tag, left_data, left_cpool,
             if not _annotation_val_eq(ld[0], ld[1], left_cpool,
                                       rd[0], rd[1], right_cpool):
                 return False
-        else:
-            return True
+        return True
 
 
 def _unpack_annotation_val(unpacker, cpool):

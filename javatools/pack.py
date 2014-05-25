@@ -43,12 +43,15 @@ __all__ = ( "compile_struct", "unpack",
 _struct_cache = dict()
 
 
-def compile_struct(fmt, cache=_struct_cache):
+def compile_struct(fmt, cache=None):
     """
     returns a struct.Struct instance compiled from fmt. If fmt has
     already been compiled, it will return the previously compiled
     Struct instance from the cache.
     """
+
+    if cache is None:
+        cache = _struct_cache
 
     sfmt = cache.get(fmt, None)
     if not sfmt:

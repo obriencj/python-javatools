@@ -486,8 +486,7 @@ class SuperChange(GenericChange):
         for change in changes:
             if change.is_change() and not change.is_ignored(options):
                 return False
-        else:
-            return True
+        return True
 
 
     def simplify(self, options=None):
