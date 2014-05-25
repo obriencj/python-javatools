@@ -13,14 +13,12 @@
 # <http://www.gnu.org/licenses/>.
 
 
-
 """
 Utilities for discovering entry deltas in a pair of zip files.
 
 author: Christopher O'Brien  <obriencj@gmail.com>
 license: LGPL
 """
-
 
 
 from cStringIO import StringIO
@@ -33,28 +31,36 @@ from .dirutils import LEFT, RIGHT, DIFF, SAME
 from .dirutils import closing
 
 
+__all__ = (
+    "compare", "compare_zips",
+    "open_zip", "open_zip_entry",
+    "zip_file", "zip_entry_rollup",
+    "LEFT", "RIGHT", "DIFF", "SAME",
+)
+
 
 _CHUNKSIZE = 2 ** 14
 
 
-
 def compare(left, right):
-
-    """ yields EVENT,ENTRY pairs describing the differences between
-    left and right, which are filenames for a pair of zip files """
+    """
+    yields EVENT,ENTRY pairs describing the differences between left
+    and right, which are filenames for a pair of zip files
+    """
 
     with open_zip(left) as l:
         with open_zip(right) as r:
             return compare_zips(l, r)
 
 
-
 def compare_zips(left, right):
+    """
+    yields EVENT,ENTRY pairs describing the differences between left
+    and right ZipFile instances
+    """
 
-    """ yields EVENT,ENTRY pairs describing the differences between
-    left and right ZipFile instances """
-
-    ll, rl = set(left.namelist()), set(right.namelist())
+    ll = set(left.namelist())
+    rl = set(right.namelist())
 
     for f in ll:
         if f in rl:
@@ -77,13 +83,14 @@ def compare_zips(left, right):
         yield RIGHT, f
 
 
-
 def _different(left, right, f):
+    """
+    true if entry f is different between left and right ZipFile
+    instances
+    """
 
-    """ true if entry f is different between left and right ZipFile
-    instances """
-
-    l, r = left.getinfo(f), right.getinfo(f)
+    l = left.getinfo(f)
+    r = right.getinfo(f)
 
     if (l.file_size == r.file_size) and (l.CRC == r.CRC):
         # ok, they seem passibly similar, let's deep check them.
@@ -94,20 +101,11 @@ def _different(left, right, f):
         return True
 
 
-
-def open_chunks(filename, mode='rb', chunksize=_CHUNKSIZE):
-    with open(filename, mode) as stream:
-        data = stream.read(chunksize)
-        while data:
-            yield data
-            data = stream.read(chunksize)
-
-
-
 def _deep_different(left, right, entry):
-
-    """ checks that entry is identical between ZipFile instances
-    left and right """
+    """
+    checks that entry is identical between ZipFile instances left and
+    right
+    """
 
     left = chunk_zip_entry(left, entry)
     right = chunk_zip_entry(right, entry)
@@ -115,27 +113,26 @@ def _deep_different(left, right, entry):
     for ldata, rdata in izip_longest(left, right):
         if ldata != rdata:
             return True
-    else:
-        return False
-
+    return False
 
 
 def collect_compare(left, right):
-
-    """ collects the differences between left and right, which are
+    """
+    collects the differences between left and right, which are
     filenames for valid zip files, into a tuple of lists: added,
-    removed, altered, same """
+    removed, altered, same
+    """
 
     return collect_compare_into(left, right, [], [], [], [])
 
 
-
 def collect_compare_into(left, right, added, removed, altered, same):
-
-    """ collects the differences between left and right, which are
+    """
+    collects the differences between left and right, which are
     filenames for valid zip files, into the lists added, removed,
     altered, and same.  Returns a tuple of added, removed, altered,
-    same """
+    same
+    """
 
     with open_zip(left) as l:
         with open_zip(right) as r:
@@ -144,21 +141,21 @@ def collect_compare_into(left, right, added, removed, altered, same):
                                              altered, same)
 
 
-
 def collect_compare_zips(left, right):
-
-    """ collects the differences between left and right ZipFile
-    instances into a tuple of lists: added, removed, altered, same """
+    """
+    collects the differences between left and right ZipFile instances
+    into a tuple of lists: added, removed, altered, same
+    """
 
     return collect_compare_zips_into(left, right, [], [], [], [])
 
 
-
 def collect_compare_zips_into(left, right, added, removed, altered, same):
-
-    """ collects the differences between left and right ZipFile
-    instances into the lists added, removed, altered, and same.
-    Returns a tuple of added, removed, altered, same"""
+    """
+    collects the differences between left and right ZipFile instances
+    into the lists added, removed, altered, and same.  Returns a tuple
+    of added, removed, altered, same
+    """
 
     for event,filename in compare_zips(left, right):
         if event == LEFT:
@@ -178,23 +175,22 @@ def collect_compare_zips_into(left, right, added, removed, altered, same):
     return added,removed,altered,same
 
 
-
 def is_zipstream(data):
-
-    """ just like zipfile.is_zipfile, but works upon buffers and
-    streams rather than filenames.
+    """
+    just like zipfile.is_zipfile, but works upon buffers and streams
+    rather than filenames.
 
     If data supports the read method, it will be treated as a stream
     and read from to test whether it is a valid ZipFile.
 
     If data also supports the tell and seek methods, it will be
-    rewound after being tested."""
+    rewound after being tested.
+    """
 
     if isinstance(data, (str, buffer)):
-        result = is_zipstream(StringIO(data))
+        data = is_zipstream(StringIO(data))
 
-    elif hasattr(data, "read"):
-
+    if hasattr(data, "read"):
         tell = 0
         if hasattr(data, "tell"):
             tell = data.tell()
@@ -213,16 +209,16 @@ def is_zipstream(data):
     return result
 
 
-
-def file_crc32(filename):
-
-    """ calculate the CRC32 of the contents of filename """
+def file_crc32(filename, chunksize=_CHUNKSIZE):
+    """
+    calculate the CRC32 of the contents of filename
+    """
 
     check = 0
-    for data in open_chunks(filename, 'rb'):
-        check = crc32(data, check)
+    with open(filename, 'rb') as fd:
+        for data in iter(lambda:fd.read(chunksize), ""):
+            check = crc32(data, check)
     return check
-
 
 
 def _collect_infos(dirname):
@@ -259,12 +255,12 @@ def _collect_infos(dirname):
                 pass
 
 
-
 class ExplodedZipFile(object):
-
-    """ A directory wrapped up to look like a ZipFile. It only
-    populates the filename, file_size, and CRC fields of the child
-    ZipInfo members."""
+    """
+    A directory wrapped up to look like a ZipFile. It only populates
+    the filename, file_size, and CRC fields of the child ZipInfo
+    members.
+    """
 
     def __init__(self, pathname):
         self.fn = pathname
@@ -302,12 +298,12 @@ class ExplodedZipFile(object):
         self.members = None
 
 
-
 def zip_file(fn, mode="r"):
-
-    """ returns either a zipfile.ZipFile instance or an
-    ExplodedZipFile instance, depending on whether fn is the name of a
-    valid zip file, or a directory."""
+    """
+    returns either a zipfile.ZipFile instance or an ExplodedZipFile
+    instance, depending on whether fn is the name of a valid zip file,
+    or a directory.
+    """
 
     if isdir(fn):
         return ExplodedZipFile(fn)
@@ -317,40 +313,40 @@ def zip_file(fn, mode="r"):
         raise Exception("cannot treat as an archive: %r" % fn)
 
 
-
 def open_zip(filename, mode="r"):
-
-    """ opens a zip file archive at filename in the given mode and
-    returns a context manager which will close the archive when the
-    context exits. Use eg: with open_zip('my.zip') as z: ...
+    """
+    opens a zip file archive at filename in the given mode and returns
+    a context manager which will close the archive when the context
+    exits. Use eg: with open_zip('my.zip') as z: ...
 
     In Python 2.6, this will be a ClosingContext instance. In 2.7
     onward, the zipfile.ZipFile class provides its own managed context
-    and so the instance is returned unwrapped """
+    and so the instance is returned unwrapped
+    """
 
     return closing(zip_file(filename, mode))
 
 
-
 def open_zip_entry(zipfile, name, mode='r'):
-
-    """ opens an entry from an opened zip file archive in the given
-    mode and returns a context manager which will close the stream
-    when the context exits. Use eg: with open_zip_entry(my_zip,
-    'MANIFEST.MF') as data: ...
+    """
+    opens an entry from an opened zip file archive in the given mode
+    and returns a context manager which will close the stream when the
+    context exits. Use eg: with open_zip_entry(my_zip, 'MANIFEST.MF')
+    as data: ...
 
     In Python 2.6, this will be a ClosingContext instance. In 2.7
     onward, the zipfile.ZipExtFile class provides its own managed
-    context and so the instance is returned unwrapped """
+    context and so the instance is returned unwrapped
+    """
 
     return closing(zipfile.open(name, mode))
 
 
-
 def chunk_zip_entry(zipfile, name, chunksize=_CHUNKSIZE):
-
-    """ opens an entry from an openex zip file archive and yields
-    sequential chunks of data from the resulting stream. """
+    """
+    opens an entry from an openex zip file archive and yields
+    sequential chunks of data from the resulting stream.
+    """
 
     with open_zip_entry(zipfile, name, mode='r') as stream:
         data = stream.read(chunksize)
@@ -359,14 +355,14 @@ def chunk_zip_entry(zipfile, name, chunksize=_CHUNKSIZE):
             data = stream.read(chunksize)
 
 
-
 def zip_entry_rollup(zipfile):
+    """
+    returns a tuple of (files, dirs, size_uncompressed,
+    size_compressed). files+dirs will equal len(zipfile.infolist)
+    """
 
-    """ returns a tuple of (files, dirs, size_uncompressed,
-    size_compressed). files+dirs will equal len(zipfile.infolist) """
-
-    files, dirs = 0, 0
-    total_c, total_u = 0, 0
+    files = dirs = 0
+    total_c = total_u = 0
 
     for i in zipfile.infolist():
         if i.filename[-1] == '/':
@@ -380,7 +376,5 @@ def zip_entry_rollup(zipfile):
     return files, dirs, total_c, total_u
 
 
-
 #
 # The end.
-
