@@ -13,7 +13,6 @@
 # <http://www.gnu.org/licenses/>.
 
 
-
 """
 Some abstraction of changes. Useful for the classdiff and jardiff
 modules.
@@ -26,12 +25,22 @@ license: LGPL
 from functools import wraps
 
 
+__all__ = (
+    "squash",
+    "collect_by_typename", "collect_by_type",
+    "iterate_by_type", "yield_sorted_by_type",
+    "Change", "Addition", "Removal",
+    "GenericChange", "SuperChange",
+    "SquashedChange", "SquashedAddition", "SquashedRemoval",
+)
+
 
 def collect_by_typename(obj_sequence, cache=None):
-
-    """ collects objects from obj_sequence and stores them into
-    buckets by type name. cache is an optional dict into which we
-    collect the results. """
+    """
+    collects objects from obj_sequence and stores them into buckets by
+    type name. cache is an optional dict into which we collect the
+    results.
+    """
 
     if cache is None:
         cache = {}
@@ -48,12 +57,11 @@ def collect_by_typename(obj_sequence, cache=None):
     return cache
 
 
-
 def collect_by_type(obj_sequence, cache=None):
-
-    """ collects objects from obj_sequence and stores them into
-    buckets by type. cache is an optional dict into which we collect
-    the results. """
+    """
+    collects objects from obj_sequence and stores them into buckets by
+    type. cache is an optional dict into which we collect the results.
+    """
 
     if cache is None:
         cache = {}
@@ -70,14 +78,14 @@ def collect_by_type(obj_sequence, cache=None):
     return cache
 
 
-
 def iterate_by_type(objs, typelist):
-
-    """ collects a sequence of objs into buckets by type, then
-    re-emits objs from the buckets, sorting through the buckets in the
-    order specified by typelist. Any objects of a type not specified
-    in typelist will be emitted last in no guaranteed order (but still
-    grouped by type). """
+    """
+    collects a sequence of objs into buckets by type, then re-emits
+    objs from the buckets, sorting through the buckets in the order
+    specified by typelist. Any objects of a type not specified in
+    typelist will be emitted last in no guaranteed order (but still
+    grouped by type).
+    """
 
     cache = collect_by_type(objs)
 
@@ -90,20 +98,19 @@ def iterate_by_type(objs, typelist):
             yield val
 
 
-
 def yield_sorted_by_type(*typelist):
-
-    """ a useful decorator for the collect_impl method of SuperChange
+    """
+    a useful decorator for the collect_impl method of SuperChange
     subclasses. Caches the yielded changes, and re-emits them
     collected by their type. The order of the types can be specified
     by listing the types as arguments to this decorator. Unlisted
     types will be yielded last in no guaranteed order.
 
     Grouping happens by exact type match only. Inheritance is not
-    taken into consideration for grouping. """
+    taken into consideration for grouping.
+    """
 
     def decorate(fun):
-
         @wraps(fun)
         def decorated(*args, **kwds):
             return iterate_by_type(fun(*args, **kwds), typelist)
@@ -112,12 +119,10 @@ def yield_sorted_by_type(*typelist):
     return decorate
 
 
-
 class Change(object):
-
-    """ Base class for representing a specific change between two
-    objects """
-
+    """
+    Base class for representing a specific change between two objects
+    """
 
     label = "Change"
 
@@ -159,9 +164,10 @@ class Change(object):
 
 
     def is_ignored(self, options):
-
-        """ is this change ignorable, given parameters on the options
-        object. """
+        """
+        is this change ignorable, given parameters on the options
+        object.
+        """
 
         return False
 
@@ -176,9 +182,10 @@ class Change(object):
 
 
     def simplify(self, options=None):
-
-        """ returns a dict describing a simple snapshot of this
-        change, and its children if any. """
+        """
+        returns a dict describing a simple snapshot of this change, and
+        its children if any.
+        """
 
         simple = {
             "class": type(self).__name__,
@@ -202,122 +209,137 @@ class Change(object):
         return simple
 
 
-
 class Removal(Change):
+    """
+    A type of change indicating that something was removed
+    """
 
-    """ Something was removed """
+    label = "Removal"
+
 
     def is_change(self):
         return True
-
 
 
 class Addition(Change):
+    """
+    A type of change indicating that something was added
+    """
 
-    """ Something was added """
+    label = "Addition"
+
 
     def is_change(self):
         return True
 
 
-
 class GenericChange(Change):
-
-    """ A generalized test for a single change on two objects: a left
-    and a right. Subclasses should override the label and the
-    check_impl method at a minimum. """
-
+    """
+    A generalized test for a single change on two objects: a left and
+    a right. Subclasses should override the label and the check_impl
+    method at a minimum.
+    """
 
     label = "Generic Change"
 
 
     def fn_data(self, side_data):
-
-        """ Get the data to be used in fn_differ from side_data. By
-        default, this method is the identity """
+        """
+        Get the data to be used in fn_differ from side_data. By default,
+        this method is the identity
+        """
 
         return side_data
 
 
     def fn_pretty(self, side_data):
-
-        """ override to provide a way to show the pretty version of the
-        left or right data. Defaults to fn_data """
+        """
+        override to provide a way to show the pretty version of the left
+        or right data. Defaults to fn_data
+        """
 
         return self.fn_data(side_data)
 
 
     def fn_pretty_desc(self, side_data):
-
-        """ override to provide a way to describe the data left or right
-        data. Defaults to fn_pretty """
+        """
+        override to provide a way to describe the data left or right
+        data. Defaults to fn_pretty
+        """
 
         return self.fn_pretty(side_data)
 
 
     def fn_differ(self, left_data, right_data):
-
-        """ override to provide the check for whether get_ldata() and
-        get_rdata() differ. defaults to an inequality (!=) check"""
+        """
+        override to provide the check for whether get_ldata() and
+        get_rdata() differ. defaults to an inequality (!=) check
+        """
 
         return left_data != right_data
 
 
     def get_ldata(self):
-
-        """ returns fn_data of ldata """
+        """
+        returns fn_data of ldata
+        """
 
         return self.fn_data(self.ldata)
 
 
     def get_rdata(self):
-
-        """ returns fn_data of rdata """
+        """
+        returns fn_data of rdata
+        """
 
         return self.fn_data(self.rdata)
 
 
     def pretty_ldata(self):
-
-        """ returns fn_pretty of ldata (NOT the fn_pretty of
-        get_ldata) """
+        """
+        returns fn_pretty of ldata (NOT the fn_pretty of get_ldata)
+        """
 
         return self.fn_pretty(self.ldata)
 
 
     def pretty_rdata(self):
-
-        """ returns fn_pretty of rdata (NOT the fn_pretty of
-        get_rdata) """
+        """
+        returns fn_pretty of rdata (NOT the fn_pretty of get_rdata)
+        """
 
         return self.fn_pretty(self.rdata)
 
 
     def pretty_ldata_desc(self):
-
-        """ returns fn_pretty_desc of ldata (NOT the fn_pretty_desc of
-        get_ldata) """
+        """
+        returns fn_pretty_desc of ldata (NOT the fn_pretty_desc of
+        get_ldata)
+        """
 
         return self.fn_pretty_desc(self.ldata)
 
 
     def pretty_rdata_desc(self):
-        """ returns fn_pretty_desc of rdata (NOT the fn_pretty_desc of
-        get_rdata) """
+        """
+        returns fn_pretty_desc of rdata (NOT the fn_pretty_desc of
+        get_rdata)
+        """
 
         return self.fn_pretty_desc(self.rdata)
 
 
     def check_impl(self):
-
-        """ returns a tuple of (is_change,description) which are then
-        stored in self.changed and self.description
+        """
+        returns a tuple of (is_change,description) which are then stored
+        in self.changed and self.description
 
         The default implementation will get the data from the left and
         right sides by calling self.fn_data, then compare them via
         self.fn_differ. If they do differ, a message will be
         constructed using self.fn_pretty to create human-readable
-        versions of the data that changed. """
+        versions of the data that changed.
+        """
 
         if self.fn_differ(self.get_ldata(), self.get_rdata()):
 
@@ -332,22 +354,23 @@ class GenericChange(Change):
 
 
     def check(self):
-
-        """ if necessary, override check_impl to change the behaviour of
-        subclasses of GenericChange. """
+        """
+        if necessary, override check_impl to change the behaviour of
+        subclasses of GenericChange.
+        """
 
         self.changed, self.description = self.check_impl()
 
 
     def simplify(self, options=None):
-
-        """ provide a simple representation of this change as a
-        dictionary """
+        """
+        provide a simple representation of this change as a dictionary
+        """
 
         # TODO: we might want to get rid of this method and just move
         # it into the JSONEncoder in report.py
-        
-        simple = Change.simplify(self, options)
+
+        simple = super(GenericChange, self).simplify(options)
 
         ld = self.pretty_ldata()
         if ld is not None:
@@ -360,10 +383,9 @@ class GenericChange(Change):
         return simple
 
 
-
 class SuperChange(GenericChange):
-
-    """ A collection of changes.
+    """
+    A collection of changes.
 
     For simplest use, override the change_types class field with a
     list of Change subclasses. When the default collect_impl is called
@@ -379,7 +401,6 @@ class SuperChange(GenericChange):
     change and all of its changed children were also ignored.
     """
 
-
     label = "Super Change"
 
 
@@ -388,7 +409,7 @@ class SuperChange(GenericChange):
 
 
     def __init__(self, ldata, rdata):
-        GenericChange.__init__(self, ldata, rdata)
+        super(SuperChange, self).__init__(ldata, rdata)
         self.changes = tuple()
 
 
@@ -397,11 +418,11 @@ class SuperChange(GenericChange):
 
 
     def clear(self):
-
-        """ clears all child changes and drops the reference to them
+        """
+        clears all child changes and drops the reference to them
         """
 
-        GenericChange.clear(self)
+        super(SuperChange, self).clear()
 
         for c in self.changes:
             c.clear()
@@ -409,9 +430,10 @@ class SuperChange(GenericChange):
 
 
     def collect_impl(self):
-
-        """ instanciates each of the entries in in the overriden
-        change_types field with the left and right data """
+        """
+        instanciates each of the entries in in the overriden change_types
+        field with the left and right data
+        """
 
         ldata = self.get_ldata()
         rdata = self.get_rdata()
@@ -421,11 +443,12 @@ class SuperChange(GenericChange):
 
 
     def collect(self, force=False):
-
-        """ calls collect_impl and stores the results as the child
-        changes of this super-change. Returns a tuple of the data
-        generated from collect_impl. Caches the result rather than
-        re-computing each time, unless force is True """
+        """
+        calls collect_impl and stores the results as the child changes of
+        this super-change. Returns a tuple of the data generated from
+        collect_impl. Caches the result rather than re-computing each
+        time, unless force is True
+        """
 
         if force or not self.changes:
             self.changes = tuple(self.collect_impl())
@@ -433,10 +456,11 @@ class SuperChange(GenericChange):
 
 
     def check_impl(self):
-
-        """ sets self.changes to the result of self.changes_impl, then
-        if any member of those checks shows as a change, will return
-        True,None """
+        """
+        sets self.changes to the result of self.changes_impl, then if any
+        member of those checks shows as a change, will return
+        True,None
+        """
 
         c = False
         for change in self.collect():
@@ -446,10 +470,11 @@ class SuperChange(GenericChange):
 
 
     def is_ignored(self, options):
-
-        """ If we have changed children and all the children which are
-        changes are ignored, then we are ignored. Otherwise, we are
-        not ignored"""
+        """
+        If we have changed children and all the children which are changes
+        are ignored, then we are ignored. Otherwise, we are not
+        ignored
+        """
 
         if not self.is_change():
             return False
@@ -466,12 +491,13 @@ class SuperChange(GenericChange):
 
 
     def simplify(self, options=None):
-        
-        """ generate a simple dict representing this change data, and
+        """
+        generate a simple dict representing this change data, and
         collecting all of the sub-change instances (which are NOT
-        immediately simplified themselves) """
+        immediately simplified themselves)
+        """
 
-        data = GenericChange.simplify(self, options)
+        data = super(SuperChange, self).simplify(options)
 
         show_ignored = False
         show_unchanged = False
@@ -496,9 +522,10 @@ class SuperChange(GenericChange):
 
 
     def squash_children(self, options):
-
-        """ reduces the memory footprint of this super-change by
-        converting all child changes into squashed changes """
+        """
+        reduces the memory footprint of this super-change by converting
+        all child changes into squashed changes
+        """
 
         oldsubs = self.collect()
         self.changes = tuple(squash(c, options=options) for c in oldsubs)
@@ -507,15 +534,19 @@ class SuperChange(GenericChange):
             change.clear()
 
 
-
 class SquashedChange(Change):
-
-    """ For when you want to keep just the overall data from a change,
+    """
+    For when you want to keep just the overall data from a change,
     including whether it was ignored, but want to discard the more
-    in-depth information. """
+    in-depth information.
+    """
+
+    label = "SquashedChange"
+
 
     def __init__(self, change, is_ignored=False):
-        Change.__init__(self, None, None)
+        super(SquashedChange, self).__init__(None, None)
+
         self.label = change.label
         self.description = change.get_description()
         self.changed = change.is_change()
@@ -523,36 +554,46 @@ class SquashedChange(Change):
         self.origclass = type(change)
         self.entry = getattr(change, "entry", None)
 
+
     def is_ignored(self, options):
         return self.ignored
+
 
     def is_change(self):
         return self.changed
 
+
     def simplify(self, options=None):
-        simple = Change.simplify(self, options)
+        simple = super(SquashedChange, self).simplify(options)
         simple["original_class"] = self.origclass.__name__
         return simple
+
 
     def clear(self):
         pass
 
 
-
 class SquashedRemoval(SquashedChange, Removal):
-    pass
+    """
+    Squashed change indicating something was removed
+    """
 
+    label = "SquashedRemoval"
 
 
 class SquashedAddition(SquashedChange, Addition):
-    pass
+    """
+    Squashed change indicating something was added
+    """
 
+    label = "SquashedAddition"
 
 
 def squash(change, is_ignored=False, options=None):
-
-    """ squashes the in-depth information of a change to a simplified
-    (and less memory-intensive) form """
+    """
+    squashes the in-depth information of a change to a simplified (and
+    less memory-intensive) form
+    """
 
     if options:
         is_ignored = change.is_ignored(options)
@@ -567,7 +608,6 @@ def squash(change, is_ignored=False, options=None):
         result = SquashedChange(change, is_ignored)
 
     return result
-
 
 
 #
