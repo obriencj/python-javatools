@@ -17,7 +17,7 @@ DO_PROFILED=
 
 
 # the data for the left-side of the comparison
-SAMPLE_URL_LEFT=http://sourceforge.net/projects/jboss/files/JBoss/JBoss-6.0.0.Final/jboss-as-distribution-6.0.0.Final.zip/download
+SAMPLE_URL_LEFT="http://downloads.sourceforge.net/project/jboss/JBoss/JBoss-6.0.0.Final/jboss-as-distribution-6.0.0.Final.zip?use_mirror=tcpdiag"
 SAMPLE_FILE_LEFT=$OUTPUT_DIR/jboss-as-distribution-6.0.0.Final.zip
 SAMPLE_DIR_LEFT=$OUTPUT_DIR/jboss-6.0.0.Final
 
@@ -106,7 +106,7 @@ function run_timed() {
     echo "Running full-speed report for timing"
 
     PYTHONPATH=build/lib/ \
-	/usr/bin/time -v -o $OUTPUT_DIR/distdiff.time \
+	/usr/bin/time -v -o $OUTPUT_DIR/timed/distdiff.time \
 	build/scripts-2.7/distdiff \
 	-q --show-ignored \
 	--ignore=version,platform,lines,pool \
@@ -119,7 +119,7 @@ function run_timed() {
 	"$SAMPLE_DIR_LEFT" "$SAMPLE_DIR_RIGHT"
 
     cat $OUTPUT_DIR/distdiff.time
-    echo "Timing data saved at $OUTPUT_DIR/distdiff.time"
+    echo "Timing data saved at $OUTPUT_DIR/timed/distdiff.time"
     echo "Report output written at $OUTPUT_DIR/timed/reports"
 }
 
@@ -128,7 +128,7 @@ function run_profiled() {
     echo "Running single-process report for profiling dump"
 
     PYTHONPATH=build/lib/ \
-	python -m cProfile -o $OUTPUT_DIR/distdiff.dump \
+	python -m cProfile -o $OUTPUT_DIR/profiled/distdiff.dump \
 	build/scripts-2.7/distdiff \
 	-q --show-ignored --processes=0 \
 	--ignore=version,platform,lines,pool \
@@ -139,7 +139,7 @@ function run_profiled() {
 	--html-copy-data=$OUTPUT_DIR/profiled/resources \
 	"$SAMPLE_DIR_LEFT" "$SAMPLE_DIR_RIGHT"
 
-    echo "Profiling data saved at $OUTPUT_DIR/distdiff.dump"
+    echo "Profiling data saved at $OUTPUT_DIR/profiled/distdiff.dump"
     echo "Report output written at $OUTPUT_DIR/profiled/reports"
 }
 
