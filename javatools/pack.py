@@ -35,11 +35,14 @@ from struct import Struct
 from abc import ABCMeta, abstractmethod
 
 
-__all__ = ( "compile_struct", "unpack",
-            "Unpacker", "UnpackException",
-            "StreamUnpacker", "BufferUnpacker" )
+__all__ = (
+    "compile_struct", "unpack",
+    "Unpacker", "UnpackException",
+    "StreamUnpacker", "BufferUnpacker",
+)
 
 
+#pylint: disable=C0103
 _struct_cache = dict()
 
 

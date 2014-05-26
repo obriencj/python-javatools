@@ -232,6 +232,9 @@ class pylint_cmd(Command):
         linter.read_config_file()
         linter.load_config_file()
 
+        linter.disable('suppressed-message')
+        linter.disable('useless-suppression')
+
         if self.packages:
             self.announce("checking packages", 2)
             report_fn = "packages_report." + linter.reporter.extension

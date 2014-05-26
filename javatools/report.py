@@ -570,6 +570,7 @@ def _compose_cheetah_template_map(cache):
     return cache
 
 
+#pylint: disable=C0103
 _template_cache = dict()
 
 
