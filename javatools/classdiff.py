@@ -823,7 +823,7 @@ class ClassMethodsChange(ClassMembersChange):
 
     @yield_sorted_by_type(MethodAdded, MethodRemoved, MethodChange)
     def collect_impl(self):
-        super(ClassMethodsChange, self).collect_impl()
+        return super(ClassMethodsChange, self).collect_impl()
 
 
     def __init__(self, lclass, rclass):
