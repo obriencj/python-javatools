@@ -110,8 +110,8 @@ class JarContentChange(SuperChange):
 
 
     def is_ignored(self, options):
-        return (fnmatches(self.entry, *options.ignore_jar_entry) or
-                super(JarContentChange, self).is_ignored(options))
+        return  fnmatches(self.entry, *options.ignore_jar_entry) or \
+            super(JarContentChange, self).is_ignored(options)
 
 
 class JarContentAdded(JarContentChange, Addition):
@@ -249,8 +249,10 @@ class JarContentsChange(SuperChange):
         # these are opened for the duration of check_impl
         left = self.lzip
         right = self.rzip
-        assert(left != None)
-        assert(right != None)
+
+        # this is our guarantee from invokation order
+        assert left != None
+        assert right != None
 
         for event, entry in compare_zips(left, right):
             if event == SAME:

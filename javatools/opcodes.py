@@ -28,6 +28,55 @@ from functools import partial
 from .pack import compile_struct
 
 
+__all__ = (
+    "get_opcode_by_name", "get_opname_by_code",
+    "get_arg_format", "has_const_arg",
+    "disassemble",
+    "OP_aaload", "OP_aastore", "OP_aconst_null", "OP_aload", "OP_aload_0",
+    "OP_aload_1", "OP_aload_2", "OP_aload_3", "OP_anewarray", "OP_areturn",
+    "OP_arraylength", "OP_astore", "OP_astore_0", "OP_astore_1",
+    "OP_astore_2", "OP_astore_3", "OP_athrow", "OP_baload", "OP_bastore",
+    "OP_bipush", "OP_caload", "OP_castore", "OP_checkcast", "OP_d2f",
+    "OP_d2i", "OP_d2l", "OP_dadd", "OP_daload", "OP_dastore", "OP_dcmpg",
+    "OP_dcmpl", "OP_dconst_0", "OP_dconst_1", "OP_ddiv", "OP_dload",
+    "OP_dload_0", "OP_dload_1", "OP_dload_2", "OP_dload_3", "OP_dmul",
+    "OP_dneg", "OP_drem", "OP_dreturn", "OP_dstore", "OP_dstore_0",
+    "OP_dstore_1", "OP_dstore_2", "OP_dstore_3", "OP_dsub", "OP_dup",
+    "OP_dup2", "OP_dup2_x1", "OP_dup2_x2", "OP_dup_x1", "OP_dup_x2",
+    "OP_f2d", "OP_f2i", "OP_f2l", "OP_fadd", "OP_faload", "OP_fastore",
+    "OP_fcmpg", "OP_fcmpl", "OP_fconst_0", "OP_fconst_1", "OP_fconst_2",
+    "OP_fdiv", "OP_fload", "OP_fload_0", "OP_fload_1", "OP_fload_2",
+    "OP_fload_3", "OP_fmul", "OP_fneg", "OP_frem", "OP_freturn",
+    "OP_fstore", "OP_fstore_0", "OP_fstore_1", "OP_fstore_2",
+    "OP_fstore_3", "OP_fsub", "OP_getfield", "OP_getstatic", "OP_goto",
+    "OP_goto_w", "OP_i2b", "OP_i2c", "OP_i2d", "OP_i2f", "OP_i2l", "OP_i2s",
+    "OP_iadd", "OP_iaload", "OP_iand", "OP_iastore", "OP_iconst_0",
+    "OP_iconst_1", "OP_iconst_2", "OP_iconst_3", "OP_iconst_4",
+    "OP_iconst_5", "OP_iconst_m1", "OP_idiv", "OP_if_acmpeq",
+    "OP_if_acmpne", "OP_if_icmpeq", "OP_if_icmpge", "OP_if_icmpgt",
+    "OP_if_icmple", "OP_if_icmplt", "OP_if_icmpne", "OP_ifeq", "OP_ifge",
+    "OP_ifgt", "OP_ifle", "OP_iflt", "OP_ifne", "OP_ifnonnull",
+    "OP_ifnull", "OP_iinc", "OP_iload", "OP_iload_0", "OP_iload_1",
+    "OP_iload_2", "OP_iload_3", "OP_imul", "OP_ineg", "OP_instanceof",
+    "OP_invokedynamic", "OP_invokeinterface", "OP_invokespecial",
+    "OP_invokestatic", "OP_invokevirtual", "OP_ior", "OP_irem",
+    "OP_ireturn", "OP_ishl", "OP_ishr", "OP_istore", "OP_istore_0",
+    "OP_istore_1", "OP_istore_2", "OP_istore_3", "OP_isub", "OP_iushr",
+    "OP_ixor", "OP_jsr", "OP_jsr_w", "OP_l2d", "OP_l2f", "OP_l2i",
+    "OP_ladd", "OP_laload", "OP_land", "OP_lastore", "OP_lcmp",
+    "OP_lconst_0", "OP_lconst_1", "OP_ldc", "OP_ldc2_w", "OP_ldc_w",
+    "OP_ldiv", "OP_lload", "OP_lload_0", "OP_lload_1", "OP_lload_2",
+    "OP_lload_3", "OP_lmul", "OP_lneg", "OP_lookupswitch", "OP_lor",
+    "OP_lrem", "OP_lreturn", "OP_lshl", "OP_lshr", "OP_lstore",
+    "OP_lstore_0", "OP_lstore_1", "OP_lstore_2", "OP_lstore_3", "OP_lsub",
+    "OP_lushr", "OP_lxor", "OP_monitorentry", "OP_monitorexit",
+    "OP_multianewarray", "OP_new", "OP_newarray", "OP_nop", "OP_pop",
+    "OP_pop2", "OP_putfield", "OP_putstatic", "OP_ret", "OP_return",
+    "OP_saload", "OP_sastore", "OP_sipush", "OP_swap", "OP_tableswitch",
+    "OP_wide",
+)
+
+
 # the op table itself
 __OPTABLE = {}
 
@@ -65,8 +114,8 @@ def __op(name, val, fmt=None, const=False, consume=0, produce=0):
 
     operand = (name, val, fmt, consume, produce, const)
 
-    assert(not __OPTABLE.has_key(name))
-    assert(not __OPTABLE.has_key(val))
+    assert not __OPTABLE.has_key(name)
+    assert not __OPTABLE.has_key(val)
 
     __OPTABLE[name] = operand
     __OPTABLE[val] = operand
@@ -172,7 +221,7 @@ def _unpack_wide(bc, offset):
     else:
         # no other opcodes are valid, so shouldn't have fallen through
         # to here.
-        assert(False)
+        assert False
 
 
 def disassemble(bytecode):

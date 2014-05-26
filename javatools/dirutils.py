@@ -178,12 +178,12 @@ def collect_compare_into(left, right, added, removed, altered, same):
             group = same
 
         else:
-            assert(False)
+            assert False
 
         if group is not None:
             group.append(filename)
 
-    return (added, removed, altered, same)
+    return added, removed, altered, same
 
 
 
