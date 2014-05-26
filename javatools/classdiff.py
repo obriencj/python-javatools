@@ -614,7 +614,7 @@ class MethodCodeChange(SuperChange):
         if self.ldata == self.rdata == None:
             return tuple()
         else:
-            return super(MethodCodeChange, self).collect_impl(self)
+            return super(MethodCodeChange, self).collect_impl()
 
 
     def check_impl(self):
@@ -624,7 +624,7 @@ class MethodCodeChange(SuperChange):
         if None in (self.ldata, self.rdata):
             return (self.ldata != self.rdata), None
         else:
-            return super(MethodCodeChange, self).check_impl(self)
+            return super(MethodCodeChange, self).check_impl()
 
 
 class MethodDeprecationChange(GenericChange):
