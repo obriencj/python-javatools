@@ -34,6 +34,30 @@ from .opcodes import disassemble
 from .pack import compile_struct, unpack, UnpackException
 
 
+__all__ = (
+    "JavaClassInfo", "JavaConstantPool", "JavaMemberInfo",
+    "JavaCodeInfo", "JavaExceptionInfo", "JavaInnerClassInfo",
+    "JavaAnnotation",
+    "NoPoolException", "Unimplemented", "ClassUnpackException",
+    "platform_from_version",
+    "is_class", "is_class_file",
+    "unpack_class", "unpack_classfile",
+    "CONST_Utf8", "CONST_Integer", "CONST_Float",
+    "CONST_Long", "CONST_Double", "CONST_Class",
+    "CONST_String", "CONST_Fieldref", "CONST_Methodref",
+    "CONST_InterfaceMethodref", "CONST_NameAndType",
+    "CONST_ModuleId", "CONST_MethodHandle",
+    "CONST_MethodType", "CONST_InvokeDynamic",
+    "ACC_PUBLIC", "ACC_PRIVATE", "ACC_PROTECTED",
+    "ACC_STATIC", "ACC_FINAL", "ACC_SYNCHRONIZED",
+    "ACC_SUPER", "ACC_VOLATILE", "ACC_BRIDGE",
+    "ACC_TRANSIENT", "ACC_VARARGS", "ACC_NATIVE",
+    "ACC_INTERFACE", "ACC_ABSTRACT", "ACC_STRICT",
+    "ACC_SYNTHETIC", "ACC_ANNOTATION", "ACC_ENUM",
+    "ACC_MODULE",
+)
+
+
 # the four bytes at the start of every class file
 JAVA_CLASS_MAGIC = (0xCA, 0xFE, 0xBA, 0xBE)
 JAVA_CLASS_MAGIC_STR = "\xca\xfe\xba\xbe"
