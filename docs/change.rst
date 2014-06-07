@@ -1,38 +1,38 @@
-Javatools Core Modules
-======================
+Comparing Java Artifacts
+========================
 
 
-javatools
----------
+javatools.change
+----------------
 
-.. automodule:: javatools
+.. automodule:: javatools.change
     :members:
     :undoc-members:
     :show-inheritance:
 
 
-javatools.classinfo
+javatools.classdiff
 -------------------
 
-.. automodule:: javatools.classinfo
+.. automodule:: javatools.classdiff
     :members:
     :undoc-members:
     :show-inheritance:
 
 
-javatools.jarinfo
+javatools.jardiff
 -----------------
 
-.. automodule:: javatools.jarinfo
+.. automodule:: javatools.jardiff
     :members:
     :undoc-members:
     :show-inheritance:
 
 
-javatools.distinfo
+javatools.distdiff
 ------------------
 
-.. automodule:: javatools.distinfo
+.. automodule:: javatools.distdiff
     :members:
     :undoc-members:
     :show-inheritance:
