@@ -17,7 +17,7 @@ just fork it!
 
 ## Switching to Setuptools
 
-Please see [issue #3][issue] and leave a comment with your thoughts on
+Please see [issue #4][issue] and leave a comment with your thoughts on
 switching from distutils to setuptools. You can preview the change in
 the setuptools branch.
 
