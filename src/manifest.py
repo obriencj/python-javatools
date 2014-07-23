@@ -475,6 +475,13 @@ def single_path_generator(pathname):
 
 
 def cli_create(options, rest):
+
+    if len(rest) != 2:
+        print "Usage: manifest --create [-r|--recursive]" \
+              " [-i|--ignore pattern] [-d|--digest algo[,algo ...]]" \
+              " [-m manifest] file|directory"
+        return 1
+
     import sys
 
     if options.recursive:
@@ -518,7 +525,7 @@ def cli_query(options, rest):
     from zipfile import ZipFile
 
     if(len(rest) != 2):
-        print "Please specify a single JAR to query"
+        print "Usage: manifest --query=key file.jar"
         return 1
 
     zf = ZipFile(rest[1])
