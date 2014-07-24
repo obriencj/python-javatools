@@ -362,23 +362,22 @@ def parse_sections(data):
 
 
 
-def digest_chunks(chunks):
+def digest_chunks(chunks, algorithm):
 
-    """ returns a base64 rep of the MD5 and SHA1 digests from the
+    """ returns a base64 rep of the requested digest from the
     chunks of data """
 
     #pylint: disable=E0611, E1101
-    from hashlib import md5, sha1
+    import hashlib
 
     from base64 import b64encode
 
-    hashes = (md5(), sha1())
+    h = getattr(hashlib, algorithm)()
 
     for chunk in chunks:
-        for h in hashes:
-            h.update(chunk)
+        h.update(chunk)
 
-    return [b64encode(h.digest()) for h in hashes]
+    return b64encode(h.digest())
 
 
 
@@ -485,6 +484,11 @@ def cli_create(options, rest):
     mf = Manifest()
 
     ignores = options.ignore
+    algorithms = options.digest.split(",")
+
+    # Note: Java supports also MD2, but hashlib does not:
+    supported_java_digests = \
+        ("MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512")
 
     for name,chunks in entries:
 
@@ -494,9 +498,16 @@ def cli_create(options, rest):
 
         sec = mf.create_section(name)
 
-        md5,sha1 = digest_chunks(chunks())
-        sec["SHA1-Digest"] = sha1
-        sec["MD5-Digest"] = md5
+        for algorithm in algorithms:
+            if not algorithm in supported_java_digests:
+                print "Unknown digest algorithm ", algorithm
+                print "Supported algorithms: ", ",".join(supported_java_digests)
+                return 1
+
+            # This translation works for algorithms present so far:
+            hashlib_algorithm = algorithm.lower().replace('-', '')
+            sec[algorithm + "-Digest"] = \
+                digest_chunks(chunks(), hashlib_algorithm)
 
     output = sys.stdout
 
@@ -584,6 +595,9 @@ def create_optparser():
                      default=["META-INF/*"],
                      help="patterns to ignore when creating or checking"
                      " files")
+    parse.add_option("-d", "--digest", action="store", default="MD5,SHA-1",
+                     help="comma-separated list of digest algorithms to use"
+                     " in the manifest")
 
     return parse
 
