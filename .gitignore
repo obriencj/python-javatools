@@ -14,3 +14,4 @@ htmlcov
 test
 tmp
 _build
+.DS_Store
