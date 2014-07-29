@@ -362,22 +362,24 @@ def parse_sections(data):
 
 
 
-def digest_chunks(chunks, algorithm):
+def digest_chunks(chunks, algorithms=("md5", "sha1")):
 
-    """ returns a base64 rep of the requested digest from the
+    """ returns a base64 rep of the requested digests from the
     chunks of data """
 
-    #pylint: disable=E0611, E1101
     import hashlib
 
     from base64 import b64encode
 
-    h = getattr(hashlib, algorithm)()
+    hashes = []
+    for algorithm in algorithms:
+        hashes.append(getattr(hashlib, algorithm)())
 
     for chunk in chunks:
-        h.update(chunk)
+        for h in hashes:
+            h.update(chunk)
 
-    return b64encode(h.digest())
+    return [b64encode(h.digest()) for h in hashes]
 
 
 
@@ -484,11 +486,31 @@ def cli_create(options, rest):
     mf = Manifest()
 
     ignores = options.ignore
-    algorithms = options.digest.split(",")
 
-    # Note: Java supports also MD2, but hashlib does not:
-    supported_java_digests = \
-        ("MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512")
+    # Note 1: Java supports also MD2, but hashlib does not
+    # Note 2: Oracle specifies "SHA-1" algorithm name in their documentation
+    # http://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#MessageDigest,
+    # which is referred by the manifest file specification
+    # http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Manifest-Overview.
+    # But jarsigner produces 'SHA1'.
+    java_to_hashlib_digests = {
+        "MD5": "md5",
+        "SHA1": "sha1",
+        "SHA-256": "sha256",
+        "SHA-384": "sha384",
+        "SHA-512": "sha512"
+    }
+    requested_digests = options.digest.split(",")
+    use_digests = []
+
+    for digest in requested_digests:
+        if digest in java_to_hashlib_digests.keys():
+            use_digests.append(java_to_hashlib_digests[digest])
+        else:
+            print "Unknown digest algorithm", digest
+            print "Supported algorithms:", ",".join(
+                sorted(java_to_hashlib_digests.keys()))
+            return 1
 
     for name,chunks in entries:
 
@@ -498,16 +520,9 @@ def cli_create(options, rest):
 
         sec = mf.create_section(name)
 
-        for algorithm in algorithms:
-            if not algorithm in supported_java_digests:
-                print "Unknown digest algorithm ", algorithm
-                print "Supported algorithms: ", ",".join(supported_java_digests)
-                return 1
-
-            # This translation works for algorithms present so far:
-            hashlib_algorithm = algorithm.lower().replace('-', '')
-            sec[algorithm + "-Digest"] = \
-                digest_chunks(chunks(), hashlib_algorithm)
+        for digest, digest_value in zip(
+                requested_digests, digest_chunks(chunks(), use_digests)):
+            sec[digest + "-Digest"] = digest_value
 
     output = sys.stdout
 
@@ -595,7 +610,7 @@ def create_optparser():
                      default=["META-INF/*"],
                      help="patterns to ignore when creating or checking"
                      " files")
-    parse.add_option("-d", "--digest", action="store", default="MD5,SHA-1",
+    parse.add_option("-d", "--digest", action="store", default="MD5,SHA1",
                      help="comma-separated list of digest algorithms to use"
                      " in the manifest")
 
