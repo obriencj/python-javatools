@@ -23,6 +23,8 @@ author: Christopher O'Brien  <obriencj@gmail.com>
 license: LGPL
 """
 
+import hashlib
+
 from base64 import b64encode
 from cStringIO import StringIO
 from os.path import isdir, join, sep, split, walk
@@ -486,8 +488,6 @@ def cli_create(options, rest):
               " [-i|--ignore pattern] [-d|--digest algo[,algo ...]]" \
               " [-m manifest] file|directory"
         return 1
-
-    import sys
 
     if options.recursive:
         entries = multi_path_generator(rest[1:])
