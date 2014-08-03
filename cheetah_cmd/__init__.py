@@ -23,6 +23,7 @@ license: LGPL v.3
 
 
 from Cheetah.Compiler import Compiler
+from distutils.core import Command
 from distutils.util import newer
 from distutils.command.build_py import build_py
 from glob import glob
@@ -31,16 +32,28 @@ from os import makedirs
 from os.path import basename, exists, join, splitext
 
 
-DEFAULT_CONFIG = "cheeta_cmd/cheetah.cfg"
+DEFAULT_CONFIG = "cheetah_cmd/cheetah.cfg"
+
+
+class cheetah_cmd(Command):
+    """
+    command that compiles Cheetah template files into Python
+    """
+
+    # TODO: move the act of actually compiling .tmpl -> .py into this
+    # command, and simply make the build_py command depend on this one
+
+    pass
+
 
 
 class cheetah_build_py_cmd(build_py):
     """
-    setuptools build_py command with some special handling for Cheetah
-    template files. Takes tmpl from package source directories and
-    compiles them for distribution. This allows me to write tmpl files
-    in the src dir of my project, and have them get compiled to
-    py/pyc/pyo files during the build process.
+    build_py command with some special handling for Cheetah template
+    files. Takes tmpl from package source directories and compiles
+    them for distribution. This allows me to write tmpl files in the
+    src dir of my project, and have them get compiled to py/pyc/pyo
+    files during the build process.
     """
 
     # Note: it's important to override build_py rather than to add a
