@@ -30,6 +30,7 @@ from os import makedirs
 from os.path import basename, exists, join, splitext
 from setuptools import setup, Command
 from setuptools.command.build_py import build_py as _build_py
+from pylint_cmd import pylint_cmd
 
 import sys
 
@@ -152,125 +153,6 @@ class build_py(_build_py):
             self.build_package_templates()
 
         _build_py.run(self)
-
-
-class pylint_cmd(Command):
-    """
-    Distutils command to run pylint on the built output and emit its
-    results into build/pylint
-    """
-
-    user_options = [
-        ("lint-config=", None, "pylint configuration to load"),
-    ]
-
-
-    def initialize_options(self):
-        self.lint_config = None
-        self.build_base = None
-        self.build_lib = None
-        self.build_scripts = None
-
-
-    def finalize_options(self):
-        self.set_undefined_options('build',
-                                   ('build_base', 'build_base'),
-                                   ('build_lib', 'build_lib'),
-                                   ('build_scripts', 'build_scripts'))
-
-        self.packages = self.distribution.packages
-        self.report = join(self.build_base, "pylint")
-
-        if not self.lint_config:
-            self.lint_config = "extras/pylintrc"
-
-
-    def has_pylint(self):
-        try:
-            from pylint import lint
-        except ImportError:
-            return False
-        else:
-            return True
-
-
-    def announce_overview(self, linter, report_fn):
-        stats = linter.stats
-
-        m_types = ('error', 'warning', 'refactor', 'convention')
-        m_counts = (stats.get(mt, 0) for mt in m_types)
-        msg = ", ".join("%s: %i" % p for p in izip(m_types, m_counts))
-        self.announce(" "+msg, 2)
-
-        try:
-            note = eval(linter.config.evaluation, {}, stats)
-        except Exception:
-            pass
-        else:
-            self.announce(" overall score: %.1f%%" % (note * 10), 2)
-
-        self.announce(" full details at %s" % report_fn, 2)
-
-        errs = stats.get('error', 0)
-        if errs:
-            self.warn("There were %i errors, terminating" % errs)
-            sys.exit(1)
-
-
-    def run_linter(self):
-        from pylint.lint import PyLinter
-        from pylint import checkers
-
-        linter = PyLinter(pylintrc=self.lint_config)
-
-        # same, but not all pylint versions have load_default_plugins
-        if hasattr(linter, 'load_default_plugins'):
-            linter.load_default_plugins()
-        else:
-            checkers.initialize(linter)
-
-        linter.read_config_file()
-        linter.load_config_file()
-
-        linter.disable('suppressed-message')
-        linter.disable('useless-suppression')
-
-        if self.packages:
-            self.announce("checking packages", 2)
-            report_fn = "packages_report." + linter.reporter.extension
-            report_fn = join(self.build_base, report_fn)
-            with open(report_fn, "wt") as out:
-                linter.reporter.set_output(out)
-                linter.check(self.packages)
-
-            self.announce_overview(linter, report_fn)
-
-        if self.build_scripts:
-            self.announce("checking scripts", 2)
-            report_fn = "scripts_report." + linter.reporter.extension
-            report_fn = join(self.build_base, report_fn)
-            with open(report_fn, "wt") as out:
-                linter.reporter.set_output(out)
-                linter.check(self.build_scripts)
-
-            self.announce_overview(linter, report_fn)
-
-
-    def run(self):
-        if not self.has_pylint():
-            self.warn("pylint not present")
-            return
-
-        # since we process the build output, we need to ensure build
-        # is run first
-        self.run_command("build")
-
-        # we'll be running our linter on the contents of the build_lib
-        sys.path.insert(0, self.build_lib)
-        try:
-            self.run_linter()
-        finally:
-            sys.path.pop(0)
 
 
 setup(name = "javatools",
