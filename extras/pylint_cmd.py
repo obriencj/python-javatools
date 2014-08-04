@@ -36,7 +36,7 @@ else:
     FOUND_PYLINT = True
 
 
-DEFAULT_LINTCONFIG = "pylint_cmd/pylintrc"
+DEFAULT_LINTCONFIG = "extras/pylintrc"
 
 
 class pylint_cmd(Command):

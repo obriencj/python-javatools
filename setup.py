@@ -28,9 +28,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-from cheetah_cmd import cheetah_build_py_cmd
-from pylint_cmd import pylint_cmd
-
+from extras import *
 import sys
 
 
@@ -73,9 +71,6 @@ setup(name = "javatools",
                       "Intended Audience :: Information Technology",
                       "Programming Language :: Python :: 2",
                       "Topic :: Software Development :: Disassemblers" ],
-
-      pylint_config = "pylint_cmd/pylintrc",
-      cheetah_config = "cheetah_cmd/cheetah.cfg",
 
       # dirty stuff
       cmdclass = { 'build_py': cheetah_build_py_cmd,

@@ -32,7 +32,7 @@ from os import makedirs
 from os.path import basename, exists, join, splitext
 
 
-DEFAULT_CONFIG = "cheetah_cmd/cheetah.cfg"
+DEFAULT_CONFIG = "extras/cheetah.cfg"
 
 
 class cheetah_cmd(Command):
@@ -44,7 +44,6 @@ class cheetah_cmd(Command):
     # command, and simply make the build_py command depend on this one
 
     pass
-
 
 
 class cheetah_build_py_cmd(build_py):
