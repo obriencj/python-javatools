@@ -46,7 +46,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc ChangeLog LICENSE README.md TODO
+%doc AUTHORS ChangeLog LICENSE README.md TODO
 %{python2_sitelib}/*
 %{_bindir}/*
 

@@ -23,13 +23,14 @@ license: LGPL v.3
 """
 
 
+import sys
+
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
-from extras import *
-import sys
+from extras import pylint_cmd, cheetah_build_py_cmd
 
 
 setup(name = "javatools",
@@ -72,7 +73,7 @@ setup(name = "javatools",
                       "Programming Language :: Python :: 2",
                       "Topic :: Software Development :: Disassemblers" ],
 
-      # dirty stuff
+      # extras stuff
       cmdclass = { 'build_py': cheetah_build_py_cmd,
                    'pylint': pylint_cmd } )
 
