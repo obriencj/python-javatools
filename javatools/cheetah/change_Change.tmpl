@@ -1,0 +1,49 @@
+#from javatools.cheetah import xml_entity_escape as escape
+
+
+<%
+ch = getattr(self, "change")
+opts = getattr(self, "options")
+
+cl = ["Change"]
+cl.append(type(ch).__name__)
+
+if ch.is_change():
+    cl.append("is_changed")
+    if ch.is_ignored(opts):
+        cl.append("is_ignored")
+else:
+    cl.append("is_unchanged")
+
+cl = " ".join(cl)
+%>
+
+
+<div class="<%= cl %>">
+
+#block description
+<div class="description">
+$escape($change.label)
+</div>
+#end block
+
+
+#block details
+#end block
+
+
+#block collect
+#if $change.collect()
+<div class="collect">
+#for child in $change.collect()
+$render_change(child)
+#end for
+</div>
+#end if
+#end block
+
+</div>
+
+
+##
+## The end.

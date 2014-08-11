@@ -1,0 +1,205 @@
+#extends subreport
+#from javatools.change import collect_by_typename
+#from javatools.cheetah import xml_entity_escape as escape
+
+
+
+#block details
+<%
+change = getattr(self, "change")
+data = collect_by_typename(change.collect())
+%>
+<div class="details">
+<div class="lrdata">
+
+<table class="left-headers">
+$sub_classname(data["ClassNameChange"][0])
+$sub_flags(data["ClassAccessflagsChange"][0])
+$sub_super(data["ClassSuperclassChange"][0])
+$sub_inter(data["ClassInterfacesChange"][0])
+$sub_version(data["ClassVersionChange"][0])
+$sub_platform(data["ClassPlatformChange"][0])
+$sub_signature(data["ClassSignatureChange"][0])
+$sub_deprecation(data["ClassDeprecationChange"][0])
+</table>
+
+</div>
+</div>
+#end block
+
+
+
+#block collect
+#end block
+
+
+
+#def sub_classname(subch)
+#set label = "Class Name"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td><%= subch.pretty_ldata() %></td>
+</tr>
+<tr>
+<td><%= subch.pretty_rdata() %></td>
+</tr>
+#else
+<tr>
+<th>$label</th>
+<td><%= subch.pretty_ldata() %></td>
+</tr>
+#end if
+#end def
+
+
+
+#def sub_flags(subch)
+#set label = "Class Flags"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td><%= "0x%04x" % subch.get_ldata() %>:
+    <%= " ".join(subch.pretty_ldata()) %></td>
+</tr>
+<tr>
+<td class="is_changed">
+<%= "0x%04x" % subch.get_rdata() %>:
+<%= " ".join(subch.pretty_rdata()) %></td>
+</tr>
+#else
+<tr>
+<th>$label</th>
+<td><%= "0x%04x" % subch.get_ldata() %>:
+    <%= " ".join(subch.pretty_ldata()) %></td>
+</tr>
+#end if
+#end def
+
+
+
+#def sub_super(subch)
+#set label = "Extends"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td><%= subch.pretty_ldata() %></td>
+</tr>
+<tr>
+<td class="is_changed"><%= subch.pretty_rdata() %></td>
+</tr>
+#else
+<tr>
+<th>$label</th>
+<td><%= subch.pretty_ldata() %></td>
+</tr>
+#end if
+#end def
+
+
+
+#def sub_inter(subch)
+#set label = "Implements"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td><%= ", ".join(subch.pretty_ldata()) or "(None)" %></td>
+</tr>
+<tr>
+<td class="is_changed">
+<%= ", ".join(subch.pretty_rdata()) or "(None)" %></td>
+</tr>
+#elif subch.get_ldata()
+<tr>
+<th>$label</th>
+<td><%= ", ".join(subch.pretty_ldata()) %></td>
+</tr>
+#end if
+#end def
+
+
+
+#def sub_version(subch)
+#set label = "Java Version"
+#set templ = "Major: %i, Minor: %i"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td><%= templ % subch.get_ldata() %></td>
+</tr>
+<tr>
+<td class="is_changed"><%= templ % subch.get_rdata() %></td>
+</tr>
+#else
+<tr>
+<th>$label</th>
+<td><%= templ % subch.get_ldata() %></td>
+</tr>
+#end if
+#end def
+
+
+
+#def sub_platform(subch)
+#set label = "Java Platform"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td><%= subch.pretty_ldata() %></td>
+</tr>
+<tr>
+<td class="is_changed"><%= subch.pretty_rdata() %></td>
+</tr>
+#else
+<tr>
+<th>$label</th>
+<td><%= subch.pretty_ldata() %></td>
+</tr>
+#end if
+#end def
+
+
+
+#def sub_signature(subch)
+#set label = "Generics Signature"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td><%= escape(subch.pretty_ldata() or "(None)") %></td>
+</tr>
+<tr>
+<td class="is_changed">
+ <%= escape(subch.pretty_rdata() or "(None)") %></td>
+</tr>
+#elif subch.get_ldata()
+<tr>
+<th>$label</th>
+<td><%= escape(subch.pretty_ldata()) %></td>
+</tr>
+#end if
+#end def
+
+
+
+#def sub_deprecation(subch)
+#set label = "Deprecated"
+#if subch.is_change()
+<tr>
+<th rowspan="2">$label</th>
+<td><%= subch.pretty_ldata() %></td>
+</tr>
+<tr>
+<td class="is_changed"><%= subch.pretty_rdata() %></td>
+</tr>
+#elif subch.get_ldata()
+<tr>
+<th>$label</th>
+<td><%= subch.pretty_ldata() %></td>
+</tr>
+#end if
+#end def
+
+
+
+##
+## The end.

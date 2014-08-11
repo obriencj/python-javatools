@@ -1,0 +1,14 @@
+#extends change_SuperChange
+#from javatools.cheetah import xml_entity_escape as escape
+
+#block description
+<h2 id="$change.__class__.__name__">$change.label</h2>
+
+<div class="description">
+$escape($change.get_description())
+</div>
+#end block
+
+
+##
+## The end.

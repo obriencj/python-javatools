@@ -1,0 +1,183 @@
+#extends change_SuperChange
+#from itertools import izip_longest
+#from javatools.classdiff import merge_code
+#from javatools.opcodes import has_const_arg, get_opname_by_code
+#from javatools.cheetah import xml_entity_escape as escape
+
+
+
+#block details_changed
+<table>
+<thead>
+<tr>
+<th>Relative</th>
+<th colspan="4">Original</th>
+<th colspan="4">Modified</th>
+</tr>
+<tr>
+<th>line</th>
+<th>line</th>
+<th>offset</th>
+<th>opcode</th>
+<th>args</th>
+<th>line</th>
+<th>offset</th>
+<th>opcode</th>
+<th>args</th>
+</tr>
+</thead>
+
+<%
+change = getattr(self, "change")
+ldata = change.get_ldata()
+rdata = change.get_rdata()
+merged = merge_code(ldata, rdata)
+%>
+#for rel_line, (left, right) in sorted(merged.items())
+<% 
+first = True
+last = False
+
+left_line = None
+left_dis = tuple()
+if left is not None:
+    left_line, left_dis = left
+
+right_line = None
+right_dis = tuple()
+if right is not None:
+    right_line, right_dis = right
+
+rowspan = max(len(left_dis), len(right_dis))
+lastrow = (rowspan - min(len(left_dis), len(right_dis)))
+%>
+#for l_instruction, r_instruction in izip_longest(left_dis, right_dis)
+<tr>
+
+#if first
+<td rowspan="<%= rowspan %>"><%= rel_line %></td>
+#end if
+
+#if l_instruction is not None
+#if first
+<td rowspan="<%= rowspan %>"><%= left[0] %></td>
+#end if
+<% l_offset, l_code, l_args = l_instruction %>
+<td><%= l_offset %></td>
+<td><%= get_opname_by_code(l_code) %></td>
+<td><%= ((has_const_arg(l_code) and ("#%s" % l_args[0]))
+         or ", ".join(map(str, l_args))) %></td>
+#else
+#if not last
+#if first
+<td colspan="4" rowspan="<%= lastrow %>"></td>
+#else
+<td colspan="3" rowspan="<%= lastrow %>"></td>
+#end if
+<% last = True %>
+#end if
+#end if
+
+#if r_instruction is not None
+#if first
+<td rowspan="<%= rowspan %>"><%= right[0] %></td>
+#end if
+<% r_offset, r_code, r_args = r_instruction %>
+<td><%= r_offset %></td>
+<td><%= get_opname_by_code(r_code) %></td>
+<td><%= ((has_const_arg(r_code) and ("#%s" % r_args[0]))
+         or ", ".join(map(str, r_args))) %></td>
+#else
+#if not last
+#if first
+<td colspan="4" rowspan="<%= lastrow %>"></td>
+#else
+<td colspan="3" rowspan="<%= lastrow %>"></td>
+#end if
+<% last = True %>
+#end if
+#end if
+</tr>
+<% first = False %>
+#end for
+#end for
+</table>
+#end block
+
+
+
+#block details_unchanged
+<%
+change = getattr(self, "change")
+ldata = change.get_ldata()
+%>
+#if ldata is None
+<!-- abstract -->
+#else
+<table>
+<thead>
+<tr>
+<th>Relative</th>
+<th colspan="4">Method Code</th>
+</tr>
+<tr>
+<th>line</th>
+<th>line</th>
+<th>offset</th>
+<th>opcode</th>
+<th>args</th>
+</tr>
+</thead>
+#for abs_line, rel_line, dis in ldata.iter_code_by_lines()
+<%
+rowspan = len(dis)
+first = True
+%>
+#for offset, code, args in dis
+<tr>
+#if first
+<td rowspan="<%= rowspan %>"><%= rel_line %></td>
+<td rowspan="<%= rowspan %>"><%= abs_line %></td>
+#end if
+<td><%= offset %></td>
+<td><%= get_opname_by_code(code) %></td>
+<td><%= ((has_const_arg(code) and ("#%s" % args[0]))
+         or ", ".join(map(str, args))) %></td>
+</tr>
+<%
+first = False
+%>
+#end for
+#end for
+</table>
+#end if
+#end block
+
+
+
+#block details
+<div class="details">
+<div class="lrdata">
+<%
+change = getattr(self, "change")
+lcode = (change.ldata and change.ldata.code) or tuple()
+rcode = (change.rdata and change.rdata.code) or tuple()
+%>
+#if change.is_change() or (lcode != rcode)
+$details_changed
+#else
+$details_unchanged
+#end if
+</div>
+</div>
+#end block
+
+
+
+#block collect
+#end block
+
+
+
+##
+## The end.

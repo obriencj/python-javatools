@@ -1,0 +1,17 @@
+#extends report
+#from javatools.cheetah import xml_entity_escape as escape
+
+
+
+#def title
+<%
+change = getattr(self, "change")
+nom = change.get_ldata().pretty_this()
+%>
+<%= escape("%s %s" % (change.__class__.__name__ , nom.split(".")[-1])) %>
+#end def
+
+
+
+##
+## The end.

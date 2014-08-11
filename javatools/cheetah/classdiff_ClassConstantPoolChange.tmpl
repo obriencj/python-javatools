@@ -1,0 +1,80 @@
+#extends subreport
+#from javatools.classdiff import pretty_merge_constants
+#from javatools.cheetah import xml_entity_escape as escape
+
+
+
+#block details
+<div class="details">
+<div class="lrdata">
+#if $change.is_change()
+$render_dual_constant_pool($change.get_ldata(), $change.get_rdata())
+#else
+$render_constant_pool($change.pretty_ldata())
+#end if
+</div>
+</div>
+#end block
+
+
+
+#def render_constant_pool(consts)
+<table class="constant-pool">
+<thead>
+<tr>
+<th>Index</th>
+<th>Type</th>
+<th>Value</th>
+</tr>
+</thead>
+
+#for i, t, v in consts
+<tr>
+<td class="const-index"><%= i %></td>
+<td class="const-type"><%= t %></td>
+<td class="const-value"><%= escape(str(v)) %></td>
+</tr>
+#end for
+
+</table>
+#end def
+
+
+
+#def render_dual_constant_pool(left, right)
+<table class="dual-constant-pool">
+<thead>
+<tr>
+<th>Index</th>
+<th>Original Type</th>
+<th>Original Value</th>
+<th>Modified Type</th>
+<th>Modified Value</th>
+</tr>
+</thead>
+
+#for index, lt, lv, rt, rv in pretty_merge_constants(left, right)
+<%
+row_class = (" is_changed")[(lt, lv) == (rt, rv)]
+%>
+<tr>
+<td class="const-index"><%= index %></td>
+<td class="const-type"><%= lt or "" %></td>
+<td class="const-value"><%= escape(str(lv or "")) %></td>
+#if (lt, lv) == (rt, rv)
+<td class="const-type empty"></td>
+<td class="const-value empty"></td>
+#else
+<td class="const-type is_changed"><%= rt or "" %></td>
+<td class="const-value is_changed"><%= escape(str(rv or "")) %></td>
+</tr>
+#end if
+#end for
+
+</table>
+#end def
+
+
+
+##
+## The end.
