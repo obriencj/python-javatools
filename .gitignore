@@ -15,3 +15,4 @@ test
 tmp
 _build
 .DS_Store
+_deploy
