@@ -1,0 +1,757 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>javatools.report &mdash; javatools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="javatools 1.0.0 documentation" href="../../../" />
+    <link rel="up" title="javatools" href="../" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" accesskey="U">javatools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for javatools.report</h1><div class="highlight"><pre>
+<span class="c"># This library is free software; you can redistribute it and/or modify</span>
+<span class="c"># it under the terms of the GNU Lesser General Public License as</span>
+<span class="c"># published by the Free Software Foundation; either version 3 of the</span>
+<span class="c"># License, or (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c"># This library is distributed in the hope that it will be useful, but</span>
+<span class="c"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c"># Lesser General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU Lesser General Public</span>
+<span class="c"># License along with this library; if not, see</span>
+<span class="c"># &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Classes for representing changes as formatted text.</span>
+
+<span class="sd">author: Christopher O&#39;Brien  &lt;obriencj@gmail.com&gt;</span>
+<span class="sd">license: LGPL</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">Cheetah.DummyTransaction</span> <span class="kn">import</span> <span class="n">DummyTransaction</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">json</span> <span class="kn">import</span> <span class="n">dump</span><span class="p">,</span> <span class="n">JSONEncoder</span>
+<span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionGroup</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">exists</span><span class="p">,</span> <span class="n">join</span><span class="p">,</span> <span class="n">relpath</span>
+<span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">stdout</span>
+<span class="kn">from</span> <span class="nn">.dirutils</span> <span class="kn">import</span> <span class="n">copydir</span><span class="p">,</span> <span class="n">makedirsp</span>
+
+
+<span class="n">_BUFFERING</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">16</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&quot;Reporter&quot;</span><span class="p">,</span> <span class="s">&quot;ReportFormat&quot;</span><span class="p">,</span>
+    <span class="s">&quot;quick_report&quot;</span><span class="p">,</span> <span class="s">&quot;general_report_optgroup&quot;</span><span class="p">,</span>
+    <span class="s">&quot;JSONReportFormat&quot;</span><span class="p">,</span> <span class="s">&quot;json_report_optgroup&quot;</span><span class="p">,</span>
+    <span class="s">&quot;TextReportFormat&quot;</span><span class="p">,</span>
+    <span class="s">&quot;CheetahReportFormat&quot;</span><span class="p">,</span> <span class="s">&quot;html_report_optgroup&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="Reporter"><a class="viewcode-back" href="../../../report/#javatools.report.Reporter">[docs]</a><span class="k">class</span> <span class="nc">Reporter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collects multiple report formats for use in presenting a change</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basedir</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span> <span class="o">=</span> <span class="n">basedir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="n">entry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">breadcrumbs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formats</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="c"># cache of instances from self.formats, created in setup, used</span>
+        <span class="c"># in run, removed in clear</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formats</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+<div class="viewcode-block" id="Reporter.get_relative_breadcrumbs"><a class="viewcode-back" href="../../../report/#javatools.report.Reporter.get_relative_breadcrumbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_relative_breadcrumbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get the breadcrumbs as relative to the basedir</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">basedir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span>
+        <span class="n">crumbs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">breadcrumbs</span>
+
+        <span class="k">return</span> <span class="p">[(</span><span class="n">relpath</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">basedir</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">crumbs</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="Reporter.add_formats_by_name"><a class="viewcode-back" href="../../../report/#javatools.report.Reporter.add_formats_by_name">[docs]</a>    <span class="k">def</span> <span class="nf">add_formats_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rfmt_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        adds formats by short label descriptors, such as &#39;txt&#39;, &#39;json&#39;, or</span>
+<span class="sd">        &#39;html&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="n">rfmt_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s">&quot;json&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_report_format</span><span class="p">(</span><span class="n">JSONReportFormat</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;txt&quot;</span><span class="p">,</span> <span class="s">&quot;text&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_report_format</span><span class="p">(</span><span class="n">TextReportFormat</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;htm&quot;</span><span class="p">,</span> <span class="s">&quot;html&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_report_format</span><span class="p">(</span><span class="n">CheetahReportFormat</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Reporter.add_report_format"><a class="viewcode-back" href="../../../report/#javatools.report.Reporter.add_report_format">[docs]</a>    <span class="k">def</span> <span class="nf">add_report_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report_format</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add an output format to this reporter. report_format should be a</span>
+<span class="sd">        ReportFormat subtype. It will be instantiated when the</span>
+<span class="sd">        reporter is run.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">report_format</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Reporter.subreporter"><a class="viewcode-back" href="../../../report/#javatools.report.Reporter.subreporter">[docs]</a>    <span class="k">def</span> <span class="nf">subreporter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subpath</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        create a reporter for a sub-report, with updated breadcrumbs and</span>
+<span class="sd">        the same output formats</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">newbase</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">,</span> <span class="n">subpath</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">Reporter</span><span class="p">(</span><span class="n">newbase</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
+
+        <span class="n">crumbs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">breadcrumbs</span><span class="p">)</span>
+        <span class="n">crumbs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="p">))</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">breadcrumbs</span> <span class="o">=</span> <span class="n">crumbs</span>
+
+        <span class="n">r</span><span class="o">.</span><span class="n">formats</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">r</span>
+
+</div>
+<div class="viewcode-block" id="Reporter.setup"><a class="viewcode-back" href="../../../report/#javatools.report.Reporter.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        instantiates all report formats that have been added to this</span>
+<span class="sd">        reporter, and calls their setup methods.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formats</span><span class="p">:</span>
+            <span class="c"># setup has been run already.</span>
+            <span class="k">return</span>
+
+        <span class="n">basedir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span>
+        <span class="n">crumbs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_relative_breadcrumbs</span><span class="p">()</span>
+
+        <span class="n">fmts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">fmt_class</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="p">:</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt_class</span><span class="p">(</span><span class="n">basedir</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">crumbs</span><span class="p">)</span>
+            <span class="n">fmt</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+            <span class="n">fmts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formats</span> <span class="o">=</span> <span class="n">fmts</span>
+
+</div>
+<div class="viewcode-block" id="Reporter.run"><a class="viewcode-back" href="../../../report/#javatools.report.Reporter.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        runs the report format instances in this reporter. Will call setup</span>
+<span class="sd">        if it hasn&#39;t been called already</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formats</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+
+        <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span>
+
+        <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formats</span><span class="p">:</span>
+            <span class="n">fmt</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="Reporter.clear"><a class="viewcode-back" href="../../../report/#javatools.report.Reporter.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        calls clear on any report format instances created during setup</span>
+<span class="sd">        and drops the cache</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formats</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formats</span><span class="p">:</span>
+                <span class="n">fmt</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formats</span> <span class="o">=</span> <span class="bp">None</span>
+
+</div></div>
+<div class="viewcode-block" id="ReportFormat"><a class="viewcode-back" href="../../../report/#javatools.report.ReportFormat">[docs]</a><span class="k">class</span> <span class="nc">ReportFormat</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class of a report format provider. Override to describe a</span>
+<span class="sd">    concrete format type</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+    <span class="n">extension</span> <span class="o">=</span> <span class="s">&quot;.report&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basedir</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">breadcrumbs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">()):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span> <span class="o">=</span> <span class="n">basedir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">breadcrumbs</span> <span class="o">=</span> <span class="n">breadcrumbs</span>
+
+
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="ReportFormat.run_impl"><a class="viewcode-back" href="../../../report/#javatools.report.ReportFormat.run_impl">[docs]</a>    <span class="k">def</span> <span class="nf">run_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        override to actually produce output</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="ReportFormat.run"><a class="viewcode-back" href="../../../report/#javatools.report.ReportFormat.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setup for run, including creating an output file if needed. Calls</span>
+<span class="sd">        run_impl when ready. If out and entry are both None,</span>
+<span class="sd">        sys.stdout is used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">out</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_impl</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+        <span class="k">elif</span> <span class="n">entry</span><span class="p">:</span>
+            <span class="n">basedir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span> <span class="ow">or</span> <span class="s">&quot;./&quot;</span>
+
+            <span class="n">makedirsp</span><span class="p">(</span><span class="n">basedir</span><span class="p">)</span>
+
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">basedir</span><span class="p">,</span> <span class="n">entry</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s">&quot;wb&quot;</span><span class="p">,</span> <span class="n">_BUFFERING</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">run_impl</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">fn</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_impl</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">stdout</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+</div>
+<div class="viewcode-block" id="ReportFormat.setup"><a class="viewcode-back" href="../../../report/#javatools.report.ReportFormat.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        override if the report format has behavior which can be done ahead</span>
+<span class="sd">        of time, such as copying files or creating directories</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="ReportFormat.clear"><a class="viewcode-back" href="../../../report/#javatools.report.ReportFormat.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        clear up the internal references of this format. Called by the</span>
+<span class="sd">        parent reporter at the end of run</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">breadcrumbs</span> <span class="o">=</span> <span class="bp">None</span>
+
+</div></div>
+<span class="k">def</span> <span class="nf">_opt_cb_report</span><span class="p">(</span><span class="n">_opt</span><span class="p">,</span> <span class="n">_optstr</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    callback for the --report option in general_report_optgroup</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">options</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;reports&quot;</span><span class="p">):</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">reports</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="s">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">reports</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">reports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="general_report_optgroup"><a class="viewcode-back" href="../../../report/#javatools.report.general_report_optgroup">[docs]</a><span class="k">def</span> <span class="nf">general_report_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    General Reporting Options</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">g</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s">&quot;Reporting Options&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--report-dir&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--report&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;callback&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&quot;string&quot;</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;comma-separated list of report formats&quot;</span><span class="p">,</span>
+                 <span class="n">callback</span><span class="o">=</span><span class="n">_opt_cb_report</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">g</span>
+
+</div>
+<div class="viewcode-block" id="JSONReportFormat"><a class="viewcode-back" href="../../../report/#javatools.report.JSONReportFormat">[docs]</a><span class="k">class</span> <span class="nc">JSONReportFormat</span><span class="p">(</span><span class="n">ReportFormat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    renders a Change and all of its children to a JSON object. Can use</span>
+<span class="sd">    options from the jon_report_optgroup option group</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">extension</span> <span class="o">=</span> <span class="s">&quot;.json&quot;</span>
+
+
+<div class="viewcode-block" id="JSONReportFormat.run_impl"><a class="viewcode-back" href="../../../report/#javatools.report.JSONReportFormat.run_impl">[docs]</a>    <span class="k">def</span> <span class="nf">run_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span>
+        <span class="n">indent</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;json_indent&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;runtime_options&quot;</span><span class="p">:</span> <span class="n">options</span><span class="o">.</span><span class="n">__dict__</span><span class="p">,</span>
+            <span class="s">&quot;report&quot;</span><span class="p">:</span> <span class="n">change</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="c"># not what they expected, but it works</span>
+        <span class="n">cls</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">JSONChangeEncoder</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="n">cls</span><span class="o">=</span><span class="n">cls</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="c"># XXX for debugging. Otherwise the wrapping try isn&#39;t necessary</span>
+            <span class="k">print</span> <span class="n">data</span>
+            <span class="k">raise</span>
+
+</div></div>
+<div class="viewcode-block" id="json_report_optgroup"><a class="viewcode-back" href="../../../report/#javatools.report.json_report_optgroup">[docs]</a><span class="k">def</span> <span class="nf">json_report_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Option group for the JON report format</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">g</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s">&quot;JON Report Options&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--json-indent&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">g</span>
+
+</div>
+<span class="k">class</span> <span class="nc">JSONChangeEncoder</span><span class="p">(</span><span class="n">JSONEncoder</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A specialty JSONEncoder which knows how to represent Change</span>
+<span class="sd">    instances (or anything with a simplify method), and sequences (by</span>
+<span class="sd">    rendering them into tuples)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">):</span>
+        <span class="n">JSONEncoder</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
+
+
+    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+        <span class="c">#pylint: disable=E0202</span>
+        <span class="c"># JSONEncoder.default confuses pylint</span>
+
+        <span class="c"># if there is a simplify method, call it to convert the object</span>
+        <span class="c"># into a simplified dict</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s">&quot;simplify&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">o</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
+
+        <span class="c"># handle sequences sanely</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TextReportFormat"><a class="viewcode-back" href="../../../report/#javatools.report.TextReportFormat">[docs]</a><span class="k">class</span> <span class="nc">TextReportFormat</span><span class="p">(</span><span class="n">ReportFormat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Renders the change as indented text</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">extension</span> <span class="o">=</span> <span class="s">&quot;.text&quot;</span>
+
+
+<div class="viewcode-block" id="TextReportFormat.run_impl"><a class="viewcode-back" href="../../../report/#javatools.report.TextReportFormat.run_impl">[docs]</a>    <span class="k">def</span> <span class="nf">run_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span>
+        <span class="n">_indent_change</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+</div></div>
+<span class="k">def</span> <span class="nf">_indent_change</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">indent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    recursive function to print indented change descriptions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">show_unchanged</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;show_unchanged&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+    <span class="n">show_ignored</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;show_ignored&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+    <span class="n">show</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">desc</span> <span class="o">=</span> <span class="n">change</span><span class="o">.</span><span class="n">get_description</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">change</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">change</span><span class="o">.</span><span class="n">is_ignored</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">show_ignored</span><span class="p">:</span>
+                <span class="n">show</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">_indent</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">indent</span><span class="p">,</span> <span class="n">desc</span><span class="p">,</span> <span class="s">&quot; [IGNORED]&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">show</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">_indent</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">indent</span><span class="p">,</span> <span class="n">desc</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">show_unchanged</span><span class="p">:</span>
+        <span class="n">show</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">_indent</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">indent</span><span class="p">,</span> <span class="n">desc</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+        <span class="n">indent</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">change</span><span class="o">.</span><span class="n">collect</span><span class="p">():</span>
+            <span class="n">_indent_change</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">indent</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_indent</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">indent</span><span class="p">,</span> <span class="o">*</span><span class="n">msgs</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; write a message to stream, with indentation. Also ensures that</span>
+<span class="sd">    the output encoding of the messages is safe for writing. &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">indent</span><span class="p">):</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;  &quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">msgs</span><span class="p">:</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&quot;ascii&quot;</span><span class="p">,</span> <span class="s">&quot;backslashreplace&quot;</span><span class="p">))</span>
+    <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="CheetahReportFormat"><a class="viewcode-back" href="../../../report/#javatools.report.CheetahReportFormat">[docs]</a><span class="k">class</span> <span class="nc">CheetahReportFormat</span><span class="p">(</span><span class="n">ReportFormat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    HTML output for a Change</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">extension</span> <span class="o">=</span> <span class="s">&quot;.html&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">_relative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        if uri is relative, re-relate it to our basedir</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;http:&quot;</span><span class="p">)</span> <span class="ow">or</span>
+            <span class="n">uri</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;https:&quot;</span><span class="p">)</span> <span class="ow">or</span>
+            <span class="n">uri</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;file:&quot;</span><span class="p">)</span> <span class="ow">or</span>
+            <span class="n">uri</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">uri</span>
+
+        <span class="k">elif</span> <span class="n">exists</span><span class="p">(</span><span class="n">uri</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">relpath</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">uri</span>
+
+
+    <span class="k">def</span> <span class="nf">_relative_uris</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        if uris in list are relative, re-relate them to our basedir</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">u</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_relative</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span> <span class="k">for</span> <span class="n">uri</span> <span class="ow">in</span> <span class="n">uri_list</span><span class="p">)</span> <span class="k">if</span> <span class="n">u</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="CheetahReportFormat.setup"><a class="viewcode-back" href="../../../report/#javatools.report.CheetahReportFormat.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        copies default stylesheets and javascript files if necessary, and</span>
+<span class="sd">        appends them to the options</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">from</span> <span class="nn">javatools</span> <span class="kn">import</span> <span class="n">cheetah</span>
+
+        <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span>
+        <span class="n">datadir</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;html_copy_data&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;html_data_copied&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">datadir</span><span class="p">:</span>
+            <span class="c"># either already run by a parent report, or not supposed</span>
+            <span class="c"># to run at all.</span>
+            <span class="k">return</span>
+
+        <span class="c"># this is where we&#39;ve installed the default media</span>
+        <span class="n">datasrc</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">cheetah</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&quot;data&quot;</span><span class="p">)</span>
+
+        <span class="c"># record the .js and .css content we copy</span>
+        <span class="n">javascripts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">stylesheets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+        <span class="c"># copy the contents of our data source to datadir</span>
+        <span class="k">for</span> <span class="n">_orig</span><span class="p">,</span> <span class="n">copied</span> <span class="ow">in</span> <span class="n">copydir</span><span class="p">(</span><span class="n">datasrc</span><span class="p">,</span> <span class="n">datadir</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">copied</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.js&quot;</span><span class="p">):</span>
+                <span class="n">javascripts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copied</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">copied</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.css&quot;</span><span class="p">):</span>
+                <span class="n">stylesheets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copied</span><span class="p">)</span>
+
+        <span class="n">javascripts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;html_javascripts&quot;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">()))</span>
+        <span class="n">stylesheets</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;html_stylesheets&quot;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">()))</span>
+
+        <span class="n">options</span><span class="o">.</span><span class="n">html_javascripts</span> <span class="o">=</span> <span class="n">javascripts</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">html_stylesheets</span> <span class="o">=</span> <span class="n">stylesheets</span>
+
+        <span class="c"># keep from copying again</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">html_data_copied</span> <span class="o">=</span> <span class="bp">True</span>
+
+</div>
+<div class="viewcode-block" id="CheetahReportFormat.run_impl"><a class="viewcode-back" href="../../../report/#javatools.report.CheetahReportFormat.run_impl">[docs]</a>    <span class="k">def</span> <span class="nf">run_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        sets up the report directory for an HTML report. Obtains the</span>
+<span class="sd">        top-level Cheetah template that is appropriate for the change</span>
+<span class="sd">        instance, and runs it.</span>
+
+<span class="sd">        The cheetah templates are supplied the following values:</span>
+<span class="sd">         * change - the Change instance to report on</span>
+<span class="sd">         * entry - the string name of the entry for this report</span>
+<span class="sd">         * options - the cli options object</span>
+<span class="sd">         * breadcrumbs - list of backlinks</span>
+<span class="sd">         * javascripts - list of .js links</span>
+<span class="sd">         * stylesheets - list of .css links</span>
+
+<span class="sd">        The cheetah templates are also given a render_change method</span>
+<span class="sd">        which can be called on another Change instance to cause its</span>
+<span class="sd">        template to be resolved and run in-line.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span>
+
+        <span class="c"># translate relative paths if necessary</span>
+        <span class="n">javascripts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relative_uris</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">html_javascripts</span><span class="p">)</span>
+        <span class="n">stylesheets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relative_uris</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">html_stylesheets</span><span class="p">)</span>
+
+        <span class="c"># map the class of the change to a template class</span>
+        <span class="n">template_class</span> <span class="o">=</span> <span class="n">resolve_cheetah_template</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">change</span><span class="p">))</span>
+
+        <span class="c"># instantiate and setup the template</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">template_class</span><span class="p">()</span>
+
+        <span class="c"># create a transaction wrapping the output stream</span>
+        <span class="n">template</span><span class="o">.</span><span class="n">transaction</span> <span class="o">=</span> <span class="n">DummyTransaction</span><span class="p">()</span>
+        <span class="n">template</span><span class="o">.</span><span class="n">transaction</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="n">resp</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
+
+        <span class="c"># inject our values</span>
+        <span class="n">template</span><span class="o">.</span><span class="n">change</span> <span class="o">=</span> <span class="n">change</span>
+        <span class="n">template</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="n">entry</span>
+        <span class="n">template</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
+        <span class="n">template</span><span class="o">.</span><span class="n">breadcrumbs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">breadcrumbs</span>
+        <span class="n">template</span><span class="o">.</span><span class="n">javascripts</span> <span class="o">=</span> <span class="n">javascripts</span>
+        <span class="n">template</span><span class="o">.</span><span class="n">stylesheets</span> <span class="o">=</span> <span class="n">stylesheets</span>
+
+        <span class="c"># this lets us call render_change from within the template on</span>
+        <span class="c"># a change instance to chain to another template (eg, for</span>
+        <span class="c"># sub-changes)</span>
+        <span class="n">template</span><span class="o">.</span><span class="n">render_change</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_impl</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+
+        <span class="c"># execute the template, which will write its contents to the</span>
+        <span class="c"># transaction (and the underlying stream)</span>
+        <span class="n">template</span><span class="o">.</span><span class="n">respond</span><span class="p">()</span>
+
+        <span class="c"># clean up the template</span>
+        <span class="n">template</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+
+</div></div>
+<span class="k">def</span> <span class="nf">_compose_cheetah_template_map</span><span class="p">(</span><span class="n">cache</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    does the work of composing the cheetah template map into the given</span>
+<span class="sd">    cache</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">.cheetah</span> <span class="kn">import</span> <span class="n">get_templates</span>
+
+    <span class="c">#pylint: disable=W0406</span>
+    <span class="c"># needed for introspection</span>
+    <span class="kn">import</span> <span class="nn">javatools</span>
+
+    <span class="k">for</span> <span class="n">template_type</span> <span class="ow">in</span> <span class="n">get_templates</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">template_type</span><span class="o">.</span><span class="n">__name__</span><span class="p">:</span>
+            <span class="c"># we use the _ to denote package and class names. So any</span>
+            <span class="c"># template without a _ in the name isn&#39;t meant to be</span>
+            <span class="c"># matched to a change type.</span>
+            <span class="k">continue</span>
+
+        <span class="c"># get the package and change class names based off of the</span>
+        <span class="c"># template class name</span>
+        <span class="n">tn</span> <span class="o">=</span> <span class="n">template_type</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="n">pn</span><span class="p">,</span><span class="n">cn</span> <span class="o">=</span> <span class="n">tn</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;_&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c"># get the package from javatools</span>
+        <span class="n">pk</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">javatools</span><span class="p">,</span> <span class="n">pn</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pk</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="nb">__import__</span><span class="p">(</span><span class="s">&quot;javatools.&quot;</span><span class="o">+</span><span class="n">pn</span><span class="p">)</span>
+            <span class="n">pk</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">javatools</span><span class="p">,</span> <span class="n">pn</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="c"># get the class from the package</span>
+        <span class="n">cc</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pk</span><span class="p">,</span> <span class="n">cn</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cc</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;no change class for template </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">tn</span><span class="p">)</span>
+
+        <span class="c"># associate a Change class with a Template class</span>
+        <span class="n">cache</span><span class="p">[</span><span class="n">cc</span><span class="p">]</span> <span class="o">=</span> <span class="n">template_type</span>
+
+    <span class="k">return</span> <span class="n">cache</span>
+
+
+<span class="c">#pylint: disable=C0103</span>
+<span class="n">_template_cache</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">cheetah_template_map</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    a map of change types to cheetah template types. Used in</span>
+<span class="sd">    resolve_cheetah_template</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">cache</span> <span class="o">=</span> <span class="n">_template_cache</span>
+
+    <span class="k">return</span> <span class="n">cache</span> <span class="ow">or</span> <span class="n">_compose_cheetah_template_map</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">resolve_cheetah_template</span><span class="p">(</span><span class="n">change_type</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    return the appropriate cheetah template class for the given change</span>
+<span class="sd">    type, using the method-resolution-order of the change type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">tm</span> <span class="o">=</span> <span class="n">cheetah_template_map</span><span class="p">()</span>
+
+    <span class="c"># follow the built-in MRO for a type to find the matching</span>
+    <span class="c"># cheetah template</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">change_type</span><span class="o">.</span><span class="n">mro</span><span class="p">():</span>
+        <span class="n">tmpl</span> <span class="o">=</span> <span class="n">tm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tmpl</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tmpl</span>
+
+    <span class="c"># this should never happen, since we&#39;ll provide a</span>
+    <span class="c"># change_Change template, and all of the changes should be</span>
+    <span class="c"># inheriting from that type</span>
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;No template for class </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">change_type</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="html_report_optgroup"><a class="viewcode-back" href="../../../report/#javatools.report.html_report_optgroup">[docs]</a><span class="k">def</span> <span class="nf">html_report_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Option group for the HTML report format</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">g</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s">&quot;HTML Report Options&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--html-stylesheet&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;append&quot;</span><span class="p">,</span>
+                 <span class="n">dest</span><span class="o">=</span><span class="s">&quot;html_stylesheets&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">list</span><span class="p">())</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--html-javascript&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;append&quot;</span><span class="p">,</span>
+                 <span class="n">dest</span><span class="o">=</span><span class="s">&quot;html_javascripts&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">list</span><span class="p">())</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--html-copy-data&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;Copy default resources to the given directory and&quot;</span>
+                 <span class="s">&quot; enable them in the template&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">g</span>
+
+</div>
+<div class="viewcode-block" id="quick_report"><a class="viewcode-back" href="../../../report/#javatools.report.quick_report">[docs]</a><span class="k">def</span> <span class="nf">quick_report</span><span class="p">(</span><span class="n">report_type</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    writes a change report via report_type to options.output or</span>
+<span class="sd">    sys.stdout</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">report</span> <span class="o">=</span> <span class="n">report_type</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">stdout</span><span class="p">)</span>
+
+
+<span class="c">#</span>
+<span class="c"># The end.</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" >javatools</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2014, Christopher O&#39;Brien.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-47351906-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+  </body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>javatools.dirutils &mdash; javatools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="javatools 1.0.0 documentation" href="../../../" />
+    <link rel="up" title="javatools" href="../" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" accesskey="U">javatools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for javatools.dirutils</h1><div class="highlight"><pre>
+<span class="c"># This library is free software; you can redistribute it and/or modify</span>
+<span class="c"># it under the terms of the GNU Lesser General Public License as</span>
+<span class="c"># published by the Free Software Foundation; either version 3 of the</span>
+<span class="c"># License, or (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c"># This library is distributed in the hope that it will be useful, but</span>
+<span class="c"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c"># Lesser General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU Lesser General Public</span>
+<span class="c"># License along with this library; if not, see</span>
+<span class="c"># &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utility module for discovering the differences between two directory</span>
+<span class="sd">trees</span>
+
+<span class="sd">author: Christopher O&#39;Brien  &lt;obriencj@gmail.com&gt;</span>
+<span class="sd">license: LGPL</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">exists</span><span class="p">,</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">join</span><span class="p">,</span> <span class="n">relpath</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">makedirs</span><span class="p">,</span> <span class="n">walk</span>
+
+
+
+<span class="n">LEFT</span> <span class="o">=</span> <span class="s">&quot;left only&quot;</span>
+<span class="n">RIGHT</span> <span class="o">=</span> <span class="s">&quot;right only&quot;</span>
+<span class="n">DIFF</span> <span class="o">=</span> <span class="s">&quot;changed&quot;</span>
+<span class="n">SAME</span> <span class="o">=</span> <span class="s">&quot;same&quot;</span>
+<span class="n">BOTH</span> <span class="o">=</span> <span class="n">SAME</span> <span class="c"># meh, synonyms</span>
+
+
+
+<div class="viewcode-block" id="fnmatches"><a class="viewcode-back" href="../../../utils/#javatools.dirutils.fnmatches">[docs]</a><span class="k">def</span> <span class="nf">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="o">*</span><span class="n">pattern_list</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; returns true if entry matches any of the glob patterns, false</span>
+<span class="sd">    otherwise &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">fnmatch</span> <span class="kn">import</span> <span class="n">fnmatch</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">pattern_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pattern</span> <span class="ow">and</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">return</span> <span class="bp">False</span>
+
+
+</div>
+<div class="viewcode-block" id="makedirsp"><a class="viewcode-back" href="../../../utils/#javatools.dirutils.makedirsp">[docs]</a><span class="k">def</span> <span class="nf">makedirsp</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; create dirname if it doesn&#39;t exist &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
+        <span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">)</span>
+
+
+</div>
+<div class="viewcode-block" id="copydir"><a class="viewcode-back" href="../../../utils/#javatools.dirutils.copydir">[docs]</a><span class="k">def</span> <span class="nf">copydir</span><span class="p">(</span><span class="n">orig</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; copies directory orig to dest. Returns a list of tuples of</span>
+<span class="sd">    relative filenames which were copied from orig to dest &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">copy</span>
+
+    <span class="n">copied</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+    <span class="n">makedirsp</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">walk</span><span class="p">(</span><span class="n">orig</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
+            <span class="c"># ensure directories exist</span>
+            <span class="n">makedirsp</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">root_f</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+            <span class="n">dest_f</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">relpath</span><span class="p">(</span><span class="n">root_f</span><span class="p">,</span> <span class="n">orig</span><span class="p">))</span>
+            <span class="n">copy</span><span class="p">(</span><span class="n">root_f</span><span class="p">,</span> <span class="n">dest_f</span><span class="p">)</span>
+            <span class="n">copied</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">root_f</span><span class="p">,</span> <span class="n">dest_f</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">copied</span>
+
+
+</div>
+<div class="viewcode-block" id="compare"><a class="viewcode-back" href="../../../utils/#javatools.dirutils.compare">[docs]</a><span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; generator emiting pairs indicating the contents of the left</span>
+<span class="sd">    and right directories. The pairs are in the form of (difference,</span>
+<span class="sd">    filename) where difference is one of the LEFT, RIGHT, DIFF, or</span>
+<span class="sd">    BOTH constants. This generator recursively walks both trees.&quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">filecmp</span> <span class="kn">import</span> <span class="n">dircmp</span>
+
+    <span class="n">dc</span> <span class="o">=</span> <span class="n">dircmp</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">[])</span>
+    <span class="k">return</span> <span class="n">_gen_from_dircmp</span><span class="p">(</span><span class="n">dc</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+
+
+</div>
+<span class="k">def</span> <span class="nf">_gen_from_dircmp</span><span class="p">(</span><span class="n">dc</span><span class="p">,</span> <span class="n">lpath</span><span class="p">,</span> <span class="n">rpath</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; do the work of comparing the dircmp &quot;&quot;&quot;</span>
+
+    <span class="n">left_only</span> <span class="o">=</span> <span class="n">dc</span><span class="o">.</span><span class="n">left_only</span>
+    <span class="n">left_only</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">left_only</span><span class="p">:</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">isdir</span><span class="p">(</span><span class="n">fp</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">_ds</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">walk</span><span class="p">(</span><span class="n">fp</span><span class="p">):</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">relpath</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">lpath</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fs</span><span class="p">:</span>
+                    <span class="k">yield</span><span class="p">(</span><span class="n">LEFT</span><span class="p">,</span> <span class="n">join</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">LEFT</span><span class="p">,</span> <span class="n">relpath</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">lpath</span><span class="p">))</span>
+
+    <span class="n">right_only</span> <span class="o">=</span> <span class="n">dc</span><span class="o">.</span><span class="n">right_only</span>
+    <span class="n">right_only</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">right_only</span><span class="p">:</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">isdir</span><span class="p">(</span><span class="n">fp</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">_ds</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">walk</span><span class="p">(</span><span class="n">fp</span><span class="p">):</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">relpath</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">rpath</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fs</span><span class="p">:</span>
+                    <span class="k">yield</span><span class="p">(</span><span class="n">RIGHT</span><span class="p">,</span> <span class="n">join</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">RIGHT</span><span class="p">,</span> <span class="n">relpath</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">rpath</span><span class="p">))</span>
+
+    <span class="n">diff_files</span> <span class="o">=</span> <span class="n">dc</span><span class="o">.</span><span class="n">diff_files</span>
+    <span class="n">diff_files</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">diff_files</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="p">(</span><span class="n">DIFF</span><span class="p">,</span> <span class="n">join</span><span class="p">(</span><span class="n">relpath</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">rpath</span><span class="p">),</span> <span class="n">f</span><span class="p">))</span>
+
+    <span class="n">same_files</span> <span class="o">=</span> <span class="n">dc</span><span class="o">.</span><span class="n">same_files</span>
+    <span class="n">same_files</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">same_files</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="p">(</span><span class="n">BOTH</span><span class="p">,</span> <span class="n">join</span><span class="p">(</span><span class="n">relpath</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">lpath</span><span class="p">),</span> <span class="n">f</span><span class="p">))</span>
+
+    <span class="n">subdirs</span> <span class="o">=</span> <span class="n">dc</span><span class="o">.</span><span class="n">subdirs</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="n">subdirs</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">subdirs</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">_gen_from_dircmp</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="n">lpath</span><span class="p">,</span> <span class="n">rpath</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">event</span>
+
+
+
+<div class="viewcode-block" id="collect_compare"><a class="viewcode-back" href="../../../utils/#javatools.dirutils.collect_compare">[docs]</a><span class="k">def</span> <span class="nf">collect_compare</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; returns a tuple of four lists describing the file paths that</span>
+<span class="sd">    have been (in order) added, removed, altered, or left the same &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">collect_compare_into</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[])</span>
+
+
+</div>
+<div class="viewcode-block" id="collect_compare_into"><a class="viewcode-back" href="../../../utils/#javatools.dirutils.collect_compare_into">[docs]</a><span class="k">def</span> <span class="nf">collect_compare_into</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">removed</span><span class="p">,</span> <span class="n">altered</span><span class="p">,</span> <span class="n">same</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; collect the results of compare into the given lists (or None</span>
+<span class="sd">    if you do not wish to collect results of that type. Returns a</span>
+<span class="sd">    tuple of (added, removed, altered, same) &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">compare</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="n">LEFT</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">removed</span>
+
+        <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">RIGHT</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">added</span>
+
+        <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">DIFF</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">altered</span>
+
+        <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">BOTH</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">same</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">False</span>
+
+        <span class="k">if</span> <span class="n">group</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">group</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">added</span><span class="p">,</span> <span class="n">removed</span><span class="p">,</span> <span class="n">altered</span><span class="p">,</span> <span class="n">same</span>
+
+
+</div>
+<div class="viewcode-block" id="ClosingContext"><a class="viewcode-back" href="../../../utils/#javatools.dirutils.ClosingContext">[docs]</a><span class="k">class</span> <span class="nc">ClosingContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="c">#pylint: disable=R0903</span>
+    <span class="c"># too few public methods (none)</span>
+
+    <span class="sd">&quot;&quot;&quot; A simple context manager which is created with an object</span>
+<span class="sd">    instance, and will return that instance from __enter__ and call</span>
+<span class="sd">    the close method on the instance in __exit__ &quot;&quot;&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">managed</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">managed</span> <span class="o">=</span> <span class="n">managed</span>
+
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">managed</span>
+
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">_exc_val</span><span class="p">,</span> <span class="n">_exc_tb</span><span class="p">):</span>
+        <span class="n">managed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">managed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">managed</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">if</span> <span class="n">managed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">managed</span><span class="p">,</span> <span class="s">&quot;close&quot;</span><span class="p">):</span>
+            <span class="n">managed</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">exc_type</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span>
+
+
+</div>
+<div class="viewcode-block" id="closing"><a class="viewcode-back" href="../../../utils/#javatools.dirutils.closing">[docs]</a><span class="k">def</span> <span class="nf">closing</span><span class="p">(</span><span class="n">managed</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; If the managed object already provides its own context</span>
+<span class="sd">    management via the __enter__ and __exit__ methods, it is returned</span>
+<span class="sd">    unchanged. However, if the instance does not, a ClosingContext</span>
+<span class="sd">    will be created to wrap it. When the ClosingContext exits, it will</span>
+<span class="sd">    call managed.close() &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">managed</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">managed</span><span class="p">,</span> <span class="s">&quot;__enter__&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">managed</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ClosingContext</span><span class="p">(</span><span class="n">managed</span><span class="p">)</span>
+
+
+
+<span class="c">#</span>
+<span class="c"># The end.</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" >javatools</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2014, Christopher O&#39;Brien.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-47351906-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+  </body>
+</html>

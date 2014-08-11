@@ -1,0 +1,488 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>javatools.pack &mdash; javatools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="javatools 1.0.0 documentation" href="../../../" />
+    <link rel="up" title="javatools" href="../" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" accesskey="U">javatools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for javatools.pack</h1><div class="highlight"><pre>
+<span class="c"># This library is free software; you can redistribute it and/or modify</span>
+<span class="c"># it under the terms of the GNU Lesser General Public License as</span>
+<span class="c"># published by the Free Software Foundation; either version 3 of the</span>
+<span class="c"># License, or (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c"># This library is distributed in the hope that it will be useful, but</span>
+<span class="c"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c"># Lesser General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU Lesser General Public</span>
+<span class="c"># License along with this library; if not, see</span>
+<span class="c"># &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utility module for unpacking shapes of binary data from a buffer</span>
+<span class="sd">or stream.</span>
+
+<span class="sd">author: Christopher O&#39;Brien &lt;obriencj@gmail.com&gt;</span>
+<span class="sd">license: LGPL v.3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="c"># TODO: maybe one day in the future we&#39;ll add a Packer to this. If we</span>
+<span class="c"># ever get to the point where we want to recompile a class from a</span>
+<span class="c"># JavaClassInfo instance.</span>
+
+<span class="c"># profiling showed a significant amount of time spent in this module,</span>
+<span class="c"># so there will be efforts here to increase performance</span>
+
+
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">Struct</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&quot;compile_struct&quot;</span><span class="p">,</span> <span class="s">&quot;unpack&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Unpacker&quot;</span><span class="p">,</span> <span class="s">&quot;UnpackException&quot;</span><span class="p">,</span>
+    <span class="s">&quot;StreamUnpacker&quot;</span><span class="p">,</span> <span class="s">&quot;BufferUnpacker&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="c">#pylint: disable=C0103</span>
+<span class="n">_struct_cache</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="compile_struct"><a class="viewcode-back" href="../../../utils/#javatools.pack.compile_struct">[docs]</a><span class="k">def</span> <span class="nf">compile_struct</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns a struct.Struct instance compiled from fmt. If fmt has</span>
+<span class="sd">    already been compiled, it will return the previously compiled</span>
+<span class="sd">    Struct instance from the cache.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">cache</span> <span class="o">=</span> <span class="n">_struct_cache</span>
+
+    <span class="n">sfmt</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sfmt</span><span class="p">:</span>
+        <span class="n">sfmt</span> <span class="o">=</span> <span class="n">Struct</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+        <span class="n">cache</span><span class="p">[</span><span class="n">fmt</span><span class="p">]</span> <span class="o">=</span> <span class="n">sfmt</span>
+    <span class="k">return</span> <span class="n">sfmt</span>
+
+</div>
+<div class="viewcode-block" id="Unpacker"><a class="viewcode-back" href="../../../utils/#javatools.pack.Unpacker">[docs]</a><span class="k">class</span> <span class="nc">Unpacker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class for `StreamUnpacker` and `BufferUnpacker`. Use</span>
+<span class="sd">    the `unpack` function to obtain the correct unpacker instance for</span>
+<span class="sd">    your data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">_exc_val</span><span class="p">,</span> <span class="n">_exc_tb</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">exc_type</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span>
+
+
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="Unpacker.unpack"><a class="viewcode-back" href="../../../utils/#javatools.pack.Unpacker.unpack">[docs]</a>    <span class="k">def</span> <span class="nf">unpack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_str</span><span class="p">):</span> <span class="c"># pragma: no cover</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        unpacks the given format_str from the underlying data and returns</span>
+<span class="sd">        the results. Will raise an UnpackException if there is not</span>
+<span class="sd">        enough data to satisfy the specified format</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span>
+
+</div>
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="Unpacker.unpack_struct"><a class="viewcode-back" href="../../../utils/#javatools.pack.Unpacker.unpack_struct">[docs]</a>    <span class="k">def</span> <span class="nf">unpack_struct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct</span><span class="p">):</span> <span class="c"># pragma: no cover</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        unpacks the given struct from the underlying data and returns the</span>
+<span class="sd">        results. Will raise an UnpackException if there is not enough</span>
+<span class="sd">        data to satisfy the format of the structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span>
+
+</div>
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="Unpacker.read"><a class="viewcode-back" href="../../../utils/#javatools.pack.Unpacker.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span> <span class="c"># pragma: no cover</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        read count bytes from the unpacker and return it. Raises an</span>
+<span class="sd">        UnpackException if there is not enough data in the underlying</span>
+<span class="sd">        stream.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span>
+
+</div>
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="Unpacker.close"><a class="viewcode-back" href="../../../utils/#javatools.pack.Unpacker.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="c"># pragma: no cover</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        close this unpacker and release the underlying data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="Unpacker.unpack_array"><a class="viewcode-back" href="../../../utils/#javatools.pack.Unpacker.unpack_array">[docs]</a>    <span class="k">def</span> <span class="nf">unpack_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        reads a count from the unpacker, and unpacks fmt count</span>
+<span class="sd">        times. Yields a sequence of the unpacked data tuples</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="p">(</span><span class="n">count</span><span class="p">,)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unpack_struct</span><span class="p">(</span><span class="n">_H</span><span class="p">)</span>
+        <span class="n">sfmt</span> <span class="o">=</span> <span class="n">compile_struct</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">unpack_struct</span><span class="p">(</span><span class="n">sfmt</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Unpacker.unpack_struct_array"><a class="viewcode-back" href="../../../utils/#javatools.pack.Unpacker.unpack_struct_array">[docs]</a>    <span class="k">def</span> <span class="nf">unpack_struct_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        reads a count from the unpacker, and unpacks the precompiled</span>
+<span class="sd">        struct count times. Yields a sequence of the unpacked data</span>
+<span class="sd">        tuples</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="p">(</span><span class="n">count</span><span class="p">,)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unpack_struct</span><span class="p">(</span><span class="n">_H</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">unpack_struct</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Unpacker.unpack_objects"><a class="viewcode-back" href="../../../utils/#javatools.pack.Unpacker.unpack_objects">[docs]</a>    <span class="k">def</span> <span class="nf">unpack_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atype</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        reads a count from the unpacker, and instanciates that many calls</span>
+<span class="sd">        to atype, with the given params and kwds passed along. Each</span>
+<span class="sd">        instance then has its unpack method called with this unpacker</span>
+<span class="sd">        instance passed along. Yields a squence of the unpacked</span>
+<span class="sd">        instances</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="p">(</span><span class="n">count</span><span class="p">,)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unpack_struct</span><span class="p">(</span><span class="n">_H</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">atype</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">obj</span>
+
+</div></div>
+<div class="viewcode-block" id="BufferUnpacker"><a class="viewcode-back" href="../../../utils/#javatools.pack.BufferUnpacker">[docs]</a><span class="k">class</span> <span class="nc">BufferUnpacker</span><span class="p">(</span><span class="n">Unpacker</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unpacker wrapping a str or buffer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BufferUnpacker</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span>
+
+
+<div class="viewcode-block" id="BufferUnpacker.unpack"><a class="viewcode-back" href="../../../utils/#javatools.pack.BufferUnpacker.unpack">[docs]</a>    <span class="k">def</span> <span class="nf">unpack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        unpacks the given fmt from the underlying buffer and returns the</span>
+<span class="sd">        results. Will raise an UnpackException if there is not enough</span>
+<span class="sd">        data to satisfy the fmt</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">sfmt</span> <span class="o">=</span> <span class="n">compile_struct</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">sfmt</span><span class="o">.</span><span class="n">size</span>
+
+        <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">avail</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">offset</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">avail</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">avail</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnpackException</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">avail</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">size</span>
+        <span class="k">return</span> <span class="n">sfmt</span><span class="o">.</span><span class="n">unpack_from</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="BufferUnpacker.unpack_struct"><a class="viewcode-back" href="../../../utils/#javatools.pack.BufferUnpacker.unpack_struct">[docs]</a>    <span class="k">def</span> <span class="nf">unpack_struct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        unpacks the given struct from the underlying buffer and returns</span>
+<span class="sd">        the results. Will raise an UnpackException if there is not</span>
+<span class="sd">        enough data to satisfy the format of the structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">size</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">size</span>
+
+        <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">avail</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">offset</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">avail</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">avail</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnpackException</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">avail</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">size</span>
+        <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack_from</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="BufferUnpacker.read"><a class="viewcode-back" href="../../../utils/#javatools.pack.BufferUnpacker.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        read count bytes from the underlying buffer and return them as a</span>
+<span class="sd">        str. Raises an UnpackException if there is not enough data in</span>
+<span class="sd">        the underlying buffer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">avail</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">offset</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">avail</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">avail</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnpackException</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">avail</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">count</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">offset</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="BufferUnpacker.close"><a class="viewcode-back" href="../../../utils/#javatools.pack.BufferUnpacker.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        release the underlying buffer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+
+</div></div>
+<div class="viewcode-block" id="StreamUnpacker"><a class="viewcode-back" href="../../../utils/#javatools.pack.StreamUnpacker">[docs]</a><span class="k">class</span> <span class="nc">StreamUnpacker</span><span class="p">(</span><span class="n">Unpacker</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wraps a stream (or creates a stream for a string or buffer) and</span>
+<span class="sd">    advances along it while unpacking structures from it.</span>
+
+<span class="sd">    This class adheres to the context management protocol, so may be</span>
+<span class="sd">    used in conjunction with the &#39;with&#39; keyword</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">StreamUnpacker</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+
+
+<div class="viewcode-block" id="StreamUnpacker.unpack"><a class="viewcode-back" href="../../../utils/#javatools.pack.StreamUnpacker.unpack">[docs]</a>    <span class="k">def</span> <span class="nf">unpack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        unpacks the given fmt from the underlying stream and returns the</span>
+<span class="sd">        results. Will raise an UnpackException if there is not enough</span>
+<span class="sd">        data to satisfy the fmt</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">sfmt</span> <span class="o">=</span> <span class="n">compile_struct</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">sfmt</span><span class="o">.</span><span class="n">size</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnpackException</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">buff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">buff</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnpackException</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">buff</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">sfmt</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">buff</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="StreamUnpacker.unpack_struct"><a class="viewcode-back" href="../../../utils/#javatools.pack.StreamUnpacker.unpack_struct">[docs]</a>    <span class="k">def</span> <span class="nf">unpack_struct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        unpacks the given struct from the underlying stream and returns</span>
+<span class="sd">        the results. Will raise an UnpackException if there is not</span>
+<span class="sd">        enough data to satisfy the format of the structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">size</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">size</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnpackException</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">buff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">buff</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnpackException</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">buff</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">buff</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="StreamUnpacker.read"><a class="viewcode-back" href="../../../utils/#javatools.pack.StreamUnpacker.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        read count bytes from the unpacker and return it. Raises an</span>
+<span class="sd">        UnpackException if there is not enough data in the underlying</span>
+<span class="sd">        stream.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnpackException</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">buff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">buff</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnpackException</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">buff</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">buff</span>
+
+</div>
+<div class="viewcode-block" id="StreamUnpacker.close"><a class="viewcode-back" href="../../../utils/#javatools.pack.StreamUnpacker.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        close this unpacker, and the underlying stream if it supports such</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&quot;close&quot;</span><span class="p">):</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+</div></div>
+<div class="viewcode-block" id="unpack"><a class="viewcode-back" href="../../../utils/#javatools.pack.unpack">[docs]</a><span class="k">def</span> <span class="nf">unpack</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns either a BufferUnpacker or StreamUnpacker instance,</span>
+<span class="sd">    depending upon the type of data. The unpacker supports the managed</span>
+<span class="sd">    context interface, so may be used eg: `with unpack(my_data) as</span>
+<span class="sd">    unpacker:`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">buffer</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">BufferUnpacker</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&quot;read&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">StreamUnpacker</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;unpack requires a str, buffer, or instance&quot;</span>
+                        <span class="s">&quot; supporting the read method&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="UnpackException"><a class="viewcode-back" href="../../../utils/#javatools.pack.UnpackException">[docs]</a><span class="k">class</span> <span class="nc">UnpackException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    raised when there is not enough data to unpack the expected</span>
+<span class="sd">    structures</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">template</span> <span class="o">=</span> <span class="s">&quot;format </span><span class="si">%r</span><span class="s"> requires </span><span class="si">%i</span><span class="s"> bytes, only </span><span class="si">%i</span><span class="s"> present&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">present</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span> <span class="o">%</span> <span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">present</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">UnpackException</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">fmt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bytes_wanted</span> <span class="o">=</span> <span class="n">wanted</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bytes_present</span> <span class="o">=</span> <span class="n">present</span>
+
+
+<span class="c"># We use this one a lot, so let&#39;s not bother calling compile_struct</span>
+<span class="c"># over and over to get it.</span></div>
+<span class="n">_H</span> <span class="o">=</span> <span class="n">compile_struct</span><span class="p">(</span><span class="s">&quot;&gt;H&quot;</span><span class="p">)</span>
+
+
+<span class="c">#</span>
+<span class="c"># The end.</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" >javatools</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2014, Christopher O&#39;Brien.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-47351906-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+  </body>
+</html>

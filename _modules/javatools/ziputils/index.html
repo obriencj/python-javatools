@@ -1,0 +1,491 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>javatools.ziputils &mdash; javatools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="javatools 1.0.0 documentation" href="../../../" />
+    <link rel="up" title="javatools" href="../" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" accesskey="U">javatools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for javatools.ziputils</h1><div class="highlight"><pre>
+<span class="c"># This library is free software; you can redistribute it and/or modify</span>
+<span class="c"># it under the terms of the GNU Lesser General Public License as</span>
+<span class="c"># published by the Free Software Foundation; either version 3 of the</span>
+<span class="c"># License, or (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c"># This library is distributed in the hope that it will be useful, but</span>
+<span class="c"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c"># Lesser General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU Lesser General Public</span>
+<span class="c"># License along with this library; if not, see</span>
+<span class="c"># &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities for discovering entry deltas in a pair of zip files.</span>
+
+<span class="sd">author: Christopher O&#39;Brien  &lt;obriencj@gmail.com&gt;</span>
+<span class="sd">license: LGPL</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">cStringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">izip_longest</span>
+<span class="kn">from</span> <span class="nn">zipfile</span> <span class="kn">import</span> <span class="n">is_zipfile</span><span class="p">,</span> <span class="n">ZipFile</span><span class="p">,</span> <span class="n">ZipInfo</span><span class="p">,</span> <span class="n">_EndRecData</span>
+<span class="kn">from</span> <span class="nn">zlib</span> <span class="kn">import</span> <span class="n">crc32</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">walk</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">getsize</span><span class="p">,</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">isfile</span><span class="p">,</span> <span class="n">islink</span><span class="p">,</span> <span class="n">join</span><span class="p">,</span> <span class="n">relpath</span>
+<span class="kn">from</span> <span class="nn">.dirutils</span> <span class="kn">import</span> <span class="n">LEFT</span><span class="p">,</span> <span class="n">RIGHT</span><span class="p">,</span> <span class="n">DIFF</span><span class="p">,</span> <span class="n">SAME</span>
+<span class="kn">from</span> <span class="nn">.dirutils</span> <span class="kn">import</span> <span class="n">closing</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&quot;compare&quot;</span><span class="p">,</span> <span class="s">&quot;compare_zips&quot;</span><span class="p">,</span>
+    <span class="s">&quot;open_zip&quot;</span><span class="p">,</span> <span class="s">&quot;open_zip_entry&quot;</span><span class="p">,</span>
+    <span class="s">&quot;zip_file&quot;</span><span class="p">,</span> <span class="s">&quot;zip_entry_rollup&quot;</span><span class="p">,</span>
+    <span class="s">&quot;LEFT&quot;</span><span class="p">,</span> <span class="s">&quot;RIGHT&quot;</span><span class="p">,</span> <span class="s">&quot;DIFF&quot;</span><span class="p">,</span> <span class="s">&quot;SAME&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="n">_CHUNKSIZE</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">14</span>
+
+
+<div class="viewcode-block" id="compare"><a class="viewcode-back" href="../../../utils/#javatools.ziputils.compare">[docs]</a><span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    yields EVENT,ENTRY pairs describing the differences between left</span>
+<span class="sd">    and right, which are filenames for a pair of zip files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">open_zip</span><span class="p">(</span><span class="n">left</span><span class="p">)</span> <span class="k">as</span> <span class="n">l</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">open_zip</span><span class="p">(</span><span class="n">right</span><span class="p">)</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">compare_zips</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="compare_zips"><a class="viewcode-back" href="../../../utils/#javatools.ziputils.compare_zips">[docs]</a><span class="k">def</span> <span class="nf">compare_zips</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    yields EVENT,ENTRY pairs describing the differences between left</span>
+<span class="sd">    and right ZipFile instances</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ll</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">namelist</span><span class="p">())</span>
+    <span class="n">rl</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">right</span><span class="o">.</span><span class="n">namelist</span><span class="p">())</span>
+
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">ll</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">rl</span><span class="p">:</span>
+            <span class="n">rl</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span><span class="p">):</span>
+                <span class="c"># it&#39;s a directory entry</span>
+                <span class="k">pass</span>
+
+            <span class="k">elif</span> <span class="n">_different</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">DIFF</span><span class="p">,</span> <span class="n">f</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">SAME</span><span class="p">,</span> <span class="n">f</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">LEFT</span><span class="p">,</span> <span class="n">f</span>
+
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">rl</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">RIGHT</span><span class="p">,</span> <span class="n">f</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_different</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    true if entry f is different between left and right ZipFile</span>
+<span class="sd">    instances</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">l</span> <span class="o">=</span> <span class="n">left</span><span class="o">.</span><span class="n">getinfo</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">right</span><span class="o">.</span><span class="n">getinfo</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">file_size</span> <span class="o">==</span> <span class="n">r</span><span class="o">.</span><span class="n">file_size</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">CRC</span> <span class="o">==</span> <span class="n">r</span><span class="o">.</span><span class="n">CRC</span><span class="p">):</span>
+        <span class="c"># ok, they seem passibly similar, let&#39;s deep check them.</span>
+        <span class="k">return</span> <span class="n">_deep_different</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># yup, they&#39;re different</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+
+<span class="k">def</span> <span class="nf">_deep_different</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    checks that entry is identical between ZipFile instances left and</span>
+<span class="sd">    right</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">left</span> <span class="o">=</span> <span class="n">chunk_zip_entry</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+    <span class="n">right</span> <span class="o">=</span> <span class="n">chunk_zip_entry</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ldata</span><span class="p">,</span> <span class="n">rdata</span> <span class="ow">in</span> <span class="n">izip_longest</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ldata</span> <span class="o">!=</span> <span class="n">rdata</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">return</span> <span class="bp">False</span>
+
+
+<span class="k">def</span> <span class="nf">collect_compare</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    collects the differences between left and right, which are</span>
+<span class="sd">    filenames for valid zip files, into a tuple of lists: added,</span>
+<span class="sd">    removed, altered, same</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">collect_compare_into</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[])</span>
+
+
+<span class="k">def</span> <span class="nf">collect_compare_into</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">removed</span><span class="p">,</span> <span class="n">altered</span><span class="p">,</span> <span class="n">same</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    collects the differences between left and right, which are</span>
+<span class="sd">    filenames for valid zip files, into the lists added, removed,</span>
+<span class="sd">    altered, and same.  Returns a tuple of added, removed, altered,</span>
+<span class="sd">    same</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">open_zip</span><span class="p">(</span><span class="n">left</span><span class="p">)</span> <span class="k">as</span> <span class="n">l</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">open_zip</span><span class="p">(</span><span class="n">right</span><span class="p">)</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">collect_compare_zips_into</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span>
+                                             <span class="n">added</span><span class="p">,</span> <span class="n">removed</span><span class="p">,</span>
+                                             <span class="n">altered</span><span class="p">,</span> <span class="n">same</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">collect_compare_zips</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    collects the differences between left and right ZipFile instances</span>
+<span class="sd">    into a tuple of lists: added, removed, altered, same</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">collect_compare_zips_into</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[])</span>
+
+
+<span class="k">def</span> <span class="nf">collect_compare_zips_into</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">removed</span><span class="p">,</span> <span class="n">altered</span><span class="p">,</span> <span class="n">same</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    collects the differences between left and right ZipFile instances</span>
+<span class="sd">    into the lists added, removed, altered, and same.  Returns a tuple</span>
+<span class="sd">    of added, removed, altered, same</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">event</span><span class="p">,</span><span class="n">filename</span> <span class="ow">in</span> <span class="n">compare_zips</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="n">LEFT</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">removed</span>
+        <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">RIGHT</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">added</span>
+        <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">DIFF</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">altered</span>
+        <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">SAME</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">same</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">group</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">group</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">added</span><span class="p">,</span><span class="n">removed</span><span class="p">,</span><span class="n">altered</span><span class="p">,</span><span class="n">same</span>
+
+
+<span class="k">def</span> <span class="nf">is_zipstream</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    just like zipfile.is_zipfile, but works upon buffers and streams</span>
+<span class="sd">    rather than filenames.</span>
+
+<span class="sd">    If data supports the read method, it will be treated as a stream</span>
+<span class="sd">    and read from to test whether it is a valid ZipFile.</span>
+
+<span class="sd">    If data also supports the tell and seek methods, it will be</span>
+<span class="sd">    rewound after being tested.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">buffer</span><span class="p">)):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&quot;read&quot;</span><span class="p">):</span>
+        <span class="n">tell</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&quot;tell&quot;</span><span class="p">):</span>
+            <span class="n">tell</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">_EndRecData</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&quot;seek&quot;</span><span class="p">):</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">tell</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;requies str, buffer, or stream-like object&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span> <span class="nf">file_crc32</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="n">_CHUNKSIZE</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    calculate the CRC32 of the contents of filename</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">check</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">chunksize</span><span class="p">),</span> <span class="s">&quot;&quot;</span><span class="p">):</span>
+            <span class="n">check</span> <span class="o">=</span> <span class="n">crc32</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">check</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">check</span>
+
+
+<span class="k">def</span> <span class="nf">_collect_infos</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; Utility function used by ExplodedZipFile to generate ZipInfo</span>
+<span class="sd">    entries for all of the files and directories under dirname &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">_ds</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">walk</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">islink</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="ow">and</span> <span class="n">r</span> <span class="o">!=</span> <span class="n">dirname</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">ZipInfo</span><span class="p">()</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">relpath</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">dirname</span><span class="p">),</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">file_size</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">compress_size</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">CRC</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">yield</span> <span class="n">i</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">i</span>
+
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fs</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+            <span class="n">relfn</span> <span class="o">=</span> <span class="n">relpath</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">f</span><span class="p">),</span> <span class="n">dirname</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">islink</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+                <span class="k">pass</span>
+
+            <span class="k">elif</span> <span class="n">isfile</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">ZipInfo</span><span class="p">()</span>
+                <span class="n">i</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">relfn</span>
+                <span class="n">i</span><span class="o">.</span><span class="n">file_size</span> <span class="o">=</span> <span class="n">getsize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+                <span class="n">i</span><span class="o">.</span><span class="n">compress_size</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">file_size</span>
+                <span class="n">i</span><span class="o">.</span><span class="n">CRC</span> <span class="o">=</span> <span class="n">file_crc32</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">i</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">i</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># TODO: is there any more special treatment?</span>
+                <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">ExplodedZipFile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A directory wrapped up to look like a ZipFile. It only populates</span>
+<span class="sd">    the filename, file_size, and CRC fields of the child ZipInfo</span>
+<span class="sd">    members.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pathname</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fn</span> <span class="o">=</span> <span class="n">pathname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">pathname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">members</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">members</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_collect_infos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fn</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">getinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">namelist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+
+    <span class="k">def</span> <span class="nf">infolist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;rb&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fn</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span> <span class="n">mode</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">members</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+<div class="viewcode-block" id="zip_file"><a class="viewcode-back" href="../../../utils/#javatools.ziputils.zip_file">[docs]</a><span class="k">def</span> <span class="nf">zip_file</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;r&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns either a zipfile.ZipFile instance or an ExplodedZipFile</span>
+<span class="sd">    instance, depending on whether fn is the name of a valid zip file,</span>
+<span class="sd">    or a directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">isdir</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ExplodedZipFile</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">is_zipfile</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;cannot treat as an archive: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fn</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="open_zip"><a class="viewcode-back" href="../../../utils/#javatools.ziputils.open_zip">[docs]</a><span class="k">def</span> <span class="nf">open_zip</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;r&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    opens a zip file archive at filename in the given mode and returns</span>
+<span class="sd">    a context manager which will close the archive when the context</span>
+<span class="sd">    exits. Use eg: with open_zip(&#39;my.zip&#39;) as z: ...</span>
+
+<span class="sd">    In Python 2.6, this will be a ClosingContext instance. In 2.7</span>
+<span class="sd">    onward, the zipfile.ZipFile class provides its own managed context</span>
+<span class="sd">    and so the instance is returned unwrapped</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">closing</span><span class="p">(</span><span class="n">zip_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="open_zip_entry"><a class="viewcode-back" href="../../../utils/#javatools.ziputils.open_zip_entry">[docs]</a><span class="k">def</span> <span class="nf">open_zip_entry</span><span class="p">(</span><span class="n">zipfile</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;r&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    opens an entry from an opened zip file archive in the given mode</span>
+<span class="sd">    and returns a context manager which will close the stream when the</span>
+<span class="sd">    context exits. Use eg: with open_zip_entry(my_zip, &#39;MANIFEST.MF&#39;)</span>
+<span class="sd">    as data: ...</span>
+
+<span class="sd">    In Python 2.6, this will be a ClosingContext instance. In 2.7</span>
+<span class="sd">    onward, the zipfile.ZipExtFile class provides its own managed</span>
+<span class="sd">    context and so the instance is returned unwrapped</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">closing</span><span class="p">(</span><span class="n">zipfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mode</span><span class="p">))</span>
+
+</div>
+<span class="k">def</span> <span class="nf">chunk_zip_entry</span><span class="p">(</span><span class="n">zipfile</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="n">_CHUNKSIZE</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    opens an entry from an openex zip file archive and yields</span>
+<span class="sd">    sequential chunks of data from the resulting stream.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">open_zip_entry</span><span class="p">(</span><span class="n">zipfile</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">chunksize</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">data</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">chunksize</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="zip_entry_rollup"><a class="viewcode-back" href="../../../utils/#javatools.ziputils.zip_entry_rollup">[docs]</a><span class="k">def</span> <span class="nf">zip_entry_rollup</span><span class="p">(</span><span class="n">zipfile</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns a tuple of (files, dirs, size_uncompressed,</span>
+<span class="sd">    size_compressed). files+dirs will equal len(zipfile.infolist)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">files</span> <span class="o">=</span> <span class="n">dirs</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">total_c</span> <span class="o">=</span> <span class="n">total_u</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">infolist</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">filename</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span><span class="p">:</span>
+            <span class="c"># I wonder if there&#39;s a better detection method than this</span>
+            <span class="n">dirs</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">files</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">total_c</span> <span class="o">+=</span> <span class="n">i</span><span class="o">.</span><span class="n">compress_size</span>
+            <span class="n">total_u</span> <span class="o">+=</span> <span class="n">i</span><span class="o">.</span><span class="n">file_size</span>
+
+    <span class="k">return</span> <span class="n">files</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">total_c</span><span class="p">,</span> <span class="n">total_u</span>
+
+
+<span class="c">#</span>
+<span class="c"># The end.</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" >javatools</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2014, Christopher O&#39;Brien.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-47351906-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+  </body>
+</html>

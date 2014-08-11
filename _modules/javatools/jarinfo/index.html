@@ -1,0 +1,461 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>javatools.jarinfo &mdash; javatools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="javatools 1.0.0 documentation" href="../../../" />
+    <link rel="up" title="javatools" href="../" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" accesskey="U">javatools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for javatools.jarinfo</h1><div class="highlight"><pre>
+<span class="c"># This library is free software; you can redistribute it and/or modify</span>
+<span class="c"># it under the terms of the GNU Lesser General Public License as</span>
+<span class="c"># published by the Free Software Foundation; either version 3 of the</span>
+<span class="c"># License, or (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c"># This library is distributed in the hope that it will be useful, but</span>
+<span class="c"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c"># Lesser General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU Lesser General Public</span>
+<span class="c"># License along with this library; if not, see</span>
+<span class="c"># &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module and utility for fetching information out of a JAR file, and</span>
+<span class="sd">printing it out.</span>
+
+<span class="sd">author: Christopher O&#39;Brien  &lt;obriencj@gmail.com&gt;</span>
+<span class="sd">license: LGPL</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">json</span> <span class="kn">import</span> <span class="n">dump</span>
+<span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">stdout</span>
+
+<span class="kn">from</span> <span class="nn">javatools</span> <span class="kn">import</span> <span class="n">unpack_class</span>
+<span class="kn">from</span> <span class="nn">.classinfo</span> <span class="kn">import</span> <span class="n">cli_print_classinfo</span>
+<span class="kn">from</span> <span class="nn">.dirutils</span> <span class="kn">import</span> <span class="n">fnmatches</span>
+<span class="kn">from</span> <span class="nn">.manifest</span> <span class="kn">import</span> <span class="n">Manifest</span>
+<span class="kn">from</span> <span class="nn">.ziputils</span> <span class="kn">import</span> <span class="n">open_zip_entry</span><span class="p">,</span> <span class="n">zip_file</span><span class="p">,</span> <span class="n">zip_entry_rollup</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&quot;JAR_PATTERNS&quot;</span><span class="p">,</span> <span class="s">&quot;JarInfo&quot;</span><span class="p">,</span>
+    <span class="s">&quot;main&quot;</span><span class="p">,</span> <span class="s">&quot;cli&quot;</span><span class="p">,</span> <span class="s">&quot;jarinfo_optgroup&quot;</span><span class="p">,</span>
+    <span class="s">&quot;cli_jar_classes&quot;</span><span class="p">,</span> <span class="s">&quot;cli_jar_manifest_info&quot;</span><span class="p">,</span>
+    <span class="s">&quot;cli_jar_provides&quot;</span><span class="p">,</span> <span class="s">&quot;cli_jar_requires&quot;</span><span class="p">,</span>
+    <span class="s">&quot;cli_jar_zip_info&quot;</span><span class="p">,</span> <span class="s">&quot;cli_jarinfo&quot;</span><span class="p">,</span>
+    <span class="s">&quot;cli_jarinfo_json&quot;</span><span class="p">,</span> <span class="p">)</span>
+
+
+<span class="c"># for reference by other modules</span>
+<span class="n">JAR_PATTERNS</span> <span class="o">=</span> <span class="p">(</span> <span class="s">&quot;*.ear&quot;</span><span class="p">,</span>
+                 <span class="s">&quot;*.jar&quot;</span><span class="p">,</span>
+                 <span class="s">&quot;*.rar&quot;</span><span class="p">,</span>
+                 <span class="s">&quot;*.sar&quot;</span><span class="p">,</span>
+                 <span class="s">&quot;*.war&quot;</span><span class="p">,</span> <span class="p">)</span>
+
+
+<span class="n">REQ_BY_CLASS</span> <span class="o">=</span> <span class="s">&quot;class.requires&quot;</span>
+<span class="n">PROV_BY_CLASS</span> <span class="o">=</span> <span class="s">&quot;class.provides&quot;</span>
+
+
+<div class="viewcode-block" id="JarInfo"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.JarInfo">[docs]</a><span class="k">class</span> <span class="nc">JarInfo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">filename</span> <span class="ow">or</span> <span class="n">zipfile</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;one of pathname or zipinfo must be specified&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zipfile</span> <span class="o">=</span> <span class="n">zipfile</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_requires</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_provides</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">exc_type</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="JarInfo.open"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.JarInfo.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;r&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">open_zip_entry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_zipfile</span><span class="p">(),</span> <span class="n">entry</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+</div>
+    <span class="k">def</span> <span class="nf">_collect_requires_provides</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">prov</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c"># we need to collect private provides in order to satisfy deps</span>
+        <span class="c"># for things like anonymous inner classes, which have access</span>
+        <span class="c"># to private members of their parents. This is only used to</span>
+        <span class="c"># filter out false-positive requirements.</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_classes</span><span class="p">():</span>
+            <span class="n">ci</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_classinfo</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_requires</span><span class="p">():</span>
+                <span class="n">req</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="nb">list</span><span class="p">())</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">REQ_BY_CLASS</span><span class="p">,</span><span class="n">entry</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_provides</span><span class="p">(</span><span class="n">private</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+                <span class="n">prov</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="nb">list</span><span class="p">())</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">PROV_BY_CLASS</span><span class="p">,</span><span class="n">entry</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_provides</span><span class="p">(</span><span class="n">private</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span>
+
+        <span class="n">req</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">req</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_requires</span> <span class="o">=</span> <span class="n">req</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_provides</span> <span class="o">=</span> <span class="n">prov</span>
+
+
+<div class="viewcode-block" id="JarInfo.get_requires"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.JarInfo.get_requires">[docs]</a>    <span class="k">def</span> <span class="nf">get_requires</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ignored</span><span class="o">=</span><span class="nb">tuple</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_requires</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_collect_requires_provides</span><span class="p">()</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_requires</span>
+        <span class="k">if</span> <span class="n">ignored</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
+                     <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="o">*</span><span class="n">ignored</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">d</span>
+
+</div>
+<div class="viewcode-block" id="JarInfo.get_provides"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.JarInfo.get_provides">[docs]</a>    <span class="k">def</span> <span class="nf">get_provides</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ignored</span><span class="o">=</span><span class="nb">tuple</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_provides</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_collect_requires_provides</span><span class="p">()</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_provides</span>
+        <span class="k">if</span> <span class="n">ignored</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
+                     <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="o">*</span><span class="n">ignored</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">d</span>
+
+</div>
+<div class="viewcode-block" id="JarInfo.get_classes"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.JarInfo.get_classes">[docs]</a>    <span class="k">def</span> <span class="nf">get_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        sequence of .class files in the underlying zip</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_zipfile</span><span class="p">()</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s">&quot;*.class&quot;</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">n</span>
+
+</div>
+<div class="viewcode-block" id="JarInfo.get_classinfo"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.JarInfo.get_classinfo">[docs]</a>    <span class="k">def</span> <span class="nf">get_classinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        fetch a class entry as a JavaClassInfo instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfd</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">unpack_class</span><span class="p">(</span><span class="n">cfd</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="JarInfo.get_manifest"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.JarInfo.get_manifest">[docs]</a>    <span class="k">def</span> <span class="nf">get_manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; fetch the sections from the MANIFEST.MF file as a Manifest</span>
+<span class="sd">        instance, or None if no MANIFEST.MF entry present &quot;&quot;&quot;</span>
+
+        <span class="n">mf_entry</span> <span class="o">=</span> <span class="s">&quot;META-INF/MANIFEST.MF&quot;</span>
+
+        <span class="n">zipfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_zipfile</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">getinfo</span><span class="p">(</span><span class="n">mf_entry</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+        <span class="n">mf</span> <span class="o">=</span> <span class="n">Manifest</span><span class="p">()</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">mf_entry</span><span class="p">)</span> <span class="k">as</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">mf</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mf</span>
+
+</div>
+<div class="viewcode-block" id="JarInfo.get_zipfile"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.JarInfo.get_zipfile">[docs]</a>    <span class="k">def</span> <span class="nf">get_zipfile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zipfile</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zipfile</span> <span class="o">=</span> <span class="n">zip_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zipfile</span>
+
+</div>
+<div class="viewcode-block" id="JarInfo.close"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.JarInfo.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zipfile</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zipfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zipfile</span> <span class="o">=</span> <span class="bp">None</span>
+
+</div></div>
+<div class="viewcode-block" id="cli_jar_manifest_info"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.cli_jar_manifest_info">[docs]</a><span class="k">def</span> <span class="nf">cli_jar_manifest_info</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">jarinfo</span><span class="p">):</span>
+    <span class="n">mf</span> <span class="o">=</span> <span class="n">jarinfo</span><span class="o">.</span><span class="n">get_manifest</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">mf</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Manifest not present.&quot;</span>
+        <span class="k">print</span>
+        <span class="k">return</span>
+
+    <span class="k">print</span> <span class="s">&quot;Manifest main section:&quot;</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">mf</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="k">print</span> <span class="s">&quot;  </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">_name</span><span class="p">,</span> <span class="n">sect</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">mf</span><span class="o">.</span><span class="n">sub_sections</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="k">print</span>
+        <span class="k">print</span> <span class="s">&quot;Manifest sub-section:&quot;</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sect</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="k">print</span> <span class="s">&quot;  </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+    <span class="k">print</span>
+
+</div>
+<div class="viewcode-block" id="cli_jar_zip_info"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.cli_jar_zip_info">[docs]</a><span class="k">def</span> <span class="nf">cli_jar_zip_info</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">jarinfo</span><span class="p">):</span>
+    <span class="n">zipfile</span> <span class="o">=</span> <span class="n">jarinfo</span><span class="o">.</span><span class="n">get_zipfile</span><span class="p">()</span>
+
+    <span class="n">files</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">uncomp</span> <span class="o">=</span> <span class="n">zip_entry_rollup</span><span class="p">(</span><span class="n">zipfile</span><span class="p">)</span>
+    <span class="n">prcnt</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>  <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">uncomp</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span>
+
+    <span class="k">print</span> <span class="s">&quot;Contains </span><span class="si">%i</span><span class="s"> files, </span><span class="si">%i</span><span class="s"> directories&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">dirs</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;Uncompressed size is </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">uncomp</span>
+    <span class="k">print</span> <span class="s">&quot;Compressed size is </span><span class="si">%i</span><span class="s"> (</span><span class="si">%0.1f%%</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">prcnt</span><span class="p">)</span>
+    <span class="k">print</span>
+
+</div>
+<div class="viewcode-block" id="cli_jar_classes"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.cli_jar_classes">[docs]</a><span class="k">def</span> <span class="nf">cli_jar_classes</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">jarinfo</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">jarinfo</span><span class="o">.</span><span class="n">get_classes</span><span class="p">():</span>
+        <span class="n">ci</span> <span class="o">=</span> <span class="n">jarinfo</span><span class="o">.</span><span class="n">get_classinfo</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;Entry: &quot;</span><span class="p">,</span> <span class="n">entry</span>
+        <span class="n">cli_print_classinfo</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">ci</span><span class="p">)</span>
+        <span class="k">print</span>
+
+</div>
+<div class="viewcode-block" id="cli_jar_provides"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.cli_jar_provides">[docs]</a><span class="k">def</span> <span class="nf">cli_jar_provides</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">jarinfo</span><span class="p">):</span>
+    <span class="k">print</span> <span class="s">&quot;jar provides:&quot;</span>
+
+    <span class="k">for</span> <span class="n">provided</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">jarinfo</span><span class="o">.</span><span class="n">get_provides</span><span class="p">()</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">provided</span><span class="p">,</span> <span class="o">*</span><span class="n">options</span><span class="o">.</span><span class="n">api_ignore</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&quot; &quot;</span><span class="p">,</span> <span class="n">provided</span>
+    <span class="k">print</span>
+
+</div>
+<div class="viewcode-block" id="cli_jar_requires"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.cli_jar_requires">[docs]</a><span class="k">def</span> <span class="nf">cli_jar_requires</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">jarinfo</span><span class="p">):</span>
+    <span class="k">print</span> <span class="s">&quot;jar requires:&quot;</span>
+
+    <span class="k">for</span> <span class="n">required</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">jarinfo</span><span class="o">.</span><span class="n">get_requires</span><span class="p">()</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">required</span><span class="p">,</span> <span class="o">*</span><span class="n">options</span><span class="o">.</span><span class="n">api_ignore</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&quot; &quot;</span><span class="p">,</span> <span class="n">required</span>
+    <span class="k">print</span>
+
+</div>
+<div class="viewcode-block" id="cli_jarinfo"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.cli_jarinfo">[docs]</a><span class="k">def</span> <span class="nf">cli_jarinfo</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">zip</span><span class="p">:</span>
+        <span class="n">cli_jar_zip_info</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">manifest</span><span class="p">:</span>
+        <span class="n">cli_jar_manifest_info</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">jar_provides</span><span class="p">:</span>
+        <span class="n">cli_jar_provides</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">jar_requires</span><span class="p">:</span>
+        <span class="n">cli_jar_requires</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">jar_classes</span><span class="p">:</span>
+        <span class="n">cli_jar_classes</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="cli_jarinfo_json"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.cli_jarinfo_json">[docs]</a><span class="k">def</span> <span class="nf">cli_jarinfo_json</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">jar_provides</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="s">&quot;jar.provides&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get_provides</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">api_ignore</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">jar_requires</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="s">&quot;jar.requires&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get_requires</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">api_ignore</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">zip</span><span class="p">:</span>
+        <span class="n">zipfile</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get_zipfile</span><span class="p">()</span>
+        <span class="n">filec</span><span class="p">,</span> <span class="n">dirc</span><span class="p">,</span> <span class="n">totalc</span><span class="p">,</span> <span class="n">totalu</span> <span class="o">=</span> <span class="n">zip_entry_rollup</span><span class="p">(</span><span class="n">zipfile</span><span class="p">)</span>
+        <span class="n">prcnt</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">totalc</span><span class="p">)</span>  <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">totalu</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span>
+
+        <span class="n">data</span><span class="p">[</span><span class="s">&quot;zip.type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="n">data</span><span class="p">[</span><span class="s">&quot;zip.file_count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filec</span>
+        <span class="n">data</span><span class="p">[</span><span class="s">&quot;zip.dir_count&quot;</span> <span class="p">]</span> <span class="o">=</span> <span class="n">dirc</span>
+        <span class="n">data</span><span class="p">[</span><span class="s">&quot;zip.uncompressed_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">totalu</span>
+        <span class="n">data</span><span class="p">[</span><span class="s">&quot;zip.compressed_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">totalc</span>
+        <span class="n">data</span><span class="p">[</span><span class="s">&quot;zip.compress_percent&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prcnt</span>
+
+    <span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="cli"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.cli">[docs]</a><span class="k">def</span> <span class="nf">cli</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">rest</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">zip</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">locals</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">disassemble</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">sigs</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">constpool</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="n">options</span><span class="o">.</span><span class="n">indent</span> <span class="o">=</span> <span class="ow">not</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">lines</span> <span class="ow">or</span>
+                         <span class="n">options</span><span class="o">.</span><span class="n">disassemble</span> <span class="ow">or</span>
+                         <span class="n">options</span><span class="o">.</span><span class="n">sigs</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">rest</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="k">with</span> <span class="n">JarInfo</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">fn</span><span class="p">)</span> <span class="k">as</span> <span class="n">ji</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">json</span><span class="p">:</span>
+                <span class="n">cli_jarinfo_json</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">ji</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cli_jarinfo</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">ji</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mi">0</span>
+
+</div>
+<div class="viewcode-block" id="jarinfo_optgroup"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.jarinfo_optgroup">[docs]</a><span class="k">def</span> <span class="nf">jarinfo_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionGroup</span>
+
+    <span class="n">g</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s">&quot;JAR Info Options&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--zip&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;print zip information&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--manifest&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;print manifest information&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--jar-classes&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;print information about contained classes&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--jar-provides&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;jar_provides&quot;</span><span class="p">,</span>
+                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;API provides information at the JAR level&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--jar-requires&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;jar_requires&quot;</span><span class="p">,</span>
+                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;API requires information at the JAR level&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">g</span>
+
+</div>
+<span class="k">def</span> <span class="nf">create_optparser</span><span class="p">():</span>
+    <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span>
+    <span class="kn">from</span> <span class="nn">.classinfo</span> <span class="kn">import</span> <span class="n">classinfo_optgroup</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="s">&quot;%prog [OPTIONS] JARFILE&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--json&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;json&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s">&quot;output in JSON mode&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">jarinfo_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">classinfo_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">parser</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../javatools/#javatools.jarinfo.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">create_optparser</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">cli</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="o">*</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+
+
+<span class="c">#</span>
+<span class="c"># The end.</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" >javatools</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2014, Christopher O&#39;Brien.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-47351906-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+  </body>
+</html>

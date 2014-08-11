@@ -1,0 +1,590 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>javatools.classinfo &mdash; javatools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="javatools 1.0.0 documentation" href="../../../" />
+    <link rel="up" title="javatools" href="../" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" accesskey="U">javatools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for javatools.classinfo</h1><div class="highlight"><pre>
+<span class="c"># This library is free software; you can redistribute it and/or modify</span>
+<span class="c"># it under the terms of the GNU Lesser General Public License as</span>
+<span class="c"># published by the Free Software Foundation; either version 3 of the</span>
+<span class="c"># License, or (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c"># This library is distributed in the hope that it will be useful, but</span>
+<span class="c"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c"># Lesser General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU Lesser General Public</span>
+<span class="c"># License along with this library; if not, see</span>
+<span class="c"># &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utility script and module for inspecting binary java class files</span>
+
+<span class="sd">Let&#39;s pretend to be the javap tool shipped with many Java SDKs</span>
+
+<span class="sd">author: Christopher O&#39;Brien  &lt;obriencj@gmail.com&gt;</span>
+<span class="sd">license: LGPL</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">json</span> <span class="kn">import</span> <span class="n">dump</span>
+<span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">stdout</span>
+
+<span class="kn">import</span> <span class="nn">javatools.opcodes</span> <span class="kn">as</span> <span class="nn">opcodes</span>
+<span class="kn">from</span> <span class="nn">javatools</span> <span class="kn">import</span> <span class="n">platform_from_version</span><span class="p">,</span> <span class="n">unpack_classfile</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&quot;SHOW_HEADER&quot;</span><span class="p">,</span> <span class="s">&quot;SHOW_PUBLIC&quot;</span><span class="p">,</span>
+    <span class="s">&quot;SHOW_PACKAGE&quot;</span><span class="p">,</span> <span class="s">&quot;SHOW_PRIVATE&quot;</span><span class="p">,</span>
+    <span class="s">&quot;main&quot;</span><span class="p">,</span> <span class="s">&quot;cli&quot;</span><span class="p">,</span> <span class="s">&quot;classinfo_optgroup&quot;</span><span class="p">,</span>
+    <span class="s">&quot;cli_class_provides&quot;</span><span class="p">,</span> <span class="s">&quot;cli_class_requires&quot;</span><span class="p">,</span>
+    <span class="s">&quot;cli_json_class&quot;</span><span class="p">,</span> <span class="s">&quot;cli_print_class&quot;</span><span class="p">,</span>
+    <span class="s">&quot;cli_print_classinfo&quot;</span><span class="p">,</span> <span class="s">&quot;cli_simplify_classinfo&quot;</span><span class="p">,</span>
+    <span class="s">&quot;cli_simplify_field&quot;</span><span class="p">,</span> <span class="s">&quot;cli_simplify_fields&quot;</span><span class="p">,</span>
+    <span class="s">&quot;cli_simplify_method&quot;</span><span class="p">,</span> <span class="s">&quot;cli_simplify_methods&quot;</span><span class="p">,</span> <span class="p">)</span>
+
+
+<span class="n">SHOW_HEADER</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">SHOW_PUBLIC</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">SHOW_PACKAGE</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">SHOW_PRIVATE</span> <span class="o">=</span> <span class="mi">7</span>
+
+
+<span class="k">def</span> <span class="nf">should_show</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">member</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    whether to show a member by its access flags and the show</span>
+<span class="sd">    option. There&#39;s probably a faster and smarter way to do this, but</span>
+<span class="sd">    eh.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">show</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">show</span>
+    <span class="k">if</span> <span class="n">show</span> <span class="o">==</span> <span class="n">SHOW_PUBLIC</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">member</span><span class="o">.</span><span class="n">is_public</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">show</span> <span class="o">==</span> <span class="n">SHOW_PACKAGE</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">member</span><span class="o">.</span><span class="n">is_public</span><span class="p">()</span> <span class="ow">or</span> <span class="n">member</span><span class="o">.</span><span class="n">is_protected</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">show</span> <span class="o">==</span> <span class="n">SHOW_PRIVATE</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+
+<span class="k">def</span> <span class="nf">print_field</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">indent</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;   &quot;</span><span class="p">,</span>
+
+    <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">;&quot;</span> <span class="o">%</span> <span class="n">field</span><span class="o">.</span><span class="n">pretty_descriptor</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">sigs</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;  Signature:&quot;</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">get_signature</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">get_annotations</span><span class="p">():</span>
+            <span class="k">print</span> <span class="s">&quot;  RuntimeVisibleAnnotations:&quot;</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">anno</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">get_annotations</span><span class="p">():</span>
+                <span class="k">print</span> <span class="s">&quot;  </span><span class="si">%i</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">index</span><span class="p">,</span> <span class="n">anno</span><span class="o">.</span><span class="n">pretty_annotation</span><span class="p">()</span>
+
+        <span class="n">cv</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">get_constantvalue</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">cv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">t</span><span class="p">,</span><span class="n">v</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">cpool</span><span class="o">.</span><span class="n">pretty_const</span><span class="p">(</span><span class="n">cv</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">t</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;  Constant value:&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span>
+        <span class="k">print</span>
+
+
+<span class="k">def</span> <span class="nf">print_method</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">indent</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;   &quot;</span><span class="p">,</span>
+
+    <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">;&quot;</span> <span class="o">%</span> <span class="n">method</span><span class="o">.</span><span class="n">pretty_descriptor</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">sigs</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;  Signature:&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">.</span><span class="n">get_signature</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">get_annotations</span><span class="p">():</span>
+        <span class="k">print</span> <span class="s">&quot;  RuntimeVisibleAnnotations:&quot;</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">anno</span> <span class="ow">in</span> <span class="n">method</span><span class="o">.</span><span class="n">get_annotations</span><span class="p">():</span>
+            <span class="k">print</span> <span class="s">&quot;  </span><span class="si">%i</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">anno</span><span class="o">.</span><span class="n">pretty_annotation</span><span class="p">())</span>
+
+    <span class="n">code</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">disassemble</span> <span class="ow">and</span> <span class="n">code</span><span class="p">:</span>
+
+        <span class="k">print</span> <span class="s">&quot;  Code:&quot;</span>
+
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="c"># the arg count is the number of arguments consumed from</span>
+            <span class="c"># the stack when this method is called. non-static methods</span>
+            <span class="c"># implicitly have a &quot;this&quot; argument that&#39;s not in the</span>
+            <span class="c"># descriptor</span>
+            <span class="n">argsc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">method</span><span class="o">.</span><span class="n">get_arg_type_descriptors</span><span class="p">())</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">method</span><span class="o">.</span><span class="n">is_static</span><span class="p">():</span>
+                <span class="n">argsc</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="k">print</span> <span class="s">&quot;   Stack=</span><span class="si">%i</span><span class="s">, Locals=</span><span class="si">%i</span><span class="s">, Args_size=</span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> \
+                <span class="p">(</span><span class="n">code</span><span class="o">.</span><span class="n">max_stack</span><span class="p">,</span> <span class="n">code</span><span class="o">.</span><span class="n">max_locals</span><span class="p">,</span> <span class="n">argsc</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">code</span><span class="o">.</span><span class="n">disassemble</span><span class="p">():</span>
+            <span class="n">opname</span> <span class="o">=</span> <span class="n">opcodes</span><span class="o">.</span><span class="n">get_opname_by_code</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)</span>
+                <span class="k">print</span> <span class="s">&quot;   </span><span class="si">%i</span><span class="s">:</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">opname</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;   </span><span class="si">%i</span><span class="s">:</span><span class="se">\t</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">opname</span><span class="p">)</span>
+
+        <span class="n">exps</span> <span class="o">=</span> <span class="n">code</span><span class="o">.</span><span class="n">exceptions</span>
+        <span class="k">if</span> <span class="n">exps</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;  Exception table:&quot;</span>
+            <span class="k">print</span> <span class="s">&quot;   from</span><span class="se">\t</span><span class="s">to</span><span class="se">\t</span><span class="s">target</span><span class="se">\t</span><span class="s">type&quot;</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">exps</span><span class="p">:</span>
+                <span class="n">ctype</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">pretty_catch_type</span><span class="p">()</span>
+                <span class="k">print</span> <span class="s">&quot;  </span><span class="si">% 4i</span><span class="se">\t</span><span class="si">% 4i</span><span class="se">\t</span><span class="si">% 4i</span><span class="se">\t</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> \
+                    <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">start_pc</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">end_pc</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">handler_pc</span><span class="p">,</span> <span class="n">ctype</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">is_deprecated</span><span class="p">():</span>
+            <span class="k">print</span> <span class="s">&quot;  Deprecated: true&quot;</span>
+
+        <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">is_synthetic</span><span class="p">():</span>
+            <span class="k">print</span> <span class="s">&quot;  Synthetic: true&quot;</span>
+
+        <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">is_bridge</span><span class="p">():</span>
+            <span class="k">print</span> <span class="s">&quot;  Bridge: true&quot;</span>
+
+        <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">is_varargs</span><span class="p">():</span>
+            <span class="k">print</span> <span class="s">&quot;  Varargs: true&quot;</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">lines</span> <span class="ow">and</span> <span class="n">code</span><span class="p">:</span>
+        <span class="n">lnt</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span><span class="o">.</span><span class="n">get_linenumbertable</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lnt</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;  LineNumberTable:&quot;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">o</span><span class="p">,</span><span class="n">l</span><span class="p">)</span> <span class="ow">in</span> <span class="n">lnt</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;   line </span><span class="si">%i</span><span class="s">: </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">l</span><span class="p">,</span><span class="n">o</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">locals</span> <span class="ow">and</span> <span class="n">code</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">cpool</span><span class="p">:</span>
+            <span class="n">cval</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">cpool</span><span class="o">.</span><span class="n">deref_const</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cval</span> <span class="o">=</span> <span class="nb">str</span>
+
+        <span class="n">lvt</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span><span class="o">.</span><span class="n">get_localvariabletable</span><span class="p">()</span>
+        <span class="n">lvtt</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span><span class="o">.</span><span class="n">get_localvariabletypetable</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">lvt</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;  LocalVariableTable:&quot;</span>
+            <span class="k">print</span> <span class="s">&quot;   Start  Length  Slot</span><span class="se">\t</span><span class="s">Name</span><span class="se">\t</span><span class="s">Descriptor&quot;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">o</span><span class="p">,</span><span class="n">l</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">i</span><span class="p">)</span> <span class="ow">in</span> <span class="n">lvt</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">o</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">l</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">cval</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">cval</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+                <span class="k">print</span> <span class="s">&quot;   </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">lvtt</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;  LocalVariableTypeTable:&quot;</span>
+            <span class="k">print</span> <span class="s">&quot;   Start  Length  Slot</span><span class="se">\t</span><span class="s">Name</span><span class="se">\t</span><span class="s">Signature&quot;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">o</span><span class="p">,</span><span class="n">l</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">i</span><span class="p">)</span> <span class="ow">in</span> <span class="n">lvtt</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">o</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">l</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">cval</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">cval</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+                <span class="k">print</span> <span class="s">&quot;   </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="n">exps</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">pretty_exceptions</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">exps</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;  Exceptions:&quot;</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">exps</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;   throws&quot;</span><span class="p">,</span> <span class="n">e</span>
+
+        <span class="k">print</span>
+
+
+<div class="viewcode-block" id="cli_class_provides"><a class="viewcode-back" href="../../../javatools/#javatools.classinfo.cli_class_provides">[docs]</a><span class="k">def</span> <span class="nf">cli_class_provides</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">print</span> <span class="s">&quot;class </span><span class="si">%s</span><span class="s"> provides:&quot;</span> <span class="o">%</span> <span class="n">info</span><span class="o">.</span><span class="n">pretty_this</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">provided</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">get_provides</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">api_ignore</span><span class="p">)):</span>
+        <span class="k">print</span> <span class="s">&quot; &quot;</span><span class="p">,</span> <span class="n">provided</span>
+    <span class="k">print</span>
+
+</div>
+<div class="viewcode-block" id="cli_class_requires"><a class="viewcode-back" href="../../../javatools/#javatools.classinfo.cli_class_requires">[docs]</a><span class="k">def</span> <span class="nf">cli_class_requires</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">print</span> <span class="s">&quot;class </span><span class="si">%s</span><span class="s"> requires:&quot;</span> <span class="o">%</span> <span class="n">info</span><span class="o">.</span><span class="n">pretty_this</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">required</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">get_requires</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">api_ignore</span><span class="p">)):</span>
+        <span class="k">print</span> <span class="s">&quot; &quot;</span><span class="p">,</span> <span class="n">required</span>
+    <span class="k">print</span>
+
+</div>
+<div class="viewcode-block" id="cli_print_classinfo"><a class="viewcode-back" href="../../../javatools/#javatools.classinfo.cli_print_classinfo">[docs]</a><span class="k">def</span> <span class="nf">cli_print_classinfo</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">class_provides</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">class_requires</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">class_provides</span><span class="p">:</span>
+            <span class="n">cli_class_provides</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">class_requires</span><span class="p">:</span>
+            <span class="n">cli_class_requires</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">sourcefile</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get_sourcefile</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">sourcefile</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Compiled from </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">sourcefile</span>
+
+    <span class="k">print</span> <span class="n">info</span><span class="o">.</span><span class="n">pretty_descriptor</span><span class="p">(),</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">show</span> <span class="o">==</span> <span class="n">SHOW_HEADER</span><span class="p">:</span>
+        <span class="k">print</span>
+        <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">get_sourcefile</span><span class="p">():</span>
+            <span class="k">print</span> <span class="s">&quot;  SourceFile: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">info</span><span class="o">.</span><span class="n">get_sourcefile</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">get_signature</span><span class="p">():</span>
+            <span class="k">print</span> <span class="s">&quot;  Signature:&quot;</span><span class="p">,</span> <span class="n">info</span><span class="o">.</span><span class="n">get_signature</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">get_annotations</span><span class="p">():</span>
+            <span class="k">print</span> <span class="s">&quot;  RuntimeVisibleAnnotations:&quot;</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">anno</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">get_annotations</span><span class="p">():</span>
+                <span class="k">print</span> <span class="s">&quot;  </span><span class="si">%i</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">index</span><span class="p">,</span> <span class="n">anno</span><span class="o">.</span><span class="n">pretty_annotation</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">get_enclosingmethod</span><span class="p">():</span>
+            <span class="k">print</span> <span class="s">&quot;  EnclosingMethod:&quot;</span><span class="p">,</span> <span class="n">info</span><span class="o">.</span><span class="n">get_enclosingmethod</span><span class="p">()</span>
+        <span class="n">major</span><span class="p">,</span> <span class="n">minor</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get_version</span><span class="p">()</span>
+        <span class="k">print</span> <span class="s">&quot;  minor version:&quot;</span><span class="p">,</span> <span class="n">major</span>
+        <span class="k">print</span> <span class="s">&quot;  major version:&quot;</span><span class="p">,</span> <span class="n">minor</span>
+        <span class="n">platform</span> <span class="o">=</span> <span class="n">platform_from_version</span><span class="p">(</span><span class="o">*</span><span class="n">info</span><span class="o">.</span><span class="n">version</span><span class="p">)</span> <span class="ow">or</span> <span class="s">&quot;unknown&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;  Platform:&quot;</span><span class="p">,</span> <span class="n">platform</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">constpool</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;  Constants pool:&quot;</span>
+
+        <span class="c"># we don&#39;t use the info.pretty_constants() generator here</span>
+        <span class="c"># because we actually want numbers for the entries, and that</span>
+        <span class="c"># generator skips them.</span>
+        <span class="n">cpool</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">cpool</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cpool</span><span class="o">.</span><span class="n">consts</span><span class="p">)):</span>
+            <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">cpool</span><span class="o">.</span><span class="n">pretty_const</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">t</span><span class="p">:</span>
+                <span class="c"># skipping the None consts, which would be the entries</span>
+                <span class="c"># comprising the second half of a long or double value</span>
+                <span class="k">print</span> <span class="s">&quot;const #</span><span class="si">%i</span><span class="s"> = </span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="s">;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">print</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">show</span> <span class="o">==</span> <span class="n">SHOW_HEADER</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">print</span> <span class="s">&quot;{&quot;</span>
+
+    <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">should_show</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+            <span class="n">print_field</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">methods</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">should_show</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+            <span class="n">print_method</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+
+    <span class="k">print</span> <span class="s">&quot;}&quot;</span>
+    <span class="k">print</span>
+
+    <span class="k">return</span> <span class="mi">0</span>
+
+</div>
+<div class="viewcode-block" id="cli_print_class"><a class="viewcode-back" href="../../../javatools/#javatools.classinfo.cli_print_class">[docs]</a><span class="k">def</span> <span class="nf">cli_print_class</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">classfile</span><span class="p">):</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">unpack_classfile</span><span class="p">(</span><span class="n">classfile</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cli_print_classinfo</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="cli_simplify_field"><a class="viewcode-back" href="../../../javatools/#javatools.classinfo.cli_simplify_field">[docs]</a><span class="k">def</span> <span class="nf">cli_simplify_field</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">pretty_type</span><span class="p">()</span>
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;access_flags&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">pretty_access_flags</span><span class="p">())</span>
+
+    <span class="n">ifonly</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&quot;signature&quot;</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">get_signature</span><span class="p">())</span>
+    <span class="n">ifonly</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&quot;deprecated&quot;</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">is_deprecated</span><span class="p">())</span>
+
+    <span class="n">cv</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">get_constantvalue</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">cv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">cpool</span><span class="o">.</span><span class="n">pretty_const</span><span class="p">(</span><span class="n">cv</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">t</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s">&quot;constant_value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span>
+
+</div>
+<div class="viewcode-block" id="cli_simplify_method"><a class="viewcode-back" href="../../../javatools/#javatools.classinfo.cli_simplify_method">[docs]</a><span class="k">def</span> <span class="nf">cli_simplify_method</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">pretty_type</span><span class="p">()</span>
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;access_flags&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">method</span><span class="o">.</span><span class="n">pretty_access_flags</span><span class="p">())</span>
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;arg_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">method</span><span class="o">.</span><span class="n">pretty_arg_types</span><span class="p">())</span>
+
+    <span class="n">ifonly</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&quot;signature&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">.</span><span class="n">get_signature</span><span class="p">())</span>
+    <span class="n">ifonly</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&quot;deprecated&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">.</span><span class="n">is_deprecated</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">data</span>
+
+</div>
+<div class="viewcode-block" id="cli_simplify_fields"><a class="viewcode-back" href="../../../javatools/#javatools.classinfo.cli_simplify_fields">[docs]</a><span class="k">def</span> <span class="nf">cli_simplify_fields</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">should_show</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+            <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cli_simplify_field</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">field</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">fields</span>
+
+</div>
+<div class="viewcode-block" id="cli_simplify_methods"><a class="viewcode-back" href="../../../javatools/#javatools.classinfo.cli_simplify_methods">[docs]</a><span class="k">def</span> <span class="nf">cli_simplify_methods</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="n">methods</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">methods</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">should_show</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+            <span class="n">methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cli_simplify_method</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">method</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">methods</span>
+
+</div>
+<div class="viewcode-block" id="cli_simplify_classinfo"><a class="viewcode-back" href="../../../javatools/#javatools.classinfo.cli_simplify_classinfo">[docs]</a><span class="k">def</span> <span class="nf">cli_simplify_classinfo</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">class_provides</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="s">&quot;class_provides&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get_provides</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">api_ignore</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">class_requires</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="s">&quot;class_requires&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get_requires</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">api_ignore</span><span class="p">)</span>
+
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">pretty_this</span><span class="p">()</span>
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;extends&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">pretty_super</span><span class="p">()</span>
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;implements&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">pretty_interfaces</span><span class="p">())</span>
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;source_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get_sourcefile</span><span class="p">()</span>
+
+    <span class="n">ifonly</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&quot;signature&quot;</span><span class="p">,</span> <span class="n">info</span><span class="o">.</span><span class="n">get_signature</span><span class="p">())</span>
+    <span class="n">ifonly</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&quot;enclosing_method&quot;</span><span class="p">,</span> <span class="n">info</span><span class="o">.</span><span class="n">get_enclosingmethod</span><span class="p">())</span>
+
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get_version</span><span class="p">()</span>
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;platform&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">platform_from_version</span><span class="p">(</span><span class="o">*</span><span class="n">info</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">constpool</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="s">&quot;constants_pool&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">cpool</span><span class="o">.</span><span class="n">pretty_constants</span><span class="p">())</span>
+
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;fields&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cli_simplify_fields</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;methods&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cli_simplify_methods</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span>
+
+</div>
+<span class="k">def</span> <span class="nf">ifonly</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; utility function to set data[key] to val, but only if val has</span>
+<span class="sd">    a truthy value &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">val</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+
+<div class="viewcode-block" id="cli_json_class"><a class="viewcode-back" href="../../../javatools/#javatools.classinfo.cli_json_class">[docs]</a><span class="k">def</span> <span class="nf">cli_json_class</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">classfile</span><span class="p">):</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">unpack_classfile</span><span class="p">(</span><span class="n">classfile</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">cli_simplify_classinfo</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+    <span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="cli"><a class="viewcode-back" href="../../../javatools/#javatools.classinfo.cli">[docs]</a><span class="k">def</span> <span class="nf">cli</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">rest</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="c"># verbose also sets all of the following options</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">locals</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">disassemble</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">sigs</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">constpool</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="c"># just a tiny hack to mimic some indenting sun&#39;s javap will do if</span>
+    <span class="c"># the output is terse</span>
+    <span class="n">options</span><span class="o">.</span><span class="n">indent</span> <span class="o">=</span> <span class="ow">not</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">lines</span> <span class="ow">or</span>
+                         <span class="n">options</span><span class="o">.</span><span class="n">disassemble</span> <span class="ow">or</span>
+                         <span class="n">options</span><span class="o">.</span><span class="n">sigs</span><span class="p">)</span>
+
+    <span class="n">style</span> <span class="o">=</span> <span class="n">cli_print_class</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">json</span><span class="p">:</span>
+        <span class="n">style</span> <span class="o">=</span> <span class="n">cli_json_class</span>
+
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">rest</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">style</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mi">0</span>
+
+</div>
+<div class="viewcode-block" id="classinfo_optgroup"><a class="viewcode-back" href="../../../javatools/#javatools.classinfo.classinfo_optgroup">[docs]</a><span class="k">def</span> <span class="nf">classinfo_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionGroup</span>
+
+    <span class="n">g</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s">&quot;Class Info Options&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--class-provides&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;class_provides&quot;</span><span class="p">,</span>
+                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;API provides information at the class level&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--class-requires&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;class_requires&quot;</span><span class="p">,</span>
+                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;API requires information at the class level&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--api-ignore&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;api_ignore&quot;</span><span class="p">,</span>
+                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;append&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">list</span><span class="p">(),</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;globs of packages to not print in provides&quot;</span>
+                 <span class="s">&quot; or requires modes&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--header&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;show&quot;</span><span class="p">,</span>
+                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_const&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">SHOW_PUBLIC</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="n">SHOW_HEADER</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;show just the class header, no members&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--public&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;show&quot;</span><span class="p">,</span>
+                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_const&quot;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="n">SHOW_PUBLIC</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;show only public members&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--package&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;show&quot;</span><span class="p">,</span>
+                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_const&quot;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="n">SHOW_PACKAGE</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;show public and protected members&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--private&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;show&quot;</span><span class="p">,</span>
+                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_const&quot;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="n">SHOW_PRIVATE</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;show all members&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-l&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;lines&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;show the line number table&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-o&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;locals&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;show the local variable tables&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-c&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;disassemble&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;disassemble method code&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-s&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;sigs&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;show internal type signatures&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-p&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;constpool&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;show the constants pool&quot;</span><span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;verbose&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;sets -locsp options and shows stack bounds&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">g</span>
+
+</div>
+<span class="k">def</span> <span class="nf">create_optparser</span><span class="p">():</span>
+    <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="s">&quot;%prog &lt;options&gt; &lt;classfiles&gt;&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">classinfo_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--json&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s">&quot;output JSON&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">parser</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../javatools/#javatools.classinfo.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">create_optparser</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">cli</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="o">*</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+
+
+<span class="c">#</span>
+<span class="c"># The end.</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" >javatools</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2014, Christopher O&#39;Brien.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-47351906-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+  </body>
+</html>

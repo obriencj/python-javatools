@@ -1,0 +1,792 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>javatools.distdiff &mdash; javatools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="javatools 1.0.0 documentation" href="../../../" />
+    <link rel="up" title="javatools" href="../" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" accesskey="U">javatools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for javatools.distdiff</h1><div class="highlight"><pre>
+<span class="c"># This library is free software; you can redistribute it and/or modify</span>
+<span class="c"># it under the terms of the GNU Lesser General Public License as</span>
+<span class="c"># published by the Free Software Foundation; either version 3 of the</span>
+<span class="c"># License, or (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c"># This library is distributed in the hope that it will be useful, but</span>
+<span class="c"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c"># Lesser General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU Lesser General Public</span>
+<span class="c"># License along with this library; if not, see</span>
+<span class="c"># &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utility for comparing two distributions.</span>
+
+<span class="sd">Distributions are directories. Any JAR files (eg: jar, sar, ear, war)</span>
+<span class="sd">will be deeply checked for their class members. And Class files will</span>
+<span class="sd">be checked for deep differences.</span>
+
+<span class="sd">author: Christopher O&#39;Brien  &lt;obriencj@gmail.com&gt;</span>
+<span class="sd">license: LGPL</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">izip_longest</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
+
+<span class="kn">from</span> <span class="nn">javatools</span> <span class="kn">import</span> <span class="n">unpack_classfile</span>
+<span class="kn">from</span> <span class="nn">.change</span> <span class="kn">import</span> <span class="n">SuperChange</span><span class="p">,</span> <span class="n">Addition</span><span class="p">,</span> <span class="n">Removal</span>
+<span class="kn">from</span> <span class="nn">.change</span> <span class="kn">import</span> <span class="n">squash</span><span class="p">,</span> <span class="n">yield_sorted_by_type</span>
+<span class="kn">from</span> <span class="nn">.classdiff</span> <span class="kn">import</span> <span class="n">JavaClassChange</span><span class="p">,</span> <span class="n">JavaClassReport</span>
+<span class="kn">from</span> <span class="nn">.dirutils</span> <span class="kn">import</span> <span class="n">compare</span><span class="p">,</span> <span class="n">fnmatches</span>
+<span class="kn">from</span> <span class="nn">.dirutils</span> <span class="kn">import</span> <span class="n">LEFT</span><span class="p">,</span> <span class="n">RIGHT</span><span class="p">,</span> <span class="n">SAME</span><span class="p">,</span> <span class="n">DIFF</span>
+<span class="kn">from</span> <span class="nn">.manifest</span> <span class="kn">import</span> <span class="n">Manifest</span><span class="p">,</span> <span class="n">ManifestChange</span>
+<span class="kn">from</span> <span class="nn">.jardiff</span> <span class="kn">import</span> <span class="n">JarChange</span><span class="p">,</span> <span class="n">JarReport</span>
+<span class="kn">from</span> <span class="nn">.jarinfo</span> <span class="kn">import</span> <span class="n">JAR_PATTERNS</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&quot;TEXT_PATTERNS&quot;</span><span class="p">,</span>
+    <span class="s">&quot;DistChange&quot;</span><span class="p">,</span>
+    <span class="s">&quot;DistContentChange&quot;</span><span class="p">,</span> <span class="s">&quot;DistContentAdded&quot;</span><span class="p">,</span> <span class="s">&quot;DistContentRemoved&quot;</span><span class="p">,</span>
+    <span class="s">&quot;DistTextChange&quot;</span><span class="p">,</span> <span class="s">&quot;DistManifestChange&quot;</span><span class="p">,</span>
+    <span class="s">&quot;DistClassChange&quot;</span><span class="p">,</span> <span class="s">&quot;DistClassAdded&quot;</span><span class="p">,</span> <span class="s">&quot;DistClassRemoved&quot;</span><span class="p">,</span>
+    <span class="s">&quot;DistJarChange&quot;</span><span class="p">,</span> <span class="s">&quot;DistJarAdded&quot;</span><span class="p">,</span> <span class="s">&quot;DistJarRemoved&quot;</span><span class="p">,</span>
+    <span class="s">&quot;DistReport&quot;</span><span class="p">,</span> <span class="s">&quot;DistClassReport&quot;</span><span class="p">,</span> <span class="s">&quot;DistJarReport&quot;</span><span class="p">,</span>
+    <span class="s">&quot;cli&quot;</span><span class="p">,</span> <span class="s">&quot;main&quot;</span><span class="p">,</span>
+    <span class="s">&quot;cli_dist_diff&quot;</span><span class="p">,</span>
+    <span class="s">&quot;distdiff_optgroup&quot;</span><span class="p">,</span> <span class="s">&quot;default_distdiff_options&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="c"># glob patterns used to trigger a DistTextChange</span>
+<span class="n">TEXT_PATTERNS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&quot;*.bat&quot;</span><span class="p">,</span>
+    <span class="s">&quot;*.cert&quot;</span><span class="p">,</span>
+    <span class="s">&quot;*.cfg&quot;</span><span class="p">,</span>
+    <span class="s">&quot;*.conf&quot;</span><span class="p">,</span>
+    <span class="s">&quot;*.dtd&quot;</span><span class="p">,</span>
+    <span class="s">&quot;*.html&quot;</span><span class="p">,</span>
+    <span class="s">&quot;*.ini&quot;</span><span class="p">,</span>
+    <span class="s">&quot;*.properties&quot;</span><span class="p">,</span>
+    <span class="s">&quot;*.sh&quot;</span><span class="p">,</span>
+    <span class="s">&quot;*.text&quot;</span><span class="p">,</span>
+    <span class="s">&quot;*.txt&quot;</span><span class="p">,</span>
+    <span class="s">&quot;*.xml&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="DistContentChange"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistContentChange">[docs]</a><span class="k">class</span> <span class="nc">DistContentChange</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Distributed Content&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldir</span><span class="p">,</span> <span class="n">rdir</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">change</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DistContentChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ldir</span><span class="p">,</span> <span class="n">rdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="n">entry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span> <span class="o">=</span> <span class="n">change</span>
+
+
+<div class="viewcode-block" id="DistContentChange.left_fn"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistContentChange.left_fn">[docs]</a>    <span class="k">def</span> <span class="nf">left_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="DistContentChange.right_fn"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistContentChange.right_fn">[docs]</a>    <span class="k">def</span> <span class="nf">right_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="DistContentChange.open_left"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistContentChange.open_left">[docs]</a>    <span class="k">def</span> <span class="nf">open_left</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;rb&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left_fn</span><span class="p">(),</span> <span class="n">mode</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="DistContentChange.open_right"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistContentChange.open_right">[docs]</a>    <span class="k">def</span> <span class="nf">open_right</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;rb&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right_fn</span><span class="p">(),</span> <span class="n">mode</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="DistContentChange.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistContentChange.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; Content changes refer to more concrete children, but by</span>
+<span class="sd">        default are empty &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="DistContentChange.get_description"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistContentChange.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;has changed&quot;</span><span class="p">,</span><span class="s">&quot;is unchanged&quot;</span><span class="p">)[</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="DistContentChange.is_ignored"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistContentChange.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">fnmatches</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="p">,</span> <span class="o">*</span><span class="n">options</span><span class="o">.</span><span class="n">ignore_filenames</span><span class="p">)</span> <span class="ow">or</span>
+                <span class="n">SuperChange</span><span class="o">.</span><span class="n">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">))</span>
+
+</div></div>
+<div class="viewcode-block" id="DistContentAdded"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistContentAdded">[docs]</a><span class="k">class</span> <span class="nc">DistContentAdded</span><span class="p">(</span><span class="n">DistContentChange</span><span class="p">,</span> <span class="n">Addition</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Distributed Content Added&quot;</span>
+
+
+<div class="viewcode-block" id="DistContentAdded.get_description"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistContentAdded.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="DistContentRemoved"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistContentRemoved">[docs]</a><span class="k">class</span> <span class="nc">DistContentRemoved</span><span class="p">(</span><span class="n">DistContentChange</span><span class="p">,</span> <span class="n">Removal</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Distributed Content Removed&quot;</span>
+
+
+<div class="viewcode-block" id="DistContentRemoved.get_description"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistContentRemoved.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="DistTextChange"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistTextChange">[docs]</a><span class="k">class</span> <span class="nc">DistTextChange</span><span class="p">(</span><span class="n">DistContentChange</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Distributed Text&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">change</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DistTextChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">change</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineending</span> <span class="o">=</span> <span class="bp">False</span>
+
+
+<div class="viewcode-block" id="DistTextChange.check"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistTextChange.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># We already know whether the file has changed or not, from</span>
+        <span class="c"># when it was created by the DistChange</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
+            <span class="k">return</span>
+
+        <span class="c"># if the file matches what we would consider a text file,</span>
+        <span class="c"># check if the only difference is in the trailing whitespace,</span>
+        <span class="c"># and if so, set lineending to true so we can optionally</span>
+        <span class="c"># ignore the change later.</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_left</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">lfd</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_right</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">rfd</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">li</span><span class="p">,</span> <span class="n">ri</span> <span class="ow">in</span> <span class="n">izip_longest</span><span class="p">(</span><span class="n">lfd</span><span class="p">,</span> <span class="n">rfd</span><span class="p">,</span> <span class="n">fillvalue</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">li</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="o">!=</span> <span class="n">ri</span><span class="o">.</span><span class="n">rstrip</span><span class="p">():</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">lineending</span> <span class="o">=</span> <span class="bp">False</span>
+                        <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c"># we went through every line, and they were all</span>
+                    <span class="c"># equal when stripped of their trailing whitespace</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineending</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">DistTextChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="DistTextChange.is_ignored"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistTextChange.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">DistContentChange</span><span class="o">.</span><span class="n">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span> <span class="ow">or</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineending</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_trailing_whitespace</span><span class="p">))</span>
+
+</div></div>
+<div class="viewcode-block" id="DistManifestChange"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistManifestChange">[docs]</a><span class="k">class</span> <span class="nc">DistManifestChange</span><span class="p">(</span><span class="n">DistContentChange</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A MANIFEST.MF file found in the directory structure of the</span>
+<span class="sd">    distribution</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Distributed Manifest&quot;</span>
+
+
+<div class="viewcode-block" id="DistManifestChange.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistManifestChange.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_left</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
+                <span class="n">left_m</span> <span class="o">=</span> <span class="n">Manifest</span><span class="p">()</span>
+                <span class="n">left_m</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_right</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
+                <span class="n">right_m</span> <span class="o">=</span> <span class="n">Manifest</span><span class="p">()</span>
+                <span class="n">right_m</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+
+            <span class="k">yield</span> <span class="n">ManifestChange</span><span class="p">(</span><span class="n">left_m</span><span class="p">,</span> <span class="n">right_m</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="DistJarChange"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistJarChange">[docs]</a><span class="k">class</span> <span class="nc">DistJarChange</span><span class="p">(</span><span class="n">DistContentChange</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Distributed JAR&quot;</span>
+
+
+<div class="viewcode-block" id="DistJarChange.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistJarChange.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">JarChange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left_fn</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_fn</span><span class="p">())</span>
+
+</div></div>
+<div class="viewcode-block" id="DistJarReport"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistJarReport">[docs]</a><span class="k">class</span> <span class="nc">DistJarReport</span><span class="p">(</span><span class="n">DistJarChange</span><span class="p">):</span>
+
+    <span class="n">report_name</span> <span class="o">=</span> <span class="s">&quot;JarReport&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldata</span><span class="p">,</span> <span class="n">rdata</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">reporter</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DistJarReport</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ldata</span><span class="p">,</span> <span class="n">rdata</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span> <span class="o">=</span> <span class="n">reporter</span>
+
+
+<div class="viewcode-block" id="DistJarReport.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistJarReport.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">JarReport</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left_fn</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_fn</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="DistJarAdded"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistJarAdded">[docs]</a><span class="k">class</span> <span class="nc">DistJarAdded</span><span class="p">(</span><span class="n">DistContentAdded</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Distributed JAR Added&quot;</span>
+
+</div>
+<div class="viewcode-block" id="DistJarRemoved"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistJarRemoved">[docs]</a><span class="k">class</span> <span class="nc">DistJarRemoved</span><span class="p">(</span><span class="n">DistContentRemoved</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Distributed JAR Removed&quot;</span>
+
+</div>
+<div class="viewcode-block" id="DistClassChange"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistClassChange">[docs]</a><span class="k">class</span> <span class="nc">DistClassChange</span><span class="p">(</span><span class="n">DistContentChange</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Distributed Java Class&quot;</span>
+
+
+<div class="viewcode-block" id="DistClassChange.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistClassChange.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
+            <span class="n">linfo</span> <span class="o">=</span> <span class="n">unpack_classfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left_fn</span><span class="p">())</span>
+            <span class="n">rinfo</span> <span class="o">=</span> <span class="n">unpack_classfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right_fn</span><span class="p">())</span>
+
+            <span class="k">yield</span> <span class="n">JavaClassChange</span><span class="p">(</span><span class="n">linfo</span><span class="p">,</span> <span class="n">rinfo</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="DistClassReport"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistClassReport">[docs]</a><span class="k">class</span> <span class="nc">DistClassReport</span><span class="p">(</span><span class="n">DistClassChange</span><span class="p">):</span>
+
+    <span class="n">report_name</span> <span class="o">=</span> <span class="s">&quot;JavaClassReport&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">reporter</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DistClassReport</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span> <span class="o">=</span> <span class="n">reporter</span>
+
+
+<div class="viewcode-block" id="DistClassReport.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistClassReport.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
+            <span class="n">linfo</span> <span class="o">=</span> <span class="n">unpack_classfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left_fn</span><span class="p">())</span>
+            <span class="n">rinfo</span> <span class="o">=</span> <span class="n">unpack_classfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right_fn</span><span class="p">())</span>
+
+            <span class="k">yield</span> <span class="n">JavaClassReport</span><span class="p">(</span><span class="n">linfo</span><span class="p">,</span> <span class="n">rinfo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="DistClassAdded"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistClassAdded">[docs]</a><span class="k">class</span> <span class="nc">DistClassAdded</span><span class="p">(</span><span class="n">DistContentAdded</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Distributed Java Class Added&quot;</span>
+
+</div>
+<div class="viewcode-block" id="DistClassRemoved"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistClassRemoved">[docs]</a><span class="k">class</span> <span class="nc">DistClassRemoved</span><span class="p">(</span><span class="n">DistContentRemoved</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Distributed Java Class Removed&quot;</span>
+
+</div>
+<div class="viewcode-block" id="DistChange"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistChange">[docs]</a><span class="k">class</span> <span class="nc">DistChange</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Top-level change for comparing two distributions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Distribution&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">shallow</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DistChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shallow</span> <span class="o">=</span> <span class="n">shallow</span>
+
+
+<div class="viewcode-block" id="DistChange.get_description"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistChange.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> from </span><span class="si">%s</span><span class="s"> to </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> \
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="p">(</span><span class="s">&quot;unchanged&quot;</span><span class="p">,</span><span class="s">&quot;changed&quot;</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">()],</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">)</span>
+
+</div>
+    <span class="nd">@yield_sorted_by_type</span><span class="p">(</span><span class="n">DistClassAdded</span><span class="p">,</span>
+                          <span class="n">DistClassRemoved</span><span class="p">,</span>
+                          <span class="n">DistClassChange</span><span class="p">,</span>
+                          <span class="n">DistJarAdded</span><span class="p">,</span>
+                          <span class="n">DistJarRemoved</span><span class="p">,</span>
+                          <span class="n">DistJarChange</span><span class="p">,</span>
+                          <span class="n">DistTextChange</span><span class="p">,</span>
+                          <span class="n">DistManifestChange</span><span class="p">,</span>
+                          <span class="n">DistContentAdded</span><span class="p">,</span>
+                          <span class="n">DistContentRemoved</span><span class="p">,</span>
+                          <span class="n">DistContentChange</span><span class="p">)</span>
+<div class="viewcode-block" id="DistChange.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistChange.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        emits change instances based on the delta of the two distribution</span>
+<span class="sd">        directories</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ld</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span>
+        <span class="n">rd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span>
+        <span class="n">deep</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">shallow</span>
+
+        <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">compare</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">deep</span> <span class="ow">and</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="o">*</span><span class="n">JAR_PATTERNS</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="n">LEFT</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistJarRemoved</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">RIGHT</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistJarAdded</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">DIFF</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistJarChange</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">SAME</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistJarChange</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">deep</span> <span class="ow">and</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s">&quot;*.class&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="n">LEFT</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistClassRemoved</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">RIGHT</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistClassAdded</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">DIFF</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistClassChange</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">SAME</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistClassChange</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">deep</span> <span class="ow">and</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="o">*</span><span class="n">TEXT_PATTERNS</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="n">LEFT</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistContentRemoved</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">RIGHT</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistContentAdded</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">DIFF</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistTextChange</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">SAME</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistTextChange</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">deep</span> <span class="ow">and</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s">&quot;*/MANIFEST.MF&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="n">LEFT</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistContentRemoved</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">RIGHT</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistContentAdded</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">DIFF</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistManifestChange</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">SAME</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistManifestChange</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="n">LEFT</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistContentRemoved</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">RIGHT</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistContentAdded</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">DIFF</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistContentChange</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">SAME</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">DistContentChange</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="n">rd</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="DistReport"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistReport">[docs]</a><span class="k">class</span> <span class="nc">DistReport</span><span class="p">(</span><span class="n">DistChange</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class has side-effects. Running the check method with the</span>
+<span class="sd">    reportdir option set to True will cause the deep checks to be</span>
+<span class="sd">    written to file in that directory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">report_name</span> <span class="o">=</span> <span class="s">&quot;DistReport&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">reporter</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span> <span class="o">=</span> <span class="n">reporter</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">reporter</span><span class="o">.</span><span class="n">options</span>
+        <span class="n">shallow</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;shallow&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="n">DistChange</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">shallow</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DistReport.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistReport.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        overrides DistJarChange and DistClassChange from the underlying</span>
+<span class="sd">        DistChange with DistJarReport and DistClassReport instances</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">DistChange</span><span class="o">.</span><span class="n">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">DistJarChange</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
+                    <span class="n">ln</span> <span class="o">=</span> <span class="n">DistJarReport</span><span class="o">.</span><span class="n">report_name</span>
+                    <span class="n">nr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">subreporter</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">entry</span><span class="p">,</span> <span class="n">ln</span><span class="p">)</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">DistJarReport</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">ldata</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">rdata</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">entry</span><span class="p">,</span> <span class="n">nr</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">DistClassChange</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
+                    <span class="n">ln</span> <span class="o">=</span> <span class="n">DistClassReport</span><span class="o">.</span><span class="n">report_name</span>
+                    <span class="n">nr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">subreporter</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">entry</span><span class="p">,</span> <span class="n">ln</span><span class="p">)</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">DistClassReport</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">ldata</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">rdata</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">entry</span><span class="p">,</span> <span class="n">nr</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">c</span>
+
+</div>
+<div class="viewcode-block" id="DistReport.mp_check_impl"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistReport.mp_check_impl">[docs]</a>    <span class="k">def</span> <span class="nf">mp_check_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_count</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        a multiprocessing-enabled check implementation. Will create up to</span>
+<span class="sd">        process_count helper processes and use them to perform the</span>
+<span class="sd">        DistJarReport and DistClassReport actions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Queue</span>
+
+        <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">options</span>
+
+        <span class="c"># this is the function that will be run in a separate process,</span>
+        <span class="c"># which will handle the tasks queue and feed into the results</span>
+        <span class="c"># queue</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">_mp_run_check</span>
+
+        <span class="c"># normally this would happen lazily, but since we&#39;ll have</span>
+        <span class="c"># multiple processes all running reports at the same time, we</span>
+        <span class="c"># need to make sure the setup is done before-hand. This is</span>
+        <span class="c"># hackish, but in particular this keeps the HTML reports from</span>
+        <span class="c"># trying to perform the default data copy over and over.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+
+        <span class="c"># enqueue the sub-reports for multi-processing. Other types of</span>
+        <span class="c"># changes can happen sync.</span>
+        <span class="n">changes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">collect_impl</span><span class="p">())</span>
+
+        <span class="n">task_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c"># as soon as we start using the tasks queue, we need to be</span>
+            <span class="c"># catching the KeyboardInterrupt event so that we can</span>
+            <span class="c"># drain the queue and lets its underlying thread terminate</span>
+            <span class="c"># happily.</span>
+
+            <span class="c"># TODO: is there a better way to handle this shutdown</span>
+            <span class="c"># gracefully?</span>
+
+            <span class="c"># feed any sub-reports to the tasks queue</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">changes</span><span class="p">)):</span>
+                <span class="n">change</span> <span class="o">=</span> <span class="n">changes</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="p">(</span><span class="n">DistJarReport</span><span class="p">,</span> <span class="n">DistClassReport</span><span class="p">)):</span>
+                    <span class="n">changes</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+                    <span class="n">tasks</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">index</span><span class="p">,</span> <span class="n">change</span><span class="p">))</span>
+                    <span class="n">task_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c"># infrequent edge case, but don&#39;t bother starting more</span>
+            <span class="c"># helpers than we&#39;ll ever use</span>
+            <span class="n">process_count</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">process_count</span><span class="p">,</span> <span class="n">task_count</span><span class="p">)</span>
+
+            <span class="c"># start the number of helper processes, and make sure</span>
+            <span class="c"># there are that many stop sentinels at the end of the</span>
+            <span class="c"># tasks queue</span>
+            <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">process_count</span><span class="p">):</span>
+                <span class="n">tasks</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+                <span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">options</span><span class="p">))</span>
+                <span class="n">process</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="n">process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+            <span class="c"># while the helpers are running, perform our checks</span>
+            <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">changes</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">change</span><span class="p">:</span>
+                    <span class="n">change</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+
+            <span class="c"># get all of the results and feed them back into our change</span>
+            <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">task_count</span><span class="p">):</span>
+                <span class="n">index</span><span class="p">,</span> <span class="n">change</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="n">changes</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">change</span>
+
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="c"># drain the tasks queue so it will exit gracefully</span>
+            <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="n">tasks</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
+                <span class="k">pass</span>
+            <span class="k">raise</span>
+
+        <span class="c"># complete the check by setting our internal collection of</span>
+        <span class="c"># child changes and returning our overall status</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">changes</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">c</span> <span class="ow">or</span> <span class="n">change</span><span class="o">.</span><span class="n">is_change</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changes</span> <span class="o">=</span> <span class="n">changes</span>
+        <span class="k">return</span> <span class="n">c</span><span class="p">,</span> <span class="bp">None</span>
+
+</div>
+<div class="viewcode-block" id="DistReport.check_impl"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistReport.check_impl">[docs]</a>    <span class="k">def</span> <span class="nf">check_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">options</span>
+
+        <span class="c"># if we&#39;re configured to use multiple processes, the work happens</span>
+        <span class="c"># in mp_check_impl instead</span>
+        <span class="n">forks</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;processes&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">forks</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mp_check_impl</span><span class="p">(</span><span class="n">forks</span><span class="p">)</span>
+
+        <span class="n">changes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">collect_impl</span><span class="p">():</span>
+            <span class="n">change</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">c</span> <span class="ow">or</span> <span class="n">change</span><span class="o">.</span><span class="n">is_change</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="p">(</span><span class="n">DistJarReport</span><span class="p">,</span> <span class="n">DistClassReport</span><span class="p">)):</span>
+                <span class="c"># the child report has run, we only need to keep the</span>
+                <span class="c"># squashed overview</span>
+                <span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">squash</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">))</span>
+                <span class="n">change</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">change</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">changes</span> <span class="o">=</span> <span class="n">changes</span>
+        <span class="k">return</span> <span class="n">c</span><span class="p">,</span> <span class="bp">None</span>
+
+</div>
+<div class="viewcode-block" id="DistReport.check"><a class="viewcode-back" href="../../../change/#javatools.distdiff.DistReport.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># do the actual checking</span>
+        <span class="n">DistChange</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c"># write to file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+</div></div>
+<span class="k">def</span> <span class="nf">_mp_run_check</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    a helper function for multiprocessing with DistReport.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">change</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="n">tasks</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
+            <span class="c"># this is the part that takes up all of our time and</span>
+            <span class="c"># produces side-effects like writing out files for all of</span>
+            <span class="c"># the report formats.</span>
+            <span class="n">change</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+
+            <span class="c"># rather than serializing the completed change (which</span>
+            <span class="c"># could be rather large now that it&#39;s been realized), we</span>
+            <span class="c"># send back only what we want, which is the squashed</span>
+            <span class="c"># overview, and throw away the used bits.</span>
+            <span class="n">squashed</span> <span class="o">=</span> <span class="n">squash</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+            <span class="n">change</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+            <span class="n">results</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">index</span><span class="p">,</span> <span class="n">squashed</span><span class="p">))</span>
+
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="c"># prevent a billion lines of backtrace from hitting the user</span>
+        <span class="c"># in the face</span>
+        <span class="k">return</span>
+
+
+<span class="c"># ---- Begin distdiff CLI ----</span>
+<span class="c">#</span>
+
+
+<div class="viewcode-block" id="cli_dist_diff"><a class="viewcode-back" href="../../../change/#javatools.distdiff.cli_dist_diff">[docs]</a><span class="k">def</span> <span class="nf">cli_dist_diff</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">.report</span> <span class="kn">import</span> <span class="n">quick_report</span><span class="p">,</span> <span class="n">Reporter</span>
+    <span class="kn">from</span> <span class="nn">.report</span> <span class="kn">import</span> <span class="n">JSONReportFormat</span><span class="p">,</span> <span class="n">TextReportFormat</span>
+
+    <span class="n">reports</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;reports&quot;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">reports</span><span class="p">:</span>
+        <span class="n">rdir</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">report_dir</span> <span class="ow">or</span> <span class="s">&quot;./&quot;</span>
+
+        <span class="n">rpt</span> <span class="o">=</span> <span class="n">Reporter</span><span class="p">(</span><span class="n">rdir</span><span class="p">,</span> <span class="s">&quot;DistReport&quot;</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+        <span class="n">rpt</span><span class="o">.</span><span class="n">add_formats_by_name</span><span class="p">(</span><span class="n">reports</span><span class="p">)</span>
+
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">DistReport</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">rpt</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">DistChange</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">shallow</span><span class="p">)</span>
+
+    <span class="n">delta</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">silent</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">json</span><span class="p">:</span>
+            <span class="n">quick_report</span><span class="p">(</span><span class="n">JSONReportFormat</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">quick_report</span><span class="p">(</span><span class="n">TextReportFormat</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">delta</span><span class="o">.</span><span class="n">is_change</span><span class="p">())</span> <span class="ow">or</span> <span class="n">delta</span><span class="o">.</span><span class="n">is_ignored</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+</div>
+<div class="viewcode-block" id="cli"><a class="viewcode-back" href="../../../change/#javatools.distdiff.cli">[docs]</a><span class="k">def</span> <span class="nf">cli</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">rest</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;wrong number of arguments.&quot;</span><span class="p">)</span>
+
+    <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">rest</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">cli_dist_diff</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="distdiff_optgroup"><a class="viewcode-back" href="../../../change/#javatools.distdiff.distdiff_optgroup">[docs]</a><span class="k">def</span> <span class="nf">distdiff_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Option group relating to the use of a DistChange or DistReport</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionGroup</span>
+    <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span>
+
+    <span class="c"># for the --processes default</span>
+    <span class="n">cpus</span> <span class="o">=</span> <span class="n">cpu_count</span><span class="p">()</span>
+
+    <span class="n">og</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s">&quot;Distribution Checking Options&quot;</span><span class="p">)</span>
+
+    <span class="n">og</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--processes&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span>
+                  <span class="nb">type</span><span class="o">=</span><span class="s">&quot;int&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">cpus</span><span class="p">,</span>
+                  <span class="n">help</span><span class="o">=</span><span class="s">&quot;Number of child processes to spawn to handle&quot;</span>
+                  <span class="s">&quot; sub-reports. Set to 0 to disable multi-processing.&quot;</span>
+                  <span class="s">&quot; Defaults to the number of CPUs (</span><span class="si">%r</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="n">cpus</span><span class="p">)</span>
+
+    <span class="n">og</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--shallow&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                  <span class="n">help</span><span class="o">=</span><span class="s">&quot;Check only that the files of this dist have&quot;</span>
+                  <span class="s">&quot;changed, do not infer the meaning&quot;</span><span class="p">)</span>
+
+    <span class="n">og</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-filenames&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;append&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+                  <span class="n">help</span><span class="o">=</span><span class="s">&quot;file glob to ignore. Can be specified multiple&quot;</span>
+                  <span class="s">&quot; times&quot;</span><span class="p">)</span>
+
+    <span class="n">og</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-trailing-whitespace&quot;</span><span class="p">,</span>
+                  <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                  <span class="n">help</span><span class="o">=</span><span class="s">&quot;ignore trailing whitespace when comparing text&quot;</span>
+                  <span class="s">&quot; files&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">og</span>
+
+</div>
+<span class="k">def</span> <span class="nf">create_optparser</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    an OptionParser instance filled with options and groups</span>
+<span class="sd">    appropriate for use with the distdiff command</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span>
+    <span class="kn">from</span> <span class="nn">.jardiff</span> <span class="kn">import</span> <span class="n">jardiff_optgroup</span>
+    <span class="kn">from</span> <span class="nn">.classdiff</span> <span class="kn">import</span> <span class="n">classdiff_optgroup</span><span class="p">,</span> <span class="n">general_optgroup</span>
+    <span class="kn">from</span> <span class="nn">javatools</span> <span class="kn">import</span> <span class="n">report</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="s">&quot;%prog [OPTIONS] OLD_DIST NEW_DIST&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">general_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">distdiff_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">jardiff_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">classdiff_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">general_report_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">json_report_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">html_report_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">parser</span>
+
+
+<div class="viewcode-block" id="default_distdiff_options"><a class="viewcode-back" href="../../../change/#javatools.distdiff.default_distdiff_options">[docs]</a><span class="k">def</span> <span class="nf">default_distdiff_options</span><span class="p">(</span><span class="n">updates</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    generate an options object with the appropriate default values in</span>
+<span class="sd">    place for API usage of distdiff features. overrides is an optional</span>
+<span class="sd">    dictionary which will be used to update fields on the options</span>
+<span class="sd">    object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">create_optparser</span><span class="p">()</span>
+    <span class="n">options</span><span class="p">,</span> <span class="n">_args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="nb">list</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="n">updates</span><span class="p">:</span>
+        <span class="c">#pylint: disable=W0212</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">_update_careful</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">options</span>
+
+</div>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../change/#javatools.distdiff.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    entry point for the distdiff command-line utility</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">create_optparser</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">cli</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="o">*</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+
+
+<span class="c">#</span>
+<span class="c"># The end.</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" >javatools</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2014, Christopher O&#39;Brien.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-47351906-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+  </body>
+</html>

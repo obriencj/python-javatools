@@ -1,0 +1,588 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>javatools.opcodes &mdash; javatools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="javatools 1.0.0 documentation" href="../../../" />
+    <link rel="up" title="javatools" href="../" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" accesskey="U">javatools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for javatools.opcodes</h1><div class="highlight"><pre>
+<span class="c"># This library is free software; you can redistribute it and/or modify</span>
+<span class="c"># it under the terms of the GNU Lesser General Public License as</span>
+<span class="c"># published by the Free Software Foundation; either version 3 of the</span>
+<span class="c"># License, or (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c"># This library is distributed in the hope that it will be useful, but</span>
+<span class="c"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c"># Lesser General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU Lesser General Public</span>
+<span class="c"># License along with this library; if not, see</span>
+<span class="c"># &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A module to hold all the Java opcodes. Data taken from publicly</span>
+<span class="sd">available sources (see following for more information)</span>
+
+<span class="sd">http://java.sun.com/docs/books/jvms/second_edition/html/VMSpecTOC.doc.html</span>
+
+<span class="sd">author: Christopher O&#39;Brien  &lt;obriencj@gmail.com&gt;</span>
+<span class="sd">license: LGPL v.3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">.pack</span> <span class="kn">import</span> <span class="n">compile_struct</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&quot;get_opcode_by_name&quot;</span><span class="p">,</span> <span class="s">&quot;get_opname_by_code&quot;</span><span class="p">,</span>
+    <span class="s">&quot;get_arg_format&quot;</span><span class="p">,</span> <span class="s">&quot;has_const_arg&quot;</span><span class="p">,</span>
+    <span class="s">&quot;disassemble&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_aaload&quot;</span><span class="p">,</span> <span class="s">&quot;OP_aastore&quot;</span><span class="p">,</span> <span class="s">&quot;OP_aconst_null&quot;</span><span class="p">,</span> <span class="s">&quot;OP_aload&quot;</span><span class="p">,</span> <span class="s">&quot;OP_aload_0&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_aload_1&quot;</span><span class="p">,</span> <span class="s">&quot;OP_aload_2&quot;</span><span class="p">,</span> <span class="s">&quot;OP_aload_3&quot;</span><span class="p">,</span> <span class="s">&quot;OP_anewarray&quot;</span><span class="p">,</span> <span class="s">&quot;OP_areturn&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_arraylength&quot;</span><span class="p">,</span> <span class="s">&quot;OP_astore&quot;</span><span class="p">,</span> <span class="s">&quot;OP_astore_0&quot;</span><span class="p">,</span> <span class="s">&quot;OP_astore_1&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_astore_2&quot;</span><span class="p">,</span> <span class="s">&quot;OP_astore_3&quot;</span><span class="p">,</span> <span class="s">&quot;OP_athrow&quot;</span><span class="p">,</span> <span class="s">&quot;OP_baload&quot;</span><span class="p">,</span> <span class="s">&quot;OP_bastore&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_bipush&quot;</span><span class="p">,</span> <span class="s">&quot;OP_caload&quot;</span><span class="p">,</span> <span class="s">&quot;OP_castore&quot;</span><span class="p">,</span> <span class="s">&quot;OP_checkcast&quot;</span><span class="p">,</span> <span class="s">&quot;OP_d2f&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_d2i&quot;</span><span class="p">,</span> <span class="s">&quot;OP_d2l&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dadd&quot;</span><span class="p">,</span> <span class="s">&quot;OP_daload&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dastore&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dcmpg&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_dcmpl&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dconst_0&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dconst_1&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ddiv&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dload&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_dload_0&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dload_1&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dload_2&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dload_3&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dmul&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_dneg&quot;</span><span class="p">,</span> <span class="s">&quot;OP_drem&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dreturn&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dstore&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dstore_0&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_dstore_1&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dstore_2&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dstore_3&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dsub&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dup&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_dup2&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dup2_x1&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dup2_x2&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dup_x1&quot;</span><span class="p">,</span> <span class="s">&quot;OP_dup_x2&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_f2d&quot;</span><span class="p">,</span> <span class="s">&quot;OP_f2i&quot;</span><span class="p">,</span> <span class="s">&quot;OP_f2l&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fadd&quot;</span><span class="p">,</span> <span class="s">&quot;OP_faload&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fastore&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_fcmpg&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fcmpl&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fconst_0&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fconst_1&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fconst_2&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_fdiv&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fload&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fload_0&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fload_1&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fload_2&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_fload_3&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fmul&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fneg&quot;</span><span class="p">,</span> <span class="s">&quot;OP_frem&quot;</span><span class="p">,</span> <span class="s">&quot;OP_freturn&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_fstore&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fstore_0&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fstore_1&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fstore_2&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_fstore_3&quot;</span><span class="p">,</span> <span class="s">&quot;OP_fsub&quot;</span><span class="p">,</span> <span class="s">&quot;OP_getfield&quot;</span><span class="p">,</span> <span class="s">&quot;OP_getstatic&quot;</span><span class="p">,</span> <span class="s">&quot;OP_goto&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_goto_w&quot;</span><span class="p">,</span> <span class="s">&quot;OP_i2b&quot;</span><span class="p">,</span> <span class="s">&quot;OP_i2c&quot;</span><span class="p">,</span> <span class="s">&quot;OP_i2d&quot;</span><span class="p">,</span> <span class="s">&quot;OP_i2f&quot;</span><span class="p">,</span> <span class="s">&quot;OP_i2l&quot;</span><span class="p">,</span> <span class="s">&quot;OP_i2s&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_iadd&quot;</span><span class="p">,</span> <span class="s">&quot;OP_iaload&quot;</span><span class="p">,</span> <span class="s">&quot;OP_iand&quot;</span><span class="p">,</span> <span class="s">&quot;OP_iastore&quot;</span><span class="p">,</span> <span class="s">&quot;OP_iconst_0&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_iconst_1&quot;</span><span class="p">,</span> <span class="s">&quot;OP_iconst_2&quot;</span><span class="p">,</span> <span class="s">&quot;OP_iconst_3&quot;</span><span class="p">,</span> <span class="s">&quot;OP_iconst_4&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_iconst_5&quot;</span><span class="p">,</span> <span class="s">&quot;OP_iconst_m1&quot;</span><span class="p">,</span> <span class="s">&quot;OP_idiv&quot;</span><span class="p">,</span> <span class="s">&quot;OP_if_acmpeq&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_if_acmpne&quot;</span><span class="p">,</span> <span class="s">&quot;OP_if_icmpeq&quot;</span><span class="p">,</span> <span class="s">&quot;OP_if_icmpge&quot;</span><span class="p">,</span> <span class="s">&quot;OP_if_icmpgt&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_if_icmple&quot;</span><span class="p">,</span> <span class="s">&quot;OP_if_icmplt&quot;</span><span class="p">,</span> <span class="s">&quot;OP_if_icmpne&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ifeq&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ifge&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_ifgt&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ifle&quot;</span><span class="p">,</span> <span class="s">&quot;OP_iflt&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ifne&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ifnonnull&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_ifnull&quot;</span><span class="p">,</span> <span class="s">&quot;OP_iinc&quot;</span><span class="p">,</span> <span class="s">&quot;OP_iload&quot;</span><span class="p">,</span> <span class="s">&quot;OP_iload_0&quot;</span><span class="p">,</span> <span class="s">&quot;OP_iload_1&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_iload_2&quot;</span><span class="p">,</span> <span class="s">&quot;OP_iload_3&quot;</span><span class="p">,</span> <span class="s">&quot;OP_imul&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ineg&quot;</span><span class="p">,</span> <span class="s">&quot;OP_instanceof&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_invokedynamic&quot;</span><span class="p">,</span> <span class="s">&quot;OP_invokeinterface&quot;</span><span class="p">,</span> <span class="s">&quot;OP_invokespecial&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_invokestatic&quot;</span><span class="p">,</span> <span class="s">&quot;OP_invokevirtual&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ior&quot;</span><span class="p">,</span> <span class="s">&quot;OP_irem&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_ireturn&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ishl&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ishr&quot;</span><span class="p">,</span> <span class="s">&quot;OP_istore&quot;</span><span class="p">,</span> <span class="s">&quot;OP_istore_0&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_istore_1&quot;</span><span class="p">,</span> <span class="s">&quot;OP_istore_2&quot;</span><span class="p">,</span> <span class="s">&quot;OP_istore_3&quot;</span><span class="p">,</span> <span class="s">&quot;OP_isub&quot;</span><span class="p">,</span> <span class="s">&quot;OP_iushr&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_ixor&quot;</span><span class="p">,</span> <span class="s">&quot;OP_jsr&quot;</span><span class="p">,</span> <span class="s">&quot;OP_jsr_w&quot;</span><span class="p">,</span> <span class="s">&quot;OP_l2d&quot;</span><span class="p">,</span> <span class="s">&quot;OP_l2f&quot;</span><span class="p">,</span> <span class="s">&quot;OP_l2i&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_ladd&quot;</span><span class="p">,</span> <span class="s">&quot;OP_laload&quot;</span><span class="p">,</span> <span class="s">&quot;OP_land&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lastore&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lcmp&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_lconst_0&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lconst_1&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ldc&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ldc2_w&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ldc_w&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_ldiv&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lload&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lload_0&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lload_1&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lload_2&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_lload_3&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lmul&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lneg&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lookupswitch&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lor&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_lrem&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lreturn&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lshl&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lshr&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lstore&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_lstore_0&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lstore_1&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lstore_2&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lstore_3&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lsub&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_lushr&quot;</span><span class="p">,</span> <span class="s">&quot;OP_lxor&quot;</span><span class="p">,</span> <span class="s">&quot;OP_monitorentry&quot;</span><span class="p">,</span> <span class="s">&quot;OP_monitorexit&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_multianewarray&quot;</span><span class="p">,</span> <span class="s">&quot;OP_new&quot;</span><span class="p">,</span> <span class="s">&quot;OP_newarray&quot;</span><span class="p">,</span> <span class="s">&quot;OP_nop&quot;</span><span class="p">,</span> <span class="s">&quot;OP_pop&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_pop2&quot;</span><span class="p">,</span> <span class="s">&quot;OP_putfield&quot;</span><span class="p">,</span> <span class="s">&quot;OP_putstatic&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ret&quot;</span><span class="p">,</span> <span class="s">&quot;OP_return&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_saload&quot;</span><span class="p">,</span> <span class="s">&quot;OP_sastore&quot;</span><span class="p">,</span> <span class="s">&quot;OP_sipush&quot;</span><span class="p">,</span> <span class="s">&quot;OP_swap&quot;</span><span class="p">,</span> <span class="s">&quot;OP_tableswitch&quot;</span><span class="p">,</span>
+    <span class="s">&quot;OP_wide&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="c"># the op table itself</span>
+<span class="n">__OPTABLE</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c"># mnemonics for the op tuples</span>
+<span class="n">_OPINDEX_NAME</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">_OPINDEX_VAL</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">_OPINDEX_FMT</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">_OPINDEX_CONSUME</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">_OPINDEX_PRODUCE</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">_OPINDEX_CONST</span> <span class="o">=</span> <span class="mi">5</span>
+
+
+<span class="c"># commonly re-occurring struct formats</span>
+<span class="c">#pylint: disable=C0103</span>
+<span class="n">_struct_i</span> <span class="o">=</span> <span class="n">compile_struct</span><span class="p">(</span><span class="s">&quot;&gt;i&quot;</span><span class="p">)</span>
+<span class="n">_struct_ii</span> <span class="o">=</span> <span class="n">compile_struct</span><span class="p">(</span><span class="s">&quot;&gt;ii&quot;</span><span class="p">)</span>
+<span class="n">_struct_iii</span> <span class="o">=</span> <span class="n">compile_struct</span><span class="p">(</span><span class="s">&quot;&gt;iii&quot;</span><span class="p">)</span>
+<span class="n">_struct_BH</span> <span class="o">=</span> <span class="n">compile_struct</span><span class="p">(</span><span class="s">&quot;&gt;BH&quot;</span><span class="p">)</span>
+<span class="n">_struct_BHh</span> <span class="o">=</span> <span class="n">compile_struct</span><span class="p">(</span><span class="s">&quot;&gt;BHh&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">__op</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">consume</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">produce</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    provides sensible defaults for a code, and registers it with the</span>
+<span class="sd">    __OPTABLE for lookup.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="c"># fmt can either be a str representing the struct to unpack, or a</span>
+    <span class="c"># callable to do more complex unpacking. If it&#39;s a str, create a</span>
+    <span class="c"># callable for it.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">_unpack</span><span class="p">,</span> <span class="n">compile_struct</span><span class="p">(</span><span class="n">fmt</span><span class="p">))</span>
+
+    <span class="n">operand</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">consume</span><span class="p">,</span> <span class="n">produce</span><span class="p">,</span> <span class="n">const</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">__OPTABLE</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">__OPTABLE</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+    <span class="n">__OPTABLE</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">operand</span>
+    <span class="n">__OPTABLE</span><span class="p">[</span><span class="n">val</span><span class="p">]</span> <span class="o">=</span> <span class="n">operand</span>
+
+    <span class="k">return</span> <span class="n">val</span>
+
+
+<div class="viewcode-block" id="get_opcode_by_name"><a class="viewcode-back" href="../../../utils/#javatools.opcodes.get_opcode_by_name">[docs]</a><span class="k">def</span> <span class="nf">get_opcode_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    get the integer opcode by its name</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">__OPTABLE</span><span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()][</span><span class="n">_OPINDEX_VAL</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="get_opname_by_code"><a class="viewcode-back" href="../../../utils/#javatools.opcodes.get_opname_by_code">[docs]</a><span class="k">def</span> <span class="nf">get_opname_by_code</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    get the name of an opcode</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">__OPTABLE</span><span class="p">[</span><span class="n">code</span><span class="p">][</span><span class="n">_OPINDEX_NAME</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="get_arg_format"><a class="viewcode-back" href="../../../utils/#javatools.opcodes.get_arg_format">[docs]</a><span class="k">def</span> <span class="nf">get_arg_format</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    get the format of arguments to this opcode</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">__OPTABLE</span><span class="p">[</span><span class="n">code</span><span class="p">][</span><span class="n">_OPINDEX_FMT</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="has_const_arg"><a class="viewcode-back" href="../../../utils/#javatools.opcodes.has_const_arg">[docs]</a><span class="k">def</span> <span class="nf">has_const_arg</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    which arg is a const for this opcode</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">__OPTABLE</span><span class="p">[</span><span class="n">code</span><span class="p">][</span><span class="n">_OPINDEX_CONST</span><span class="p">]</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_unpack</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">bc</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns the unpacked data tuple, and the next offset past the</span>
+<span class="sd">    unpacked data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack_from</span><span class="p">(</span><span class="n">bc</span><span class="p">,</span> <span class="n">offset</span><span class="p">),</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">struct</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_unpack_lookupswitch</span><span class="p">(</span><span class="n">bc</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    function for unpacking the lookupswitch op arguments</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">jump</span> <span class="o">=</span> <span class="p">(</span><span class="n">offset</span> <span class="o">%</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">jump</span><span class="p">:</span>
+        <span class="n">offset</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">-</span> <span class="n">jump</span><span class="p">)</span>
+
+    <span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">npairs</span><span class="p">),</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">_unpack</span><span class="p">(</span><span class="n">_struct_ii</span><span class="p">,</span> <span class="n">bc</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+
+    <span class="n">switches</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">npairs</span><span class="p">):</span>
+        <span class="n">pair</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">_unpack</span><span class="p">(</span><span class="n">_struct_ii</span><span class="p">,</span> <span class="n">bc</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="n">switches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">switches</span><span class="p">),</span> <span class="n">offset</span>
+
+
+<span class="k">def</span> <span class="nf">_unpack_tableswitch</span><span class="p">(</span><span class="n">bc</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    function for unpacking the tableswitch op arguments</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">jump</span> <span class="o">=</span> <span class="p">(</span><span class="n">offset</span> <span class="o">%</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">jump</span><span class="p">:</span>
+        <span class="n">offset</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">-</span> <span class="n">jump</span><span class="p">)</span>
+
+    <span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">),</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">_unpack</span><span class="p">(</span><span class="n">_struct_iii</span><span class="p">,</span> <span class="n">bc</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+
+    <span class="n">joffs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">((</span><span class="n">high</span> <span class="o">-</span> <span class="n">low</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">j</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">_unpack</span><span class="p">(</span><span class="n">_struct_i</span><span class="p">,</span> <span class="n">bc</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="n">joffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">joffs</span><span class="p">),</span> <span class="n">offset</span>
+
+
+<span class="k">def</span> <span class="nf">_unpack_wide</span><span class="p">(</span><span class="n">bc</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    unpacker for wide ops</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">code</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">bc</span><span class="p">[</span><span class="n">offset</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="n">OP_iinc</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_unpack</span><span class="p">(</span><span class="n">_struct_BHh</span><span class="p">,</span> <span class="n">bc</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">code</span> <span class="ow">in</span> <span class="p">(</span><span class="n">OP_iload</span><span class="p">,</span> <span class="n">OP_fload</span><span class="p">,</span> <span class="n">OP_aload</span><span class="p">,</span> <span class="n">OP_lload</span><span class="p">,</span> <span class="n">OP_dload</span><span class="p">,</span>
+                  <span class="n">OP_istore</span><span class="p">,</span> <span class="n">OP_fstore</span><span class="p">,</span> <span class="n">OP_astore</span><span class="p">,</span> <span class="n">OP_lstore</span><span class="p">,</span>
+                  <span class="n">OP_dstore</span><span class="p">,</span> <span class="n">OP_ret</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">_unpack</span><span class="p">(</span><span class="n">_struct_BH</span><span class="p">,</span> <span class="n">bc</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># no other opcodes are valid, so shouldn&#39;t have fallen through</span>
+        <span class="c"># to here.</span>
+        <span class="k">assert</span> <span class="bp">False</span>
+
+
+<div class="viewcode-block" id="disassemble"><a class="viewcode-back" href="../../../utils/#javatools.opcodes.disassemble">[docs]</a><span class="k">def</span> <span class="nf">disassemble</span><span class="p">(</span><span class="n">bytecode</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generator. Disassembles Java bytecode into a sequence of (offset,</span>
+<span class="sd">    code, args) tuples</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bytecode</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="n">offset</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">:</span>
+        <span class="n">orig_offset</span> <span class="o">=</span> <span class="n">offset</span>
+
+        <span class="n">code</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">bytecode</span><span class="p">[</span><span class="n">offset</span><span class="p">])</span>
+        <span class="n">offset</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">get_arg_format</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fmt</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">(</span><span class="n">bytecode</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+
+        <span class="k">yield</span> <span class="p">(</span><span class="n">orig_offset</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+
+<span class="c"># And now, the OP codes themselves</span>
+
+<span class="c"># The individual OP_* constants just have the numerical value. The</span>
+<span class="c"># rest is just information to get stored in the __OPTABLE</span>
+
+<span class="c">#pylint: disable=C0103</span>
+</div>
+<span class="n">OP_aaload</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;aaload&#39;</span><span class="p">,</span> <span class="mh">0x32</span><span class="p">)</span>
+<span class="n">OP_aastore</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;aastore&#39;</span><span class="p">,</span> <span class="mh">0x53</span><span class="p">)</span>
+<span class="n">OP_aconst_null</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;aconst_null&#39;</span><span class="p">,</span> <span class="mh">0x1</span><span class="p">)</span>
+<span class="n">OP_aload</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;aload&#39;</span><span class="p">,</span> <span class="mh">0x19</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;B&#39;</span><span class="p">)</span>
+<span class="n">OP_aload_0</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;aload_0&#39;</span><span class="p">,</span> <span class="mh">0x2a</span><span class="p">)</span>
+<span class="n">OP_aload_1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;aload_1&#39;</span><span class="p">,</span> <span class="mh">0x2b</span><span class="p">)</span>
+<span class="n">OP_aload_2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;aload_2&#39;</span><span class="p">,</span> <span class="mh">0x2c</span><span class="p">)</span>
+<span class="n">OP_aload_3</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;aload_3&#39;</span><span class="p">,</span> <span class="mh">0x2d</span><span class="p">)</span>
+<span class="n">OP_anewarray</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;anewarray&#39;</span><span class="p">,</span> <span class="mh">0xbd</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;H&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">OP_areturn</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;areturn&#39;</span><span class="p">,</span> <span class="mh">0xb0</span><span class="p">)</span>
+<span class="n">OP_arraylength</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;arraylength&#39;</span><span class="p">,</span> <span class="mh">0xbe</span><span class="p">)</span>
+<span class="n">OP_astore</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;astore&#39;</span><span class="p">,</span> <span class="mh">0x3a</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;B&#39;</span><span class="p">)</span>
+<span class="n">OP_astore_0</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;astore_0&#39;</span><span class="p">,</span> <span class="mh">0x4b</span><span class="p">)</span>
+<span class="n">OP_astore_1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;astore_1&#39;</span><span class="p">,</span> <span class="mh">0x4c</span><span class="p">)</span>
+<span class="n">OP_astore_2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;astore_2&#39;</span><span class="p">,</span> <span class="mh">0x4d</span><span class="p">)</span>
+<span class="n">OP_astore_3</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;astore_3&#39;</span><span class="p">,</span> <span class="mh">0x4e</span><span class="p">)</span>
+<span class="n">OP_athrow</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;athrow&#39;</span><span class="p">,</span> <span class="mh">0xbf</span><span class="p">)</span>
+
+<span class="n">OP_baload</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;baload&#39;</span><span class="p">,</span> <span class="mh">0x33</span><span class="p">)</span>
+<span class="n">OP_bastore</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;bastore&#39;</span><span class="p">,</span> <span class="mh">0x54</span><span class="p">)</span>
+<span class="n">OP_bipush</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;bipush&#39;</span><span class="p">,</span> <span class="mh">0x10</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;B&#39;</span><span class="p">)</span>
+
+<span class="n">OP_caload</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;caload&#39;</span><span class="p">,</span> <span class="mh">0x34</span><span class="p">)</span>
+<span class="n">OP_castore</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;castore&#39;</span><span class="p">,</span> <span class="mh">0x55</span><span class="p">)</span>
+<span class="n">OP_checkcast</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;checkcast&#39;</span><span class="p">,</span> <span class="mh">0xc0</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;H&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">OP_d2f</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;d2f&#39;</span><span class="p">,</span> <span class="mh">0x90</span><span class="p">)</span>
+<span class="n">OP_d2i</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;d2i&#39;</span><span class="p">,</span> <span class="mh">0x8e</span><span class="p">)</span>
+<span class="n">OP_d2l</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;d2l&#39;</span><span class="p">,</span> <span class="mh">0x8f</span><span class="p">)</span>
+<span class="n">OP_dadd</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dadd&#39;</span><span class="p">,</span> <span class="mh">0x63</span><span class="p">)</span>
+<span class="n">OP_daload</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;daload&#39;</span><span class="p">,</span> <span class="mh">0x31</span><span class="p">)</span>
+<span class="n">OP_dastore</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dastore&#39;</span><span class="p">,</span> <span class="mh">0x52</span><span class="p">)</span>
+<span class="n">OP_dcmpg</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dcmpg&#39;</span><span class="p">,</span> <span class="mh">0x98</span><span class="p">)</span>
+<span class="n">OP_dcmpl</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dcmpl&#39;</span><span class="p">,</span> <span class="mh">0x97</span><span class="p">)</span>
+<span class="n">OP_dconst_0</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dconst_0&#39;</span><span class="p">,</span> <span class="mh">0xe</span><span class="p">)</span>
+<span class="n">OP_dconst_1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dconst_1&#39;</span><span class="p">,</span> <span class="mh">0xf</span><span class="p">)</span>
+<span class="n">OP_ddiv</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ddiv&#39;</span><span class="p">,</span> <span class="mh">0x6f</span><span class="p">)</span>
+<span class="n">OP_dload</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dload&#39;</span><span class="p">,</span> <span class="mh">0x18</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;B&#39;</span><span class="p">)</span>
+<span class="n">OP_dload_0</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dload_0&#39;</span><span class="p">,</span> <span class="mh">0x26</span><span class="p">)</span>
+<span class="n">OP_dload_1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dload_1&#39;</span><span class="p">,</span> <span class="mh">0x27</span><span class="p">)</span>
+<span class="n">OP_dload_2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dload_2&#39;</span><span class="p">,</span> <span class="mh">0x28</span><span class="p">)</span>
+<span class="n">OP_dload_3</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dload_3&#39;</span><span class="p">,</span> <span class="mh">0x29</span><span class="p">)</span>
+<span class="n">OP_dmul</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dmul&#39;</span><span class="p">,</span> <span class="mh">0x6b</span><span class="p">)</span>
+<span class="n">OP_dneg</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dneg&#39;</span><span class="p">,</span> <span class="mh">0x77</span><span class="p">)</span>
+<span class="n">OP_drem</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;drem&#39;</span><span class="p">,</span> <span class="mh">0x73</span><span class="p">)</span>
+<span class="n">OP_dreturn</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dreturn&#39;</span><span class="p">,</span> <span class="mh">0xaf</span><span class="p">)</span>
+<span class="n">OP_dstore</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dstore&#39;</span><span class="p">,</span> <span class="mh">0x39</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;B&#39;</span><span class="p">)</span>
+<span class="n">OP_dstore_0</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dstore_0&#39;</span><span class="p">,</span> <span class="mh">0x47</span><span class="p">)</span>
+<span class="n">OP_dstore_1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dstore_1&#39;</span><span class="p">,</span> <span class="mh">0x48</span><span class="p">)</span>
+<span class="n">OP_dstore_2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dstore_2&#39;</span><span class="p">,</span> <span class="mh">0x49</span><span class="p">)</span>
+<span class="n">OP_dstore_3</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dstore_3&#39;</span><span class="p">,</span> <span class="mh">0x4a</span><span class="p">)</span>
+<span class="n">OP_dsub</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dsub&#39;</span><span class="p">,</span> <span class="mh">0x67</span><span class="p">)</span>
+<span class="n">OP_dup</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dup&#39;</span><span class="p">,</span> <span class="mh">0x59</span><span class="p">)</span>
+<span class="n">OP_dup_x1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dup_x1&#39;</span><span class="p">,</span> <span class="mh">0x5a</span><span class="p">)</span>
+<span class="n">OP_dup_x2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dup_x2&#39;</span><span class="p">,</span> <span class="mh">0x5b</span><span class="p">)</span>
+<span class="n">OP_dup2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dup2&#39;</span><span class="p">,</span> <span class="mh">0x5c</span><span class="p">)</span>
+<span class="n">OP_dup2_x1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dup2_x1&#39;</span><span class="p">,</span> <span class="mh">0x5d</span><span class="p">)</span>
+<span class="n">OP_dup2_x2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;dup2_x2&#39;</span><span class="p">,</span> <span class="mh">0x5e</span><span class="p">)</span>
+
+<span class="n">OP_f2d</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;f2d&#39;</span><span class="p">,</span> <span class="mh">0x8d</span><span class="p">)</span>
+<span class="n">OP_f2i</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;f2i&#39;</span><span class="p">,</span> <span class="mh">0x8b</span><span class="p">)</span>
+<span class="n">OP_f2l</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;f2l&#39;</span><span class="p">,</span> <span class="mh">0x8c</span><span class="p">)</span>
+<span class="n">OP_fadd</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fadd&#39;</span><span class="p">,</span> <span class="mh">0x62</span><span class="p">)</span>
+<span class="n">OP_faload</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;faload&#39;</span><span class="p">,</span> <span class="mh">0x30</span><span class="p">)</span>
+<span class="n">OP_fastore</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fastore&#39;</span><span class="p">,</span> <span class="mh">0x51</span><span class="p">)</span>
+<span class="n">OP_fcmpg</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fcmpg&#39;</span><span class="p">,</span> <span class="mh">0x96</span><span class="p">)</span>
+<span class="n">OP_fcmpl</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fcmpl&#39;</span><span class="p">,</span> <span class="mh">0x95</span><span class="p">)</span>
+<span class="n">OP_fconst_0</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fconst_0&#39;</span><span class="p">,</span> <span class="mh">0xb</span><span class="p">)</span>
+<span class="n">OP_fconst_1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fconst_1&#39;</span><span class="p">,</span> <span class="mh">0xc</span><span class="p">)</span>
+<span class="n">OP_fconst_2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fconst_2&#39;</span><span class="p">,</span> <span class="mh">0xd</span><span class="p">)</span>
+<span class="n">OP_fdiv</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fdiv&#39;</span><span class="p">,</span> <span class="mh">0x6e</span><span class="p">)</span>
+<span class="n">OP_fload</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fload&#39;</span><span class="p">,</span> <span class="mh">0x17</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;B&#39;</span><span class="p">)</span>
+<span class="n">OP_fload_0</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fload_0&#39;</span><span class="p">,</span> <span class="mh">0x22</span><span class="p">)</span>
+<span class="n">OP_fload_1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fload_1&#39;</span><span class="p">,</span> <span class="mh">0x23</span><span class="p">)</span>
+<span class="n">OP_fload_2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fload_2&#39;</span><span class="p">,</span> <span class="mh">0x24</span><span class="p">)</span>
+<span class="n">OP_fload_3</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fload_3&#39;</span><span class="p">,</span> <span class="mh">0x25</span><span class="p">)</span>
+<span class="n">OP_fmul</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fmul&#39;</span><span class="p">,</span> <span class="mh">0x6a</span><span class="p">)</span>
+<span class="n">OP_fneg</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fneg&#39;</span><span class="p">,</span> <span class="mh">0x76</span><span class="p">)</span>
+<span class="n">OP_frem</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;frem&#39;</span><span class="p">,</span> <span class="mh">0x72</span><span class="p">)</span>
+<span class="n">OP_freturn</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;freturn&#39;</span><span class="p">,</span> <span class="mh">0xae</span><span class="p">)</span>
+<span class="n">OP_fstore</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fstore&#39;</span><span class="p">,</span> <span class="mh">0x38</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;B&#39;</span><span class="p">)</span>
+<span class="n">OP_fstore_0</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fstore_0&#39;</span><span class="p">,</span> <span class="mh">0x43</span><span class="p">)</span>
+<span class="n">OP_fstore_1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fstore_1&#39;</span><span class="p">,</span> <span class="mh">0x44</span><span class="p">)</span>
+<span class="n">OP_fstore_2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fstore_2&#39;</span><span class="p">,</span> <span class="mh">0x45</span><span class="p">)</span>
+<span class="n">OP_fstore_3</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fstore_3&#39;</span><span class="p">,</span> <span class="mh">0x46</span><span class="p">)</span>
+<span class="n">OP_fsub</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;fsub&#39;</span><span class="p">,</span> <span class="mh">0x66</span><span class="p">)</span>
+
+<span class="n">OP_getfield</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;getfield&#39;</span><span class="p">,</span> <span class="mh">0xb4</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;H&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">OP_getstatic</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;getstatic&#39;</span><span class="p">,</span> <span class="mh">0xb2</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;H&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">OP_goto</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;goto&#39;</span><span class="p">,</span> <span class="mh">0xa7</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_goto_w</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;goto_w&#39;</span><span class="p">,</span> <span class="mh">0xc8</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;i&#39;</span><span class="p">)</span>
+
+<span class="n">OP_i2b</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;i2b&#39;</span><span class="p">,</span> <span class="mh">0x91</span><span class="p">)</span>
+<span class="n">OP_i2c</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;i2c&#39;</span><span class="p">,</span> <span class="mh">0x92</span><span class="p">)</span>
+<span class="n">OP_i2d</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;i2d&#39;</span><span class="p">,</span> <span class="mh">0x87</span><span class="p">)</span>
+<span class="n">OP_i2f</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;i2f&#39;</span><span class="p">,</span> <span class="mh">0x86</span><span class="p">)</span>
+<span class="n">OP_i2l</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;i2l&#39;</span><span class="p">,</span> <span class="mh">0x85</span><span class="p">)</span>
+<span class="n">OP_i2s</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;i2s&#39;</span><span class="p">,</span> <span class="mh">0x93</span><span class="p">)</span>
+<span class="n">OP_iadd</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iadd&#39;</span><span class="p">,</span> <span class="mh">0x60</span><span class="p">)</span>
+<span class="n">OP_iaload</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iaload&#39;</span><span class="p">,</span> <span class="mh">0x2e</span><span class="p">)</span>
+<span class="n">OP_iand</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iand&#39;</span><span class="p">,</span> <span class="mh">0x7e</span><span class="p">)</span>
+<span class="n">OP_iastore</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iastore&#39;</span><span class="p">,</span> <span class="mh">0x4f</span><span class="p">)</span>
+<span class="n">OP_iconst_m1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iconst_m1&#39;</span><span class="p">,</span> <span class="mh">0x2</span><span class="p">)</span>
+<span class="n">OP_iconst_0</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iconst_0&#39;</span><span class="p">,</span> <span class="mh">0x3</span><span class="p">)</span>
+<span class="n">OP_iconst_1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iconst_1&#39;</span><span class="p">,</span> <span class="mh">0x4</span><span class="p">)</span>
+<span class="n">OP_iconst_2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iconst_2&#39;</span><span class="p">,</span> <span class="mh">0x5</span><span class="p">)</span>
+<span class="n">OP_iconst_3</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iconst_3&#39;</span><span class="p">,</span> <span class="mh">0x6</span><span class="p">)</span>
+<span class="n">OP_iconst_4</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iconst_4&#39;</span><span class="p">,</span> <span class="mh">0x7</span><span class="p">)</span>
+<span class="n">OP_iconst_5</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iconst_5&#39;</span><span class="p">,</span> <span class="mh">0x8</span><span class="p">)</span>
+<span class="n">OP_idiv</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;idiv&#39;</span><span class="p">,</span> <span class="mh">0x6c</span><span class="p">)</span>
+<span class="n">OP_if_acmpeq</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;if_acmpeq&#39;</span><span class="p">,</span> <span class="mh">0xa5</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_if_acmpne</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;if_acmpne&#39;</span><span class="p">,</span> <span class="mh">0xa6</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_if_icmpeq</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;if_icmpeq&#39;</span><span class="p">,</span> <span class="mh">0x9f</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_if_icmpne</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;if_icmpne&#39;</span><span class="p">,</span> <span class="mh">0xa0</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_if_icmplt</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;if_icmplt&#39;</span><span class="p">,</span> <span class="mh">0xa1</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_if_icmpge</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;if_icmpge&#39;</span><span class="p">,</span> <span class="mh">0xa2</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_if_icmpgt</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;if_icmpgt&#39;</span><span class="p">,</span> <span class="mh">0xa3</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_if_icmple</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;if_icmple&#39;</span><span class="p">,</span> <span class="mh">0xa4</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_ifeq</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ifeq&#39;</span><span class="p">,</span> <span class="mh">0x99</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_ifne</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ifne&#39;</span><span class="p">,</span> <span class="mh">0x9a</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_iflt</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iflt&#39;</span><span class="p">,</span> <span class="mh">0x9b</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_ifge</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ifge&#39;</span><span class="p">,</span> <span class="mh">0x9c</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_ifgt</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ifgt&#39;</span><span class="p">,</span> <span class="mh">0x9d</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_ifle</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ifle&#39;</span><span class="p">,</span> <span class="mh">0x9e</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_ifnonnull</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ifnonnull&#39;</span><span class="p">,</span> <span class="mh">0xc7</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_ifnull</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ifnull&#39;</span><span class="p">,</span> <span class="mh">0xc6</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_iinc</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iinc&#39;</span><span class="p">,</span> <span class="mh">0x84</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;Bb&#39;</span><span class="p">)</span>
+<span class="n">OP_iload</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iload&#39;</span><span class="p">,</span> <span class="mh">0x15</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;B&#39;</span><span class="p">)</span>
+<span class="n">OP_iload_0</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iload_0&#39;</span><span class="p">,</span> <span class="mh">0x1a</span><span class="p">)</span>
+<span class="n">OP_iload_1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iload_1&#39;</span><span class="p">,</span> <span class="mh">0x1b</span><span class="p">)</span>
+<span class="n">OP_iload_2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iload_2&#39;</span><span class="p">,</span> <span class="mh">0x1c</span><span class="p">)</span>
+<span class="n">OP_iload_3</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iload_3&#39;</span><span class="p">,</span> <span class="mh">0x1d</span><span class="p">)</span>
+<span class="n">OP_imul</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;imul&#39;</span><span class="p">,</span> <span class="mh">0x68</span><span class="p">)</span>
+<span class="n">OP_ineg</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ineg&#39;</span><span class="p">,</span> <span class="mh">0x74</span><span class="p">)</span>
+<span class="n">OP_instanceof</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;instanceof&#39;</span><span class="p">,</span> <span class="mh">0xc1</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;H&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">OP_invokedynamic</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;invokedynamic&#39;</span><span class="p">,</span> <span class="mh">0xba</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;HBB&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">OP_invokeinterface</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;invokeinterface&#39;</span><span class="p">,</span> <span class="mh">0xb9</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;HBB&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">OP_invokespecial</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;invokespecial&#39;</span><span class="p">,</span> <span class="mh">0xb7</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;H&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">OP_invokestatic</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;invokestatic&#39;</span><span class="p">,</span> <span class="mh">0xb8</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;H&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">OP_invokevirtual</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;invokevirtual&#39;</span><span class="p">,</span> <span class="mh">0xb6</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;H&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">OP_ior</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ior&#39;</span><span class="p">,</span> <span class="mh">0x80</span><span class="p">)</span>
+<span class="n">OP_irem</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;irem&#39;</span><span class="p">,</span> <span class="mh">0x70</span><span class="p">)</span>
+<span class="n">OP_ireturn</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ireturn&#39;</span><span class="p">,</span> <span class="mh">0xac</span><span class="p">)</span>
+<span class="n">OP_ishl</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ishl&#39;</span><span class="p">,</span> <span class="mh">0x78</span><span class="p">)</span>
+<span class="n">OP_ishr</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ishr&#39;</span><span class="p">,</span> <span class="mh">0x7a</span><span class="p">)</span>
+<span class="n">OP_istore</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;istore&#39;</span><span class="p">,</span> <span class="mh">0x36</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;B&#39;</span><span class="p">)</span>
+<span class="n">OP_istore_0</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;istore_0&#39;</span><span class="p">,</span> <span class="mh">0x3b</span><span class="p">)</span>
+<span class="n">OP_istore_1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;istore_1&#39;</span><span class="p">,</span> <span class="mh">0x3c</span><span class="p">)</span>
+<span class="n">OP_istore_2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;istore_2&#39;</span><span class="p">,</span> <span class="mh">0x3d</span><span class="p">)</span>
+<span class="n">OP_istore_3</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;istore_3&#39;</span><span class="p">,</span> <span class="mh">0x3e</span><span class="p">)</span>
+<span class="n">OP_isub</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;isub&#39;</span><span class="p">,</span> <span class="mh">0x64</span><span class="p">)</span>
+<span class="n">OP_iushr</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;iushr&#39;</span><span class="p">,</span> <span class="mh">0x7c</span><span class="p">)</span>
+<span class="n">OP_ixor</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ixor&#39;</span><span class="p">,</span> <span class="mh">0x82</span><span class="p">)</span>
+
+<span class="n">OP_jsr</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;jsr&#39;</span><span class="p">,</span> <span class="mh">0xa8</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_jsr_w</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;jsr_w&#39;</span><span class="p">,</span> <span class="mh">0xc9</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;i&#39;</span><span class="p">)</span>
+
+<span class="n">OP_l2d</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;l2d&#39;</span><span class="p">,</span> <span class="mh">0x8a</span><span class="p">)</span>
+<span class="n">OP_l2f</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;l2f&#39;</span><span class="p">,</span> <span class="mh">0x89</span><span class="p">)</span>
+<span class="n">OP_l2i</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;l2i&#39;</span><span class="p">,</span> <span class="mh">0x88</span><span class="p">)</span>
+<span class="n">OP_ladd</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ladd&#39;</span><span class="p">,</span> <span class="mh">0x61</span><span class="p">)</span>
+<span class="n">OP_laload</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;laload&#39;</span><span class="p">,</span> <span class="mh">0x2f</span><span class="p">)</span>
+<span class="n">OP_land</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;land&#39;</span><span class="p">,</span> <span class="mh">0x7f</span><span class="p">)</span>
+<span class="n">OP_lastore</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lastore&#39;</span><span class="p">,</span> <span class="mh">0x50</span><span class="p">)</span>
+<span class="n">OP_lcmp</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lcmp&#39;</span><span class="p">,</span> <span class="mh">0x94</span><span class="p">)</span>
+<span class="n">OP_lconst_0</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lconst_0&#39;</span><span class="p">,</span> <span class="mh">0x9</span><span class="p">)</span>
+<span class="n">OP_lconst_1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lconst_1&#39;</span><span class="p">,</span> <span class="mh">0xa</span><span class="p">)</span>
+<span class="n">OP_ldc</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ldc&#39;</span><span class="p">,</span> <span class="mh">0x12</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;B&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">OP_ldc_w</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ldc_w&#39;</span><span class="p">,</span> <span class="mh">0x13</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;H&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">OP_ldc2_w</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ldc2_w&#39;</span><span class="p">,</span> <span class="mh">0x14</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;H&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">OP_ldiv</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ldiv&#39;</span><span class="p">,</span> <span class="mh">0x6d</span><span class="p">)</span>
+<span class="n">OP_lload</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lload&#39;</span><span class="p">,</span> <span class="mh">0x16</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;B&#39;</span><span class="p">)</span>
+<span class="n">OP_lload_0</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lload_0&#39;</span><span class="p">,</span> <span class="mh">0x1e</span><span class="p">)</span>
+<span class="n">OP_lload_1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lload_1&#39;</span><span class="p">,</span> <span class="mh">0x1f</span><span class="p">)</span>
+<span class="n">OP_lload_2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lload_2&#39;</span><span class="p">,</span> <span class="mh">0x20</span><span class="p">)</span>
+<span class="n">OP_lload_3</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lload_3&#39;</span><span class="p">,</span> <span class="mh">0x21</span><span class="p">)</span>
+<span class="n">OP_lmul</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lmul&#39;</span><span class="p">,</span> <span class="mh">0x69</span><span class="p">)</span>
+<span class="n">OP_lneg</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lneg&#39;</span><span class="p">,</span> <span class="mh">0x75</span><span class="p">)</span>
+<span class="n">OP_lookupswitch</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lookupswitch&#39;</span><span class="p">,</span> <span class="mh">0xab</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">_unpack_lookupswitch</span><span class="p">)</span>
+<span class="n">OP_lor</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lor&#39;</span><span class="p">,</span> <span class="mh">0x81</span><span class="p">)</span>
+<span class="n">OP_lrem</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lrem&#39;</span><span class="p">,</span> <span class="mh">0x71</span><span class="p">)</span>
+<span class="n">OP_lreturn</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lreturn&#39;</span><span class="p">,</span> <span class="mh">0xad</span><span class="p">)</span>
+<span class="n">OP_lshl</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lshl&#39;</span><span class="p">,</span> <span class="mh">0x79</span><span class="p">)</span>
+<span class="n">OP_lshr</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lshr&#39;</span><span class="p">,</span> <span class="mh">0x7b</span><span class="p">)</span>
+<span class="n">OP_lstore</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lstore&#39;</span><span class="p">,</span> <span class="mh">0x37</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;B&#39;</span><span class="p">)</span>
+<span class="n">OP_lstore_0</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lstore_0&#39;</span><span class="p">,</span> <span class="mh">0x3f</span><span class="p">)</span>
+<span class="n">OP_lstore_1</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lstore_1&#39;</span><span class="p">,</span> <span class="mh">0x40</span><span class="p">)</span>
+<span class="n">OP_lstore_2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lstore_2&#39;</span><span class="p">,</span> <span class="mh">0x41</span><span class="p">)</span>
+<span class="n">OP_lstore_3</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lstore_3&#39;</span><span class="p">,</span> <span class="mh">0x42</span><span class="p">)</span>
+<span class="n">OP_lsub</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lsub&#39;</span><span class="p">,</span> <span class="mh">0x65</span><span class="p">)</span>
+<span class="n">OP_lushr</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lushr&#39;</span><span class="p">,</span> <span class="mh">0x7d</span><span class="p">)</span>
+<span class="n">OP_lxor</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;lxor&#39;</span><span class="p">,</span> <span class="mh">0x83</span><span class="p">)</span>
+
+<span class="n">OP_monitorentry</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;monitorentry&#39;</span><span class="p">,</span> <span class="mh">0xc2</span><span class="p">)</span>
+<span class="n">OP_monitorexit</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;monitorexit&#39;</span><span class="p">,</span> <span class="mh">0xc3</span><span class="p">)</span>
+<span class="n">OP_multianewarray</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;multianewarray&#39;</span><span class="p">,</span> <span class="mh">0xc5</span><span class="p">)</span>
+
+<span class="n">OP_new</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;new&#39;</span><span class="p">,</span> <span class="mh">0xbb</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;H&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">OP_newarray</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;newarray&#39;</span><span class="p">,</span> <span class="mh">0xbc</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;B&#39;</span><span class="p">)</span>
+<span class="n">OP_nop</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;nop&#39;</span><span class="p">,</span> <span class="mh">0x0</span><span class="p">)</span>
+
+<span class="n">OP_pop</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;pop&#39;</span><span class="p">,</span> <span class="mh">0x57</span><span class="p">)</span>
+<span class="n">OP_pop2</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;pop2&#39;</span><span class="p">,</span> <span class="mh">0x58</span><span class="p">)</span>
+<span class="n">OP_putfield</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;putfield&#39;</span><span class="p">,</span> <span class="mh">0xb5</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;H&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">OP_putstatic</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;putstatic&#39;</span><span class="p">,</span> <span class="mh">0xb3</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;H&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">OP_ret</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;ret&#39;</span><span class="p">,</span> <span class="mh">0xa9</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;B&#39;</span><span class="p">)</span>
+<span class="n">OP_return</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;return&#39;</span><span class="p">,</span> <span class="mh">0xb1</span><span class="p">)</span>
+
+<span class="n">OP_saload</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;saload&#39;</span><span class="p">,</span> <span class="mh">0x35</span><span class="p">)</span>
+<span class="n">OP_sastore</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;sastore&#39;</span><span class="p">,</span> <span class="mh">0x56</span><span class="p">)</span>
+<span class="n">OP_sipush</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;sipush&#39;</span><span class="p">,</span> <span class="mh">0x11</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;&gt;h&#39;</span><span class="p">)</span>
+<span class="n">OP_swap</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;swap&#39;</span><span class="p">,</span> <span class="mh">0x5f</span><span class="p">)</span>
+
+<span class="n">OP_tableswitch</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;tableswitch&#39;</span><span class="p">,</span> <span class="mh">0xaa</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">_unpack_tableswitch</span><span class="p">)</span>
+
+<span class="n">OP_wide</span> <span class="o">=</span> <span class="n">__op</span><span class="p">(</span><span class="s">&#39;wide&#39;</span><span class="p">,</span> <span class="mh">0xc4</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">_unpack_wide</span><span class="p">)</span>
+
+
+<span class="c">#</span>
+<span class="c"># The end.</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" >javatools</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2014, Christopher O&#39;Brien.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-47351906-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+  </body>
+</html>

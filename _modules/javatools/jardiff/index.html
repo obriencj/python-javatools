@@ -1,0 +1,661 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>javatools.jardiff &mdash; javatools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="javatools 1.0.0 documentation" href="../../../" />
+    <link rel="up" title="javatools" href="../" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" accesskey="U">javatools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for javatools.jardiff</h1><div class="highlight"><pre>
+<span class="c"># This library is free software; you can redistribute it and/or modify</span>
+<span class="c"># it under the terms of the GNU Lesser General Public License as</span>
+<span class="c"># published by the Free Software Foundation; either version 3 of the</span>
+<span class="c"># License, or (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c"># This library is distributed in the hope that it will be useful, but</span>
+<span class="c"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c"># Lesser General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU Lesser General Public</span>
+<span class="c"># License along with this library; if not, see</span>
+<span class="c"># &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utility script and module for producing a set of changes in a JAR</span>
+<span class="sd">file. Takes the same options as the classdiff script, and in fact uses</span>
+<span class="sd">the classdiff script&#39;s code on each non-identical member in a pair of</span>
+<span class="sd">JAR files.</span>
+
+<span class="sd">author: Christopher O&#39;Brien  &lt;obriencj@gmail.com&gt;</span>
+<span class="sd">licence: LGPL</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isdir</span>
+
+<span class="kn">from</span> <span class="nn">javatools</span> <span class="kn">import</span> <span class="n">unpack_class</span>
+<span class="kn">from</span> <span class="nn">.change</span> <span class="kn">import</span> <span class="n">GenericChange</span><span class="p">,</span> <span class="n">SuperChange</span>
+<span class="kn">from</span> <span class="nn">.change</span> <span class="kn">import</span> <span class="n">Addition</span><span class="p">,</span> <span class="n">Removal</span>
+<span class="kn">from</span> <span class="nn">.change</span> <span class="kn">import</span> <span class="n">squash</span><span class="p">,</span> <span class="n">yield_sorted_by_type</span>
+<span class="kn">from</span> <span class="nn">.classdiff</span> <span class="kn">import</span> <span class="n">JavaClassChange</span><span class="p">,</span> <span class="n">JavaClassReport</span>
+<span class="kn">from</span> <span class="nn">.dirutils</span> <span class="kn">import</span> <span class="n">fnmatches</span>
+<span class="kn">from</span> <span class="nn">.manifest</span> <span class="kn">import</span> <span class="n">Manifest</span><span class="p">,</span> <span class="n">ManifestChange</span>
+<span class="kn">from</span> <span class="nn">.ziputils</span> <span class="kn">import</span> <span class="n">compare_zips</span><span class="p">,</span> <span class="n">open_zip</span><span class="p">,</span> <span class="n">open_zip_entry</span>
+<span class="kn">from</span> <span class="nn">.ziputils</span> <span class="kn">import</span> <span class="n">LEFT</span><span class="p">,</span> <span class="n">RIGHT</span><span class="p">,</span> <span class="n">DIFF</span><span class="p">,</span> <span class="n">SAME</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&quot;JarChange&quot;</span><span class="p">,</span>
+    <span class="s">&quot;JarTypeChange&quot;</span><span class="p">,</span> <span class="s">&quot;JarContentsChange&quot;</span><span class="p">,</span>
+    <span class="s">&quot;JarManifestChange&quot;</span><span class="p">,</span>
+    <span class="s">&quot;JarContentChange&quot;</span><span class="p">,</span> <span class="s">&quot;JarContentAdded&quot;</span><span class="p">,</span> <span class="s">&quot;JarContentRemoved&quot;</span><span class="p">,</span>
+    <span class="s">&quot;JarSignatureChange&quot;</span><span class="p">,</span> <span class="s">&quot;JarSignatureAdded&quot;</span><span class="p">,</span> <span class="s">&quot;JarSignatureRemoved&quot;</span><span class="p">,</span>
+    <span class="s">&quot;JarClassChange&quot;</span><span class="p">,</span> <span class="s">&quot;JarClassAdded&quot;</span><span class="p">,</span> <span class="s">&quot;JarClassRemoved&quot;</span><span class="p">,</span>
+    <span class="s">&quot;JarReport&quot;</span><span class="p">,</span> <span class="s">&quot;JarContentsReport&quot;</span><span class="p">,</span> <span class="s">&quot;JarClassReport&quot;</span><span class="p">,</span>
+    <span class="s">&quot;cli&quot;</span><span class="p">,</span> <span class="s">&quot;main&quot;</span><span class="p">,</span>
+    <span class="s">&quot;cli_jars_diff&quot;</span><span class="p">,</span>
+    <span class="s">&quot;jardiff_optgroup&quot;</span><span class="p">,</span> <span class="s">&quot;default_jardiff_options&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="JarTypeChange"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarTypeChange">[docs]</a><span class="k">class</span> <span class="nc">JarTypeChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    exploded vs. zipped and compression level</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Jar type&quot;</span>
+
+
+<div class="viewcode-block" id="JarTypeChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarTypeChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+        <span class="c"># TODO: create some kind of menial zipinfo output showing type</span>
+        <span class="c"># (exploded/zipped) and compression level</span>
+
+        <span class="k">return</span> <span class="n">isdir</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="JarTypeChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarTypeChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">isdir</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s">&quot;exploded JAR&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&quot;zipped JAR file&quot;</span>
+
+</div></div>
+<div class="viewcode-block" id="JarContentChange"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentChange">[docs]</a><span class="k">class</span> <span class="nc">JarContentChange</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    a file or directory changed between JARs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Jar Content&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lzip</span><span class="p">,</span> <span class="n">rzip</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">is_change</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">JarContentChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">lzip</span><span class="p">,</span> <span class="n">rzip</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="n">entry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span> <span class="o">=</span> <span class="n">is_change</span>
+
+
+<div class="viewcode-block" id="JarContentChange.open_left"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentChange.open_left">[docs]</a>    <span class="k">def</span> <span class="nf">open_left</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">open_zip_entry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="JarContentChange.open_right"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentChange.open_right">[docs]</a>    <span class="k">def</span> <span class="nf">open_right</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">open_zip_entry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="JarContentChange.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentChange.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Content changes refer to more concrete children, but by default</span>
+<span class="sd">        are empty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="JarContentChange.get_description"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentChange.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;has changed&quot;</span><span class="p">,</span> <span class="s">&quot;is unchanged&quot;</span><span class="p">)[</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="JarContentChange.is_ignored"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentChange.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="k">return</span>  <span class="n">fnmatches</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="p">,</span> <span class="o">*</span><span class="n">options</span><span class="o">.</span><span class="n">ignore_jar_entry</span><span class="p">)</span> <span class="ow">or</span> \
+            <span class="nb">super</span><span class="p">(</span><span class="n">JarContentChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">is_ignored</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="JarContentAdded"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentAdded">[docs]</a><span class="k">class</span> <span class="nc">JarContentAdded</span><span class="p">(</span><span class="n">JarContentChange</span><span class="p">,</span> <span class="n">Addition</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Jar Content Added&quot;</span>
+
+
+<div class="viewcode-block" id="JarContentAdded.get_description"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentAdded.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="JarContentRemoved"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentRemoved">[docs]</a><span class="k">class</span> <span class="nc">JarContentRemoved</span><span class="p">(</span><span class="n">JarContentChange</span><span class="p">,</span> <span class="n">Removal</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Jar Content Removed&quot;</span>
+
+
+<div class="viewcode-block" id="JarContentRemoved.get_description"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentRemoved.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="JarClassAdded"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarClassAdded">[docs]</a><span class="k">class</span> <span class="nc">JarClassAdded</span><span class="p">(</span><span class="n">JarContentAdded</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Java Class Added&quot;</span>
+
+</div>
+<div class="viewcode-block" id="JarClassRemoved"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarClassRemoved">[docs]</a><span class="k">class</span> <span class="nc">JarClassRemoved</span><span class="p">(</span><span class="n">JarContentRemoved</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Java Class Removed&quot;</span>
+
+</div>
+<div class="viewcode-block" id="JarClassChange"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarClassChange">[docs]</a><span class="k">class</span> <span class="nc">JarClassChange</span><span class="p">(</span><span class="n">JarContentChange</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Java Class&quot;</span>
+
+
+<div class="viewcode-block" id="JarClassChange.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarClassChange.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_left</span><span class="p">()</span> <span class="k">as</span> <span class="n">lfd</span><span class="p">:</span>
+                <span class="n">linfo</span> <span class="o">=</span> <span class="n">unpack_class</span><span class="p">(</span><span class="n">lfd</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_right</span><span class="p">()</span> <span class="k">as</span> <span class="n">rfd</span><span class="p">:</span>
+                <span class="n">rinfo</span> <span class="o">=</span> <span class="n">unpack_class</span><span class="p">(</span><span class="n">rfd</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+            <span class="k">yield</span> <span class="n">JavaClassChange</span><span class="p">(</span><span class="n">linfo</span><span class="p">,</span> <span class="n">rinfo</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="JarClassReport"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarClassReport">[docs]</a><span class="k">class</span> <span class="nc">JarClassReport</span><span class="p">(</span><span class="n">JarClassChange</span><span class="p">):</span>
+
+    <span class="n">report_name</span> <span class="o">=</span> <span class="s">&quot;JavaClassReport&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">reporter</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">JarClassReport</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span> <span class="o">=</span> <span class="n">reporter</span>
+
+
+<div class="viewcode-block" id="JarClassReport.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarClassReport.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_left</span><span class="p">()</span> <span class="k">as</span> <span class="n">lfd</span><span class="p">:</span>
+                <span class="n">linfo</span> <span class="o">=</span> <span class="n">unpack_class</span><span class="p">(</span><span class="n">lfd</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_right</span><span class="p">()</span> <span class="k">as</span> <span class="n">rfd</span><span class="p">:</span>
+                <span class="n">rinfo</span> <span class="o">=</span> <span class="n">unpack_class</span><span class="p">(</span><span class="n">rfd</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+            <span class="k">yield</span> <span class="n">JavaClassReport</span><span class="p">(</span><span class="n">linfo</span><span class="p">,</span> <span class="n">rinfo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="JarManifestChange"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarManifestChange">[docs]</a><span class="k">class</span> <span class="nc">JarManifestChange</span><span class="p">(</span><span class="n">JarContentChange</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Jar Manifest&quot;</span>
+
+
+<div class="viewcode-block" id="JarManifestChange.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarManifestChange.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_left</span><span class="p">()</span> <span class="k">as</span> <span class="n">lfd</span><span class="p">:</span>
+                <span class="n">lm</span> <span class="o">=</span> <span class="n">Manifest</span><span class="p">()</span>
+                <span class="n">lm</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">lfd</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_right</span><span class="p">()</span> <span class="k">as</span> <span class="n">rfd</span><span class="p">:</span>
+                <span class="n">rm</span> <span class="o">=</span> <span class="n">Manifest</span><span class="p">()</span>
+                <span class="n">rm</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">rfd</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+            <span class="k">yield</span> <span class="n">ManifestChange</span><span class="p">(</span><span class="n">lm</span><span class="p">,</span> <span class="n">rm</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="JarSignatureChange"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarSignatureChange">[docs]</a><span class="k">class</span> <span class="nc">JarSignatureChange</span><span class="p">(</span><span class="n">JarContentChange</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Jar Signature Data&quot;</span>
+
+
+<div class="viewcode-block" id="JarSignatureChange.is_ignored"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarSignatureChange.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_jar_signature</span>
+
+</div></div>
+<div class="viewcode-block" id="JarSignatureAdded"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarSignatureAdded">[docs]</a><span class="k">class</span> <span class="nc">JarSignatureAdded</span><span class="p">(</span><span class="n">JarContentAdded</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Jar Signature Added&quot;</span>
+
+
+<div class="viewcode-block" id="JarSignatureAdded.is_ignored"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarSignatureAdded.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_jar_signature</span>
+
+</div></div>
+<div class="viewcode-block" id="JarSignatureRemoved"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarSignatureRemoved">[docs]</a><span class="k">class</span> <span class="nc">JarSignatureRemoved</span><span class="p">(</span><span class="n">JarContentRemoved</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Jar Signature Removed&quot;</span>
+
+
+<div class="viewcode-block" id="JarSignatureRemoved.is_ignored"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarSignatureRemoved.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_jar_signature</span>
+
+</div></div>
+<div class="viewcode-block" id="JarContentsChange"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentsChange">[docs]</a><span class="k">class</span> <span class="nc">JarContentsChange</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;JAR Contents&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left_fn</span><span class="p">,</span> <span class="n">right_fn</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">JarContentsChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">left_fn</span><span class="p">,</span> <span class="n">right_fn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lzip</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rzip</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+    <span class="nd">@yield_sorted_by_type</span><span class="p">(</span><span class="n">JarManifestChange</span><span class="p">,</span>
+                          <span class="n">JarSignatureAdded</span><span class="p">,</span>
+                          <span class="n">JarSignatureRemoved</span><span class="p">,</span>
+                          <span class="n">JarSignatureChange</span><span class="p">,</span>
+                          <span class="n">JarContentAdded</span><span class="p">,</span>
+                          <span class="n">JarContentRemoved</span><span class="p">,</span>
+                          <span class="n">JarContentChange</span><span class="p">,</span>
+                          <span class="n">JarClassAdded</span><span class="p">,</span>
+                          <span class="n">JarClassRemoved</span><span class="p">,</span>
+                          <span class="n">JarClassChange</span><span class="p">)</span>
+<div class="viewcode-block" id="JarContentsChange.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentsChange.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># these are opened for the duration of check_impl</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lzip</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rzip</span>
+
+        <span class="c"># this is our guarantee from invokation order</span>
+        <span class="k">assert</span> <span class="n">left</span> <span class="o">!=</span> <span class="bp">None</span>
+        <span class="k">assert</span> <span class="n">right</span> <span class="o">!=</span> <span class="bp">None</span>
+
+        <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">compare_zips</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="n">SAME</span><span class="p">:</span>
+
+                <span class="c"># TODO: should we split by file type to more specific</span>
+                <span class="c"># types of (un)changes? For now just emit a content</span>
+                <span class="c"># change with is_change set to False.</span>
+
+                <span class="k">if</span> <span class="n">entry</span> <span class="o">==</span> <span class="s">&quot;META-INF/MANIFEST.MF&quot;</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">JarManifestChange</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s">&quot;*.RSA&quot;</span><span class="p">,</span> <span class="s">&quot;*.DSA&quot;</span><span class="p">,</span> <span class="s">&quot;*.SF&quot;</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">JarSignatureChange</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s">&quot;*.class&quot;</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">JarClassChange</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">JarContentChange</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">DIFF</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">entry</span> <span class="o">==</span> <span class="s">&quot;META-INF/MANIFEST.MF&quot;</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">JarManifestChange</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s">&quot;*.RSA&quot;</span><span class="p">,</span> <span class="s">&quot;*.DSA&quot;</span><span class="p">,</span> <span class="s">&quot;*.SF&quot;</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">JarSignatureChange</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s">&quot;*.class&quot;</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">JarClassChange</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">JarContentChange</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">LEFT</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s">&quot;*.RSA&quot;</span><span class="p">,</span> <span class="s">&quot;*.DSA&quot;</span><span class="p">,</span> <span class="s">&quot;*.SF&quot;</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">JarSignatureRemoved</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s">&quot;*.class&quot;</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">JarClassRemoved</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">JarContentRemoved</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="n">RIGHT</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s">&quot;*.RSA&quot;</span><span class="p">,</span><span class="s">&quot;*.DSA&quot;</span><span class="p">,</span><span class="s">&quot;*.SF&quot;</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">JarSignatureAdded</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s">&quot;*.class&quot;</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">JarClassAdded</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">JarContentAdded</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="JarContentsChange.check_impl"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentsChange.check_impl">[docs]</a>    <span class="k">def</span> <span class="nf">check_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overridden to open the left and right zipfiles and to provide all</span>
+<span class="sd">        subchecks with an open ZipFile instance rather than having</span>
+<span class="sd">        them all open and close the ZipFile individually. For the</span>
+<span class="sd">        duration of the check (which calls collect_impl), the</span>
+<span class="sd">        attributes self.lzip and self.rzip will be available and used</span>
+<span class="sd">        as the ldata and rdata of all subchecks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">open_zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="p">)</span> <span class="k">as</span> <span class="n">lzip</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">open_zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">)</span> <span class="k">as</span> <span class="n">rzip</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lzip</span> <span class="o">=</span> <span class="n">lzip</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rzip</span> <span class="o">=</span> <span class="n">rzip</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">JarContentsChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">check_impl</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lzip</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rzip</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">return</span> <span class="n">ret</span>
+
+</div></div>
+<div class="viewcode-block" id="JarChange"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarChange">[docs]</a><span class="k">class</span> <span class="nc">JarChange</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;JAR&quot;</span>
+
+
+    <span class="n">change_types</span> <span class="o">=</span> <span class="p">(</span><span class="n">JarTypeChange</span><span class="p">,</span>
+                    <span class="n">JarContentsChange</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="JarContentsReport"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentsReport">[docs]</a><span class="k">class</span> <span class="nc">JarContentsReport</span><span class="p">(</span><span class="n">JarContentsChange</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    overridden JarContentsChange which will swap out JarClassChange</span>
+<span class="sd">    with JarClassReport instances. The check_impl method gains the</span>
+<span class="sd">    side effect of causing all JarClassReports gathered to write</span>
+<span class="sd">    reports of themselves to file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left_fn</span><span class="p">,</span> <span class="n">right_fn</span><span class="p">,</span> <span class="n">reporter</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">JarContentsReport</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">left_fn</span><span class="p">,</span> <span class="n">right_fn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span> <span class="o">=</span> <span class="n">reporter</span>
+
+
+<div class="viewcode-block" id="JarContentsReport.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentsReport.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># a filter on the collect_impl of JarContentsChange which</span>
+        <span class="c"># replaces JarClassChange instances with a JarClassReport</span>
+        <span class="c"># instance instead.</span>
+
+        <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">JarContentsChange</span><span class="o">.</span><span class="n">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">JarClassChange</span><span class="p">)</span> <span class="ow">and</span> <span class="n">change</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">JarClassReport</span><span class="o">.</span><span class="n">report_name</span>
+                <span class="n">sub_r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">subreporter</span><span class="p">(</span><span class="n">change</span><span class="o">.</span><span class="n">entry</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="n">change</span> <span class="o">=</span> <span class="n">JarClassReport</span><span class="p">(</span><span class="n">change</span><span class="o">.</span><span class="n">ldata</span><span class="p">,</span> <span class="n">change</span><span class="o">.</span><span class="n">rdata</span><span class="p">,</span>
+                                        <span class="n">change</span><span class="o">.</span><span class="n">entry</span><span class="p">,</span> <span class="n">sub_r</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">change</span>
+
+</div>
+<div class="viewcode-block" id="JarContentsReport.check_impl"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarContentsReport.check_impl">[docs]</a>    <span class="k">def</span> <span class="nf">check_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">options</span>
+        <span class="n">changes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="k">with</span> <span class="n">open_zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="p">)</span> <span class="k">as</span> <span class="n">lzip</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">open_zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">)</span> <span class="k">as</span> <span class="n">rzip</span><span class="p">:</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">lzip</span> <span class="o">=</span> <span class="n">lzip</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rzip</span> <span class="o">=</span> <span class="n">rzip</span>
+
+                <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">collect_impl</span><span class="p">():</span>
+                    <span class="n">change</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">c</span> <span class="ow">or</span> <span class="n">change</span><span class="o">.</span><span class="n">is_change</span><span class="p">()</span>
+
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">JarClassReport</span><span class="p">):</span>
+                        <span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">squash</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">))</span>
+                        <span class="n">change</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">change</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lzip</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rzip</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">changes</span> <span class="o">=</span> <span class="n">changes</span>
+        <span class="k">return</span> <span class="n">c</span><span class="p">,</span> <span class="bp">None</span>
+
+</div></div>
+<div class="viewcode-block" id="JarReport"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarReport">[docs]</a><span class="k">class</span> <span class="nc">JarReport</span><span class="p">(</span><span class="n">JarChange</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class has side-effects. Running the check method with the</span>
+<span class="sd">    reportdir options set to True will cause the deep checks to be</span>
+<span class="sd">    written to file in that directory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">report_name</span> <span class="o">=</span> <span class="s">&quot;JarReport&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">reporter</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">JarReport</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span> <span class="o">=</span> <span class="n">reporter</span>
+
+
+<div class="viewcode-block" id="JarReport.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarReport.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">JarChange</span><span class="o">.</span><span class="n">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">JarContentsChange</span><span class="p">):</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">JarContentsReport</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">ldata</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">rdata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">c</span>
+
+</div>
+<div class="viewcode-block" id="JarReport.check"><a class="viewcode-back" href="../../../change/#javatools.jardiff.JarReport.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># do the actual checking</span>
+        <span class="n">JarChange</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c"># write to file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+
+<span class="c"># ---- Begin jardiff CLI ----</span>
+<span class="c">#</span>
+
+</div></div>
+<div class="viewcode-block" id="cli_jars_diff"><a class="viewcode-back" href="../../../change/#javatools.jardiff.cli_jars_diff">[docs]</a><span class="k">def</span> <span class="nf">cli_jars_diff</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">.report</span> <span class="kn">import</span> <span class="n">quick_report</span><span class="p">,</span> <span class="n">Reporter</span>
+    <span class="kn">from</span> <span class="nn">.report</span> <span class="kn">import</span> <span class="n">JSONReportFormat</span><span class="p">,</span> <span class="n">TextReportFormat</span>
+
+    <span class="n">reports</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;reports&quot;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">reports</span><span class="p">:</span>
+        <span class="n">rdir</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">report_dir</span> <span class="ow">or</span> <span class="s">&quot;./&quot;</span>
+
+        <span class="n">rpt</span> <span class="o">=</span> <span class="n">Reporter</span><span class="p">(</span><span class="n">rdir</span><span class="p">,</span> <span class="n">JarReport</span><span class="o">.</span><span class="n">report_name</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+        <span class="n">rpt</span><span class="o">.</span><span class="n">add_formats_by_name</span><span class="p">(</span><span class="n">reports</span><span class="p">)</span>
+
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">JarReport</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">rpt</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">JarChange</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+
+    <span class="n">delta</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">silent</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">json</span><span class="p">:</span>
+            <span class="n">quick_report</span><span class="p">(</span><span class="n">JSONReportFormat</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">quick_report</span><span class="p">(</span><span class="n">TextReportFormat</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">delta</span><span class="o">.</span><span class="n">is_change</span><span class="p">())</span> <span class="ow">or</span> <span class="n">delta</span><span class="o">.</span><span class="n">is_ignored</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+</div>
+<div class="viewcode-block" id="cli"><a class="viewcode-back" href="../../../change/#javatools.jardiff.cli">[docs]</a><span class="k">def</span> <span class="nf">cli</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">rest</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;wrong number of arguments.&quot;</span><span class="p">)</span>
+
+    <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">rest</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">cli_jars_diff</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="jardiff_optgroup"><a class="viewcode-back" href="../../../change/#javatools.jardiff.jardiff_optgroup">[docs]</a><span class="k">def</span> <span class="nf">jardiff_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    option group specific to the tests in jardiff</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionGroup</span>
+
+    <span class="n">og</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s">&quot;JAR Checking Options&quot;</span><span class="p">)</span>
+
+    <span class="n">og</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-jar-entry&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;append&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[])</span>
+
+    <span class="n">og</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-jar-signature&quot;</span><span class="p">,</span>
+                  <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                  <span class="n">help</span><span class="o">=</span><span class="s">&quot;Ignore JAR signing changes&quot;</span><span class="p">)</span>
+
+    <span class="n">og</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-manifest&quot;</span><span class="p">,</span>
+                  <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                  <span class="n">help</span><span class="o">=</span><span class="s">&quot;Ignore changes to manifests&quot;</span><span class="p">)</span>
+
+    <span class="n">og</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-manifest-subsections&quot;</span><span class="p">,</span>
+                  <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                  <span class="n">help</span><span class="o">=</span><span class="s">&quot;Ignore changes to manifest subsections&quot;</span><span class="p">)</span>
+
+    <span class="n">og</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-manifest-key&quot;</span><span class="p">,</span>
+                  <span class="n">action</span><span class="o">=</span><span class="s">&quot;append&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+                  <span class="n">help</span><span class="o">=</span><span class="s">&quot;case-insensitive manifest keys to ignore&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">og</span>
+
+</div>
+<span class="k">def</span> <span class="nf">create_optparser</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    an OptionParser instance with the appropriate options and groups</span>
+<span class="sd">    for the jardiff utility</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span>
+    <span class="kn">from</span> <span class="nn">.classdiff</span> <span class="kn">import</span> <span class="n">general_optgroup</span><span class="p">,</span> <span class="n">classdiff_optgroup</span>
+    <span class="kn">from</span> <span class="nn">javatools</span> <span class="kn">import</span> <span class="n">report</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="s">&quot;%prog [OPTIONS] OLD_JAR NEW_JAR&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">general_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">jardiff_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">classdiff_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">general_report_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">json_report_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">html_report_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">parser</span>
+
+
+<div class="viewcode-block" id="default_jardiff_options"><a class="viewcode-back" href="../../../change/#javatools.jardiff.default_jardiff_options">[docs]</a><span class="k">def</span> <span class="nf">default_jardiff_options</span><span class="p">(</span><span class="n">updates</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    generate an options object with the appropriate default values in</span>
+<span class="sd">    place for API usage of jardiff features. overrides is an optional</span>
+<span class="sd">    dictionary which will be used to update fields on the options</span>
+<span class="sd">    object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">create_optparser</span><span class="p">()</span>
+    <span class="n">options</span><span class="p">,</span> <span class="n">_args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="nb">list</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="n">updates</span><span class="p">:</span>
+        <span class="c">#pylint: disable=W0212</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">_update_careful</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">options</span>
+
+</div>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../change/#javatools.jardiff.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    main entry point for the jardiff CLI</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">create_optparser</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">cli</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="o">*</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+
+
+<span class="c">#</span>
+<span class="c"># The end.</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex/" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../">javatools 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="../../" >Module code</a> &raquo;</li>
+          <li><a href="../" >javatools</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2014, Christopher O&#39;Brien.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-47351906-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+  </body>
+</html>

@@ -1,0 +1,2120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Comparing Java Artifacts &mdash; javatools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="javatools 1.0.0 documentation" href="../" />
+    <link rel="next" title="Reporting Changes" href="../report/" />
+    <link rel="prev" title="Javatools Core Modules" href="../javatools/" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex/" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../report/" title="Reporting Changes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../javatools/" title="Javatools Core Modules"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../">javatools 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="comparing-java-artifacts">
+<h1>Comparing Java Artifacts<a class="headerlink" href="#comparing-java-artifacts" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-javatools.change">
+<span id="javatools-change"></span><h2>javatools.change<a class="headerlink" href="#module-javatools.change" title="Permalink to this headline">¶</a></h2>
+<p>Some abstraction of changes. Useful for the classdiff and jardiff
+modules.</p>
+<p>author: Christopher O&#8217;Brien  &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;
+license: LGPL</p>
+<dl class="function">
+<dt id="javatools.change.squash">
+<tt class="descclassname">javatools.change.</tt><tt class="descname">squash</tt><big>(</big><em>change</em>, <em>is_ignored=False</em>, <em>options=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#squash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.squash" title="Permalink to this definition">¶</a></dt>
+<dd><p>squashes the in-depth information of a change to a simplified (and
+less memory-intensive) form</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.change.collect_by_typename">
+<tt class="descclassname">javatools.change.</tt><tt class="descname">collect_by_typename</tt><big>(</big><em>obj_sequence</em>, <em>cache=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#collect_by_typename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.collect_by_typename" title="Permalink to this definition">¶</a></dt>
+<dd><p>collects objects from obj_sequence and stores them into buckets by
+type name. cache is an optional dict into which we collect the
+results.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.change.collect_by_type">
+<tt class="descclassname">javatools.change.</tt><tt class="descname">collect_by_type</tt><big>(</big><em>obj_sequence</em>, <em>cache=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#collect_by_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.collect_by_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>collects objects from obj_sequence and stores them into buckets by
+type. cache is an optional dict into which we collect the results.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.change.iterate_by_type">
+<tt class="descclassname">javatools.change.</tt><tt class="descname">iterate_by_type</tt><big>(</big><em>objs</em>, <em>typelist</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#iterate_by_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.iterate_by_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>collects a sequence of objs into buckets by type, then re-emits
+objs from the buckets, sorting through the buckets in the order
+specified by typelist. Any objects of a type not specified in
+typelist will be emitted last in no guaranteed order (but still
+grouped by type).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.change.yield_sorted_by_type">
+<tt class="descclassname">javatools.change.</tt><tt class="descname">yield_sorted_by_type</tt><big>(</big><em>*typelist</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#yield_sorted_by_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.yield_sorted_by_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>a useful decorator for the collect_impl method of SuperChange
+subclasses. Caches the yielded changes, and re-emits them
+collected by their type. The order of the types can be specified
+by listing the types as arguments to this decorator. Unlisted
+types will be yielded last in no guaranteed order.</p>
+<p>Grouping happens by exact type match only. Inheritance is not
+taken into consideration for grouping.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.change.Change">
+<em class="property">class </em><tt class="descclassname">javatools.change.</tt><tt class="descname">Change</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#Change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.Change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Base class for representing a specific change between two objects</p>
+<dl class="method">
+<dt id="javatools.change.Change.check">
+<tt class="descname">check</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#Change.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.Change.check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.Change.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#Change.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.Change.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.Change.collect">
+<tt class="descname">collect</tt><big>(</big><em>force=False</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#Change.collect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.Change.collect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.Change.get_description">
+<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#Change.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.Change.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.Change.get_ldata">
+<tt class="descname">get_ldata</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#Change.get_ldata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.Change.get_ldata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.Change.get_rdata">
+<tt class="descname">get_rdata</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#Change.get_rdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.Change.get_rdata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.Change.is_change">
+<tt class="descname">is_change</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#Change.is_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.Change.is_change" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.Change.is_ignored">
+<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#Change.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.Change.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd><p>is this change ignorable, given parameters on the options
+object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.change.Change.label">
+<tt class="descname">label</tt><em class="property"> = 'Change'</em><a class="headerlink" href="#javatools.change.Change.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.Change.simplify">
+<tt class="descname">simplify</tt><big>(</big><em>options=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#Change.simplify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.Change.simplify" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a dict describing a simple snapshot of this change, and
+its children if any.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.change.Addition">
+<em class="property">class </em><tt class="descclassname">javatools.change.</tt><tt class="descname">Addition</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#Addition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.Addition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.Change" title="javatools.change.Change"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.Change</span></tt></a></p>
+<p>A type of change indicating that something was added</p>
+<dl class="method">
+<dt id="javatools.change.Addition.is_change">
+<tt class="descname">is_change</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#Addition.is_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.Addition.is_change" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.change.Addition.label">
+<tt class="descname">label</tt><em class="property"> = 'Addition'</em><a class="headerlink" href="#javatools.change.Addition.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.change.Removal">
+<em class="property">class </em><tt class="descclassname">javatools.change.</tt><tt class="descname">Removal</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#Removal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.Removal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.Change" title="javatools.change.Change"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.Change</span></tt></a></p>
+<p>A type of change indicating that something was removed</p>
+<dl class="method">
+<dt id="javatools.change.Removal.is_change">
+<tt class="descname">is_change</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#Removal.is_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.Removal.is_change" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.change.Removal.label">
+<tt class="descname">label</tt><em class="property"> = 'Removal'</em><a class="headerlink" href="#javatools.change.Removal.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.change.GenericChange">
+<em class="property">class </em><tt class="descclassname">javatools.change.</tt><tt class="descname">GenericChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#GenericChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.GenericChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.Change" title="javatools.change.Change"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.Change</span></tt></a></p>
+<p>A generalized test for a single change on two objects: a left and
+a right. Subclasses should override the label and the check_impl
+method at a minimum.</p>
+<dl class="method">
+<dt id="javatools.change.GenericChange.check">
+<tt class="descname">check</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#GenericChange.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.GenericChange.check" title="Permalink to this definition">¶</a></dt>
+<dd><p>if necessary, override check_impl to change the behaviour of
+subclasses of GenericChange.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.GenericChange.check_impl">
+<tt class="descname">check_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#GenericChange.check_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.GenericChange.check_impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a tuple of (is_change,description) which are then stored
+in self.changed and self.description</p>
+<p>The default implementation will get the data from the left and
+right sides by calling self.fn_data, then compare them via
+self.fn_differ. If they do differ, a message will be
+constructed using self.fn_pretty to create human-readable
+versions of the data that changed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.GenericChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>side_data</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#GenericChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.GenericChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the data to be used in fn_differ from side_data. By default,
+this method is the identity</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.GenericChange.fn_differ">
+<tt class="descname">fn_differ</tt><big>(</big><em>left_data</em>, <em>right_data</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#GenericChange.fn_differ"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.GenericChange.fn_differ" title="Permalink to this definition">¶</a></dt>
+<dd><p>override to provide the check for whether get_ldata() and
+get_rdata() differ. defaults to an inequality (!=) check</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.GenericChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>side_data</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#GenericChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.GenericChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd><p>override to provide a way to show the pretty version of the left
+or right data. Defaults to fn_data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.GenericChange.fn_pretty_desc">
+<tt class="descname">fn_pretty_desc</tt><big>(</big><em>side_data</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#GenericChange.fn_pretty_desc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.GenericChange.fn_pretty_desc" title="Permalink to this definition">¶</a></dt>
+<dd><p>override to provide a way to describe the data left or right
+data. Defaults to fn_pretty</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.GenericChange.get_ldata">
+<tt class="descname">get_ldata</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#GenericChange.get_ldata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.GenericChange.get_ldata" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns fn_data of ldata</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.GenericChange.get_rdata">
+<tt class="descname">get_rdata</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#GenericChange.get_rdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.GenericChange.get_rdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns fn_data of rdata</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.change.GenericChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Generic Change'</em><a class="headerlink" href="#javatools.change.GenericChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.GenericChange.pretty_ldata">
+<tt class="descname">pretty_ldata</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#GenericChange.pretty_ldata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.GenericChange.pretty_ldata" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns fn_pretty of ldata (NOT the fn_pretty of get_ldata)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.GenericChange.pretty_ldata_desc">
+<tt class="descname">pretty_ldata_desc</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#GenericChange.pretty_ldata_desc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.GenericChange.pretty_ldata_desc" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns fn_pretty_desc of ldata (NOT the fn_pretty_desc of
+get_ldata)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.GenericChange.pretty_rdata">
+<tt class="descname">pretty_rdata</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#GenericChange.pretty_rdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.GenericChange.pretty_rdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns fn_pretty of rdata (NOT the fn_pretty of get_rdata)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.GenericChange.pretty_rdata_desc">
+<tt class="descname">pretty_rdata_desc</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#GenericChange.pretty_rdata_desc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.GenericChange.pretty_rdata_desc" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns fn_pretty_desc of rdata (NOT the fn_pretty_desc of
+get_rdata)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.GenericChange.simplify">
+<tt class="descname">simplify</tt><big>(</big><em>options=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#GenericChange.simplify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.GenericChange.simplify" title="Permalink to this definition">¶</a></dt>
+<dd><p>provide a simple representation of this change as a dictionary</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.change.SuperChange">
+<em class="property">class </em><tt class="descclassname">javatools.change.</tt><tt class="descname">SuperChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SuperChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SuperChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<p>A collection of changes.</p>
+<p>For simplest use, override the change_types class field with a
+list of Change subclasses. When the default collect_impl is called
+from collect, an instance of each type will be created with the
+same left and right data as the SuperChange instance was created
+with. The check_impl (called from check) will iterate over the
+instances and call their check method in-turn.</p>
+<p>An instance of SuperChange is considered unchanged if all of its
+sub-changes are also unchanged (or if there were no sub-changes).</p>
+<p>An instance of Superchange is considered ignored if it was a
+change and all of its changed children were also ignored.</p>
+<dl class="attribute">
+<dt id="javatools.change.SuperChange.change_types">
+<tt class="descname">change_types</tt><em class="property"> = ()</em><a class="headerlink" href="#javatools.change.SuperChange.change_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.SuperChange.check_impl">
+<tt class="descname">check_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SuperChange.check_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SuperChange.check_impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets self.changes to the result of self.changes_impl, then if any
+member of those checks shows as a change, will return
+True,None</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.SuperChange.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SuperChange.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SuperChange.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>clears all child changes and drops the reference to them</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.SuperChange.collect">
+<tt class="descname">collect</tt><big>(</big><em>force=False</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SuperChange.collect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SuperChange.collect" title="Permalink to this definition">¶</a></dt>
+<dd><p>calls collect_impl and stores the results as the child changes of
+this super-change. Returns a tuple of the data generated from
+collect_impl. Caches the result rather than re-computing each
+time, unless force is True</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.SuperChange.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SuperChange.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SuperChange.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>instanciates each of the entries in in the overriden change_types
+field with the left and right data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.SuperChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SuperChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SuperChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.SuperChange.is_ignored">
+<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SuperChange.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SuperChange.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd><p>If we have changed children and all the children which are changes
+are ignored, then we are ignored. Otherwise, we are not
+ignored</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.change.SuperChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Super Change'</em><a class="headerlink" href="#javatools.change.SuperChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.SuperChange.simplify">
+<tt class="descname">simplify</tt><big>(</big><em>options=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SuperChange.simplify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SuperChange.simplify" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate a simple dict representing this change data, and
+collecting all of the sub-change instances (which are NOT
+immediately simplified themselves)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.SuperChange.squash_children">
+<tt class="descname">squash_children</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SuperChange.squash_children"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SuperChange.squash_children" title="Permalink to this definition">¶</a></dt>
+<dd><p>reduces the memory footprint of this super-change by converting
+all child changes into squashed changes</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.change.SquashedChange">
+<em class="property">class </em><tt class="descclassname">javatools.change.</tt><tt class="descname">SquashedChange</tt><big>(</big><em>change</em>, <em>is_ignored=False</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SquashedChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SquashedChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.Change" title="javatools.change.Change"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.Change</span></tt></a></p>
+<p>For when you want to keep just the overall data from a change,
+including whether it was ignored, but want to discard the more
+in-depth information.</p>
+<dl class="method">
+<dt id="javatools.change.SquashedChange.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SquashedChange.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SquashedChange.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.SquashedChange.is_change">
+<tt class="descname">is_change</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SquashedChange.is_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SquashedChange.is_change" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.SquashedChange.is_ignored">
+<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SquashedChange.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SquashedChange.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.change.SquashedChange.label">
+<tt class="descname">label</tt><em class="property"> = 'SquashedChange'</em><a class="headerlink" href="#javatools.change.SquashedChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.change.SquashedChange.simplify">
+<tt class="descname">simplify</tt><big>(</big><em>options=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SquashedChange.simplify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SquashedChange.simplify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.change.SquashedAddition">
+<em class="property">class </em><tt class="descclassname">javatools.change.</tt><tt class="descname">SquashedAddition</tt><big>(</big><em>change</em>, <em>is_ignored=False</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SquashedAddition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SquashedAddition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.SquashedChange" title="javatools.change.SquashedChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.SquashedChange</span></tt></a>, <a class="reference internal" href="#javatools.change.Addition" title="javatools.change.Addition"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.Addition</span></tt></a></p>
+<p>Squashed change indicating something was added</p>
+<dl class="attribute">
+<dt id="javatools.change.SquashedAddition.label">
+<tt class="descname">label</tt><em class="property"> = 'SquashedAddition'</em><a class="headerlink" href="#javatools.change.SquashedAddition.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.change.SquashedRemoval">
+<em class="property">class </em><tt class="descclassname">javatools.change.</tt><tt class="descname">SquashedRemoval</tt><big>(</big><em>change</em>, <em>is_ignored=False</em><big>)</big><a class="reference internal" href="../_modules/javatools/change/#SquashedRemoval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.change.SquashedRemoval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.SquashedChange" title="javatools.change.SquashedChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.SquashedChange</span></tt></a>, <a class="reference internal" href="#javatools.change.Removal" title="javatools.change.Removal"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.Removal</span></tt></a></p>
+<p>Squashed change indicating something was removed</p>
+<dl class="attribute">
+<dt id="javatools.change.SquashedRemoval.label">
+<tt class="descname">label</tt><em class="property"> = 'SquashedRemoval'</em><a class="headerlink" href="#javatools.change.SquashedRemoval.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-javatools.classdiff">
+<span id="javatools-classdiff"></span><h2>javatools.classdiff<a class="headerlink" href="#module-javatools.classdiff" title="Permalink to this headline">¶</a></h2>
+<p>Utility script for comparing the internals of two Java class files
+for differences in structure and data. Has options to specify changes
+which may be immaterial or unimportant, such as re-ordering of the
+constant pool, line number changes (either absolute or relative),
+added fields or methods, deprecation changes, etc.</p>
+<p>author: Christopher O&#8217;Brien  &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;
+license: LGPL</p>
+<dl class="class">
+<dt id="javatools.classdiff.JavaClassChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">JavaClassChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#JavaClassChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.JavaClassChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.SuperChange" title="javatools.change.SuperChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.SuperChange</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.classdiff.JavaClassChange.change_types">
+<tt class="descname">change_types</tt><em class="property"> = (&lt;class 'javatools.classdiff.ClassInfoChange'&gt;, &lt;class 'javatools.classdiff.ClassAnnotationsChange'&gt;, &lt;class 'javatools.classdiff.ClassInvisibleAnnotationsChange'&gt;, &lt;class 'javatools.classdiff.ClassConstantPoolChange'&gt;, &lt;class 'javatools.classdiff.ClassFieldsChange'&gt;, &lt;class 'javatools.classdiff.ClassMethodsChange'&gt;)</em><a class="headerlink" href="#javatools.classdiff.JavaClassChange.change_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.JavaClassChange.get_description">
+<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#JavaClassChange.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.JavaClassChange.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.JavaClassChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Java Class'</em><a class="headerlink" href="#javatools.classdiff.JavaClassChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.ClassInfoChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">ClassInfoChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#ClassInfoChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.ClassInfoChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.SuperChange" title="javatools.change.SuperChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.SuperChange</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassInfoChange.change_types">
+<tt class="descname">change_types</tt><em class="property"> = (&lt;class 'javatools.classdiff.ClassNameChange'&gt;, &lt;class 'javatools.classdiff.ClassVersionChange'&gt;, &lt;class 'javatools.classdiff.ClassPlatformChange'&gt;, &lt;class 'javatools.classdiff.ClassSuperclassChange'&gt;, &lt;class 'javatools.classdiff.ClassInterfacesChange'&gt;, &lt;class 'javatools.classdiff.ClassAccessflagsChange'&gt;, &lt;class 'javatools.classdiff.ClassDeprecationChange'&gt;, &lt;class 'javatools.classdiff.ClassSignatureChange'&gt;)</em><a class="headerlink" href="#javatools.classdiff.ClassInfoChange.change_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassInfoChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Class information'</em><a class="headerlink" href="#javatools.classdiff.ClassInfoChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.ClassAnnotationsChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">ClassAnnotationsChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#ClassAnnotationsChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.ClassAnnotationsChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">javatools.classdiff.AnnotationsChange</span></tt></p>
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassAnnotationsChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Class runtime annotations'</em><a class="headerlink" href="#javatools.classdiff.ClassAnnotationsChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.ClassInvisibleAnnotationsChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">ClassInvisibleAnnotationsChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#ClassInvisibleAnnotationsChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.ClassInvisibleAnnotationsChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">javatools.classdiff.InvisibleAnnotationsChange</span></tt></p>
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassInvisibleAnnotationsChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Class runtime invisible annotations'</em><a class="headerlink" href="#javatools.classdiff.ClassInvisibleAnnotationsChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.ClassConstantPoolChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">ClassConstantPoolChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#ClassConstantPoolChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.ClassConstantPoolChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.ClassConstantPoolChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#ClassConstantPoolChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.ClassConstantPoolChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.ClassConstantPoolChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#ClassConstantPoolChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.ClassConstantPoolChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.ClassConstantPoolChange.get_description">
+<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#ClassConstantPoolChange.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.ClassConstantPoolChange.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.ClassConstantPoolChange.is_ignored">
+<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#ClassConstantPoolChange.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.ClassConstantPoolChange.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassConstantPoolChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Constant pool'</em><a class="headerlink" href="#javatools.classdiff.ClassConstantPoolChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.ClassFieldsChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">ClassFieldsChange</tt><big>(</big><em>lclass</em>, <em>rclass</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#ClassFieldsChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.ClassFieldsChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.classdiff.ClassMembersChange" title="javatools.classdiff.ClassMembersChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.classdiff.ClassMembersChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.ClassFieldsChange.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#ClassFieldsChange.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.ClassFieldsChange.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassFieldsChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Fields'</em><a class="headerlink" href="#javatools.classdiff.ClassFieldsChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassFieldsChange.member_added">
+<tt class="descname">member_added</tt><a class="headerlink" href="#javatools.classdiff.ClassFieldsChange.member_added" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#javatools.classdiff.FieldAdded" title="javatools.classdiff.FieldAdded"><tt class="xref py py-class docutils literal"><span class="pre">FieldAdded</span></tt></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassFieldsChange.member_changed">
+<tt class="descname">member_changed</tt><a class="headerlink" href="#javatools.classdiff.ClassFieldsChange.member_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#javatools.classdiff.FieldChange" title="javatools.classdiff.FieldChange"><tt class="xref py py-class docutils literal"><span class="pre">FieldChange</span></tt></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassFieldsChange.member_removed">
+<tt class="descname">member_removed</tt><a class="headerlink" href="#javatools.classdiff.ClassFieldsChange.member_removed" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#javatools.classdiff.FieldRemoved" title="javatools.classdiff.FieldRemoved"><tt class="xref py py-class docutils literal"><span class="pre">FieldRemoved</span></tt></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.ClassMethodsChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">ClassMethodsChange</tt><big>(</big><em>lclass</em>, <em>rclass</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#ClassMethodsChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.ClassMethodsChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.classdiff.ClassMembersChange" title="javatools.classdiff.ClassMembersChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.classdiff.ClassMembersChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.ClassMethodsChange.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#ClassMethodsChange.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.ClassMethodsChange.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassMethodsChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Methods'</em><a class="headerlink" href="#javatools.classdiff.ClassMethodsChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassMethodsChange.member_added">
+<tt class="descname">member_added</tt><a class="headerlink" href="#javatools.classdiff.ClassMethodsChange.member_added" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#javatools.classdiff.MethodAdded" title="javatools.classdiff.MethodAdded"><tt class="xref py py-class docutils literal"><span class="pre">MethodAdded</span></tt></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassMethodsChange.member_changed">
+<tt class="descname">member_changed</tt><a class="headerlink" href="#javatools.classdiff.ClassMethodsChange.member_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#javatools.classdiff.MethodChange" title="javatools.classdiff.MethodChange"><tt class="xref py py-class docutils literal"><span class="pre">MethodChange</span></tt></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassMethodsChange.member_removed">
+<tt class="descname">member_removed</tt><a class="headerlink" href="#javatools.classdiff.ClassMethodsChange.member_removed" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#javatools.classdiff.MethodRemoved" title="javatools.classdiff.MethodRemoved"><tt class="xref py py-class docutils literal"><span class="pre">MethodRemoved</span></tt></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.ClassMembersChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">ClassMembersChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#ClassMembersChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.ClassMembersChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.SuperChange" title="javatools.change.SuperChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.SuperChange</span></tt></a></p>
+<p>basis for ClassFieldsChange and ClassMethodsChange</p>
+<dl class="method">
+<dt id="javatools.classdiff.ClassMembersChange.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#ClassMembersChange.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.ClassMembersChange.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassMembersChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Members'</em><a class="headerlink" href="#javatools.classdiff.ClassMembersChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassMembersChange.member_added">
+<tt class="descname">member_added</tt><a class="headerlink" href="#javatools.classdiff.ClassMembersChange.member_added" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#javatools.classdiff.MemberAdded" title="javatools.classdiff.MemberAdded"><tt class="xref py py-class docutils literal"><span class="pre">MemberAdded</span></tt></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassMembersChange.member_changed">
+<tt class="descname">member_changed</tt><a class="headerlink" href="#javatools.classdiff.ClassMembersChange.member_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#javatools.classdiff.MemberSuperChange" title="javatools.classdiff.MemberSuperChange"><tt class="xref py py-class docutils literal"><span class="pre">MemberSuperChange</span></tt></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.ClassMembersChange.member_removed">
+<tt class="descname">member_removed</tt><a class="headerlink" href="#javatools.classdiff.ClassMembersChange.member_removed" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#javatools.classdiff.MemberRemoved" title="javatools.classdiff.MemberRemoved"><tt class="xref py py-class docutils literal"><span class="pre">MemberRemoved</span></tt></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MemberSuperChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MemberSuperChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MemberSuperChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MemberSuperChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.SuperChange" title="javatools.change.SuperChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.SuperChange</span></tt></a></p>
+<p>basis for FieldChange and MethodChange</p>
+<dl class="method">
+<dt id="javatools.classdiff.MemberSuperChange.get_description">
+<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MemberSuperChange.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MemberSuperChange.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.MemberSuperChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Member'</em><a class="headerlink" href="#javatools.classdiff.MemberSuperChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MemberAdded">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MemberAdded</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MemberAdded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MemberAdded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.Addition" title="javatools.change.Addition"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.Addition</span></tt></a></p>
+<p>basis for FieldAdded and MethodAdded</p>
+<dl class="method">
+<dt id="javatools.classdiff.MemberAdded.get_description">
+<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MemberAdded.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MemberAdded.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.MemberAdded.label">
+<tt class="descname">label</tt><em class="property"> = 'Member added'</em><a class="headerlink" href="#javatools.classdiff.MemberAdded.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MemberRemoved">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MemberRemoved</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MemberRemoved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MemberRemoved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.Removal" title="javatools.change.Removal"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.Removal</span></tt></a></p>
+<p>basis for FieldChange and MethodChange</p>
+<dl class="method">
+<dt id="javatools.classdiff.MemberRemoved.get_description">
+<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MemberRemoved.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MemberRemoved.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.MemberRemoved.label">
+<tt class="descname">label</tt><em class="property"> = 'Member removed'</em><a class="headerlink" href="#javatools.classdiff.MemberRemoved.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.FieldChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">FieldChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.classdiff.MemberSuperChange" title="javatools.classdiff.MemberSuperChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.classdiff.MemberSuperChange</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.classdiff.FieldChange.change_types">
+<tt class="descname">change_types</tt><em class="property"> = (&lt;class 'javatools.classdiff.FieldNameChange'&gt;, &lt;class 'javatools.classdiff.FieldTypeChange'&gt;, &lt;class 'javatools.classdiff.FieldSignatureChange'&gt;, &lt;class 'javatools.classdiff.FieldAnnotationsChange'&gt;, &lt;class 'javatools.classdiff.FieldInvisibleAnnotationsChange'&gt;, &lt;class 'javatools.classdiff.FieldAccessflagsChange'&gt;, &lt;class 'javatools.classdiff.FieldConstvalueChange'&gt;, &lt;class 'javatools.classdiff.FieldDeprecationChange'&gt;)</em><a class="headerlink" href="#javatools.classdiff.FieldChange.change_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.FieldChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Field'</em><a class="headerlink" href="#javatools.classdiff.FieldChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.FieldAdded">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">FieldAdded</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldAdded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldAdded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.classdiff.MemberAdded" title="javatools.classdiff.MemberAdded"><tt class="xref py py-class docutils literal"><span class="pre">javatools.classdiff.MemberAdded</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.classdiff.FieldAdded.label">
+<tt class="descname">label</tt><em class="property"> = 'Field added'</em><a class="headerlink" href="#javatools.classdiff.FieldAdded.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.FieldRemoved">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">FieldRemoved</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldRemoved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldRemoved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.classdiff.MemberRemoved" title="javatools.classdiff.MemberRemoved"><tt class="xref py py-class docutils literal"><span class="pre">javatools.classdiff.MemberRemoved</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.classdiff.FieldRemoved.label">
+<tt class="descname">label</tt><em class="property"> = 'Field removed'</em><a class="headerlink" href="#javatools.classdiff.FieldRemoved.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.FieldNameChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">FieldNameChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldNameChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldNameChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.FieldNameChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldNameChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldNameChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.FieldNameChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Field name'</em><a class="headerlink" href="#javatools.classdiff.FieldNameChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.FieldTypeChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">FieldTypeChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldTypeChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldTypeChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.FieldTypeChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldTypeChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldTypeChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.FieldTypeChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldTypeChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldTypeChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.FieldTypeChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Field type'</em><a class="headerlink" href="#javatools.classdiff.FieldTypeChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.FieldSignatureChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">FieldSignatureChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldSignatureChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldSignatureChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.FieldSignatureChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldSignatureChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldSignatureChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.FieldSignatureChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldSignatureChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldSignatureChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.FieldSignatureChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Field Generic Signature'</em><a class="headerlink" href="#javatools.classdiff.FieldSignatureChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.FieldAnnotationsChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">FieldAnnotationsChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldAnnotationsChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldAnnotationsChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">javatools.classdiff.AnnotationsChange</span></tt></p>
+<dl class="attribute">
+<dt id="javatools.classdiff.FieldAnnotationsChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Field runtime annotations'</em><a class="headerlink" href="#javatools.classdiff.FieldAnnotationsChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.FieldInvisibleAnnotationsChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">FieldInvisibleAnnotationsChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldInvisibleAnnotationsChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldInvisibleAnnotationsChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">javatools.classdiff.InvisibleAnnotationsChange</span></tt></p>
+<dl class="attribute">
+<dt id="javatools.classdiff.FieldInvisibleAnnotationsChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Field runtime invisible annotations'</em><a class="headerlink" href="#javatools.classdiff.FieldInvisibleAnnotationsChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.FieldAccessflagsChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">FieldAccessflagsChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldAccessflagsChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldAccessflagsChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.FieldAccessflagsChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldAccessflagsChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldAccessflagsChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.FieldAccessflagsChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldAccessflagsChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldAccessflagsChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.FieldAccessflagsChange.fn_pretty_desc">
+<tt class="descname">fn_pretty_desc</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldAccessflagsChange.fn_pretty_desc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldAccessflagsChange.fn_pretty_desc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.FieldAccessflagsChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Field accessflags'</em><a class="headerlink" href="#javatools.classdiff.FieldAccessflagsChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.FieldConstvalueChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">FieldConstvalueChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldConstvalueChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldConstvalueChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.FieldConstvalueChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldConstvalueChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldConstvalueChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.FieldConstvalueChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldConstvalueChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldConstvalueChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.FieldConstvalueChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Field constvalue'</em><a class="headerlink" href="#javatools.classdiff.FieldConstvalueChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.FieldDeprecationChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">FieldDeprecationChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldDeprecationChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldDeprecationChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.FieldDeprecationChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldDeprecationChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldDeprecationChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.FieldDeprecationChange.is_ignored">
+<tt class="descname">is_ignored</tt><big>(</big><em>o</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#FieldDeprecationChange.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.FieldDeprecationChange.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.FieldDeprecationChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Field deprecation'</em><a class="headerlink" href="#javatools.classdiff.FieldDeprecationChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MethodChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MethodChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.classdiff.MemberSuperChange" title="javatools.classdiff.MemberSuperChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.classdiff.MemberSuperChange</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodChange.change_types">
+<tt class="descname">change_types</tt><em class="property"> = (&lt;class 'javatools.classdiff.MethodNameChange'&gt;, &lt;class 'javatools.classdiff.MethodTypeChange'&gt;, &lt;class 'javatools.classdiff.MethodSignatureChange'&gt;, &lt;class 'javatools.classdiff.MethodAnnotationsChange'&gt;, &lt;class 'javatools.classdiff.MethodInvisibleAnnotationsChange'&gt;, &lt;class 'javatools.classdiff.MethodParametersChange'&gt;, &lt;class 'javatools.classdiff.MethodAccessflagsChange'&gt;, &lt;class 'javatools.classdiff.MethodExceptionsChange'&gt;, &lt;class 'javatools.classdiff.MethodAbstractChange'&gt;, &lt;class 'javatools.classdiff.MethodDeprecationChange'&gt;, &lt;class 'javatools.classdiff.MethodCodeChange'&gt;)</em><a class="headerlink" href="#javatools.classdiff.MethodChange.change_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Method'</em><a class="headerlink" href="#javatools.classdiff.MethodChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MethodAdded">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MethodAdded</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodAdded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodAdded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.classdiff.MemberAdded" title="javatools.classdiff.MemberAdded"><tt class="xref py py-class docutils literal"><span class="pre">javatools.classdiff.MemberAdded</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodAdded.label">
+<tt class="descname">label</tt><em class="property"> = 'Method added'</em><a class="headerlink" href="#javatools.classdiff.MethodAdded.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MethodRemoved">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MethodRemoved</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodRemoved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodRemoved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.classdiff.MemberRemoved" title="javatools.classdiff.MemberRemoved"><tt class="xref py py-class docutils literal"><span class="pre">javatools.classdiff.MemberRemoved</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodRemoved.label">
+<tt class="descname">label</tt><em class="property"> = 'Method removed'</em><a class="headerlink" href="#javatools.classdiff.MethodRemoved.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MethodNameChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MethodNameChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodNameChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodNameChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.MethodNameChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodNameChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodNameChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodNameChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Method name'</em><a class="headerlink" href="#javatools.classdiff.MethodNameChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MethodTypeChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MethodTypeChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodTypeChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodTypeChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.MethodTypeChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodTypeChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodTypeChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.MethodTypeChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodTypeChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodTypeChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodTypeChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Method type'</em><a class="headerlink" href="#javatools.classdiff.MethodTypeChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MethodSignatureChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MethodSignatureChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodSignatureChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodSignatureChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.MethodSignatureChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodSignatureChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodSignatureChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.MethodSignatureChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodSignatureChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodSignatureChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodSignatureChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Method generic signature'</em><a class="headerlink" href="#javatools.classdiff.MethodSignatureChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MethodAnnotationsChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MethodAnnotationsChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodAnnotationsChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodAnnotationsChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">javatools.classdiff.AnnotationsChange</span></tt></p>
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodAnnotationsChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Method runtime annotations'</em><a class="headerlink" href="#javatools.classdiff.MethodAnnotationsChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MethodInvisibleAnnotationsChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MethodInvisibleAnnotationsChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodInvisibleAnnotationsChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodInvisibleAnnotationsChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">javatools.classdiff.InvisibleAnnotationsChange</span></tt></p>
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodInvisibleAnnotationsChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Method runtime invisible annotations'</em><a class="headerlink" href="#javatools.classdiff.MethodInvisibleAnnotationsChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MethodParametersChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MethodParametersChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodParametersChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodParametersChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.MethodParametersChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodParametersChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodParametersChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.MethodParametersChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodParametersChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodParametersChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodParametersChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Method parameters'</em><a class="headerlink" href="#javatools.classdiff.MethodParametersChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MethodAccessflagsChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MethodAccessflagsChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodAccessflagsChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodAccessflagsChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.MethodAccessflagsChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodAccessflagsChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodAccessflagsChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.MethodAccessflagsChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodAccessflagsChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodAccessflagsChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodAccessflagsChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Method accessflags'</em><a class="headerlink" href="#javatools.classdiff.MethodAccessflagsChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MethodExceptionsChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MethodExceptionsChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodExceptionsChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodExceptionsChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.MethodExceptionsChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodExceptionsChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodExceptionsChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.MethodExceptionsChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodExceptionsChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodExceptionsChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodExceptionsChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Method exceptions'</em><a class="headerlink" href="#javatools.classdiff.MethodExceptionsChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MethodAbstractChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MethodAbstractChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodAbstractChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodAbstractChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.MethodAbstractChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodAbstractChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodAbstractChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.MethodAbstractChange.fn_pretty_desc">
+<tt class="descname">fn_pretty_desc</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodAbstractChange.fn_pretty_desc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodAbstractChange.fn_pretty_desc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodAbstractChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Method abstract'</em><a class="headerlink" href="#javatools.classdiff.MethodAbstractChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MethodCodeChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MethodCodeChange</tt><big>(</big><em>l</em>, <em>r</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodCodeChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodCodeChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.SuperChange" title="javatools.change.SuperChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.SuperChange</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodCodeChange.change_types">
+<tt class="descname">change_types</tt><em class="property"> = (&lt;class 'javatools.classdiff.CodeAbsoluteLinesChange'&gt;, &lt;class 'javatools.classdiff.CodeRelativeLinesChange'&gt;, &lt;class 'javatools.classdiff.CodeStackChange'&gt;, &lt;class 'javatools.classdiff.CodeLocalsChange'&gt;, &lt;class 'javatools.classdiff.CodeExceptionChange'&gt;, &lt;class 'javatools.classdiff.CodeConstantsChange'&gt;, &lt;class 'javatools.classdiff.CodeBodyChange'&gt;)</em><a class="headerlink" href="#javatools.classdiff.MethodCodeChange.change_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.MethodCodeChange.check_impl">
+<tt class="descname">check_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodCodeChange.check_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodCodeChange.check_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.MethodCodeChange.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodCodeChange.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodCodeChange.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodCodeChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Method Code'</em><a class="headerlink" href="#javatools.classdiff.MethodCodeChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.MethodDeprecationChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">MethodDeprecationChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodDeprecationChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodDeprecationChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.MethodDeprecationChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodDeprecationChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodDeprecationChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.MethodDeprecationChange.is_ignored">
+<tt class="descname">is_ignored</tt><big>(</big><em>o</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#MethodDeprecationChange.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.MethodDeprecationChange.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.MethodDeprecationChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Method deprecation'</em><a class="headerlink" href="#javatools.classdiff.MethodDeprecationChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.CodeAbsoluteLinesChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">CodeAbsoluteLinesChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeAbsoluteLinesChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeAbsoluteLinesChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.CodeAbsoluteLinesChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeAbsoluteLinesChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeAbsoluteLinesChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.CodeAbsoluteLinesChange.is_ignored">
+<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeAbsoluteLinesChange.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeAbsoluteLinesChange.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.CodeAbsoluteLinesChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Absolute line numbers'</em><a class="headerlink" href="#javatools.classdiff.CodeAbsoluteLinesChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.CodeRelativeLinesChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">CodeRelativeLinesChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeRelativeLinesChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeRelativeLinesChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.CodeRelativeLinesChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeRelativeLinesChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeRelativeLinesChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.CodeRelativeLinesChange.is_ignored">
+<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeRelativeLinesChange.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeRelativeLinesChange.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.CodeRelativeLinesChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Relative line numbers'</em><a class="headerlink" href="#javatools.classdiff.CodeRelativeLinesChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.CodeStackChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">CodeStackChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeStackChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeStackChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.CodeStackChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeStackChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeStackChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.CodeStackChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Stack size'</em><a class="headerlink" href="#javatools.classdiff.CodeStackChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.CodeLocalsChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">CodeLocalsChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeLocalsChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeLocalsChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.CodeLocalsChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeLocalsChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeLocalsChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.CodeLocalsChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Locals'</em><a class="headerlink" href="#javatools.classdiff.CodeLocalsChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.CodeExceptionChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">CodeExceptionChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeExceptionChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeExceptionChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.classdiff.CodeExceptionChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeExceptionChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeExceptionChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.CodeExceptionChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeExceptionChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeExceptionChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.CodeExceptionChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Exception table'</em><a class="headerlink" href="#javatools.classdiff.CodeExceptionChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.CodeConstantsChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">CodeConstantsChange</tt><big>(</big><em>lcode</em>, <em>rcode</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeConstantsChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeConstantsChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<p>This is a test to find instances where the individual opcodes and
+arguments for a method&#8217;s code may all be identical except that ops
+which load from the constant pool may use a different index. We
+will deref the constant index for both sides, and if all of the
+constant values match then we can consider the code to be equal.</p>
+<p>The purpose of such a check is to find other-wise meaningless
+constant pool reordering. If all uses of the pool result in the
+same values, we don&#8217;t really care if the pool is in a different
+order between the old and new versions of a class.</p>
+<dl class="method">
+<dt id="javatools.classdiff.CodeConstantsChange.check_impl">
+<tt class="descname">check_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeConstantsChange.check_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeConstantsChange.check_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.CodeConstantsChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeConstantsChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeConstantsChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.CodeConstantsChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Code constants'</em><a class="headerlink" href="#javatools.classdiff.CodeConstantsChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.CodeBodyChange">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">CodeBodyChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeBodyChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeBodyChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<p>The length or the opcodes or the arguments of the opcodes has
+changed, signalling that the method body is different</p>
+<dl class="method">
+<dt id="javatools.classdiff.CodeBodyChange.check_impl">
+<tt class="descname">check_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeBodyChange.check_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeBodyChange.check_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.CodeBodyChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeBodyChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeBodyChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.classdiff.CodeBodyChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#CodeBodyChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.CodeBodyChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.classdiff.CodeBodyChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Code body'</em><a class="headerlink" href="#javatools.classdiff.CodeBodyChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.classdiff.JavaClassReport">
+<em class="property">class </em><tt class="descclassname">javatools.classdiff.</tt><tt class="descname">JavaClassReport</tt><big>(</big><em>l</em>, <em>r</em>, <em>reporter</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#JavaClassReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.JavaClassReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.classdiff.JavaClassChange" title="javatools.classdiff.JavaClassChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.classdiff.JavaClassChange</span></tt></a></p>
+<p>a JavaClassChange with the side-effect of writing reports</p>
+<dl class="method">
+<dt id="javatools.classdiff.JavaClassReport.check">
+<tt class="descname">check</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#JavaClassReport.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.JavaClassReport.check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.classdiff.pretty_merge_constants">
+<tt class="descclassname">javatools.classdiff.</tt><tt class="descname">pretty_merge_constants</tt><big>(</big><em>left_cpool</em>, <em>right_cpool</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#pretty_merge_constants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.pretty_merge_constants" title="Permalink to this definition">¶</a></dt>
+<dd><p>sequence of tuples containing (index, left type, left pretty
+value, right type, right pretty value). If the constant pools are
+of inequal length, a value of None will be set in place of the
+type and pretty value for indexes past its end</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.classdiff.merge_code">
+<tt class="descclassname">javatools.classdiff.</tt><tt class="descname">merge_code</tt><big>(</big><em>left_code</em>, <em>right_code</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#merge_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.merge_code" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>{ relative_line:</dt>
+<dd><dl class="first docutils">
+<dt>((left_abs_line, ((offset, op, args), ...)),</dt>
+<dd>(right_abs_line, ((offset, op, args), ...))),</dd>
+</dl>
+<p class="last">... }</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.classdiff.cli">
+<tt class="descclassname">javatools.classdiff.</tt><tt class="descname">cli</tt><big>(</big><em>parser</em>, <em>options</em>, <em>rest</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#cli"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.cli" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="javatools.classdiff.main">
+<tt class="descclassname">javatools.classdiff.</tt><tt class="descname">main</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main entry point for the classdiff CLI</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.classdiff.cli_classes_diff">
+<tt class="descclassname">javatools.classdiff.</tt><tt class="descname">cli_classes_diff</tt><big>(</big><em>parser</em>, <em>options</em>, <em>left</em>, <em>right</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#cli_classes_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.cli_classes_diff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="javatools.classdiff.classdiff_optgroup">
+<tt class="descclassname">javatools.classdiff.</tt><tt class="descname">classdiff_optgroup</tt><big>(</big><em>parser</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#classdiff_optgroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.classdiff_optgroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>option group specific to class checking</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.classdiff.default_classdiff_options">
+<tt class="descclassname">javatools.classdiff.</tt><tt class="descname">default_classdiff_options</tt><big>(</big><em>updates=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#default_classdiff_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.default_classdiff_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate an options object with the appropriate default values in
+place for API usage of classdiff features. overrides is an
+optional dictionary which will be used to update fields on the
+options object.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.classdiff.general_optgroup">
+<tt class="descclassname">javatools.classdiff.</tt><tt class="descname">general_optgroup</tt><big>(</big><em>parser</em><big>)</big><a class="reference internal" href="../_modules/javatools/classdiff/#general_optgroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.classdiff.general_optgroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>option group for general-use features of all javatool CLIs</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-javatools.jardiff">
+<span id="javatools-jardiff"></span><h2>javatools.jardiff<a class="headerlink" href="#module-javatools.jardiff" title="Permalink to this headline">¶</a></h2>
+<p>Utility script and module for producing a set of changes in a JAR
+file. Takes the same options as the classdiff script, and in fact uses
+the classdiff script&#8217;s code on each non-identical member in a pair of
+JAR files.</p>
+<p>author: Christopher O&#8217;Brien  &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;
+licence: LGPL</p>
+<dl class="class">
+<dt id="javatools.jardiff.JarChange">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.SuperChange" title="javatools.change.SuperChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.SuperChange</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.jardiff.JarChange.change_types">
+<tt class="descname">change_types</tt><em class="property"> = (&lt;class 'javatools.jardiff.JarTypeChange'&gt;, &lt;class 'javatools.jardiff.JarContentsChange'&gt;)</em><a class="headerlink" href="#javatools.jardiff.JarChange.change_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.jardiff.JarChange.label">
+<tt class="descname">label</tt><em class="property"> = 'JAR'</em><a class="headerlink" href="#javatools.jardiff.JarChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.jardiff.JarTypeChange">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarTypeChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarTypeChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarTypeChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
+<p>exploded vs. zipped and compression level</p>
+<dl class="method">
+<dt id="javatools.jardiff.JarTypeChange.fn_data">
+<tt class="descname">fn_data</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarTypeChange.fn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarTypeChange.fn_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.jardiff.JarTypeChange.fn_pretty">
+<tt class="descname">fn_pretty</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarTypeChange.fn_pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarTypeChange.fn_pretty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.jardiff.JarTypeChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Jar type'</em><a class="headerlink" href="#javatools.jardiff.JarTypeChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.jardiff.JarContentsChange">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarContentsChange</tt><big>(</big><em>left_fn</em>, <em>right_fn</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentsChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentsChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.SuperChange" title="javatools.change.SuperChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.SuperChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.jardiff.JarContentsChange.check_impl">
+<tt class="descname">check_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentsChange.check_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentsChange.check_impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overridden to open the left and right zipfiles and to provide all
+subchecks with an open ZipFile instance rather than having
+them all open and close the ZipFile individually. For the
+duration of the check (which calls collect_impl), the
+attributes self.lzip and self.rzip will be available and used
+as the ldata and rdata of all subchecks.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.jardiff.JarContentsChange.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentsChange.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentsChange.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.jardiff.JarContentsChange.label">
+<tt class="descname">label</tt><em class="property"> = 'JAR Contents'</em><a class="headerlink" href="#javatools.jardiff.JarContentsChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.jardiff.JarManifestChange">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarManifestChange</tt><big>(</big><em>lzip</em>, <em>rzip</em>, <em>entry</em>, <em>is_change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarManifestChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarManifestChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.jardiff.JarContentChange" title="javatools.jardiff.JarContentChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.jardiff.JarContentChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.jardiff.JarManifestChange.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarManifestChange.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarManifestChange.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.jardiff.JarManifestChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Jar Manifest'</em><a class="headerlink" href="#javatools.jardiff.JarManifestChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.jardiff.JarContentChange">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarContentChange</tt><big>(</big><em>lzip</em>, <em>rzip</em>, <em>entry</em>, <em>is_change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.SuperChange" title="javatools.change.SuperChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.SuperChange</span></tt></a></p>
+<p>a file or directory changed between JARs</p>
+<dl class="method">
+<dt id="javatools.jardiff.JarContentChange.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentChange.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentChange.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Content changes refer to more concrete children, but by default
+are empty</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.jardiff.JarContentChange.get_description">
+<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentChange.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentChange.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.jardiff.JarContentChange.is_ignored">
+<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentChange.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentChange.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.jardiff.JarContentChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Jar Content'</em><a class="headerlink" href="#javatools.jardiff.JarContentChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.jardiff.JarContentChange.open_left">
+<tt class="descname">open_left</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentChange.open_left"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentChange.open_left" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.jardiff.JarContentChange.open_right">
+<tt class="descname">open_right</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentChange.open_right"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentChange.open_right" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.jardiff.JarContentAdded">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarContentAdded</tt><big>(</big><em>lzip</em>, <em>rzip</em>, <em>entry</em>, <em>is_change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentAdded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentAdded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.jardiff.JarContentChange" title="javatools.jardiff.JarContentChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.jardiff.JarContentChange</span></tt></a>, <a class="reference internal" href="#javatools.change.Addition" title="javatools.change.Addition"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.Addition</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.jardiff.JarContentAdded.get_description">
+<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentAdded.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentAdded.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.jardiff.JarContentAdded.label">
+<tt class="descname">label</tt><em class="property"> = 'Jar Content Added'</em><a class="headerlink" href="#javatools.jardiff.JarContentAdded.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.jardiff.JarContentRemoved">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarContentRemoved</tt><big>(</big><em>lzip</em>, <em>rzip</em>, <em>entry</em>, <em>is_change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentRemoved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentRemoved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.jardiff.JarContentChange" title="javatools.jardiff.JarContentChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.jardiff.JarContentChange</span></tt></a>, <a class="reference internal" href="#javatools.change.Removal" title="javatools.change.Removal"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.Removal</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.jardiff.JarContentRemoved.get_description">
+<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentRemoved.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentRemoved.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.jardiff.JarContentRemoved.label">
+<tt class="descname">label</tt><em class="property"> = 'Jar Content Removed'</em><a class="headerlink" href="#javatools.jardiff.JarContentRemoved.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.jardiff.JarSignatureChange">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarSignatureChange</tt><big>(</big><em>lzip</em>, <em>rzip</em>, <em>entry</em>, <em>is_change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarSignatureChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarSignatureChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.jardiff.JarContentChange" title="javatools.jardiff.JarContentChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.jardiff.JarContentChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.jardiff.JarSignatureChange.is_ignored">
+<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarSignatureChange.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarSignatureChange.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.jardiff.JarSignatureChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Jar Signature Data'</em><a class="headerlink" href="#javatools.jardiff.JarSignatureChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.jardiff.JarSignatureAdded">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarSignatureAdded</tt><big>(</big><em>lzip</em>, <em>rzip</em>, <em>entry</em>, <em>is_change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarSignatureAdded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarSignatureAdded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.jardiff.JarContentAdded" title="javatools.jardiff.JarContentAdded"><tt class="xref py py-class docutils literal"><span class="pre">javatools.jardiff.JarContentAdded</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.jardiff.JarSignatureAdded.is_ignored">
+<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarSignatureAdded.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarSignatureAdded.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.jardiff.JarSignatureAdded.label">
+<tt class="descname">label</tt><em class="property"> = 'Jar Signature Added'</em><a class="headerlink" href="#javatools.jardiff.JarSignatureAdded.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.jardiff.JarSignatureRemoved">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarSignatureRemoved</tt><big>(</big><em>lzip</em>, <em>rzip</em>, <em>entry</em>, <em>is_change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarSignatureRemoved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarSignatureRemoved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.jardiff.JarContentRemoved" title="javatools.jardiff.JarContentRemoved"><tt class="xref py py-class docutils literal"><span class="pre">javatools.jardiff.JarContentRemoved</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.jardiff.JarSignatureRemoved.is_ignored">
+<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarSignatureRemoved.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarSignatureRemoved.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.jardiff.JarSignatureRemoved.label">
+<tt class="descname">label</tt><em class="property"> = 'Jar Signature Removed'</em><a class="headerlink" href="#javatools.jardiff.JarSignatureRemoved.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.jardiff.JarClassChange">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarClassChange</tt><big>(</big><em>lzip</em>, <em>rzip</em>, <em>entry</em>, <em>is_change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarClassChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarClassChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.jardiff.JarContentChange" title="javatools.jardiff.JarContentChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.jardiff.JarContentChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.jardiff.JarClassChange.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarClassChange.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarClassChange.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.jardiff.JarClassChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Java Class'</em><a class="headerlink" href="#javatools.jardiff.JarClassChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.jardiff.JarClassAdded">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarClassAdded</tt><big>(</big><em>lzip</em>, <em>rzip</em>, <em>entry</em>, <em>is_change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarClassAdded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarClassAdded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.jardiff.JarContentAdded" title="javatools.jardiff.JarContentAdded"><tt class="xref py py-class docutils literal"><span class="pre">javatools.jardiff.JarContentAdded</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.jardiff.JarClassAdded.label">
+<tt class="descname">label</tt><em class="property"> = 'Java Class Added'</em><a class="headerlink" href="#javatools.jardiff.JarClassAdded.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.jardiff.JarClassRemoved">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarClassRemoved</tt><big>(</big><em>lzip</em>, <em>rzip</em>, <em>entry</em>, <em>is_change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarClassRemoved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarClassRemoved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.jardiff.JarContentRemoved" title="javatools.jardiff.JarContentRemoved"><tt class="xref py py-class docutils literal"><span class="pre">javatools.jardiff.JarContentRemoved</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.jardiff.JarClassRemoved.label">
+<tt class="descname">label</tt><em class="property"> = 'Java Class Removed'</em><a class="headerlink" href="#javatools.jardiff.JarClassRemoved.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.jardiff.JarReport">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarReport</tt><big>(</big><em>l</em>, <em>r</em>, <em>reporter</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.jardiff.JarChange" title="javatools.jardiff.JarChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.jardiff.JarChange</span></tt></a></p>
+<p>This class has side-effects. Running the check method with the
+reportdir options set to True will cause the deep checks to be
+written to file in that directory</p>
+<dl class="method">
+<dt id="javatools.jardiff.JarReport.check">
+<tt class="descname">check</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarReport.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarReport.check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.jardiff.JarReport.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarReport.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarReport.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.jardiff.JarReport.report_name">
+<tt class="descname">report_name</tt><em class="property"> = 'JarReport'</em><a class="headerlink" href="#javatools.jardiff.JarReport.report_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.jardiff.JarContentsReport">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarContentsReport</tt><big>(</big><em>left_fn</em>, <em>right_fn</em>, <em>reporter</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentsReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentsReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.jardiff.JarContentsChange" title="javatools.jardiff.JarContentsChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.jardiff.JarContentsChange</span></tt></a></p>
+<p>overridden JarContentsChange which will swap out JarClassChange
+with JarClassReport instances. The check_impl method gains the
+side effect of causing all JarClassReports gathered to write
+reports of themselves to file.</p>
+<dl class="method">
+<dt id="javatools.jardiff.JarContentsReport.check_impl">
+<tt class="descname">check_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentsReport.check_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentsReport.check_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.jardiff.JarContentsReport.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarContentsReport.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarContentsReport.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.jardiff.JarClassReport">
+<em class="property">class </em><tt class="descclassname">javatools.jardiff.</tt><tt class="descname">JarClassReport</tt><big>(</big><em>l</em>, <em>r</em>, <em>entry</em>, <em>reporter</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarClassReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarClassReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.jardiff.JarClassChange" title="javatools.jardiff.JarClassChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.jardiff.JarClassChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.jardiff.JarClassReport.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#JarClassReport.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.JarClassReport.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.jardiff.JarClassReport.report_name">
+<tt class="descname">report_name</tt><em class="property"> = 'JavaClassReport'</em><a class="headerlink" href="#javatools.jardiff.JarClassReport.report_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.jardiff.cli">
+<tt class="descclassname">javatools.jardiff.</tt><tt class="descname">cli</tt><big>(</big><em>parser</em>, <em>options</em>, <em>rest</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#cli"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.cli" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="javatools.jardiff.main">
+<tt class="descclassname">javatools.jardiff.</tt><tt class="descname">main</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>main entry point for the jardiff CLI</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.jardiff.cli_jars_diff">
+<tt class="descclassname">javatools.jardiff.</tt><tt class="descname">cli_jars_diff</tt><big>(</big><em>parser</em>, <em>options</em>, <em>left</em>, <em>right</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#cli_jars_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.cli_jars_diff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="javatools.jardiff.jardiff_optgroup">
+<tt class="descclassname">javatools.jardiff.</tt><tt class="descname">jardiff_optgroup</tt><big>(</big><em>parser</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#jardiff_optgroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.jardiff_optgroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>option group specific to the tests in jardiff</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.jardiff.default_jardiff_options">
+<tt class="descclassname">javatools.jardiff.</tt><tt class="descname">default_jardiff_options</tt><big>(</big><em>updates=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/jardiff/#default_jardiff_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.jardiff.default_jardiff_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate an options object with the appropriate default values in
+place for API usage of jardiff features. overrides is an optional
+dictionary which will be used to update fields on the options
+object.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-javatools.distdiff">
+<span id="javatools-distdiff"></span><h2>javatools.distdiff<a class="headerlink" href="#module-javatools.distdiff" title="Permalink to this headline">¶</a></h2>
+<p>Utility for comparing two distributions.</p>
+<p>Distributions are directories. Any JAR files (eg: jar, sar, ear, war)
+will be deeply checked for their class members. And Class files will
+be checked for deep differences.</p>
+<p>author: Christopher O&#8217;Brien  &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;
+license: LGPL</p>
+<dl class="class">
+<dt id="javatools.distdiff.DistChange">
+<em class="property">class </em><tt class="descclassname">javatools.distdiff.</tt><tt class="descname">DistChange</tt><big>(</big><em>left</em>, <em>right</em>, <em>shallow=False</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.SuperChange" title="javatools.change.SuperChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.SuperChange</span></tt></a></p>
+<p>Top-level change for comparing two distributions</p>
+<dl class="method">
+<dt id="javatools.distdiff.DistChange.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistChange.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistChange.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>emits change instances based on the delta of the two distribution
+directories</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.distdiff.DistChange.get_description">
+<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistChange.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistChange.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.distdiff.DistChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Distribution'</em><a class="headerlink" href="#javatools.distdiff.DistChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.distdiff.DistContentChange">
+<em class="property">class </em><tt class="descclassname">javatools.distdiff.</tt><tt class="descname">DistContentChange</tt><big>(</big><em>ldir</em>, <em>rdir</em>, <em>entry</em>, <em>change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistContentChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistContentChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.change.SuperChange" title="javatools.change.SuperChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.SuperChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.distdiff.DistContentChange.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistContentChange.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistContentChange.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Content changes refer to more concrete children, but by
+default are empty</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.distdiff.DistContentChange.get_description">
+<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistContentChange.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistContentChange.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.distdiff.DistContentChange.is_ignored">
+<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistContentChange.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistContentChange.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.distdiff.DistContentChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Distributed Content'</em><a class="headerlink" href="#javatools.distdiff.DistContentChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.distdiff.DistContentChange.left_fn">
+<tt class="descname">left_fn</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistContentChange.left_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistContentChange.left_fn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.distdiff.DistContentChange.open_left">
+<tt class="descname">open_left</tt><big>(</big><em>mode='rb'</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistContentChange.open_left"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistContentChange.open_left" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.distdiff.DistContentChange.open_right">
+<tt class="descname">open_right</tt><big>(</big><em>mode='rb'</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistContentChange.open_right"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistContentChange.open_right" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.distdiff.DistContentChange.right_fn">
+<tt class="descname">right_fn</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistContentChange.right_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistContentChange.right_fn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.distdiff.DistContentAdded">
+<em class="property">class </em><tt class="descclassname">javatools.distdiff.</tt><tt class="descname">DistContentAdded</tt><big>(</big><em>ldir</em>, <em>rdir</em>, <em>entry</em>, <em>change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistContentAdded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistContentAdded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.distdiff.DistContentChange" title="javatools.distdiff.DistContentChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.distdiff.DistContentChange</span></tt></a>, <a class="reference internal" href="#javatools.change.Addition" title="javatools.change.Addition"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.Addition</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.distdiff.DistContentAdded.get_description">
+<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistContentAdded.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistContentAdded.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.distdiff.DistContentAdded.label">
+<tt class="descname">label</tt><em class="property"> = 'Distributed Content Added'</em><a class="headerlink" href="#javatools.distdiff.DistContentAdded.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.distdiff.DistContentRemoved">
+<em class="property">class </em><tt class="descclassname">javatools.distdiff.</tt><tt class="descname">DistContentRemoved</tt><big>(</big><em>ldir</em>, <em>rdir</em>, <em>entry</em>, <em>change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistContentRemoved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistContentRemoved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.distdiff.DistContentChange" title="javatools.distdiff.DistContentChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.distdiff.DistContentChange</span></tt></a>, <a class="reference internal" href="#javatools.change.Removal" title="javatools.change.Removal"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.Removal</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.distdiff.DistContentRemoved.get_description">
+<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistContentRemoved.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistContentRemoved.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.distdiff.DistContentRemoved.label">
+<tt class="descname">label</tt><em class="property"> = 'Distributed Content Removed'</em><a class="headerlink" href="#javatools.distdiff.DistContentRemoved.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.distdiff.DistTextChange">
+<em class="property">class </em><tt class="descclassname">javatools.distdiff.</tt><tt class="descname">DistTextChange</tt><big>(</big><em>l</em>, <em>r</em>, <em>entry</em>, <em>change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistTextChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistTextChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.distdiff.DistContentChange" title="javatools.distdiff.DistContentChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.distdiff.DistContentChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.distdiff.DistTextChange.check">
+<tt class="descname">check</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistTextChange.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistTextChange.check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.distdiff.DistTextChange.is_ignored">
+<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistTextChange.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistTextChange.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.distdiff.DistTextChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Distributed Text'</em><a class="headerlink" href="#javatools.distdiff.DistTextChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.distdiff.DistManifestChange">
+<em class="property">class </em><tt class="descclassname">javatools.distdiff.</tt><tt class="descname">DistManifestChange</tt><big>(</big><em>ldir</em>, <em>rdir</em>, <em>entry</em>, <em>change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistManifestChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistManifestChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.distdiff.DistContentChange" title="javatools.distdiff.DistContentChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.distdiff.DistContentChange</span></tt></a></p>
+<p>A MANIFEST.MF file found in the directory structure of the
+distribution</p>
+<dl class="method">
+<dt id="javatools.distdiff.DistManifestChange.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistManifestChange.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistManifestChange.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.distdiff.DistManifestChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Distributed Manifest'</em><a class="headerlink" href="#javatools.distdiff.DistManifestChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.distdiff.DistClassChange">
+<em class="property">class </em><tt class="descclassname">javatools.distdiff.</tt><tt class="descname">DistClassChange</tt><big>(</big><em>ldir</em>, <em>rdir</em>, <em>entry</em>, <em>change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistClassChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistClassChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.distdiff.DistContentChange" title="javatools.distdiff.DistContentChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.distdiff.DistContentChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.distdiff.DistClassChange.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistClassChange.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistClassChange.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.distdiff.DistClassChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Distributed Java Class'</em><a class="headerlink" href="#javatools.distdiff.DistClassChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.distdiff.DistClassAdded">
+<em class="property">class </em><tt class="descclassname">javatools.distdiff.</tt><tt class="descname">DistClassAdded</tt><big>(</big><em>ldir</em>, <em>rdir</em>, <em>entry</em>, <em>change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistClassAdded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistClassAdded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.distdiff.DistContentAdded" title="javatools.distdiff.DistContentAdded"><tt class="xref py py-class docutils literal"><span class="pre">javatools.distdiff.DistContentAdded</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.distdiff.DistClassAdded.label">
+<tt class="descname">label</tt><em class="property"> = 'Distributed Java Class Added'</em><a class="headerlink" href="#javatools.distdiff.DistClassAdded.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.distdiff.DistClassRemoved">
+<em class="property">class </em><tt class="descclassname">javatools.distdiff.</tt><tt class="descname">DistClassRemoved</tt><big>(</big><em>ldir</em>, <em>rdir</em>, <em>entry</em>, <em>change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistClassRemoved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistClassRemoved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.distdiff.DistContentRemoved" title="javatools.distdiff.DistContentRemoved"><tt class="xref py py-class docutils literal"><span class="pre">javatools.distdiff.DistContentRemoved</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.distdiff.DistClassRemoved.label">
+<tt class="descname">label</tt><em class="property"> = 'Distributed Java Class Removed'</em><a class="headerlink" href="#javatools.distdiff.DistClassRemoved.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.distdiff.DistJarChange">
+<em class="property">class </em><tt class="descclassname">javatools.distdiff.</tt><tt class="descname">DistJarChange</tt><big>(</big><em>ldir</em>, <em>rdir</em>, <em>entry</em>, <em>change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistJarChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistJarChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.distdiff.DistContentChange" title="javatools.distdiff.DistContentChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.distdiff.DistContentChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.distdiff.DistJarChange.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistJarChange.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistJarChange.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.distdiff.DistJarChange.label">
+<tt class="descname">label</tt><em class="property"> = 'Distributed JAR'</em><a class="headerlink" href="#javatools.distdiff.DistJarChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.distdiff.DistJarAdded">
+<em class="property">class </em><tt class="descclassname">javatools.distdiff.</tt><tt class="descname">DistJarAdded</tt><big>(</big><em>ldir</em>, <em>rdir</em>, <em>entry</em>, <em>change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistJarAdded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistJarAdded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.distdiff.DistContentAdded" title="javatools.distdiff.DistContentAdded"><tt class="xref py py-class docutils literal"><span class="pre">javatools.distdiff.DistContentAdded</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.distdiff.DistJarAdded.label">
+<tt class="descname">label</tt><em class="property"> = 'Distributed JAR Added'</em><a class="headerlink" href="#javatools.distdiff.DistJarAdded.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.distdiff.DistJarRemoved">
+<em class="property">class </em><tt class="descclassname">javatools.distdiff.</tt><tt class="descname">DistJarRemoved</tt><big>(</big><em>ldir</em>, <em>rdir</em>, <em>entry</em>, <em>change=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistJarRemoved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistJarRemoved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.distdiff.DistContentRemoved" title="javatools.distdiff.DistContentRemoved"><tt class="xref py py-class docutils literal"><span class="pre">javatools.distdiff.DistContentRemoved</span></tt></a></p>
+<dl class="attribute">
+<dt id="javatools.distdiff.DistJarRemoved.label">
+<tt class="descname">label</tt><em class="property"> = 'Distributed JAR Removed'</em><a class="headerlink" href="#javatools.distdiff.DistJarRemoved.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.distdiff.DistReport">
+<em class="property">class </em><tt class="descclassname">javatools.distdiff.</tt><tt class="descname">DistReport</tt><big>(</big><em>l</em>, <em>r</em>, <em>reporter</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.distdiff.DistChange" title="javatools.distdiff.DistChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.distdiff.DistChange</span></tt></a></p>
+<p>This class has side-effects. Running the check method with the
+reportdir option set to True will cause the deep checks to be
+written to file in that directory</p>
+<dl class="method">
+<dt id="javatools.distdiff.DistReport.check">
+<tt class="descname">check</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistReport.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistReport.check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.distdiff.DistReport.check_impl">
+<tt class="descname">check_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistReport.check_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistReport.check_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.distdiff.DistReport.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistReport.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistReport.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>overrides DistJarChange and DistClassChange from the underlying
+DistChange with DistJarReport and DistClassReport instances</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.distdiff.DistReport.mp_check_impl">
+<tt class="descname">mp_check_impl</tt><big>(</big><em>process_count</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistReport.mp_check_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistReport.mp_check_impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>a multiprocessing-enabled check implementation. Will create up to
+process_count helper processes and use them to perform the
+DistJarReport and DistClassReport actions.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.distdiff.DistReport.report_name">
+<tt class="descname">report_name</tt><em class="property"> = 'DistReport'</em><a class="headerlink" href="#javatools.distdiff.DistReport.report_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.distdiff.DistClassReport">
+<em class="property">class </em><tt class="descclassname">javatools.distdiff.</tt><tt class="descname">DistClassReport</tt><big>(</big><em>l</em>, <em>r</em>, <em>entry</em>, <em>reporter</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistClassReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistClassReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.distdiff.DistClassChange" title="javatools.distdiff.DistClassChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.distdiff.DistClassChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.distdiff.DistClassReport.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistClassReport.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistClassReport.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.distdiff.DistClassReport.report_name">
+<tt class="descname">report_name</tt><em class="property"> = 'JavaClassReport'</em><a class="headerlink" href="#javatools.distdiff.DistClassReport.report_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.distdiff.DistJarReport">
+<em class="property">class </em><tt class="descclassname">javatools.distdiff.</tt><tt class="descname">DistJarReport</tt><big>(</big><em>ldata</em>, <em>rdata</em>, <em>entry</em>, <em>reporter</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistJarReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistJarReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.distdiff.DistJarChange" title="javatools.distdiff.DistJarChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.distdiff.DistJarChange</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.distdiff.DistJarReport.collect_impl">
+<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#DistJarReport.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.DistJarReport.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.distdiff.DistJarReport.report_name">
+<tt class="descname">report_name</tt><em class="property"> = 'JarReport'</em><a class="headerlink" href="#javatools.distdiff.DistJarReport.report_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.distdiff.cli">
+<tt class="descclassname">javatools.distdiff.</tt><tt class="descname">cli</tt><big>(</big><em>parser</em>, <em>options</em>, <em>rest</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#cli"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.cli" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="javatools.distdiff.main">
+<tt class="descclassname">javatools.distdiff.</tt><tt class="descname">main</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>entry point for the distdiff command-line utility</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.distdiff.cli_dist_diff">
+<tt class="descclassname">javatools.distdiff.</tt><tt class="descname">cli_dist_diff</tt><big>(</big><em>parser</em>, <em>options</em>, <em>left</em>, <em>right</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#cli_dist_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.cli_dist_diff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="javatools.distdiff.distdiff_optgroup">
+<tt class="descclassname">javatools.distdiff.</tt><tt class="descname">distdiff_optgroup</tt><big>(</big><em>parser</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#distdiff_optgroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.distdiff_optgroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Option group relating to the use of a DistChange or DistReport</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.distdiff.default_distdiff_options">
+<tt class="descclassname">javatools.distdiff.</tt><tt class="descname">default_distdiff_options</tt><big>(</big><em>updates=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/distdiff/#default_distdiff_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.distdiff.default_distdiff_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate an options object with the appropriate default values in
+place for API usage of distdiff features. overrides is an optional
+dictionary which will be used to update fields on the options
+object.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Comparing Java Artifacts</a><ul>
+<li><a class="reference internal" href="#module-javatools.change">javatools.change</a></li>
+<li><a class="reference internal" href="#module-javatools.classdiff">javatools.classdiff</a></li>
+<li><a class="reference internal" href="#module-javatools.jardiff">javatools.jardiff</a></li>
+<li><a class="reference internal" href="#module-javatools.distdiff">javatools.distdiff</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../javatools/"
+                        title="previous chapter">Javatools Core Modules</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../report/"
+                        title="next chapter">Reporting Changes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/change.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex/" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex/" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../report/" title="Reporting Changes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../javatools/" title="Javatools Core Modules"
+             >previous</a> |</li>
+        <li><a href="../">javatools 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2014, Christopher O&#39;Brien.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-47351906-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+  </body>
+</html>
