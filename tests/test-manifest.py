@@ -20,44 +20,63 @@ author: Christopher O'Brien  <obriencj@gmail.com>
 license: LGPL v.3
 """
 
+
+from . import get_data_fn
+from javatools.manifest import main, Manifest
+
+from cStringIO import StringIO
 from unittest import TestCase
-from javatools.manifest import Manifest
-import subprocess
-import StringIO
+from tempfile import mkstemp
 
 
 class ManifestTest(TestCase):
-    
-    src_dir = "tests/data/"
 
-    ##### Auxiliary functions for tests
 
     def manifest_cli_create(self, args, expected_result):
+        """
+        execute the CLI manifest tool with the given arguments on our test
+        JAR
+        """
 
-        source = self.src_dir + "test-manifest.jar"
-
-        with open(self.src_dir + expected_result) as f:
+        # the result we expect to see from running the script
+        with open(get_data_fn(expected_result)) as f:
             expected_result = f.read()
 
-        result = subprocess.check_output([ "manifest", "-c" ] + args.split() + [ source ])
+        # the invocation of the script
+        src_jar = get_data_fn("test-manifest.jar")
+        tmp_out = mkstemp()[1]
+        cmd = ["manifest", "-c", src_jar, "-m", tmp_out] + args.split()
 
-        self.assertEqual(
-            result, expected_result,
-            "Result of \"manifest -c %s %s\" does not match expected output."
-            " Expected:\n%s\nReceived:\n%s"
-            % (args, source, expected_result, result)
-        )
+        # rather than trying to actually execute the script in a
+        # subprocess, we'll give it an output file call it in the
+        # current process. This prevents issues when there's already
+        # an installed version of python-javatools present which may
+        # be down-version from the one being tested.
+        main(cmd)
+
+        with open(tmp_out) as f:
+            result = f.read()
+
+        self.assertEqual(result, expected_result,
+                         "Result of \"%r\" does not match expected output."
+                         " Expected:\n%s\nReceived:\n%s"
+                         % (cmd, expected_result, result))
+
 
     def manifest_load_store(self, src_file):
-        
-        mf = Manifest()
-        src_file = self.src_dir + src_file
-        mf.parse_file(src_file)
 
+        src_file = get_data_fn(src_file)
+
+        # the expected result is identical to what we feed into the
+        # manifest parser
         with open(src_file) as f:
             expected_result = f.read()
 
-        output = StringIO.StringIO()
+        # create a manifest and parse the chosen test data
+        mf = Manifest()
+        mf.parse_file(src_file)
+
+        output = StringIO()
         mf.store(output)
         result = output.getvalue()
         output.close()
@@ -68,19 +87,27 @@ class ManifestTest(TestCase):
             % (src_file, result)
         )
 
-    ##### Actual tests
 
     def test_create_sha256(self):
         self.manifest_cli_create("-d SHA1", "manifest.SHA1.out")
 
+
     def test_create_sha512(self):
         self.manifest_cli_create("-d SHA-512", "manifest.SHA-512.out")
 
+
     def test_create_with_ignore(self):
-        self.manifest_cli_create("-i example.txt -d MD5,SHA-512", "manifest.ignores.out")
+        self.manifest_cli_create("-i example.txt -d MD5,SHA-512",
+                                 "manifest.ignores.out")
+
 
     def test_load(self):
         self.manifest_load_store("manifest.SHA1.out")
 
+
     def test_load_sha512(self):
         self.manifest_load_store("manifest.SHA-512.out")
+
+
+#
+# The end.
