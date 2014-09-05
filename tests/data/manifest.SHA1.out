@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+
+Name: example.txt
+SHA1-Digest: 5fpE8rMcH7VTtgIec2DQfV2R/14=
+
+Name: filename-which-is-longer-than-80-characters-and-does-not-fit-in-
+ java-manifest-line.txt
+SHA1-Digest: dEjYeYpDgBYtS1b5tFLi9vniTno=
+
