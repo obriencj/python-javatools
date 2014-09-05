@@ -171,7 +171,7 @@ class ManifestSection(OrderedDict):
     primary_key = "Name"
 
 
-    def __init__(self, name=None, linesep=None):
+    def __init__(self, name=None, linesep='\n'):
         OrderedDict.__init__(self)
         self[self.primary_key] = name
         self.linesep = linesep
@@ -241,6 +241,7 @@ class ManifestSection(OrderedDict):
 
         stream.write(self.linesep)
 
+
     def get_data(self):
         """ Result of 'store' method """
         stream = StringIO()
@@ -262,7 +263,7 @@ class Manifest(ManifestSection):
     primary_key = "Manifest-Version"
 
 
-    def __init__(self, version="1.0", linesep=None):
+    def __init__(self, version="1.0", linesep="\n"):
         # can't use super, because we're a child of a non-object
         ManifestSection.__init__(self, version, linesep)
         self.sub_sections = OrderedDict([])
@@ -293,10 +294,11 @@ class Manifest(ManifestSection):
         """ Parse and attempt to detect the line separator """
         with open(filename, "U", _BUFFERING) as stream:
             self.parse(stream)
-        if len(stream.newlines) != 1:
-            raise Exception("Cannot determine line separator in file %s"
-                            % filename)
-        self.linesep = stream.newlines
+
+        #if len(stream.newlines) != 1:
+        #    raise Exception("Cannot determine line separator in file %s"
+        #                    % filename)
+        #self.linesep = stream.newlines
 
 
     def parse(self, data):
@@ -305,16 +307,16 @@ class Manifest(ManifestSection):
         stream or a string
         """
 
-        from re import findall
-
-        if len(findall("\r\n", data)) > 0:
-            self.linesep = "\r\n"
-        elif len(findall("\n", data)) > 0:
-            self.linesep = "\n"
-        elif len(findall("\r", data)) > 0:
-            self.linesep = "\r"
-        else:
-            raise Exception("Cannot determine line separator")
+        #from re import findall
+        #
+        #if len(findall("\r\n", data)) > 0:
+        #    self.linesep = "\r\n"
+        #elif len(findall("\n", data)) > 0:
+        #    self.linesep = "\n"
+        #elif len(findall("\r", data)) > 0:
+        #    self.linesep = "\r"
+        #else:
+        #    raise Exception("Cannot determine line separator")
 
         sections = parse_sections(data)
         self.load(sections.next())
@@ -366,7 +368,7 @@ class Manifest(ManifestSection):
 
 
 class SignatureFile(Manifest):
-    """ 
+    """
     Represents a KEY.SF signature file.
     Structure is similar to that of Manifest.
     """
@@ -642,7 +644,6 @@ def cli_create(options, rest):
     if options.manifest:
         # we'll output to the manifest file if specified, and we'll
         # even create parent directories for it, if necessary
-
         makedirsp(split(options.manifest)[0])
         output = open(options.manifest, "w")
 
