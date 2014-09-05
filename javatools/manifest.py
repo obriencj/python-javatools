@@ -263,7 +263,7 @@ class Manifest(ManifestSection):
         """
 
         ManifestSection.store(self, stream)
-        for _name, sect in sorted(self.sub_sections.items()):
+        for sect in sorted(self.sub_sections.values()):
             sect.store(stream)
 
 
