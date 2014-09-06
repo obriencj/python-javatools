@@ -34,8 +34,9 @@ class ManifestTest(TestCase):
 
     def manifest_cli_create(self, args, expected_result):
         """
-        execute the CLI manifest tool with the given arguments on our test
-        JAR
+        execute the CLI manifest tool with the given arguments on our
+        sample JAR. Verifies that the resulting output manifest is
+        identical to the expected result.
         """
 
         # the result we expect to see from running the script
@@ -43,7 +44,7 @@ class ManifestTest(TestCase):
             expected_result = f.read()
 
         # the invocation of the script
-        src_jar = get_data_fn("test-manifest.jar")
+        src_jar = get_data_fn("manifest-sample.jar")
         tmp_out = mkstemp()[1]
         cmd = ["manifest", "-c", src_jar, "-m", tmp_out] + args.split()
 
@@ -51,7 +52,10 @@ class ManifestTest(TestCase):
         # subprocess, we'll give it an output file call it in the
         # current process. This prevents issues when there's already
         # an installed version of python-javatools present which may
-        # be down-version from the one being tested.
+        # be down-version from the one being tested. Calling the
+        # manifest utility by name will use the installed rather than
+        # local dev copy. Might be able to tweak this, but for now,
+        # this is safer.
         main(cmd)
 
         with open(tmp_out) as f:
@@ -64,6 +68,11 @@ class ManifestTest(TestCase):
 
 
     def manifest_load_store(self, src_file):
+        """
+        Loads a manifest object from a given sample in the data directory,
+        then re-writes it and verifies that the result matches the
+        original.
+        """
 
         src_file = get_data_fn(src_file)
 
@@ -89,24 +98,24 @@ class ManifestTest(TestCase):
 
 
     def test_create_sha256(self):
-        self.manifest_cli_create("-d SHA1", "manifest.SHA1.out")
+        self.manifest_cli_create("-d SHA1", "manifest.SHA1.mf")
 
 
     def test_create_sha512(self):
-        self.manifest_cli_create("-d SHA-512", "manifest.SHA-512.out")
+        self.manifest_cli_create("-d SHA-512", "manifest.SHA-512.mf")
 
 
     def test_create_with_ignore(self):
         self.manifest_cli_create("-i example.txt -d MD5,SHA-512",
-                                 "manifest.ignores.out")
+                                 "manifest.ignores.mf")
 
 
     def test_load(self):
-        self.manifest_load_store("manifest.SHA1.out")
+        self.manifest_load_store("manifest.SHA1.mf")
 
 
     def test_load_sha512(self):
-        self.manifest_load_store("manifest.SHA-512.out")
+        self.manifest_load_store("manifest.SHA-512.mf")
 
 
 #

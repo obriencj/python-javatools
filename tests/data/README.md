@@ -48,3 +48,12 @@ methods with try/catch.
 ## Sample 4
 
 TODO -- annotations
+
+
+## Manifest Samples
+
+- Files: manifest-sample.jar, manifest.SHA-512.mf, manifest.SHA1.mf,
+  manifest.ignores.mf
+
+Tests the reading and writing of the manifest file format, and
+checksum features.
