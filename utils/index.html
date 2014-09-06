@@ -272,7 +272,7 @@ code, args) tuples</p>
 </div>
 <div class="section" id="module-javatools.manifest">
 <span id="javatools-manifest"></span><h2>javatools.manifest<a class="headerlink" href="#module-javatools.manifest" title="Permalink to this headline">¶</a></h2>
-<p>Module for reading and writing MANIFEST.MF files.</p>
+<p>Module for reading and writing files, related to JAR manifest.</p>
 <p><a class="reference external" href="http://docs.oracle.com/javase/1.5.0/docs/guide/jar/index.html">http://docs.oracle.com/javase/1.5.0/docs/guide/jar/index.html</a>
 <a class="reference external" href="http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#JAR%20Manifest">http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#JAR%20Manifest</a></p>
 <p>author: Christopher O&#8217;Brien  &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;
@@ -363,9 +363,9 @@ license: LGPL</p>
 
 <dl class="class">
 <dt id="javatools.manifest.Manifest">
-<em class="property">class </em><tt class="descclassname">javatools.manifest.</tt><tt class="descname">Manifest</tt><big>(</big><em>version='1.0'</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#Manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.Manifest" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">javatools.manifest.</tt><tt class="descname">Manifest</tt><big>(</big><em>version='1.0'</em>, <em>linesep='n'</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#Manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.Manifest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#javatools.manifest.ManifestSection" title="javatools.manifest.ManifestSection"><tt class="xref py py-class docutils literal"><span class="pre">javatools.manifest.ManifestSection</span></tt></a></p>
-<p>Represents a Java Manifest. In essence a dictionary representing
+<p>Represents a Java Manifest as an ordered dictionary containing
 the key:value pairs from the main section of the manifest, and
 zero or more sub-dictionaries of key:value pairs representing the
 sections following the main section. The sections are referenced
@@ -388,6 +388,16 @@ case the existing sub-section will be returned.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="javatools.manifest.Manifest.get_data">
+<tt class="descname">get_data</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.Manifest.get_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="javatools.manifest.Manifest.get_main_section">
+<tt class="descname">get_main_section</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.get_main_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.Manifest.get_main_section" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="javatools.manifest.Manifest.parse">
 <tt class="descname">parse</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.Manifest.parse" title="Permalink to this definition">¶</a></dt>
 <dd><p>populate instance with values and sub-sections from data in a
@@ -397,7 +407,8 @@ stream or a string</p>
 <dl class="method">
 <dt id="javatools.manifest.Manifest.parse_file">
 <tt class="descname">parse_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.parse_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.Manifest.parse_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parse and attempt to detect the line separator</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="javatools.manifest.Manifest.primary_key">
@@ -414,8 +425,14 @@ stream or a string</p>
 
 <dl class="class">
 <dt id="javatools.manifest.ManifestSection">
-<em class="property">class </em><tt class="descclassname">javatools.manifest.</tt><tt class="descname">ManifestSection</tt><big>(</big><em>name=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="http://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></a></p>
+<em class="property">class </em><tt class="descclassname">javatools.manifest.</tt><tt class="descname">ManifestSection</tt><big>(</big><em>name=None</em>, <em>linesep='n'</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/2/library/collections.html#collections.OrderedDict" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">collections.OrderedDict</span></tt></a></p>
+<dl class="method">
+<dt id="javatools.manifest.ManifestSection.get_data">
+<tt class="descname">get_data</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSection.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Result of &#8216;store&#8217; method</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="javatools.manifest.ManifestSection.load">
 <tt class="descname">load</tt><big>(</big><em>items</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSection.load" title="Permalink to this definition">¶</a></dt>
@@ -436,6 +453,83 @@ stream or a string</p>
 <tt class="descname">store</tt><big>(</big><em>stream</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection.store"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSection.store" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="javatools.manifest.ManifestSection.store_item">
+<tt class="descname">store_item</tt><big>(</big><em>key</em>, <em>val</em>, <em>stream</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection.store_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSection.store_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>The MANIFEST specification limits the width of individual lines to
+72 bytes (including the terminating newlines). Any key and
+value pair that would be longer must be split up over multiple
+continuing lines</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="javatools.manifest.SignatureFile">
+<em class="property">class </em><tt class="descclassname">javatools.manifest.</tt><tt class="descname">SignatureFile</tt><big>(</big><em>algorithm</em>, <em>version='1.0'</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#SignatureFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.SignatureFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.manifest.Manifest" title="javatools.manifest.Manifest"><tt class="xref py py-class docutils literal"><span class="pre">javatools.manifest.Manifest</span></tt></a></p>
+<p>Represents a KEY.SF signature file.
+Structure is similar to that of Manifest.</p>
+<dl class="method">
+<dt id="javatools.manifest.SignatureFile.get_signature">
+<tt class="descname">get_signature</tt><big>(</big><em>certificate</em>, <em>private_key</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#SignatureFile.get_signature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.SignatureFile.get_signature" title="Permalink to this definition">¶</a></dt>
+<dd><p>There seems to be no Python crypto library, which would produce a
+JAR-compatible signature. So this is a wrapper around external
+command.  OpenSSL is known to work.</p>
+<p>:param certificate certificate to embed into the signature (PEM format)
+:param private_key RSA private key used to sign (PEM format)</p>
+<p>Any other command which reads data on stdin and returns
+JAR-compatible &#8220;signature file block&#8221; on stdout can be used.
+Note: Oracle does not specify the content of the &#8220;signature
+file block&#8221;, friendly saying that &#8220;These are binary files not
+intended to be interpreted by humans&#8221;:</p>
+<p><a class="reference external" href="http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Digital_Signatures">http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Digital_Signatures</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">content of the signature block file as though</td>
+</tr>
+</tbody>
+</table>
+<p>produced by jarsigner.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="javatools.manifest.SignatureFile.load">
+<tt class="descname">load</tt><big>(</big><em>manifest</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#SignatureFile.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.SignatureFile.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="javatools.manifest.SignatureFile.primary_key">
+<tt class="descname">primary_key</tt><em class="property"> = 'Signature-Version'</em><a class="headerlink" href="#javatools.manifest.SignatureFile.primary_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.manifest.parse_sections">
+<tt class="descclassname">javatools.manifest.</tt><tt class="descname">parse_sections</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#parse_sections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.parse_sections" title="Permalink to this definition">¶</a></dt>
+<dd><p>yields one section at a time in the form</p>
+<p>[ (key, [val, ...]), ... ]</p>
+<p>where key is a string and val is a string representing a single
+line of any value associated with the key. Multiple vals may be
+present if the value is long enough to require line continuations
+in which case simply concatenate the vals together to get the full
+value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.manifest.digest_chunks">
+<tt class="descclassname">javatools.manifest.</tt><tt class="descname">digest_chunks</tt><big>(</big><em>chunks</em>, <em>algorithms=('md5'</em>, <em>'sha1')</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#digest_chunks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.digest_chunks" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a base64 rep of the requested digests from the chunks of
+data</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.manifest.main">
+<tt class="descclassname">javatools.manifest.</tt><tt class="descname">main</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>main entry point for the manifest CLI</p>
 </dd></dl>
 
 <dl class="function">
@@ -444,9 +538,21 @@ stream or a string</p>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="javatools.manifest.main">
-<tt class="descclassname">javatools.manifest.</tt><tt class="descname">main</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.main" title="Permalink to this definition">¶</a></dt>
-<dd><p>main entry point for the manifest CLI</p>
+<dt id="javatools.manifest.cli_create">
+<tt class="descclassname">javatools.manifest.</tt><tt class="descname">cli_create</tt><big>(</big><em>options</em>, <em>rest</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#cli_create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.cli_create" title="Permalink to this definition">¶</a></dt>
+<dd><p>command-line call to create a manifest from a JAR file or a
+directory</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="javatools.manifest.cli_query">
+<tt class="descclassname">javatools.manifest.</tt><tt class="descname">cli_query</tt><big>(</big><em>options</em>, <em>rest</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#cli_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.cli_query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="javatools.manifest.cli_sign">
+<tt class="descclassname">javatools.manifest.</tt><tt class="descname">cli_sign</tt><big>(</big><em>options</em>, <em>rest</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#cli_sign"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.cli_sign" title="Permalink to this definition">¶</a></dt>
+<dd><p>Signs the jar (almost) identically to jarsigner.</p>
 </dd></dl>
 
 </div>
