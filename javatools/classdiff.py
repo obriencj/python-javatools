@@ -20,8 +20,8 @@ which may be immaterial or unimportant, such as re-ordering of the
 constant pool, line number changes (either absolute or relative),
 added fields or methods, deprecation changes, etc.
 
-author: Christopher O'Brien  <obriencj@gmail.com>
-license: LGPL
+:author: Christopher O'Brien  <obriencj@gmail.com>
+:license: LGPL
 """
 
 

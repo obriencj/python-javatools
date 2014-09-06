@@ -16,8 +16,8 @@
 """
 Utilities for discovering entry deltas in a pair of zip files.
 
-author: Christopher O'Brien  <obriencj@gmail.com>
-license: LGPL
+:author: Christopher O'Brien  <obriencj@gmail.com>
+:license: LGPL
 """
 
 

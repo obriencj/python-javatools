@@ -18,8 +18,8 @@
 Utility script and module for discovering information about a
 distribution of mixed class files and JARs.
 
-author: Christopher O'Brien  <obriencj@gmail.com>
-license: LGPL
+:author: Christopher O'Brien  <obriencj@gmail.com>
+:license: LGPL
 """
 
 

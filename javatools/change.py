@@ -17,8 +17,8 @@
 Some abstraction of changes. Useful for the classdiff and jardiff
 modules.
 
-author: Christopher O'Brien  <obriencj@gmail.com>
-license: LGPL
+:author: Christopher O'Brien  <obriencj@gmail.com>
+:license: LGPL
 """
 
 

@@ -20,8 +20,8 @@ Distributions are directories. Any JAR files (eg: jar, sar, ear, war)
 will be deeply checked for their class members. And Class files will
 be checked for deep differences.
 
-author: Christopher O'Brien  <obriencj@gmail.com>
-license: LGPL
+:author: Christopher O'Brien  <obriencj@gmail.com>
+:license: LGPL
 """
 
 

@@ -19,8 +19,8 @@ file. Takes the same options as the classdiff script, and in fact uses
 the classdiff script's code on each non-identical member in a pair of
 JAR files.
 
-author: Christopher O'Brien  <obriencj@gmail.com>
-licence: LGPL
+:author: Christopher O'Brien  <obriencj@gmail.com>
+:licence: LGPL
 """
 
 

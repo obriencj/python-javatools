@@ -18,8 +18,8 @@
 Utility module for discovering the differences between two directory
 trees
 
-author: Christopher O'Brien  <obriencj@gmail.com>
-license: LGPL
+:author: Christopher O'Brien  <obriencj@gmail.com>
+:license: LGPL
 """
 
 

@@ -18,8 +18,8 @@
 Utility module for unpacking shapes of binary data from a buffer
 or stream.
 
-author: Christopher O'Brien <obriencj@gmail.com>
-license: LGPL v.3
+:author: Christopher O'Brien <obriencj@gmail.com>
+:license: LGPL v.3
 """
 
 

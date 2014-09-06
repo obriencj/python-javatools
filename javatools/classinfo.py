@@ -18,8 +18,8 @@ Utility script and module for inspecting binary java class files
 
 Let's pretend to be the javap tool shipped with many Java SDKs
 
-author: Christopher O'Brien  <obriencj@gmail.com>
-license: LGPL
+:author: Christopher O'Brien  <obriencj@gmail.com>
+:license: LGPL
 """
 
 

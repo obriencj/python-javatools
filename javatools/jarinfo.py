@@ -17,8 +17,8 @@
 Module and utility for fetching information out of a JAR file, and
 printing it out.
 
-author: Christopher O'Brien  <obriencj@gmail.com>
-license: LGPL
+:author: Christopher O'Brien  <obriencj@gmail.com>
+:license: LGPL
 """
 
 

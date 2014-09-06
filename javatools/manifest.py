@@ -16,11 +16,13 @@
 """
 Module for reading and writing files, related to JAR manifest.
 
-http://docs.oracle.com/javase/1.5.0/docs/guide/jar/index.html
-http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#JAR%20Manifest
+References
+----------
+* http://docs.oracle.com/javase/1.5.0/docs/guide/jar/index.html
+* http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#JAR%20Manifest
 
-author: Christopher O'Brien  <obriencj@gmail.com>
-license: LGPL
+:author: Christopher O'Brien  <obriencj@gmail.com>
+:license: LGPL
 """
 
 import hashlib
@@ -425,9 +427,6 @@ class SignatureFile(Manifest):
         JAR-compatible signature. So this is a wrapper around external
         command.  OpenSSL is known to work.
 
-        :param certificate certificate to embed into the signature (PEM format)
-        :param private_key RSA private key used to sign (PEM format)
-
         Any other command which reads data on stdin and returns
         JAR-compatible "signature file block" on stdout can be used.
         Note: Oracle does not specify the content of the "signature
@@ -436,8 +435,18 @@ class SignatureFile(Manifest):
 
         http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Digital_Signatures
 
-        :return: content of the signature block file as though
-        produced by jarsigner.
+        Parameters
+        ----------
+        certificate : `str` filename
+          certificate to embed into the signature (PEM format)
+        private_key : `str` filename
+          RSA private key used to sign (PEM format)
+
+        Returns
+        -------
+        signature : `str`
+          content of the signature block file as though produced by
+          jarsigner.
         """
 
         from subprocess import Popen, PIPE, CalledProcessError
