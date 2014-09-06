@@ -69,11 +69,13 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module for reading and writing files, related to JAR manifest.</span>
 
-<span class="sd">http://docs.oracle.com/javase/1.5.0/docs/guide/jar/index.html</span>
-<span class="sd">http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#JAR%20Manifest</span>
+<span class="sd">References</span>
+<span class="sd">----------</span>
+<span class="sd">* http://docs.oracle.com/javase/1.5.0/docs/guide/jar/index.html</span>
+<span class="sd">* http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#JAR%20Manifest</span>
 
-<span class="sd">author: Christopher O&#39;Brien  &lt;obriencj@gmail.com&gt;</span>
-<span class="sd">license: LGPL</span>
+<span class="sd">:author: Christopher O&#39;Brien  &lt;obriencj@gmail.com&gt;</span>
+<span class="sd">:license: LGPL</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">hashlib</span>
@@ -478,9 +480,6 @@
 <span class="sd">        JAR-compatible signature. So this is a wrapper around external</span>
 <span class="sd">        command.  OpenSSL is known to work.</span>
 
-<span class="sd">        :param certificate certificate to embed into the signature (PEM format)</span>
-<span class="sd">        :param private_key RSA private key used to sign (PEM format)</span>
-
 <span class="sd">        Any other command which reads data on stdin and returns</span>
 <span class="sd">        JAR-compatible &quot;signature file block&quot; on stdout can be used.</span>
 <span class="sd">        Note: Oracle does not specify the content of the &quot;signature</span>
@@ -489,8 +488,18 @@
 
 <span class="sd">        http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Digital_Signatures</span>
 
-<span class="sd">        :return: content of the signature block file as though</span>
-<span class="sd">        produced by jarsigner.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        certificate : `str` filename</span>
+<span class="sd">          certificate to embed into the signature (PEM format)</span>
+<span class="sd">        private_key : `str` filename</span>
+<span class="sd">          RSA private key used to sign (PEM format)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        signature : `str`</span>
+<span class="sd">          content of the signature block file as though produced by</span>
+<span class="sd">          jarsigner.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">Popen</span><span class="p">,</span> <span class="n">PIPE</span><span class="p">,</span> <span class="n">CalledProcessError</span>

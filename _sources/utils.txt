@@ -30,7 +30,7 @@ javatools.manifest
 
 
 javatools.dirutils
--------------------
+------------------
 
 .. automodule:: javatools.dirutils
     :members:
