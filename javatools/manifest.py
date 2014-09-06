@@ -24,12 +24,13 @@ license: LGPL
 """
 
 import hashlib
+import os
+import sys
 
 from base64 import b64encode
 from collections import OrderedDict
 from cStringIO import StringIO
 from os.path import isdir, join, sep, split, walk
-from sys import stdout
 from zipfile import ZipFile
 
 from .change import GenericChange, SuperChange
@@ -38,11 +39,13 @@ from .dirutils import fnmatches, makedirsp
 
 
 __all__ = (
-    "ManifestChange",
-    "ManifestSectionChange",
+    "ManifestChange", "ManifestSectionChange",
     "ManifestSectionAdded", "ManifestSectionRemoved",
     "Manifest", "ManifestSection",
-    "cli", "main",
+    "SignatureFile",
+    "parse_sections", "digest_chunks",
+    "main", "cli",
+    "cli_create", "cli_query", "cli_sign",
 )
 
 
@@ -61,6 +64,21 @@ JAVA_TO_HASHLIB_DIGESTS = {
     "SHA-384": "sha384",
     "SHA-512": "sha512"
 }
+
+
+class ManifestKeyException(Exception):
+    """
+    Indicates there was an issue with the key used in a manifest
+    section
+    """
+    pass
+
+
+class MalformedManifest(Exception):
+    """
+    Indicates there was a problem in parsing a manifest
+    """
+    pass
 
 
 class ManifestSectionChange(GenericChange):
@@ -178,11 +196,16 @@ class ManifestSection(OrderedDict):
 
 
     def __setitem__(self, k, v):
-        # our keys should always be strings, as should our values
+        #pylint: disable=W0221
+        # we want the behavior of OrderedDict, but don't take the
+        # additional parameter
 
+        # our keys should always be strings, as should our values. We
+        # also have an upper limit on the length we can permit for
+        # keys, per the JAR MANIFEST specification.
         k = str(k)
         if len(k) > 68:
-            raise Exception("key too long for Manifest")
+            raise ManifestKeyException("key too long", k)
         else:
             OrderedDict.__setitem__(self, k, str(v))
 
@@ -207,17 +230,18 @@ class ManifestSection(OrderedDict):
 
 
     def store_item(self, key, val, stream):
-
-        """ The MANIFEST specification limits the width of individual
-        lines to 72 bytes (including the terminating newlines). Any key
-        and value pair that would be longer must be split up over multiple
-        continuing lines"""
+        """
+        The MANIFEST specification limits the width of individual lines to
+        72 bytes (including the terminating newlines). Any key and
+        value pair that would be longer must be split up over multiple
+        continuing lines
+        """
 
         key = key or ""
         val = val or ""
 
         if not (0 < len(key) < 69):
-            raise Exception("Invalid key length: %i" % len(key))
+            raise ManifestKeyException("key too long", key)
 
         if len(key) + len(val) > 68:
             kvbuffer = StringIO(": ".join((key, val)))
@@ -247,7 +271,6 @@ class ManifestSection(OrderedDict):
         stream = StringIO()
         self.store(stream)
         return stream.getvalue()
-
 
 
 class Manifest(ManifestSection):
@@ -291,14 +314,12 @@ class Manifest(ManifestSection):
 
 
     def parse_file(self, filename):
-        """ Parse and attempt to detect the line separator """
+        """
+        Parse and attempt to detect the line separator
+        """
+
         with open(filename, "U", _BUFFERING) as stream:
             self.parse(stream)
-
-        #if len(stream.newlines) != 1:
-        #    raise Exception("Cannot determine line separator in file %s"
-        #                    % filename)
-        #self.linesep = stream.newlines
 
 
     def parse(self, data):
@@ -307,19 +328,17 @@ class Manifest(ManifestSection):
         stream or a string
         """
 
-        #from re import findall
-        #
-        #if len(findall("\r\n", data)) > 0:
-        #    self.linesep = "\r\n"
-        #elif len(findall("\n", data)) > 0:
-        #    self.linesep = "\n"
-        #elif len(findall("\r", data)) > 0:
-        #    self.linesep = "\r"
-        #else:
-        #    raise Exception("Cannot determine line separator")
+        # the parse_sections function would automatically wrap this
+        # for us, but we want to be able to check the newlines
+        # attribute of the stream in order to set our linesep
+        # attribute
+        if isinstance(data, (str, buffer)):
+            data = StringIO(data)
 
         sections = parse_sections(data)
         self.load(sections.next())
+
+        self.linesep = data.newlines
 
         for section in sections:
             next_section = ManifestSection(None, linesep=self.linesep)
@@ -366,7 +385,6 @@ class Manifest(ManifestSection):
         self.clear()
 
 
-
 class SignatureFile(Manifest):
     """
     Represents a KEY.SF signature file.
@@ -404,37 +422,41 @@ class SignatureFile(Manifest):
     def get_signature(self, certificate, private_key):
         """
         There seems to be no Python crypto library, which would produce a
-        JAR-compatible signature. So this is a wrapper around external command.
-        OpenSSL is known to work.
+        JAR-compatible signature. So this is a wrapper around external
+        command.  OpenSSL is known to work.
+
         :param certificate certificate to embed into the signature (PEM format)
         :param private_key RSA private key used to sign (PEM format)
+
         Any other command which reads data on stdin and returns
         JAR-compatible "signature file block" on stdout can be used.
-        Note: Oracle does not specify the content of the "signature file block",
-        friendly saying that "These are binary files not intended to be
-        interpreted by humans":
+        Note: Oracle does not specify the content of the "signature
+        file block", friendly saying that "These are binary files not
+        intended to be interpreted by humans":
+
         http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Digital_Signatures
 
-        :return: content of the signature block file as though produced
-        by jarsigner.
+        :return: content of the signature block file as though
+        produced by jarsigner.
         """
 
         from subprocess import Popen, PIPE, CalledProcessError
-        import sys
 
         # TODO: handle also DSA and ECDSA keys
-        external_cmd = \
-            "openssl cms -sign -binary -noattr -md SHA256 -signer %s -inkey %s \
-            -outform der" % (certificate, private_key)
+        external_cmd = "openssl cms -sign -binary -noattr -md SHA256" \
+                       " -signer %s -inkey %s -outform der" \
+                       % (certificate, private_key)
+
         proc = Popen(external_cmd.split(),
-            stdin=PIPE, stdout=PIPE, stderr=PIPE)
+                     stdin=PIPE, stdout=PIPE, stderr=PIPE)
+
         (proc_stdout, proc_stderr) = proc.communicate(input=self.get_data())
+
         if proc.returncode != 0:
             print proc_stderr
             raise CalledProcessError(proc.returncode, external_cmd, sys.stderr)
         else:
             return proc_stdout
-
 
 
 def parse_sections(data):
@@ -459,7 +481,7 @@ def parse_sections(data):
     # our current section
     curr = None
 
-    for line in data:
+    for lineno,line in enumerate(data):
 
         # Clean up the line
         cleanline = line.replace('\x00', '').splitlines()[0]
@@ -473,7 +495,8 @@ def parse_sections(data):
         elif cleanline[0] == ' ':
             # line beginning with a space means a continuation
             if curr is None:
-                raise Exception("malformed Manifest, bad continuation")
+                raise MalformedManifest("bad line continuation, "
+                                        " line: %i" % lineno)
             else:
                 curr[-1][1].append(cleanline[1:])
 
@@ -598,13 +621,28 @@ def single_path_generator(pathname):
 
 
 def cli_create(options, rest):
+    """
+    command-line call to create a manifest from a JAR file or a
+    directory
+    """
 
-    import os
     if len(rest) != 2:
         print "Usage: manifest --create [-r|--recursive]" \
               " [-i|--ignore pattern] [-d|--digest algo[,algo ...]]" \
               " [-m manifest] file|directory"
         return 1
+
+    requested_digests = options.digest.split(",")
+    use_digests = []
+
+    for digest in requested_digests:
+        if digest in JAVA_TO_HASHLIB_DIGESTS:
+            use_digests.append(JAVA_TO_HASHLIB_DIGESTS[digest])
+        else:
+            print "Unknown digest algorithm", digest
+            print "Supported algorithms:", ",".join(
+                sorted(JAVA_TO_HASHLIB_DIGESTS.keys()))
+            return 1
 
     if options.recursive:
         entries = multi_path_generator(rest[1:])
@@ -615,20 +653,7 @@ def cli_create(options, rest):
 
     ignores = options.ignore
 
-    requested_digests = options.digest.split(",")
-    use_digests = []
-
-    for digest in requested_digests:
-        if digest in JAVA_TO_HASHLIB_DIGESTS.keys():
-            use_digests.append(JAVA_TO_HASHLIB_DIGESTS[digest])
-        else:
-            print "Unknown digest algorithm", digest
-            print "Supported algorithms:", ",".join(
-                sorted(JAVA_TO_HASHLIB_DIGESTS.keys()))
-            return 1
-
     for name,chunks in entries:
-
         # skip the stuff that we were told to ignore
         if ignores and fnmatches(name, *ignores):
             continue
@@ -639,8 +664,7 @@ def cli_create(options, rest):
                 requested_digests, digest_chunks(chunks(), use_digests)):
             sec[digest + "-Digest"] = digest_value
 
-    output = stdout
-
+    output = sys.stdout
     if options.manifest:
         # we'll output to the manifest file if specified, and we'll
         # even create parent directories for it, if necessary
@@ -732,8 +756,8 @@ def cli(options, rest):
 def create_optparser():
     from optparse import OptionParser
 
-    parse = OptionParser(usage="Create, sign or verify a MANIFEST for a JAR/ZIP"
-                         " or directory")
+    parse = OptionParser(usage="Create, sign or verify a MANIFEST for"
+                         " a JAR, ZIP, or directory")
 
     parse.add_option("-v", "--verify", action="store_true")
     parse.add_option("-c", "--create", action="store_true")
