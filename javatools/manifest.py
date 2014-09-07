@@ -44,8 +44,8 @@ __all__ = (
     "ManifestChange", "ManifestSectionChange",
     "ManifestSectionAdded", "ManifestSectionRemoved",
     "Manifest", "ManifestSection",
-    "SignatureFile",
-    "parse_sections", "digest_chunks",
+    "SignatureManifest",
+    "ManifestKeyException", "MalformedManifest",
     "main", "cli",
     "cli_create", "cli_query", "cli_sign",
 )
@@ -59,7 +59,7 @@ _BUFFERING = 2 ** 14
 # which is referred by the manifest file specification
 # http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Manifest-Overview.
 # But jarsigner produces 'SHA1'.
-JAVA_TO_HASHLIB_DIGESTS = {
+JAVA_TO_HASHLIB = {
     "MD5": "md5",
     "SHA1": "sha1",
     "SHA-256": "sha256",
@@ -225,52 +225,18 @@ class ManifestSection(OrderedDict):
         # written
 
         for k, v in self.items():
-            self.store_item(k, v, stream, linesep)
+            write_key_val(stream, k, v, linesep)
 
         stream.write(linesep)
 
 
-    def store_item(self, key, val, stream, linesep):
+    def get_data(self, linesep=os.linesep):
         """
-        The MANIFEST specification limits the width of individual lines to
-        72 bytes (including the terminating newlines). Any key and
-        value pair that would be longer must be split up over multiple
-        continuing lines
+        Result of 'store' method
         """
 
-        key = key or ""
-        val = val or ""
-
-        if not (0 < len(key) < 69):
-            raise ManifestKeyException("key too long", key)
-
-        if len(key) + len(val) > 68:
-            kvbuffer = StringIO(": ".join((key, val)))
-
-            # first grab 70 (which is 72 after the trailing newline)
-            stream.write(kvbuffer.read(70))
-
-            # now only 69 at a time, because we need a leading space and a
-            # trailing \n
-            part = kvbuffer.read(69)
-            while part:
-                stream.write(linesep + " ")
-                stream.write(part)
-                part = kvbuffer.read(69)
-            kvbuffer.close()
-
-        else:
-            stream.write(key)
-            stream.write(": ")
-            stream.write(val)
-
-        stream.write(linesep)
-
-
-    def get_data(self):
-        """ Result of 'store' method """
         stream = StringIO()
-        self.store(stream)
+        self.store(stream, linesep)
         return stream.getvalue()
 
 
@@ -287,10 +253,11 @@ class Manifest(ManifestSection):
     primary_key = "Manifest-Version"
 
 
-    def __init__(self, version="1.0"):
+    def __init__(self, version="1.0", linesep=None):
         # can't use super, because we're a child of a non-object
         ManifestSection.__init__(self, version)
         self.sub_sections = OrderedDict([])
+        self.linesep = linesep
 
 
     def create_section(self, name, overwrite=True):
@@ -322,10 +289,11 @@ class Manifest(ManifestSection):
         with open(filename, "U", _BUFFERING) as stream:
             self.parse(stream)
 
-        # For a stream with DOS line endings, Python puts both '\n' and '\r'
-        # as two elements of 'linesep'. Lets think that *if* we have both there,
-        # *then* we had DOS line endings in the source file.
-        self.linesep = stream.newlines if len(stream.newlines) == 1 else "\r\n"
+        # only set the line seperator from the contents of the parsed
+        # file if it wasn't explicitly set during creation.
+        if self.linesep is None:
+            # works for '\n', '\r', and ('\r','\n') cases
+            self.linesep = "".join(stream.newlines)
 
 
     def parse(self, data):
@@ -352,14 +320,18 @@ class Manifest(ManifestSection):
             self.sub_sections[next_section.primary()] = next_section
 
 
-    def store(self, stream):
+    def store(self, stream, linesep=None):
         """
         write Manifest to a stream
         """
 
-        ManifestSection.store(self, stream, self.linesep)
+        # either specified here, specified on the instance, or the OS
+        # default
+        linesep = linesep or self.linesep or os.linesep
+
+        ManifestSection.store(self, stream, linesep)
         for sect in sorted(self.sub_sections.values()):
-            sect.store(stream, self.linesep)
+            sect.store(stream, linesep)
 
 
     def get_main_section(self):
@@ -368,9 +340,9 @@ class Manifest(ManifestSection):
         return stream.getvalue()
 
 
-    def get_data(self):
+    def get_data(self, linesep=None):
         stream = StringIO()
-        self.store(stream)
+        self.store(stream, linesep)
         return stream.getvalue()
 
 
@@ -391,52 +363,76 @@ class Manifest(ManifestSection):
         self.clear()
 
 
-class SignatureFile(Manifest):
+class SignatureManifest(Manifest):
     """
-    Represents a KEY.SF signature file.
-    Structure is similar to that of Manifest.
+    Represents a KEY.SF signature file.  Structure is similar to that
+    of Manifest. Each section represents a crypto checksum of a matching
+    section from a MANIFEST.MF
     """
 
     primary_key = "Signature-Version"
 
-    def __init__(self, algorithm, version="1.0"):
-        Manifest.__init__(self, version)
-        self.algorithm = getattr(hashlib, JAVA_TO_HASHLIB_DIGESTS[algorithm])
-        self.main_attributes_key = algorithm + \
-            "-Digest-Manifest-Main-Attributes"
-        self.all_attributes_key = algorithm + "-Digest-Manifest"
-        self.sub_section_key = algorithm + "-Digest"
 
+    def digest_manifest(self, manifest, java_algorithm="SHA-256"):
+        """
+        Create a main section checksum and sub-section checksums based off
+        of the data from an existing manifest using a given checksum
+        algorithm name.
+        """
 
-    def load(self, manifest):
-        self.linesep = manifest.linesep
-        h_all = self.algorithm()
+        # pick a line seperator for creating checksums of the manifest
+        # contents. We want to use either the one from the given
+        # manifest, or the OS default if it hasn't specified one.
+        linesep = manifest.linesep or os.linesep
+
+        all_key = java_algorithm + "-Digest-Manifest"
+        main_key = java_algorithm + "-Digest-Manifest-Main-Attributes"
+        sect_key = java_algorithm + "-Digest"
+
+        # determine a digest class to use based on the java-style
+        # algorithm name
+        digest = getattr(hashlib, JAVA_TO_HASHLIB[java_algorithm])
+
+        # calculate the checksum for the main manifest section. We'll
+        # be re-using this digest to also calculate the total
+        # checksum.
+        h_all = digest()
         h_all.update(manifest.get_main_section())
-        self[self.main_attributes_key] = b64encode(h_all.digest())
+        self[main_key] = b64encode(h_all.digest())
 
         for sub_section in manifest.sub_sections.values():
-            h_all.update(sub_section.get_data())
-        self[self.all_attributes_key] = b64encode(h_all.digest())
+            sub_data = sub_section.get_data(linesep)
 
-        for sub_section in manifest.sub_sections.values():
-            h_section = self.algorithm()
-            h_section.update(sub_section.get_data())
-            sf_section = self.create_section(sub_section.primary())
-            sf_section[self.sub_section_key] = b64encode(h_section.digest())
+            # create a checksums of the section body and store it as a
+            # sub-section of our own
+            h_section = digest()
+            h_section.update(sub_data)
+            sf_sect = self.create_section(sub_section.primary())
+            sf_sect[sect_key] = b64encode(h_section.digest())
+
+            # push this data into this total as well.
+            h_all.update(sub_data)
+
+        # after traversing all the sub sections, we now have the
+        # digest of the whole manifest.
+        self[all_key] = b64encode(h_all.digest())
+
+
+    def verify_manifest(self, manifest):
+        # TODO: verify that the digest values in this signature
+        # manifest match with the contents of the given manifest
+
+        pass
 
 
     def get_signature(self, certificate, private_key):
         """
-        There seems to be no Python crypto library, which would produce a
-        JAR-compatible signature. So this is a wrapper around external
-        command.  OpenSSL is known to work.
+        Produces a signature block for the contents of this signature
+        manifest. Executes the `openssl` binary in order to calculate
+        this. TODO: replace this with a pyopenssl call
 
-        Any other command which reads data on stdin and returns
-        JAR-compatible "signature file block" on stdout can be used.
-        Note: Oracle does not specify the content of the "signature
-        file block", friendly saying that "These are binary files not
-        intended to be interpreted by humans":
-
+        References
+        ----------
         http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Digital_Signatures
 
         Parameters
@@ -451,7 +447,23 @@ class SignatureFile(Manifest):
         signature : `str`
           content of the signature block file as though produced by
           jarsigner.
+
+        Raises
+        ------
+        cpe : `CalledProcessError`
+          if there was a non-zero return code from running the
+          underlying openssl exec
         """
+
+        # There seems to be no Python crypto library, which would
+        # produce a JAR-compatible signature. So this is a wrapper
+        # around external command.  OpenSSL is known to work.
+
+        # Any other command which reads data on stdin and returns
+        # JAR-compatible "signature file block" on stdout can be used.
+        # Note: Oracle does not specify the content of the "signature
+        # file block", friendly saying that "These are binary files
+        # not intended to be interpreted by humans"
 
         from subprocess import Popen, PIPE, CalledProcessError
 
@@ -524,6 +536,43 @@ def parse_sections(data):
     # yield and leftovers
     if curr:
         yield curr
+
+
+def write_key_val(stream, key, val, linesep=os.linesep):
+    """
+    The MANIFEST specification limits the width of individual lines to
+    72 bytes (including the terminating newlines). Any key and value
+    pair that would be longer must be split up over multiple
+    continuing lines
+    """
+
+    key = key or ""
+    val = val or ""
+
+    if not (0 < len(key) < 69):
+        raise ManifestKeyException("bad key length", key)
+
+    if len(key) + len(val) > 68:
+        kvbuffer = StringIO(": ".join((key, val)))
+
+        # first grab 70 (which is 72 after the trailing newline)
+        stream.write(kvbuffer.read(70))
+
+        # now only 69 at a time, because we need a leading space and a
+        # trailing \n
+        part = kvbuffer.read(69)
+        while part:
+            stream.write(linesep + " ")
+            stream.write(part)
+            part = kvbuffer.read(69)
+        kvbuffer.close()
+
+    else:
+        stream.write(key)
+        stream.write(": ")
+        stream.write(val)
+
+    stream.write(linesep)
 
 
 def digest_chunks(chunks, algorithms=("md5", "sha1")):
@@ -646,16 +695,15 @@ def cli_create(options, rest):
         return 1
 
     requested_digests = options.digest.split(",")
-    use_digests = []
 
-    for digest in requested_digests:
-        if digest in JAVA_TO_HASHLIB_DIGESTS:
-            use_digests.append(JAVA_TO_HASHLIB_DIGESTS[digest])
-        else:
-            print "Unknown digest algorithm", digest
-            print "Supported algorithms:", ",".join(
-                sorted(JAVA_TO_HASHLIB_DIGESTS.keys()))
-            return 1
+    try:
+        use_digests = [JAVA_TO_HASHLIB[digest] for digest
+                       in requested_digests]
+    except KeyError:
+        print "Unknown digest algorithm %r" % digest
+        print "Supported algorithms:",
+        print ",".join(sorted(JAVA_TO_HASHLIB.keys()))
+        return 1
 
     if options.recursive:
         entries = multi_path_generator(rest[1:])
@@ -663,7 +711,6 @@ def cli_create(options, rest):
         entries = single_path_generator(rest[1])
 
     mf = Manifest()
-    mf.linesep = os.linesep
 
     ignores = options.ignore
 
@@ -740,8 +787,11 @@ def cli_sign(options, rest):
 
     mf = Manifest()
     mf.parse(jar_file.read("META-INF/MANIFEST.MF"))
-    sf = SignatureFile("SHA-256")
-    sf.load(mf)
+
+    # create a signature manifest, and make it match the line seperator
+    # style of the manifest it'll be digesting.
+    sf = SignatureManifest(linesep=mf.linesep)
+    sf.digest_manifest(mf, "SHA-256")
     jar_file.writestr("META-INF/" + key_alias + ".SF", sf.get_data())
     jar_file.writestr("META-INF/" + key_alias + ".RSA",
                       sf.get_signature(certificate, private_key))
