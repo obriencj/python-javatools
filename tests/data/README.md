@@ -57,3 +57,10 @@ TODO -- annotations
 
 Tests the reading and writing of the manifest file format, and
 checksum features.
+
+
+## Example Certificate
+
+- Files: javatools.pem, javatools-cert.pem
+
+Sample openssl cert for testing signing of manifest data.
