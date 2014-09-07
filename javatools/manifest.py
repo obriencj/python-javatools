@@ -25,6 +25,7 @@ References
 :license: LGPL
 """
 
+
 import hashlib
 import os
 import sys
@@ -213,17 +214,26 @@ class ManifestSection(OrderedDict):
 
 
     def primary(self):
+        """
+        The primary value for this section
+        """
+
         return self.get(self.primary_key)
 
 
     def load(self, items):
+        """
+        Populate this section from an iteration of the parse_items call
+        """
+
         for k,vals in items:
             self[k] = "".join(vals)
 
 
-    def store(self, stream, linesep):
-        # when written to a stream, the primary key must be the first
-        # written
+    def store(self, stream, linesep=os.linesep):
+        """
+        Serialize this section and write it to a stream
+        """
 
         for k, v in self.items():
             write_key_val(stream, k, v, linesep)
@@ -233,7 +243,7 @@ class ManifestSection(OrderedDict):
 
     def get_data(self, linesep=os.linesep):
         """
-        Result of 'store' method
+        Serialize the section and return it as a string
         """
 
         stream = StringIO()
@@ -290,11 +300,11 @@ class Manifest(ManifestSection):
         with open(filename, "U", _BUFFERING) as stream:
             self.parse(stream)
 
-            # only set the line seperator from the contents of the
-            # parsed file if it wasn't explicitly set during creation.
-            if self.linesep is None:
-                # works for '\n', '\r', and ('\r','\n') cases
-                self.linesep = "".join(stream.newlines)
+        # only set the line seperator from the contents of the
+        # parsed file if it wasn't explicitly set during creation.
+        if self.linesep is None:
+            # works for '\n', '\r', and ('\r','\n') cases
+            self.linesep = "".join(stream.newlines)
 
 
     def parse(self, data):
@@ -316,7 +326,7 @@ class Manifest(ManifestSection):
 
     def store(self, stream, linesep=None):
         """
-        write Manifest to a stream
+        Serialize the Manifest to a stream
         """
 
         # either specified here, specified on the instance, or the OS
@@ -328,13 +338,26 @@ class Manifest(ManifestSection):
             sect.store(stream, linesep)
 
 
-    def get_main_section(self):
+    def get_main_section(self, linesep=None):
+        """
+        Serialize just the main section of the manifest and return it as a
+        string
+        """
+
+        linesep = linesep or self.linesep or os.linesep
+
         stream = StringIO()
-        ManifestSection.store(self, stream, self.linesep)
+        ManifestSection.store(self, stream, linesep)
         return stream.getvalue()
 
 
     def get_data(self, linesep=None):
+        """
+        Serialize the entire manifest and return it as a string
+        """
+
+        linesep = linesep or self.linesep or os.linesep
+
         stream = StringIO()
         self.store(stream, linesep)
         return stream.getvalue()
@@ -370,8 +393,8 @@ class SignatureManifest(Manifest):
     def digest_manifest(self, manifest, java_algorithm="SHA-256"):
         """
         Create a main section checksum and sub-section checksums based off
-        of the data from an existing manifest using a given checksum
-        algorithm name.
+        of the data from an existing manifest using an algorithm given
+        by Java-style name.
         """
 
         # pick a line seperator for creating checksums of the manifest
