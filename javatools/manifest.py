@@ -55,19 +55,14 @@ __all__ = (
 
 _BUFFERING = 2 ** 14
 
-# Note 1: Java supports also MD2, but hashlib does not
-# Note 2: Oracle specifies "SHA-1" algorithm name in their documentation
-# http://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#MessageDigest,
-# which is referred by the manifest file specification
-# http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Manifest-Overview.
-# But jarsigner produces 'SHA1'.
-JAVA_TO_HASHLIB = {
-    "MD5": "md5",
-    "SHA1": "sha1",
-    "SHA-256": "sha256",
-    "SHA-384": "sha384",
-    "SHA-512": "sha512"
-}
+
+
+class UnsupportedDigest(Exception):
+    """
+    Indicates an algorithm was requested for which we had no matching
+    digest support
+    """
+    pass
 
 
 class ManifestKeyException(Exception):
@@ -83,6 +78,33 @@ class MalformedManifest(Exception):
     Indicates there was a problem in parsing a manifest
     """
     pass
+
+
+# Digests classes by Java name that have been found present in hashlib
+NAMED_DIGESTS = {}
+
+def _add_digest(java_name, hashlib_name):
+    digest = getattr(hashlib, hashlib_name, None)
+    if digest:
+        NAMED_DIGESTS[java_name] = digest
+
+def _get_digest(java_name):
+    try:
+        return NAMED_DIGESTS[java_name]
+    except KeyError:
+        raise UnsupportedDigest(java_name)
+
+# Note 1: Java supports also MD2, but hashlib does not
+_add_digest("MD2", "md2")
+_add_digest("MD5", "md5")
+
+# Note 2: Oracle specifies "SHA-1" algorithm name in their
+# documentation, but it's called "SHA1" elsewhere and that is what
+# jarsigner uses as well.
+_add_digest("SHA1", "sha1")
+_add_digest("SHA-256", "sha256")
+_add_digest("SHA-384", "sha384")
+_add_digest("SHA-512", "sha512")
 
 
 class ManifestSectionChange(GenericChange):
@@ -408,7 +430,7 @@ class SignatureManifest(Manifest):
 
         # determine a digest class to use based on the java-style
         # algorithm name
-        digest = getattr(hashlib, JAVA_TO_HASHLIB[java_algorithm])
+        digest = _get_digest(java_algorithm)
 
         # calculate the checksum for the main manifest section. We'll
         # be re-using this digest to also calculate the total
@@ -592,15 +614,13 @@ def write_key_val(stream, key, val, linesep=os.linesep):
     stream.write(linesep)
 
 
-def digest_chunks(chunks, algorithms=("md5", "sha1")):
+def digest_chunks(chunks, algorithms=(hashlib.md5, hashlib.sha1)):
     """
-    returns a base64 rep of the requested digests from the chunks of
-    data
+    returns a base64 rep of the given digest algorithms from the
+    chunks of data
     """
 
-    hashes = []
-    for algorithm in algorithms:
-        hashes.append(getattr(hashlib, algorithm)())
+    hashes = [algorithm() for algorithm in algorithms]
 
     for chunk in chunks:
         for h in hashes:
@@ -712,14 +732,11 @@ def cli_create(options, rest):
         return 1
 
     requested_digests = options.digest.split(",")
-
     try:
-        use_digests = [JAVA_TO_HASHLIB[digest] for digest
-                       in requested_digests]
-    except KeyError:
+        use_digests = [_get_digest(digest) for digest in requested_digests]
+    except UnsupportedDigest:
         print "Unknown digest algorithm %r" % digest
-        print "Supported algorithms:",
-        print ",".join(sorted(JAVA_TO_HASHLIB.keys()))
+        print "Supported algorithms:", ",".join(sorted(NAMED_DIGESTS.keys()))
         return 1
 
     if options.recursive:
@@ -738,9 +755,9 @@ def cli_create(options, rest):
 
         sec = mf.create_section(name)
 
-        for digest, digest_value in izip(
-                requested_digests, digest_chunks(chunks(), use_digests)):
-            sec[digest + "-Digest"] = digest_value
+        for digest_name, digest_value in \
+            izip(requested_digests, digest_chunks(chunks(), use_digests)):
+            sec[digest_name + "-Digest"] = digest_value
 
     output = sys.stdout
     if options.manifest:
