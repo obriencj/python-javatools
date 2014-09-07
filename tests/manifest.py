@@ -84,17 +84,14 @@ class ManifestTest(TestCase):
         # create a manifest and parse the chosen test data
         mf = Manifest()
         mf.parse_file(src_file)
-
-        output = StringIO()
-        mf.store(output)
-        result = output.getvalue()
-        output.close()
+        result = mf.get_data()
 
         self.assertEquals(
             result, expected_result,
             "Manifest load/store does not match with file %s. Received:\n%s"
-            % (src_file, result)
-        )
+            % (src_file, result))
+
+        return mf
 
 
     def test_create_sha256(self):
@@ -119,7 +116,9 @@ class ManifestTest(TestCase):
 
 
     def test_load_dos_newlines(self):
-        self.manifest_load_store("manifest.dos-newlines.mf")
+        mf = self.manifest_load_store("manifest.dos-newlines.mf")
+        self.assertEqual(mf.linesep, "\r\n")
+
 
 #
 # The end.
