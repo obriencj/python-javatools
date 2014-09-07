@@ -61,6 +61,6 @@ checksum features.
 
 ## Example Certificate
 
-- Files: javatools.pem, javatools-cert.pem
+- Files: javatools.pem, javatools-cert.pem, keystore.jks
 
-Sample openssl cert for testing signing of manifest data.
+Sample openssl key and certificate, and java key store with cert imported.
