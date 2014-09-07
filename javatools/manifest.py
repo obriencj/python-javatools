@@ -191,10 +191,9 @@ class ManifestSection(OrderedDict):
     primary_key = "Name"
 
 
-    def __init__(self, name=None, linesep='\n'):
+    def __init__(self, name=None):
         OrderedDict.__init__(self)
         self[self.primary_key] = name
-        self.linesep = linesep
 
 
     def __setitem__(self, k, v):
@@ -221,17 +220,17 @@ class ManifestSection(OrderedDict):
             self[k] = "".join(vals)
 
 
-    def store(self, stream):
+    def store(self, stream, linesep):
         # when written to a stream, the primary key must be the first
         # written
 
         for k, v in self.items():
-            self.store_item(k, v, stream)
+            self.store_item(k, v, stream, linesep)
 
-        stream.write(self.linesep)
+        stream.write(linesep)
 
 
-    def store_item(self, key, val, stream):
+    def store_item(self, key, val, stream, linesep):
         """
         The MANIFEST specification limits the width of individual lines to
         72 bytes (including the terminating newlines). Any key and
@@ -255,7 +254,7 @@ class ManifestSection(OrderedDict):
             # trailing \n
             part = kvbuffer.read(69)
             while part:
-                stream.write(self.linesep + " ")
+                stream.write(linesep + " ")
                 stream.write(part)
                 part = kvbuffer.read(69)
             kvbuffer.close()
@@ -265,7 +264,7 @@ class ManifestSection(OrderedDict):
             stream.write(": ")
             stream.write(val)
 
-        stream.write(self.linesep)
+        stream.write(linesep)
 
 
     def get_data(self):
@@ -288,9 +287,9 @@ class Manifest(ManifestSection):
     primary_key = "Manifest-Version"
 
 
-    def __init__(self, version="1.0", linesep="\n"):
+    def __init__(self, version="1.0"):
         # can't use super, because we're a child of a non-object
-        ManifestSection.__init__(self, version, linesep)
+        ManifestSection.__init__(self, version)
         self.sub_sections = OrderedDict([])
 
 
@@ -303,13 +302,13 @@ class Manifest(ManifestSection):
         """
 
         if overwrite:
-            sect = ManifestSection(name, linesep=self.linesep)
+            sect = ManifestSection(name)
             self.sub_sections[name] = sect
 
         else:
             sect = self.sub_sections.get(name, None)
             if sect is None:
-                sect = ManifestSection(name, linesep=self.linesep)
+                sect = ManifestSection(name)
                 self.sub_sections[name] = sect
 
         return sect
@@ -322,6 +321,11 @@ class Manifest(ManifestSection):
 
         with open(filename, "U", _BUFFERING) as stream:
             self.parse(stream)
+
+        # For a stream with DOS line endings, Python puts both '\n' and '\r'
+        # as two elements of 'linesep'. Lets think that *if* we have both there,
+        # *then* we had DOS line endings in the source file.
+        self.linesep = stream.newlines if len(stream.newlines) == 1 else "\r\n"
 
 
     def parse(self, data):
@@ -343,7 +347,7 @@ class Manifest(ManifestSection):
         self.linesep = data.newlines
 
         for section in sections:
-            next_section = ManifestSection(None, linesep=self.linesep)
+            next_section = ManifestSection(None)
             next_section.load(section)
             self.sub_sections[next_section.primary()] = next_section
 
@@ -353,14 +357,14 @@ class Manifest(ManifestSection):
         write Manifest to a stream
         """
 
-        ManifestSection.store(self, stream)
+        ManifestSection.store(self, stream, self.linesep)
         for sect in sorted(self.sub_sections.values()):
-            sect.store(stream)
+            sect.store(stream, self.linesep)
 
 
     def get_main_section(self):
         stream = StringIO()
-        ManifestSection.store(self, stream)
+        ManifestSection.store(self, stream, self.linesep)
         return stream.getvalue()
 
 
@@ -658,7 +662,8 @@ def cli_create(options, rest):
     else:
         entries = single_path_generator(rest[1])
 
-    mf = Manifest(linesep=os.linesep)
+    mf = Manifest()
+    mf.linesep = os.linesep
 
     ignores = options.ignore
 
