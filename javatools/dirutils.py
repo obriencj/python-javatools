@@ -13,7 +13,6 @@
 # <http://www.gnu.org/licenses/>.
 
 
-
 """
 Utility module for discovering the differences between two directory
 trees
@@ -23,10 +22,8 @@ trees
 """
 
 
-
 from os.path import exists, isdir, join, relpath
 from os import makedirs, walk
-
 
 
 LEFT = "left only"
@@ -36,11 +33,11 @@ SAME = "same"
 BOTH = SAME # meh, synonyms
 
 
-
 def fnmatches(entry, *pattern_list):
-
-    """ returns true if entry matches any of the glob patterns, false
-    otherwise """
+    """
+    returns true if entry matches any of the glob patterns, false
+    otherwise
+    """
 
     from fnmatch import fnmatch
     for pattern in pattern_list:
@@ -49,20 +46,20 @@ def fnmatches(entry, *pattern_list):
     return False
 
 
-
 def makedirsp(dirname):
+    """
+    create dirname if it doesn't exist
+    """
 
-    """ create dirname if it doesn't exist """
-
-    if not exists(dirname):
+    if dirname and not exists(dirname):
         makedirs(dirname)
 
 
-
 def copydir(orig, dest):
-
-    """ copies directory orig to dest. Returns a list of tuples of
-    relative filenames which were copied from orig to dest """
+    """
+    copies directory orig to dest. Returns a list of tuples of
+    relative filenames which were copied from orig to dest
+    """
 
     from shutil import copy
 
@@ -84,13 +81,13 @@ def copydir(orig, dest):
     return copied
 
 
-
 def compare(left, right):
-
-    """ generator emiting pairs indicating the contents of the left
-    and right directories. The pairs are in the form of (difference,
+    """
+    generator emiting pairs indicating the contents of the left and
+    right directories. The pairs are in the form of (difference,
     filename) where difference is one of the LEFT, RIGHT, DIFF, or
-    BOTH constants. This generator recursively walks both trees."""
+    BOTH constants. This generator recursively walks both trees.
+    """
 
     from filecmp import dircmp
 
@@ -98,10 +95,10 @@ def compare(left, right):
     return _gen_from_dircmp(dc, left, right)
 
 
-
 def _gen_from_dircmp(dc, lpath, rpath):
-
-    """ do the work of comparing the dircmp """
+    """
+    do the work of comparing the dircmp
+    """
 
     left_only = dc.left_only
     left_only.sort()
@@ -148,21 +145,21 @@ def _gen_from_dircmp(dc, lpath, rpath):
             yield event
 
 
-
 def collect_compare(left, right):
-
-    """ returns a tuple of four lists describing the file paths that
-    have been (in order) added, removed, altered, or left the same """
+    """
+    returns a tuple of four lists describing the file paths that have
+    been (in order) added, removed, altered, or left the same
+    """
 
     return collect_compare_into(left, right, [], [], [], [])
 
 
-
 def collect_compare_into(left, right, added, removed, altered, same):
-
-    """ collect the results of compare into the given lists (or None
-    if you do not wish to collect results of that type. Returns a
-    tuple of (added, removed, altered, same) """
+    """
+    collect the results of compare into the given lists (or None if
+    you do not wish to collect results of that type. Returns a tuple
+    of (added, removed, altered, same)
+    """
 
     for event, filename in compare(left, right):
         if event == LEFT:
@@ -186,14 +183,15 @@ def collect_compare_into(left, right, added, removed, altered, same):
     return added, removed, altered, same
 
 
-
 class ClosingContext(object):
     #pylint: disable=R0903
     # too few public methods (none)
 
-    """ A simple context manager which is created with an object
-    instance, and will return that instance from __enter__ and call
-    the close method on the instance in __exit__ """
+    """
+    A simple context manager which is created with an object instance,
+    and will return that instance from __enter__ and call the close
+    method on the instance in __exit__
+    """
 
 
     def __init__(self, managed):
@@ -214,20 +212,19 @@ class ClosingContext(object):
         return (exc_type is None)
 
 
-
 def closing(managed):
-
-    """ If the managed object already provides its own context
-    management via the __enter__ and __exit__ methods, it is returned
+    """
+    If the managed object already provides its own context management
+    via the __enter__ and __exit__ methods, it is returned
     unchanged. However, if the instance does not, a ClosingContext
     will be created to wrap it. When the ClosingContext exits, it will
-    call managed.close() """
+    call managed.close()
+    """
 
     if managed is None or hasattr(managed, "__enter__"):
         return managed
     else:
         return ClosingContext(managed)
-
 
 
 #
