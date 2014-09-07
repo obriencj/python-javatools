@@ -284,37 +284,30 @@ class Manifest(ManifestSection):
 
     def parse_file(self, filename):
         """
-        Parse and attempt to detect the line separator
+        Parse the given file, and attempt to detect the line separator.
         """
 
         with open(filename, "U", _BUFFERING) as stream:
             self.parse(stream)
 
-        # only set the line seperator from the contents of the parsed
-        # file if it wasn't explicitly set during creation.
-        if self.linesep is None:
-            # works for '\n', '\r', and ('\r','\n') cases
-            self.linesep = "".join(stream.newlines)
+            # only set the line seperator from the contents of the
+            # parsed file if it wasn't explicitly set during creation.
+            if self.linesep is None:
+                # works for '\n', '\r', and ('\r','\n') cases
+                self.linesep = "".join(stream.newlines)
 
 
     def parse(self, data):
         """
         populate instance with values and sub-sections from data in a
-        stream or a string
+        stream, string, or buffer
         """
 
-        # the parse_sections function would automatically wrap this
-        # for us, but we want to be able to check the newlines
-        # attribute of the stream in order to set our linesep
-        # attribute
-        if isinstance(data, (str, buffer)):
-            data = StringIO(data)
-
+        # the main section is the main one for the manifest
         sections = parse_sections(data)
         self.load(sections.next())
 
-        self.linesep = data.newlines
-
+        # and all following sections are considered sub-sections
         for section in sections:
             next_section = ManifestSection(None)
             next_section.load(section)
