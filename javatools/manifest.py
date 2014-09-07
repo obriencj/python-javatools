@@ -32,6 +32,7 @@ import sys
 from base64 import b64encode
 from collections import OrderedDict
 from cStringIO import StringIO
+from itertools import izip
 from os.path import isdir, join, sep, split, walk
 from zipfile import ZipFile
 
@@ -721,7 +722,7 @@ def cli_create(options, rest):
 
         sec = mf.create_section(name)
 
-        for digest, digest_value in zip(
+        for digest, digest_value in izip(
                 requested_digests, digest_chunks(chunks(), use_digests)):
             sec[digest + "-Digest"] = digest_value
 
