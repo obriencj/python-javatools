@@ -118,5 +118,8 @@ class ManifestTest(TestCase):
         self.manifest_load_store("manifest.SHA-512.mf")
 
 
+    def test_load_dos_newlines(self):
+        self.manifest_load_store("manifest.dos-newlines.mf")
+
 #
 # The end.
