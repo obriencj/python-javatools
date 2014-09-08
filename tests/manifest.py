@@ -44,7 +44,7 @@ class ManifestTest(TestCase):
             expected_result = f.read()
 
         # the invocation of the script
-        src_jar = get_data_fn("manifest-sample.jar")
+        src_jar = get_data_fn("manifest-sample1.jar")
         tmp_out = mkstemp()[1]
         cmd = ["manifest", "-c", src_jar, "-m", tmp_out] + args.split()
 
