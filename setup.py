@@ -49,6 +49,7 @@ setup(name = "javatools",
                   "scripts/distinfo",
                   "scripts/jardiff",
                   "scripts/jarinfo",
+                  "scripts/jarutil",
                   "scripts/manifest" ],
 
       test_suite = "tests",
