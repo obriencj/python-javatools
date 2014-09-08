@@ -249,7 +249,7 @@ class ManifestSection(OrderedDict):
         """
 
         for k,vals in items:
-            self[k] = "".join(val.splitlines()[0] for val in vals)
+            self[k] = "".join(vals)
 
 
     def store(self, stream, linesep=os.linesep):
@@ -329,20 +329,12 @@ class Manifest(ManifestSection):
         stream, string, or buffer
         """
 
+        self.linesep = detect_linesep(data)
+
         # the first section is the main one for the manifest. It's
         # also where we will check for our newline seperator
         sections = parse_sections(data)
-        first = sections.next()
-        self.load(first)
-
-        # newline detection based on the first line read
-        tail = first[0][1][0][-2:]
-        if tail == "\r\n":
-            self.linesep = tail
-        elif tail[1] in "\r\n":
-            self.linesep = tail[1]
-        else:
-            raise MalformedManifest("odd line endings", tail)
+        self.load(sections.next())
 
         # and all following sections are considered sub-sections
         for section in sections:
@@ -528,6 +520,20 @@ class SignatureManifest(Manifest):
             return proc_stdout
 
 
+def detect_linesep(data):
+    if isinstance(data, (str, buffer)):
+        data = StringIO(data)
+
+    offset = data.tell()
+    line = data.readline()
+    data.seek(offset)
+
+    if line[-2:] == "\r\n":
+        return "\r\n"
+    else:
+        return line[-1]
+
+
 def parse_sections(data):
     """
     yields one section at a time in the form
@@ -548,22 +554,16 @@ def parse_sections(data):
         data = StringIO(data)
 
     # marker for line seperator, used to detect blank lines
-    linesep = None
+    linesep = detect_linesep(data)
 
     # our current section
     curr = None
 
     for lineno,line in enumerate(data):
         # Clean up the line
-        cleanline = line.replace('\x00', '')
+        cleanline = line.splitlines()[0].replace('\x00', '')
 
-        if linesep is None:
-            if cleanline[-2:] == "\r\n":
-                linesep = "\r\n"
-            else:
-                linesep = cleanline[-1]
-
-        if cleanline == linesep:
+        if not cleanline:
             # blank line means end of current section (if any)
             if curr:
                 yield curr
