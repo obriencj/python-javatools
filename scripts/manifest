@@ -9,7 +9,7 @@ if __name__ == "__main__":
     try:
         sys.exit(main(sys.argv))
     except KeyboardInterrupt:
-        sys.exit(128)
+        sys.exit(130)
 
 
 #
