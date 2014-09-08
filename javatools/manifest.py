@@ -249,7 +249,7 @@ class ManifestSection(OrderedDict):
         """
 
         for k,vals in items:
-            self[k] = "".join(vals)
+            self[k] = "".join(val.splitlines()[0] for val in vals)
 
 
     def store(self, stream, linesep=os.linesep):
@@ -319,14 +319,8 @@ class Manifest(ManifestSection):
         Parse the given file, and attempt to detect the line separator.
         """
 
-        with open(filename, "U", _BUFFERING) as stream:
+        with open(filename, "r", _BUFFERING) as stream:
             self.parse(stream)
-
-        # only set the line seperator from the contents of the
-        # parsed file if it wasn't explicitly set during creation.
-        if self.linesep is None:
-            # works for '\n', '\r', and ('\r','\n') cases
-            self.linesep = "".join(stream.newlines)
 
 
     def parse(self, data):
@@ -335,9 +329,20 @@ class Manifest(ManifestSection):
         stream, string, or buffer
         """
 
-        # the main section is the main one for the manifest
+        # the first section is the main one for the manifest. It's
+        # also where we will check for our newline seperator
         sections = parse_sections(data)
-        self.load(sections.next())
+        first = sections.next()
+        self.load(first)
+
+        # newline detection based on the first line read
+        tail = first[0][1][0][-2:]
+        if tail == "\r\n":
+            self.linesep = tail
+        elif tail[1] in "\r\n":
+            self.linesep = tail[1]
+        else:
+            raise MalformedManifest("odd line endings", tail)
 
         # and all following sections are considered sub-sections
         for section in sections:
@@ -542,15 +547,23 @@ def parse_sections(data):
     if isinstance(data, (str, buffer)):
         data = StringIO(data)
 
+    # marker for line seperator, used to detect blank lines
+    linesep = None
+
     # our current section
     curr = None
 
     for lineno,line in enumerate(data):
-
         # Clean up the line
-        cleanline = line.replace('\x00', '').splitlines()[0]
+        cleanline = line.replace('\x00', '')
 
-        if not cleanline:
+        if linesep is None:
+            if cleanline[-2:] == "\r\n":
+                linesep = "\r\n"
+            else:
+                linesep = cleanline[-1]
+
+        if cleanline == linesep:
             # blank line means end of current section (if any)
             if curr:
                 yield curr
