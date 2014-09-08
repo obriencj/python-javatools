@@ -553,9 +553,6 @@ def parse_sections(data):
     if isinstance(data, (str, buffer)):
         data = StringIO(data)
 
-    # marker for line seperator, used to detect blank lines
-    linesep = detect_linesep(data)
-
     # our current section
     curr = None
 
