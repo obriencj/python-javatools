@@ -35,9 +35,7 @@ def get_data_fn(which):
 
 
 def get_class_fn(which):
-    which = "data/%s.class" % which
-    fn = pkg_resources.resource_filename(__name__, which)
-    return fn
+    return get_data_fn(which + ".class")
 
 
 def load(which):

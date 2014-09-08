@@ -416,7 +416,7 @@ class SignatureManifest(Manifest):
         by Java-style name.
         """
 
-        # pick a line seperator for creating checksums of the manifest
+        # pick a line separator for creating checksums of the manifest
         # contents. We want to use either the one from the given
         # manifest, or the OS default if it hasn't specified one.
         linesep = manifest.linesep or os.linesep
@@ -439,7 +439,7 @@ class SignatureManifest(Manifest):
         for sub_section in manifest.sub_sections.values():
             sub_data = sub_section.get_data(linesep)
 
-            # create a checksums of the section body and store it as a
+            # create the checksum of the section body and store it as a
             # sub-section of our own
             h_section = digest()
             h_section.update(sub_data)
@@ -832,7 +832,7 @@ def cli_sign(options, rest):
     mf = Manifest()
     mf.parse(jar_file.read("META-INF/MANIFEST.MF"))
 
-    # create a signature manifest, and make it match the line seperator
+    # create a signature manifest, and make it match the line separator
     # style of the manifest it'll be digesting.
     sf = SignatureManifest(linesep=mf.linesep)
     sf.digest_manifest(mf, "SHA-256")

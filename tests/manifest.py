@@ -24,7 +24,6 @@ license: LGPL v.3
 from . import get_data_fn
 from javatools.manifest import main, Manifest
 
-from cStringIO import StringIO
 from unittest import TestCase
 from tempfile import mkstemp
 
@@ -94,7 +93,7 @@ class ManifestTest(TestCase):
         return mf
 
 
-    def test_create_sha256(self):
+    def test_create_sha1(self):
         self.manifest_cli_create("-d SHA1", "manifest.SHA1.mf")
 
 
