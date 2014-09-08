@@ -37,7 +37,7 @@ load-plugins=
 # W0511 : TODO in comments
 # W0613 : Unused arguments (might be worth checking into)
 # I0011 : locally disabled feature (if I disabled it, I don't want to see it...)
-disable=C0324, R0801, W0142, W0511, W0613, I0011
+disable=C0324, R0801, W0142, W0511, W0613, I0011, I0020, I0021, I0022
 
 
 [REPORTS]

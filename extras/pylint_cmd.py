@@ -104,8 +104,8 @@ class pylint_cmd(Command):
 
         # don't emit messages about suppressed or useless suppressed
         # configs, it's just annoying and doesn't help.
-        linter.disable('suppressed-message')
-        linter.disable('useless-suppression')
+        #linter.disable('suppressed-message')
+        #linter.disable('useless-suppression')
 
         if self.packages:
             self.announce("pylint is checking packages", 2)
