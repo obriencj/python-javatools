@@ -804,18 +804,16 @@ def cli_query(options, rest):
             print q, "=", mf.get(s[0])
 
 
-def cli_verify(options, rest):
-    # TODO: read in the manifest, and then verify the digests for every
-    # file listed.
-
-    print "NYI"
-    return 0
-
-
 def cli_sign(options, rest):
     """
     Signs the jar (almost) identically to jarsigner.
     """
+
+    # TODO: move this into jarutil, since it actually modifies a JAR
+    # file. We can leave the majority of the signing implementation in
+    # this module, but anything that modifies a JAR should wind up in
+    # jarutil.
+
     if len(rest) != 5:
         print "Usage: \
             manifest --sign certificate private_key key_alias file.jar"
@@ -844,8 +842,6 @@ def cli_sign(options, rest):
 
 
 def cli(options, rest):
-    if options.verify:
-        return cli_verify(options, rest)
 
     elif options.create:
         return cli_create(options, rest)
@@ -857,7 +853,7 @@ def cli(options, rest):
         return cli_sign(options, rest)
 
     else:
-        print "specify one of --verify, --query, --sign, or --create"
+        print "specify one of --query, --sign, or --create"
         return 0
 
 
@@ -867,7 +863,6 @@ def create_optparser():
     parse = OptionParser(usage="Create, sign or verify a MANIFEST for"
                          " a JAR, ZIP, or directory")
 
-    parse.add_option("-v", "--verify", action="store_true")
     parse.add_option("-c", "--create", action="store_true")
     parse.add_option("-q", "--query", action="append",
                      default=[],
