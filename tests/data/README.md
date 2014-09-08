@@ -52,11 +52,16 @@ TODO -- annotations
 
 ## Manifest Samples
 
-- Files: manifest-sample.jar, manifest.SHA-512.mf, manifest.SHA1.mf,
+- Files: manifest-sample1.jar, manifest.SHA-512.mf, manifest.SHA1.mf,
   manifest.ignores.mf
 
 Tests the reading and writing of the manifest file format, and
 checksum features.
+
+
+## JAR Signing Samples
+
+- Files:  manifest-sample2.jar
 
 
 ## Example Certificate
