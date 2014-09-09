@@ -68,4 +68,7 @@ checksum features.
 
 - Files: javatools.pem, javatools-cert.pem, keystore.jks
 
-Sample openssl key and certificate, and java key store with cert imported.
+Sample openssl key and certificate, and java key store with cert
+imported. The signing key is unencrypted, so no passphrase
+required. The keystore passphrase is "javatools" but that's only
+needed when adding keys to it.
