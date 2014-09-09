@@ -843,7 +843,7 @@ def cli_sign(options, rest):
 
 def cli(options, rest):
 
-    elif options.create:
+    if options.create:
         return cli_create(options, rest)
 
     elif options.query:
