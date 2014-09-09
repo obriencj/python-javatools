@@ -754,7 +754,7 @@ def verify_signature_block(certificate_file, content_file, signature):
     :return: Error message, or None if the signature validates.
     """
 
-    from subprocess import Popen, PIPE, STDOUT, CalledProcessError
+    from subprocess import Popen, PIPE, STDOUT
 
     external_cmd = "openssl cms -verify -CAfile %s -content %s " \
                    "-inform der" % (certificate_file, content_file)
@@ -762,7 +762,7 @@ def verify_signature_block(certificate_file, content_file, signature):
     proc = Popen(external_cmd.split(),
                  stdin=PIPE, stdout=PIPE, stderr=STDOUT)
 
-    (proc_stdout, proc_stderr) = proc.communicate(input=signature)
+    (_proc_stdout, proc_stderr) = proc.communicate(input=signature)
 
     if proc.returncode != 0:
         return "Command \"%s\" returned %s: %s" \
@@ -984,7 +984,7 @@ def cli(options, rest):
     if options.verify:
         return cli_verify(options, rest)
 
-    if options.create:
+    elif options.create:
         return cli_create(options, rest)
 
     elif options.query:
