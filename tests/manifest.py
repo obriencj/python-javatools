@@ -24,8 +24,10 @@ license: LGPL v.3
 from . import get_data_fn
 from javatools.manifest import main, Manifest, verify
 
-from unittest import TestCase
+from os import unlink
+from shutil import copyfile
 from tempfile import mkstemp
+from unittest import TestCase
 
 
 class ManifestTest(TestCase):
@@ -134,6 +136,27 @@ class ManifestTest(TestCase):
 
     def test_verify_signature_by_jarsigner(self):
         self.verify_signature("manifest-signed-by-jarsigner.jar")
+
+
+    def test_cli_sign_and_verify(self):
+
+        src = get_data_fn("manifest-sample3.jar")
+        key_alias = "SAMPLE3"
+        cert = get_data_fn("javatools-cert.pem")
+        key = get_data_fn("javatools.pem")
+        tmp_jar = mkstemp()[1]
+        copyfile(src, tmp_jar)
+        cmd = ["manifest", "-s", cert, key, key_alias, tmp_jar]
+        self.assertEqual(main(cmd), 0, "Command %s returned non-zero status"
+                         % " ".join(cmd))
+
+        certificate = get_data_fn("javatools-cert.pem")
+        error_message = verify(certificate, tmp_jar, key_alias)
+        self.assertIsNone(error_message,
+                          "Verification of JAR which we just signed failed: %s"
+                          % error_message)
+
+        unlink(tmp_jar)
 
 #
 # The end.
