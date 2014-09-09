@@ -395,9 +395,9 @@ class Manifest(ManifestSection):
             if filename.startswith("META-INF/"):
                 continue
 
-            h = hashlib.sha256()
-            h.update(zip_file.read(filename))
-            calculated_digest = b64encode(h.digest())
+            jar_digest = hashlib.sha256()
+            jar_digest.update(zip_file.read(filename))
+            calculated_digest = b64encode(jar_digest.digest())
 
             file_section = self.create_section(filename, overwrite=False)
             read_digest = file_section.get("SHA-256-Digest")
@@ -762,13 +762,13 @@ def verify_signature_block(certificate_file, content_file, signature):
     proc = Popen(external_cmd.split(),
                  stdin=PIPE, stdout=PIPE, stderr=STDOUT)
 
-    (_proc_stdout, proc_stderr) = proc.communicate(input=signature)
+    proc_output = proc.communicate(input=signature)[0]
 
     if proc.returncode != 0:
         return "Command \"%s\" returned %s: %s" \
-               % (external_cmd, proc.returncode, proc_stderr)
-    else:
-        return None
+               % (external_cmd, proc.returncode, proc_output)
+
+    return None
 
 
 def verify(certificate, jar_file, key_alias):
@@ -793,9 +793,9 @@ def verify(certificate, jar_file, key_alias):
 
     # Step 1: check the crypto part.
     sf_file = mkstemp()[1]
-    with open(sf_file, "w") as f:
-        f.write(sf_data)
-        f.flush()
+    with open(sf_file, "w") as tmp_buf:
+        tmp_buf.write(sf_data)
+        tmp_buf.flush()
         sig_block_data = zip_file.read("META-INF/%s.RSA" % key_alias)
         error = verify_signature_block(certificate, sf_file, sig_block_data)
         os.unlink(sf_file)
@@ -804,13 +804,13 @@ def verify(certificate, jar_file, key_alias):
 
     # KEYALIAS.SF is correctly signed.
     # Step 2: Check that it contains correct checksum of the manifest.
-    sf = SignatureManifest()
-    sf.parse(sf_data)
+    signature_manifest = SignatureManifest()
+    signature_manifest.parse(sf_data)
 
     jar_manifest = Manifest()
     jar_manifest.parse(zip_file.read("META-INF/MANIFEST.MF"))
 
-    error = sf.verify_manifest_checksums(jar_manifest)
+    error = signature_manifest.verify_manifest_checksums(jar_manifest)
     if error is not None:
         return error
 
