@@ -22,7 +22,7 @@ license: LGPL v.3
 
 
 from . import get_data_fn
-from javatools.manifest import main, Manifest, verify
+from javatools.manifest import main, Manifest, SignatureManifest, verify
 
 from os import unlink
 from shutil import copyfile
@@ -158,5 +158,16 @@ class ManifestTest(TestCase):
 
         unlink(tmp_jar)
 
+    def test_verify_mf_checksums_no_whole_digest(self):
+        sf_file = "sf-no-whole-digest.sf"
+        mf_file = "sf-no-whole-digest.mf"
+        sf = SignatureManifest()
+        sf.parse_file(get_data_fn(sf_file))
+        mf = Manifest()
+        mf.parse_file(get_data_fn(mf_file))
+        error_message = sf.verify_manifest_checksums(mf)
+        self.assertIsNone(error_message,
+            "Verification of signature file %s against manifest %s failed: %s"
+            % (sf_file, mf_file, error_message))
 #
 # The end.

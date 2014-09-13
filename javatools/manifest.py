@@ -486,20 +486,36 @@ class SignatureManifest(Manifest):
         """
         Verifies the checksums over the given manifest.
         :return: error message, or None if verification succeeds
+        Reference:
+        http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Signature_Validation
         """
         # TODO: process also other than SHA-256
-        # TODO: process manifest sections separately
 
-        h = hashlib.sha256()
-        h.update(manifest.get_data())
-        mf_digest = b64encode(h.digest())
+        whole_mf_digest = b64_encoded_digest(manifest.get_data(),
+                                             hashlib.sha256)
 
-        if mf_digest != self.get("SHA-256-Digest-Manifest"):
-            return "Checksum of the whole manifest does not match.\n" \
-                  "It is possible that entries have been added to the " \
-                  "JAR and correctly signed, but the check for this is " \
-                  "not implemented yet."
+        if whole_mf_digest == self.get("SHA-256-Digest-Manifest"):
+            return None
 
+        # It is allowed for the checksum of the whole manifest to mismatch.
+        # There is a second chance for the verification to succeed:
+        # checksum for the main section matches,
+        # plus checksum for every subsection matches.
+        mf_main_attr_digest = b64_encoded_digest(manifest.get_main_section(),
+                                                 hashlib.sha256)
+        if mf_main_attr_digest != self.get(
+                "SHA-256-Digest-Manifest-Main-Attributes"):
+            return "Checksums of the whole manifest and of " \
+                   "manifest main attributes both do not match"
+
+        for s in manifest.sub_sections.values():
+            section_digest = b64_encoded_digest(s.get_data(manifest.linesep),
+                                                hashlib.sha256)
+            sf_section = self.create_section(s.primary(), overwrite=False)
+            if section_digest != sf_section.get("SHA-256-Digest"):
+                return "Checksums of the whole manifest and of " \
+                       "subsection %s both do not match" \
+                       % s.primary()
         return None
 
 
@@ -561,6 +577,11 @@ class SignatureManifest(Manifest):
         else:
             return proc_stdout
 
+
+def b64_encoded_digest(data, algorithm):
+    h = algorithm()
+    h.update(data)
+    return b64encode(h.digest())
 
 def detect_linesep(data):
     if isinstance(data, (str, buffer)):
