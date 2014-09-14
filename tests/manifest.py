@@ -169,5 +169,25 @@ class ManifestTest(TestCase):
         self.assertIsNone(error_message,
             "Verification of signature file %s against manifest %s failed: %s"
             % (sf_file, mf_file, error_message))
+
+
+    def test_multi_digests(self):
+        jar_file = "multi-digests.jar"
+
+        mf_ok_file = "one-valid-digest-of-several.mf"
+        mf = Manifest()
+        mf.parse_file(get_data_fn(mf_ok_file))
+        error_message = mf.verify_jar_checksums(get_data_fn(jar_file))
+        self.assertIsNone(error_message,
+            "Digest verification of %s against JAR %s failed: %s" \
+            % (mf_ok_file, jar_file, error_message))
+
+        sf_ok_file = "one-valid-digest-of-several.sf"
+        sf = SignatureManifest()
+        sf.parse_file(get_data_fn(sf_ok_file))
+        error_message = sf.verify_manifest_checksums(mf)
+        self.assertIsNone(error_message,
+             "Signature file digest verification of %s against manifest %s failed: %s" \
+            % (sf_ok_file, mf_ok_file, error_message))
 #
 # The end.

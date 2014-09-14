@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Created-By: 1.7.0_51 (Oracle Corporation)
+
+Name: a
+SHA1-Digest: invalid
+SHA-256-Digest: 47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=
+SHA-512-Digest: invalid
+
