@@ -273,6 +273,13 @@ class ManifestSection(OrderedDict):
         return stream.getvalue()
 
 
+    def keys_with_suffix(self, suffix):
+        """
+        :return: list of keys ending with given :suffix:.
+        """
+        return [k.rstrip(suffix) for k in self.keys() if k.endswith(suffix)]
+
+
 class Manifest(ManifestSection):
     """
     Represents a Java Manifest as an ordered dictionary containing
@@ -387,7 +394,6 @@ class Manifest(ManifestSection):
         Verify checksums, present in the manifest, against the JAR content.
         :return: error_message, or None if verification succeeds
         """
-        # TODO: process also other than SHA-256
 
         zip_file = ZipFile(jar_file)
         for filename in zip_file.namelist():
@@ -395,17 +401,21 @@ class Manifest(ManifestSection):
             if filename.startswith("META-INF/"):
                 continue
 
-            jar_digest = hashlib.sha256()
-            jar_digest.update(zip_file.read(filename))
-            calculated_digest = b64encode(jar_digest.digest())
-
             file_section = self.create_section(filename, overwrite=False)
-            read_digest = file_section.get("SHA-256-Digest")
+            at_least_one_digest_matches = False
+            for java_digest in file_section.keys_with_suffix("-Digest"):
+                read_digest = file_section.get(java_digest + "-Digest")
+                calculated_digest = b64_encoded_digest(
+                    zip_file.read(filename),
+                    NAMED_DIGESTS[java_digest]
+                )
 
-            if calculated_digest != read_digest:
-                return "Checksum of JAR member %s does not match.\n" \
-                       "Read from manifest: %s\nCalculated: %s" \
-                        % (filename, read_digest, calculated_digest)
+                if calculated_digest == read_digest:
+                    at_least_one_digest_matches = True
+                    break
+
+            if not at_least_one_digest_matches:
+                return "No valid checksum of JAR member %s found" % filename
 
         return None
 
@@ -489,33 +499,60 @@ class SignatureManifest(Manifest):
         Reference:
         http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Signature_Validation
         """
-        # TODO: process also other than SHA-256
 
-        whole_mf_digest = b64_encoded_digest(manifest.get_data(),
-                                             hashlib.sha256)
+        # NOTE: JAR spec does not state whether there can be >1 digest used,
+        # and should the validator require any or all digests to match.
+        # We allow mismatching digests and require just one to be correct.
+        # We see no security risk: it is the signer of the .SF file
+        # who shall check, what is being signed.
+        for java_digest in self.keys_with_suffix("-Digest-Manifest"):
+            whole_mf_digest = b64_encoded_digest(
+                manifest.get_data(),
+                NAMED_DIGESTS[java_digest]
+            )
 
-        if whole_mf_digest == self.get("SHA-256-Digest-Manifest"):
-            return None
+            # It is enough for at least one digest to be correct
+            if whole_mf_digest == self.get(java_digest + "-Digest-Manifest"):
+                return None
 
-        # It is allowed for the checksum of the whole manifest to mismatch.
+        # JAR spec allows for the checksum of the whole manifest to mismatch.
         # There is a second chance for the verification to succeed:
         # checksum for the main section matches,
         # plus checksum for every subsection matches.
-        mf_main_attr_digest = b64_encoded_digest(manifest.get_main_section(),
-                                                 hashlib.sha256)
-        if mf_main_attr_digest != self.get(
-                "SHA-256-Digest-Manifest-Main-Attributes"):
-            return "Checksums of the whole manifest and of " \
-                   "manifest main attributes both do not match"
+
+        at_least_one_main_attr_digest_matches = False
+        for java_digest in self.keys_with_suffix(
+                "-Digest-Manifest-Main-Attributes"):
+            mf_main_attr_digest = b64_encoded_digest(
+                manifest.get_main_section(),
+                NAMED_DIGESTS[java_digest]
+            )
+
+            if mf_main_attr_digest == self.get(
+                    java_digest + "-Digest-Manifest-Main-Attributes"):
+                at_least_one_main_attr_digest_matches = True
+                break
+
+        if not at_least_one_main_attr_digest_matches:
+            return "No matching checksum of the whole manifest and no " \
+                   "matching checksum of the manifest main attributes found"
 
         for s in manifest.sub_sections.values():
-            section_digest = b64_encoded_digest(s.get_data(manifest.linesep),
-                                                hashlib.sha256)
+            at_least_one_section_digest_matches = False
             sf_section = self.create_section(s.primary(), overwrite=False)
-            if section_digest != sf_section.get("SHA-256-Digest"):
-                return "Checksums of the whole manifest and of " \
-                       "subsection %s both do not match" \
-                       % s.primary()
+            for java_digest in s.keys_with_suffix("-Digest"):
+                section_digest = b64_encoded_digest(
+                    s.get_data(manifest.linesep),
+                    NAMED_DIGESTS[java_digest]
+                )
+                if section_digest == sf_section.get(java_digest + "-Digest"):
+                    at_least_one_section_digest_matches = True
+                    break
+
+            if not at_least_one_section_digest_matches:
+                return "No matching checksum of the whole manifest and " \
+                       "no matching checksum for subsection %s found" \
+                           % s.primary()
         return None
 
 
@@ -993,7 +1030,7 @@ def cli_sign(options, rest):
     # create a signature manifest, and make it match the line separator
     # style of the manifest it'll be digesting.
     sf = SignatureManifest(linesep=mf.linesep)
-    sf.digest_manifest(mf, "SHA-256")
+    sf.digest_manifest(mf, "SHA-256")   # TODO: option for other algorithms
     jar_file.writestr("META-INF/" + key_alias + ".SF", sf.get_data())
     jar_file.writestr("META-INF/" + key_alias + ".RSA",
                       sf.get_signature(certificate, private_key))
