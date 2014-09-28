@@ -162,7 +162,7 @@ class JarInfo(object):
 
         mf = Manifest()
         with self.open(mf_entry) as data:
-            mf.parse(data)
+            mf.parse(data.read())
         return mf
 
 
