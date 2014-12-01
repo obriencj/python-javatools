@@ -834,7 +834,6 @@ def verify(certificate, jar_file, key_alias):
     Verifies signature of a JAR file.
 
     Limitations:
-    - only RSA keys are handled
     - diagnostic is less verbose than of jarsigner
     :return: tuple (exit_status, result_message)
 
@@ -854,7 +853,21 @@ def verify(certificate, jar_file, key_alias):
     with open(sf_file, "w") as tmp_buf:
         tmp_buf.write(sf_data)
         tmp_buf.flush()
-        sig_block_data = zip_file.read("META-INF/%s.RSA" % key_alias)
+        file_list = zip_file.namelist()
+        sig_block_filename = None
+        # Assumption: Same key alias is not signed by >1 different algorithm.
+        # Just grab the first of known extensions.
+        signature_extensions = ("RSA", "DSA", "EC")
+        for extension in signature_extensions:
+            candidate_filename = "META-INF/%s.%s" % (key_alias, extension)
+            if candidate_filename in file_list:
+                sig_block_filename = candidate_filename
+                break
+        if sig_block_filename is None:
+            return "None of %s found in JAR" % \
+                   ",".join(key_alias + "." + x for x in signature_extensions)
+
+        sig_block_data = zip_file.read(sig_block_filename)
         error = verify_signature_block(certificate, sf_file, sig_block_data)
         os.unlink(sf_file)
         if error is not None:

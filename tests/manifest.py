@@ -189,5 +189,24 @@ class ManifestTest(TestCase):
         self.assertIsNone(error_message,
              "Signature file digest verification of %s against manifest %s failed: %s" \
             % (sf_ok_file, mf_ok_file, error_message))
+
+
+    def test_ecdsa_verify(self):
+        jar_data = get_data_fn("ec.jar")
+        cert = get_data_fn("ec-cert.pem")
+        error_message = verify(cert, jar_data, "TEST")
+        self.assertIsNone(error_message,
+            "Verification of JAR signed with ECDSA key failed: %s"
+            % error_message)
+
+
+    def test_missing_signature_block(self):
+        certificate = get_data_fn("ec-cert.pem")
+        jar_data = get_data_fn("ec-must-fail.jar")
+        error_message = verify(certificate, jar_data, "TEST")
+        self.assertIsNotNone(error_message,
+            "Error: verification of non-existing key alias has succeeded")
+
+
 #
 # The end.
