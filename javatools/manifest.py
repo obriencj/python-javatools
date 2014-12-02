@@ -556,7 +556,8 @@ class SignatureManifest(Manifest):
         return None
 
 
-    def get_signature(self, certificate, private_key):
+    def get_signature(self, certificate, private_key,
+                      digest_algorithm="SHA-256"):
         """
         Produces a signature block for the contents of this signature
         manifest. Executes the `openssl` binary in order to calculate
@@ -571,7 +572,9 @@ class SignatureManifest(Manifest):
         certificate : `str` filename
           certificate to embed into the signature (PEM format)
         private_key : `str` filename
-          RSA private key used to sign (PEM format)
+          private key used to sign (PEM format)
+        digest_algorithm : `str`
+          Java-style algorithm name (must be supported by OpenSSL too)
 
         Returns
         -------
@@ -598,10 +601,22 @@ class SignatureManifest(Manifest):
 
         from subprocess import Popen, PIPE, CalledProcessError
 
-        # TODO: handle also DSA and ECDSA keys
-        external_cmd = "openssl cms -sign -binary -noattr -md SHA256" \
+        JAVA_TO_OPENSSL_DIGESTS = {
+            "MD5": "MD5",
+            "SHA1": "SHA1",
+            "SHA-256": "SHA256",
+            "SHA-384": "SHA384",
+            "SHA-512": "SHA512"
+        }
+
+        try:
+            openssl_digest = JAVA_TO_OPENSSL_DIGESTS[digest_algorithm]
+        except KeyError:
+            raise Exception("Unknown Java digest %s" % digest_algorithm)
+
+        external_cmd = "openssl cms -sign -binary -noattr -md %s" \
                        " -signer %s -inkey %s -outform der" \
-                       % (certificate, private_key)
+                       % (openssl_digest, certificate, private_key)
 
         proc = Popen(external_cmd.split(),
                      stdin=PIPE, stdout=PIPE, stderr=PIPE)
@@ -829,6 +844,32 @@ def verify_signature_block(certificate_file, content_file, signature):
     return None
 
 
+def private_key_type(private_key_file):
+    import subprocess
+    import re
+
+    algorithms = ("RSA", "DSA", "EC")
+    # Grepping for a string will work for PKCS8 keys, but not for PKCS1.
+    with open(private_key_file, "r") as f:
+        # We can't just take the first line. PKCS8 may have other headers.
+        for line in f:
+            for algorithm in algorithms:
+                if re.match("-----BEGIN %s PRIVATE KEY-----" % algorithm,
+                            line):
+                    return algorithm
+
+    # No luck.
+    # Anything less ugly and more efficient, but working with all key types??
+    # PyOpenssl has Pkey.type()...
+    with open(os.devnull, "wb") as DEVNULL:
+        for algorithm in algorithms:
+            if not subprocess.call(
+                    ["openssl", algorithm.lower(), "-in", private_key_file],
+                    stdout=DEVNULL, stderr=subprocess.STDOUT):
+                return algorithm
+    return None
+
+
 def verify(certificate, jar_file, key_alias):
     """
     Verifies signature of a JAR file.
@@ -855,8 +896,7 @@ def verify(certificate, jar_file, key_alias):
         tmp_buf.flush()
         file_list = zip_file.namelist()
         sig_block_filename = None
-        # Assumption: Same key alias is not signed by >1 different algorithm.
-        # Just grab the first of known extensions.
+        # JAR specification lists only RSA and DSA; jarsigner also has EC
         signature_extensions = ("RSA", "DSA", "EC")
         for extension in signature_extensions:
             candidate_filename = "META-INF/%s.%s" % (key_alias, extension)
@@ -865,7 +905,7 @@ def verify(certificate, jar_file, key_alias):
                 break
         if sig_block_filename is None:
             return "None of %s found in JAR" % \
-                   ",".join(key_alias + "." + x for x in signature_extensions)
+                   ", ".join(key_alias + "." + x for x in signature_extensions)
 
         sig_block_data = zip_file.read(sig_block_filename)
         error = verify_signature_block(certificate, sf_file, sig_block_data)
@@ -930,6 +970,8 @@ def cli_create(options, rest):
               " [-m manifest] file|directory"
         return 1
 
+    if options.digest is None:
+        options.digest = "MD5,SHA1"
     requested_digests = options.digest.split(",")
     try:
         use_digests = [_get_digest(digest) for digest in requested_digests]
@@ -1013,7 +1055,6 @@ def cli_verify(options, rest):
     return 0
 
 
-
 def cli_sign(options, rest):
     """
     Signs the jar (almost) identically to jarsigner.
@@ -1037,16 +1078,25 @@ def cli_sign(options, rest):
         print "META-INF/MANIFEST.MF not found in the JAR"
         return 1
 
+    sig_block_extension = private_key_type(private_key)
+    if sig_block_extension is None:
+        print "Cannot determine private key type (is it in PEM format?)"
+        return 1
+
     mf = Manifest()
     mf.parse(jar_file.read("META-INF/MANIFEST.MF"))
 
     # create a signature manifest, and make it match the line separator
     # style of the manifest it'll be digesting.
     sf = SignatureManifest(linesep=mf.linesep)
-    sf.digest_manifest(mf, "SHA-256")   # TODO: option for other algorithms
-    jar_file.writestr("META-INF/" + key_alias + ".SF", sf.get_data())
-    jar_file.writestr("META-INF/" + key_alias + ".RSA",
-                      sf.get_signature(certificate, private_key))
+
+    sf_digest_algorithm = options.digest or "SHA-256"
+    sf.digest_manifest(mf, sf_digest_algorithm)
+    jar_file.writestr("META-INF/%s.SF" % key_alias, sf.get_data())
+
+    sig_digest_algorithm = sf_digest_algorithm  # No point to make it different
+    jar_file.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension),
+        sf.get_signature(certificate, private_key, sig_digest_algorithm))
 
     return 0
 
@@ -1089,9 +1139,11 @@ def create_optparser():
                      default=["META-INF/*"],
                      help="patterns to ignore when creating or checking"
                      " files")
-    parse.add_option("-d", "--digest", action="store", default="MD5,SHA1",
-                     help="comma-separated list of digest algorithms to use"
-                     " in the manifest")
+    parse.add_option("-d", "--digest", action="store",
+                     help="with '-c/--create': comma-separated list of digest"
+                     " algorithms to use in the manifest;\n"
+                     "with '-s/--sign': digest algorithm to use"
+                     " in the signature")
     parse.add_option("-s", "--sign", action="store_true",
                      help="sign the JAR file with OpenSSL"
                      " (must be followed with: "
