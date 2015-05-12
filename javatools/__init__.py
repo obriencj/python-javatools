@@ -2084,7 +2084,7 @@ def _pretty_const_type_val(typecode, val):
         typestr = "ModuleId"
         val = "#%i@#%i" % val
     else:
-        raise Unimplemented("unknown type, %r", typecode)
+        raise Unimplemented("unknown constant type %r" % typecode)
 
     return typestr, val
 
