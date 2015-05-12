@@ -2034,7 +2034,7 @@ def _unpack_const_item(unpacker):
         val = unpacker.unpack_struct(_BH)
 
     else:
-        raise Unimplemented("unknown constant type %r" % type)
+        raise Unimplemented("unknown constant type %r" % typecode)
 
     return (typecode, val)
 
