@@ -2033,6 +2033,12 @@ def _unpack_const_item(unpacker):
     elif typecode == CONST_MethodHandle:
         val = unpacker.unpack_struct(_BH)
 
+    elif typecode == CONST_MethodType:
+        val = unpacker.unpack_struct(_H)
+
+    elif typecode == CONST_InvokeDynamic:
+        val = unpacker.unpack_struct(_HH)
+
     else:
         raise Unimplemented("unknown constant type %r" % typecode)
 
@@ -2083,6 +2089,15 @@ def _pretty_const_type_val(typecode, val):
     elif typecode == CONST_ModuleId:
         typestr = "ModuleId"
         val = "#%i@#%i" % val
+    elif typecode == CONST_MethodHandle:
+        typestr = "MethodHandle"
+        val = repr(val)
+    elif typecode == CONST_MethodType:
+        typestr = "MethodType"
+        val = repr(val)
+    elif typecode == CONST_InvokeDynamic:
+        typestr = "InvokeDynamic"
+        val = repr(val)
     else:
         raise Unimplemented("unknown constant type %r" % typecode)
 
