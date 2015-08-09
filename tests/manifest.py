@@ -24,9 +24,8 @@ license: LGPL v.3
 from . import get_data_fn
 from javatools.manifest import main, Manifest, SignatureManifest, verify
 
-from os import unlink
 from shutil import copyfile
-from tempfile import mkstemp
+from tempfile import NamedTemporaryFile
 from unittest import TestCase
 
 
@@ -46,23 +45,21 @@ class ManifestTest(TestCase):
 
         # the invocation of the script
         src_jar = get_data_fn("manifest-sample1.jar")
-        tmp_out = mkstemp()[1]
-        cmd = ["manifest", "-c", src_jar, "-m", tmp_out] + args.split()
+        with NamedTemporaryFile() as tmp_out:
+            cmd = ["manifest", "-c", src_jar, "-m", tmp_out.name] + args.split()
 
-        # rather than trying to actually execute the script in a
-        # subprocess, we'll give it an output file call it in the
-        # current process. This prevents issues when there's already
-        # an installed version of python-javatools present which may
-        # be down-version from the one being tested. Calling the
-        # manifest utility by name will use the installed rather than
-        # local dev copy. Might be able to tweak this, but for now,
-        # this is safer.
-        main(cmd)
+            # rather than trying to actually execute the script in a
+            # subprocess, we'll give it an output file call it in the
+            # current process. This prevents issues when there's already
+            # an installed version of python-javatools present which may
+            # be down-version from the one being tested. Calling the
+            # manifest utility by name will use the installed rather than
+            # local dev copy. Might be able to tweak this, but for now,
+            # this is safer.
+            main(cmd)
+            result = tmp_out.read()
 
-        with open(tmp_out) as f:
-            result = f.read()
-
-        self.assertEqual(result, expected_result,
+            self.assertEqual(result, expected_result,
                          "Result of \"%r\" does not match expected output."
                          " Expected:\n%s\nReceived:\n%s"
                          % (cmd, expected_result, result))
@@ -139,24 +136,20 @@ class ManifestTest(TestCase):
 
 
     def test_cli_sign_and_verify(self):
-
         src = get_data_fn("manifest-sample3.jar")
         key_alias = "SAMPLE3"
         cert = get_data_fn("javatools-cert.pem")
         key = get_data_fn("javatools.pem")
-        tmp_jar = mkstemp()[1]
-        copyfile(src, tmp_jar)
-        cmd = ["manifest", "-s", cert, key, key_alias, tmp_jar]
-        self.assertEqual(main(cmd), 0, "Command %s returned non-zero status"
-                         % " ".join(cmd))
+        with NamedTemporaryFile() as tmp_jar:
+            copyfile(src, tmp_jar.name)
+            cmd = ["manifest", "-s", cert, key, key_alias, tmp_jar.name]
+            self.assertEqual(main(cmd), 0, "Command %s returned non-zero status"
+                             % " ".join(cmd))
 
-        certificate = get_data_fn("javatools-cert.pem")
-        error_message = verify(certificate, tmp_jar, key_alias)
-        self.assertIsNone(error_message,
-                          "Verification of JAR which we just signed failed: %s"
-                          % error_message)
-
-        unlink(tmp_jar)
+            error_message = verify(cert, tmp_jar.name, key_alias)
+            self.assertIsNone(error_message,
+                              "Verification of JAR which we just signed failed: %s"
+                              % error_message)
 
     def test_verify_mf_checksums_no_whole_digest(self):
         sf_file = "sf-no-whole-digest.sf"
@@ -187,7 +180,42 @@ class ManifestTest(TestCase):
         sf.parse_file(get_data_fn(sf_ok_file))
         error_message = sf.verify_manifest_checksums(mf)
         self.assertIsNone(error_message,
-             "Signature file digest verification of %s against manifest %s failed: %s" \
+            "Signature file digest verification of %s against manifest %s failed: %s" \
             % (sf_ok_file, mf_ok_file, error_message))
+
+
+    def test_ecdsa_pkcs8_verify(self):
+        jar_data = get_data_fn("ec.jar")
+        cert = get_data_fn("ec-cert.pem")
+        error_message = verify(cert, jar_data, "TEST")
+        self.assertIsNone(error_message,
+            "Verification of JAR signed with ECDSA key failed: %s"
+            % error_message)
+
+
+    def test_missing_signature_block(self):
+        certificate = get_data_fn("ec-cert.pem")
+        jar_data = get_data_fn("ec-must-fail.jar")
+        error_message = verify(certificate, jar_data, "TEST")
+        self.assertIsNotNone(error_message,
+            "Error: verification of non-existing key alias has succeeded")
+
+
+    def test_cli_sign_and_verify_ecdsa_pkcs8_sha512(self):
+        key_alias = "SAMPLE3"
+        cert = get_data_fn("ec-cert.pem")
+        key = get_data_fn("ec-key.pem")
+        with NamedTemporaryFile() as tmp_jar:
+            copyfile(get_data_fn("manifest-sample3.jar"), tmp_jar.name)
+            cmd = ["manifest", "-s", "-d", "SHA-512",
+                   cert, key, key_alias, tmp_jar.name]
+            self.assertEqual(main(cmd), 0,
+                             "Command %s returned non-zero status"
+                             % " ".join(cmd))
+
+            error_message = verify(cert, tmp_jar.name, key_alias)
+            self.assertIsNone(error_message,
+                              "Verification of JAR which we just signed failed: %s"
+                              % error_message)
 #
 # The end.
