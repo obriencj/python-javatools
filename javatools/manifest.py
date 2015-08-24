@@ -867,32 +867,6 @@ def verify_signature_block(certificate_file, content_file, signature):
     return None
 
 
-def private_key_type(private_key_file):
-    import subprocess
-    import re
-
-    algorithms = ("RSA", "DSA", "EC")
-    # Grepping for a string will work for PKCS8 keys, but not for PKCS1.
-    with open(private_key_file, "r") as f:
-        # We can't just take the first line. PKCS8 may have other headers.
-        for line in f:
-            for algorithm in algorithms:
-                if re.match("-----BEGIN %s PRIVATE KEY-----" % algorithm,
-                            line):
-                    return algorithm
-
-    # No luck.
-    # Anything less ugly and more efficient, but working with all key types??
-    # PyOpenssl has Pkey.type()...
-    with open(os.devnull, "wb") as DEVNULL:
-        for algorithm in algorithms:
-            if not subprocess.call(
-                    ["openssl", algorithm.lower(), "-in", private_key_file],
-                    stdout=DEVNULL, stderr=subprocess.STDOUT):
-                return algorithm
-    return None
-
-
 def verify(certificate, jar_file, key_alias):
     """
     Verifies signature of a JAR file.
@@ -1078,52 +1052,6 @@ def cli_verify(options, rest):
     return 0
 
 
-def cli_sign(options, rest):
-    """
-    Signs the jar (almost) identically to jarsigner.
-    """
-
-    # TODO: move this into jarutil, since it actually modifies a JAR
-    # file. We can leave the majority of the signing implementation in
-    # this module, but anything that modifies a JAR should wind up in
-    # jarutil.
-
-    if len(rest) != 5:
-        print "Usage: \
-            manifest --sign certificate private_key key_alias file.jar"
-        return 1
-
-    certificate = rest[1]
-    private_key = rest[2]
-    key_alias = rest[3]
-    jar_file = ZipFile(rest[4], "a")
-    if not "META-INF/MANIFEST.MF" in jar_file.namelist():
-        print "META-INF/MANIFEST.MF not found in the JAR"
-        return 1
-
-    sig_block_extension = private_key_type(private_key)
-    if sig_block_extension is None:
-        print "Cannot determine private key type (is it in PEM format?)"
-        return 1
-
-    mf = Manifest()
-    mf.parse(jar_file.read("META-INF/MANIFEST.MF"))
-
-    # create a signature manifest, and make it match the line separator
-    # style of the manifest it'll be digesting.
-    sf = SignatureManifest(linesep=mf.linesep)
-
-    sf_digest_algorithm = options.digest or "SHA-256"
-    sf.digest_manifest(mf, sf_digest_algorithm)
-    jar_file.writestr("META-INF/%s.SF" % key_alias, sf.get_data())
-
-    sig_digest_algorithm = sf_digest_algorithm  # No point to make it different
-    jar_file.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension),
-        sf.get_signature(certificate, private_key, sig_digest_algorithm))
-
-    return 0
-
-
 def cli(options, rest):
     if options.verify:
         return cli_verify(options, rest)
@@ -1134,9 +1062,6 @@ def cli(options, rest):
     elif options.query:
         return cli_query(options, rest)
 
-    elif options.sign:
-        return cli_sign(options, rest)
-
     else:
         print "specify one of --verify, --query, --sign, or --create"
         return 0
@@ -1145,7 +1070,7 @@ def cli(options, rest):
 def create_optparser():
     from optparse import OptionParser
 
-    parse = OptionParser(usage="Create, sign or verify a MANIFEST for"
+    parse = OptionParser(usage="Create or verify a MANIFEST for"
                          " a JAR, ZIP, or directory")
 
     parse.add_option("-v", "--verify", action="store_true")
@@ -1163,14 +1088,9 @@ def create_optparser():
                      help="patterns to ignore when creating or checking"
                      " files")
     parse.add_option("-d", "--digest", action="store",
-                     help="with '-c/--create': comma-separated list of digest"
-                     " algorithms to use in the manifest;\n"
-                     "with '-s/--sign': digest algorithm to use"
-                     " in the signature")
-    parse.add_option("-s", "--sign", action="store_true",
-                     help="sign the JAR file with OpenSSL"
-                     " (must be followed with: "
-                     "certificate.pem, private_key.pem, key_alias)")
+                     help="comma-separated list of digest"
+                     " algorithms to use in the manifest")
+
     return parse
 
 

@@ -24,7 +24,6 @@ license: LGPL v.3
 from . import get_data_fn
 from javatools.manifest import main, Manifest, SignatureManifest, verify
 
-from shutil import copyfile
 from tempfile import NamedTemporaryFile
 from unittest import TestCase
 
@@ -141,22 +140,6 @@ class ManifestTest(TestCase):
     def test_signature_related_files_skip(self):
         self.verify_signature("sig-related-junk-files.jar")
 
-    def test_cli_sign_and_verify(self):
-        src = get_data_fn("manifest-sample3.jar")
-        key_alias = "SAMPLE3"
-        cert = get_data_fn("javatools-cert.pem")
-        key = get_data_fn("javatools.pem")
-        with NamedTemporaryFile() as tmp_jar:
-            copyfile(src, tmp_jar.name)
-            cmd = ["manifest", "-s", cert, key, key_alias, tmp_jar.name]
-            self.assertEqual(main(cmd), 0, "Command %s returned non-zero status"
-                             % " ".join(cmd))
-
-            error_message = verify(cert, tmp_jar.name, key_alias)
-            self.assertIsNone(error_message,
-                              "Verification of JAR which we just signed failed: %s"
-                              % error_message)
-
     def test_verify_mf_checksums_no_whole_digest(self):
         sf_file = "sf-no-whole-digest.sf"
         mf_file = "sf-no-whole-digest.mf"
@@ -206,22 +189,5 @@ class ManifestTest(TestCase):
         self.assertIsNotNone(error_message,
             "Error: verification of non-existing key alias has succeeded")
 
-
-    def test_cli_sign_and_verify_ecdsa_pkcs8_sha512(self):
-        key_alias = "SAMPLE3"
-        cert = get_data_fn("ec-cert.pem")
-        key = get_data_fn("ec-key.pem")
-        with NamedTemporaryFile() as tmp_jar:
-            copyfile(get_data_fn("manifest-sample3.jar"), tmp_jar.name)
-            cmd = ["manifest", "-s", "-d", "SHA-512",
-                   cert, key, key_alias, tmp_jar.name]
-            self.assertEqual(main(cmd), 0,
-                             "Command %s returned non-zero status"
-                             % " ".join(cmd))
-
-            error_message = verify(cert, tmp_jar.name, key_alias)
-            self.assertIsNone(error_message,
-                              "Verification of JAR which we just signed failed: %s"
-                              % error_message)
 #
 # The end.
