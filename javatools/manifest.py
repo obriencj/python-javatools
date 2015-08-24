@@ -397,8 +397,7 @@ class Manifest(ManifestSection):
 
         zip_file = ZipFile(jar_file)
         for filename in zip_file.namelist():
-            # TODO: is the below correct? Shall we just skip META-INF directory?
-            if filename.startswith("META-INF/"):
+            if file_is_signature_related(filename):
                 continue
 
             file_section = self.create_section(filename, overwrite=False)
@@ -818,6 +817,30 @@ def multi_path_generator(pathnames):
                 yield entry
         else:
             yield pathname, file_chunk(pathname)
+
+
+def file_is_signature_related(filename):
+    # http://docs.oracle.com/javase/8/docs/technotes/guides/jar/jar.html#SignedJar-Overview
+    # Specifies files, which are considered "signature-related":
+
+    if not filename.startswith("META-INF/"):
+        return False
+
+    basename = filename[9:]
+    # Files in subdirectories are not signature-related:
+    if "/" in basename:
+        return False
+
+    # Case-insensitive variants are "reserved" and also not checked:
+    basename = basename.upper()
+
+    return basename == "" \
+        or basename == "MANIFEST.MF" \
+        or basename.startswith("SIG-") \
+        or basename.endswith(".SF") \
+        or basename.endswith(".RSA") \
+        or basename.endswith(".DSA") \
+        or basename.endswith(".EC")
 
 
 def verify_signature_block(certificate_file, content_file, signature):
