@@ -134,6 +134,12 @@ class ManifestTest(TestCase):
     def test_verify_signature_by_jarsigner(self):
         self.verify_signature("manifest-signed-by-jarsigner.jar")
 
+    # Tests that signature-related files are skipped when the signature is
+    # verified. The JAR file is a normal signed JAR, plus junk files with
+    # "signature-related" names.
+    # The test does not guarantee that no other files are skipped.
+    def test_signature_related_files_skip(self):
+        self.verify_signature("sig-related-junk-files.jar")
 
     def test_cli_sign_and_verify(self):
         src = get_data_fn("manifest-sample3.jar")
