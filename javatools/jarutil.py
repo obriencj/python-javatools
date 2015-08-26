@@ -26,8 +26,8 @@ from zipfile import ZipFile
 
 from javatools.manifest import Manifest, SignatureManifest
 
-__all__ = ( "cli_create_jar", "cli_check_jar", "cli_sign_jar",
-            "cli_verify_jar", "cli", "main" )
+__all__ = ( "cli_create_jar", "cli_sign_jar",
+            "cli_verify_jar_signature", "cli", "main" )
 
 
 def private_key_type(private_key_file):
@@ -53,6 +53,94 @@ def private_key_type(private_key_file):
                     ["openssl", algorithm.lower(), "-in", private_key_file],
                     stdout=DEVNULL, stderr=subprocess.STDOUT):
                 return algorithm
+    return None
+
+
+def verify_signature_block(certificate_file, content_file, signature):
+    """
+    A wrapper over 'OpenSSL cms -verify'.
+    Verifies the 'signature_stream' over the 'content' with the 'certificate'.
+    :return: Error message, or None if the signature validates.
+    """
+
+    from subprocess import Popen, PIPE, STDOUT
+
+    external_cmd = "openssl cms -verify -CAfile %s -content %s " \
+                   "-inform der" % (certificate_file, content_file)
+
+    proc = Popen(external_cmd.split(),
+                 stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+
+    proc_output = proc.communicate(input=signature)[0]
+
+    if proc.returncode != 0:
+        return "Command \"%s\" returned %s: %s" \
+               % (external_cmd, proc.returncode, proc_output)
+
+    return None
+
+
+def verify(certificate, jar_file, key_alias):
+    """
+    Verifies signature of a JAR file.
+
+    Limitations:
+    - diagnostic is less verbose than of jarsigner
+    :return: tuple (exit_status, result_message)
+
+    Reference:
+    http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Signature_Validation
+    Note that the validation is done in three steps. Failure at any step is a failure
+    of the whole validation.
+    """
+
+    from tempfile import mkstemp
+
+    zip_file = ZipFile(jar_file)
+    sf_data = zip_file.read("META-INF/%s.SF" % key_alias)
+
+    # Step 1: check the crypto part.
+    sf_file = mkstemp()[1]
+    with open(sf_file, "w") as tmp_buf:
+        tmp_buf.write(sf_data)
+        tmp_buf.flush()
+        file_list = zip_file.namelist()
+        sig_block_filename = None
+        # JAR specification mentions only RSA and DSA; jarsigner also has EC
+        signature_extensions = ("RSA", "DSA", "EC")
+        for extension in signature_extensions:
+            candidate_filename = "META-INF/%s.%s" % (key_alias, extension)
+            if candidate_filename in file_list:
+                sig_block_filename = candidate_filename
+                break
+        if sig_block_filename is None:
+            return "None of %s found in JAR" % \
+                   ", ".join(key_alias + "." + x for x in signature_extensions)
+
+        sig_block_data = zip_file.read(sig_block_filename)
+        error = verify_signature_block(certificate, sf_file, sig_block_data)
+        os.unlink(sf_file)
+        if error is not None:
+            return error
+
+    # KEYALIAS.SF is correctly signed.
+    # Step 2: Check that it contains correct checksum of the manifest.
+    signature_manifest = SignatureManifest()
+    signature_manifest.parse(sf_data)
+
+    jar_manifest = Manifest()
+    jar_manifest.parse(zip_file.read("META-INF/MANIFEST.MF"))
+
+    error = signature_manifest.verify_manifest_checksums(jar_manifest)
+    if error is not None:
+        return error
+
+    # Checksums of MANIFEST.MF itself are correct.
+    # Step 3: Check that it contains valid checksums for each file from the JAR.
+    error = jar_manifest.verify_jar_checksums(jar_file)
+    if error is not None:
+        return error
+
     return None
 
 
@@ -95,9 +183,18 @@ def cli_sign_jar(options, jar_file, cert_file, key_file, key_alias):
 
     return 0
 
-def cli_verify_jar_signature(options, jarfilename, keystore=None):
-    # TODO: verify the signature in a JAR matches that from a known
-    # key
+
+def cli_verify_jar_signature(jar_file, certificate, key_alias):
+    """
+    Command-line wrapper around verify()
+    TODO: use trusted keystore;
+    """
+
+    result_message = verify(certificate, jar_file, key_alias)
+    if result_message is not None:
+        print result_message
+        return 1
+    print "Jar verified."
     return 0
 
 
@@ -112,6 +209,7 @@ def create_optparser():
 
     parser = OptionParser(usage="%prog COMMAND [OPTIONS] JARFILE [ARGUMENTS]")
 
+    # TODO: the command must be not optional
     parser.add_option("-c", "--create")
     # mandatory arguments: path(s)
     # options: ignore, manifest-digest

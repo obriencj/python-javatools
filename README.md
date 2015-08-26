@@ -94,7 +94,9 @@ If you'd prefer to build an RPM, see the wiki entry for
 * jardiff - prints the deltas between the contents of a JAR, and runs
   classdiff on differing Java class files contained in the JARs
 
-* manifest - creates manifests, signs JAR with OpenSSL
+* jarutil - creates JAR, signs JAR, verifies JAR signature
+
+* manifest - creates and queries JAR manifests
 
 * distinfo - prints information about a mixed multi-jar/class
   distribution, such as provides/requires lists.

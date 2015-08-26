@@ -22,7 +22,7 @@ license: LGPL v.3
 
 
 from . import get_data_fn
-from javatools.manifest import main, Manifest, SignatureManifest, verify
+from javatools.manifest import main, Manifest, SignatureManifest
 
 from tempfile import NamedTemporaryFile
 from unittest import TestCase
@@ -90,16 +90,6 @@ class ManifestTest(TestCase):
 
         return mf
 
-    def verify_signature(self, signed_jar):
-        certificate = get_data_fn("javatools-cert.pem")
-        jar_data = get_data_fn(signed_jar)
-        error_message = verify(certificate, jar_data, "UNUSED")
-
-        self.assertIsNone(error_message,
-                          "\"%s\" verification against \"%s\" failed: %s"
-                          % (jar_data, certificate, error_message))
-
-
     def test_create_sha1(self):
         self.manifest_cli_create("-d SHA1", "manifest.SHA1.mf")
 
@@ -125,20 +115,13 @@ class ManifestTest(TestCase):
         mf = self.manifest_load_store("manifest.dos-newlines.mf")
         self.assertEqual(mf.linesep, "\r\n")
 
+    def test_cli_verify_ok(self):
+        jar_file = get_data_fn("cli-verify-ok.jar")
+        self.assertEqual(0, main(["-v", jar_file]))
 
-    def test_verify_signature_by_javatools(self):
-        self.verify_signature("manifest-signed.jar")
-
-
-    def test_verify_signature_by_jarsigner(self):
-        self.verify_signature("manifest-signed-by-jarsigner.jar")
-
-    # Tests that signature-related files are skipped when the signature is
-    # verified. The JAR file is a normal signed JAR, plus junk files with
-    # "signature-related" names.
-    # The test does not guarantee that no other files are skipped.
-    def test_signature_related_files_skip(self):
-        self.verify_signature("sig-related-junk-files.jar")
+    def test_cli_verify_nok(self):
+        jar_file = get_data_fn("cli-verify-nok.jar")
+        self.assertEqual(1, main(["-v", jar_file]))
 
     def test_verify_mf_checksums_no_whole_digest(self):
         sf_file = "sf-no-whole-digest.sf"
@@ -171,23 +154,5 @@ class ManifestTest(TestCase):
         self.assertIsNone(error_message,
             "Signature file digest verification of %s against manifest %s failed: %s" \
             % (sf_ok_file, mf_ok_file, error_message))
-
-
-    def test_ecdsa_pkcs8_verify(self):
-        jar_data = get_data_fn("ec.jar")
-        cert = get_data_fn("ec-cert.pem")
-        error_message = verify(cert, jar_data, "TEST")
-        self.assertIsNone(error_message,
-            "Verification of JAR signed with ECDSA key failed: %s"
-            % error_message)
-
-
-    def test_missing_signature_block(self):
-        certificate = get_data_fn("ec-cert.pem")
-        jar_data = get_data_fn("ec-must-fail.jar")
-        error_message = verify(certificate, jar_data, "TEST")
-        self.assertIsNotNone(error_message,
-            "Error: verification of non-existing key alias has succeeded")
-
 #
 # The end.

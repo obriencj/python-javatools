@@ -26,22 +26,45 @@ from tempfile import NamedTemporaryFile
 from . import get_data_fn
 
 from javatools.jarutil import cli_create_jar, cli_sign_jar, \
-    cli_verify_jar_signature
-from javatools.manifest import verify
+    cli_verify_jar_signature, verify
 
 
 class JarutilTest(TestCase):
 
-    def test_cli_create_jar(self):
-        self.assertEqual(0, cli_create_jar(None, "some-dir"),
-                         "cli_create_jar() returned non-zero")
+    def cli_verify_wrap(self, jar, cert, alias):
+            self.assertEqual(0, cli_verify_jar_signature(
+                get_data_fn(jar), get_data_fn(cert), alias),
+                "cli_verify_jar_signature() failed on %s with certificate %s,"
+                " alias %s" % (jar, cert, alias))
 
-    def test_cli_verify_jar_signature(self):
-        self.assertEqual(0, cli_verify_jar_signature(None, "file.jar"),
-                         "cli_verify_jar_signature() returned non-zero")
+    def test_cli_verify_signature_by_javatools(self):
+        self.cli_verify_wrap("jarutil-signed.jar", "javatools-cert.pem",
+                             "UNUSED")
+
+    def test_cli_verify_signature_by_jarsigner(self):
+        self.cli_verify_wrap("jarutil-signed-by-jarsigner.jar",
+                             "javatools-cert.pem", "UNUSED")
+
+    # Tests that signature-related files are skipped when the signature is
+    # verified. The JAR file is a normal signed JAR, plus junk files with
+    # "signature-related" names.
+    # The test does not guarantee that no other files are skipped.
+    def test_signature_related_files_skip(self):
+        self.cli_verify_wrap("sig-related-junk-files.jar",
+                             "javatools-cert.pem", "UNUSED")
+
+    def test_ecdsa_pkcs8_verify(self):
+        self.cli_verify_wrap("ec.jar", "ec-cert.pem", "TEST")
+
+    def test_missing_signature_block(self):
+        jar_data = get_data_fn("ec-must-fail.jar")
+        cert = get_data_fn("ec-cert.pem")
+        error_message = verify(cert, jar_data, "TEST")
+        self.assertIsNotNone(error_message,
+            "Error: verification of non-existing key alias has succeeded")
 
     def test_cli_sign_and_verify(self):
-        src = get_data_fn("manifest-sample3.jar")
+        src = get_data_fn("cli-sign-and-verify.jar")
         key_alias = "SAMPLE3"
         cert = get_data_fn("javatools-cert.pem")
         key = get_data_fn("javatools.pem")
@@ -54,16 +77,16 @@ class JarutilTest(TestCase):
                               % error_message)
 
     def test_cli_sign_and_verify_ecdsa_pkcs8_sha512(self):
+        src = get_data_fn("cli-sign-and-verify.jar")
         key_alias = "SAMPLE3"
         cert = get_data_fn("ec-cert.pem")
         key = get_data_fn("ec-key.pem")
         with NamedTemporaryFile() as tmp_jar:
-            copyfile(get_data_fn("manifest-sample3.jar"), tmp_jar.name)
+            copyfile(src, tmp_jar.name)
             cli_sign_jar(None, tmp_jar.name, cert, key, key_alias)
             error_message = verify(cert, tmp_jar.name, key_alias)
             self.assertIsNone(error_message,
                               "Verification of JAR which we just signed failed: %s"
                               % error_message)
-
 #
 # The end.

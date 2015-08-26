@@ -49,7 +49,7 @@ __all__ = (
     "SignatureManifest",
     "ManifestKeyException", "MalformedManifest",
     "main", "cli",
-    "cli_create", "cli_query", "cli_sign",
+    "cli_create", "cli_query", "cli_verify",
 )
 
 
@@ -395,6 +395,7 @@ class Manifest(ManifestSection):
         :return: error_message, or None if verification succeeds
         """
 
+        error_message = ""
         zip_file = ZipFile(jar_file)
         for filename in zip_file.namelist():
             if file_is_signature_related(filename):
@@ -414,9 +415,9 @@ class Manifest(ManifestSection):
                     break
 
             if not at_least_one_digest_matches:
-                return "No valid checksum of JAR member %s found" % filename
+                error_message += "No valid checksum of jar member %s\n" % filename
 
-        return None
+        return None if error_message == "" else error_message
 
 
     def clear(self):
@@ -843,94 +844,6 @@ def file_is_signature_related(filename):
         or basename.endswith(".EC")
 
 
-def verify_signature_block(certificate_file, content_file, signature):
-    """
-    A wrapper over 'OpenSSL cms -verify'.
-    Verifies the 'signature_stream' over the 'content' with the 'certificate'.
-    :return: Error message, or None if the signature validates.
-    """
-
-    from subprocess import Popen, PIPE, STDOUT
-
-    external_cmd = "openssl cms -verify -CAfile %s -content %s " \
-                   "-inform der" % (certificate_file, content_file)
-
-    proc = Popen(external_cmd.split(),
-                 stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-
-    proc_output = proc.communicate(input=signature)[0]
-
-    if proc.returncode != 0:
-        return "Command \"%s\" returned %s: %s" \
-               % (external_cmd, proc.returncode, proc_output)
-
-    return None
-
-
-def verify(certificate, jar_file, key_alias):
-    """
-    Verifies signature of a JAR file.
-
-    Limitations:
-    - diagnostic is less verbose than of jarsigner
-    :return: tuple (exit_status, result_message)
-
-    Reference:
-    http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Signature_Validation
-    Note that the validation is done in three steps. Failure at any step is a failure
-    of the whole validation.
-    """
-
-    from tempfile import mkstemp
-
-    zip_file = ZipFile(jar_file)
-    sf_data = zip_file.read("META-INF/%s.SF" % key_alias)
-
-    # Step 1: check the crypto part.
-    sf_file = mkstemp()[1]
-    with open(sf_file, "w") as tmp_buf:
-        tmp_buf.write(sf_data)
-        tmp_buf.flush()
-        file_list = zip_file.namelist()
-        sig_block_filename = None
-        # JAR specification lists only RSA and DSA; jarsigner also has EC
-        signature_extensions = ("RSA", "DSA", "EC")
-        for extension in signature_extensions:
-            candidate_filename = "META-INF/%s.%s" % (key_alias, extension)
-            if candidate_filename in file_list:
-                sig_block_filename = candidate_filename
-                break
-        if sig_block_filename is None:
-            return "None of %s found in JAR" % \
-                   ", ".join(key_alias + "." + x for x in signature_extensions)
-
-        sig_block_data = zip_file.read(sig_block_filename)
-        error = verify_signature_block(certificate, sf_file, sig_block_data)
-        os.unlink(sf_file)
-        if error is not None:
-            return error
-
-    # KEYALIAS.SF is correctly signed.
-    # Step 2: Check that it contains correct checksum of the manifest.
-    signature_manifest = SignatureManifest()
-    signature_manifest.parse(sf_data)
-
-    jar_manifest = Manifest()
-    jar_manifest.parse(zip_file.read("META-INF/MANIFEST.MF"))
-
-    error = signature_manifest.verify_manifest_checksums(jar_manifest)
-    if error is not None:
-        return error
-
-    # Checksums of MANIFEST.MF itself are correct.
-    # Step 3: Check that it contains valid checksums for each file from the JAR.
-    error = jar_manifest.verify_jar_checksums(jar_file)
-    if error is not None:
-        return error
-
-    return None
-
-
 def single_path_generator(pathname):
     """
     emits name,chunkgen pairs for the given file at pathname. If
@@ -1010,8 +923,24 @@ def cli_create(options, rest):
         output.close()
 
 
+def cli_verify(options, rest):
+    # TODO: handle ignores
+    if len(rest) != 1:
+        print "Usage: manifest --verify [--ignore=PATH] JAR_FILE"
+        return 2
+
+    jar = ZipFile(rest[0])
+    mf = Manifest()
+    mf.parse(jar.read("META-INF/MANIFEST.MF"))
+    error = mf.verify_jar_checksums(rest[0])
+    if error is None:
+        return 0
+    print error
+    return 1
+
+
 def cli_query(options, rest):
-    if(len(rest) != 2):
+    if len(rest) != 2:
         print "Usage: manifest --query=key file.jar"
         return 1
 
@@ -1032,26 +961,6 @@ def cli_query(options, rest):
             print q, "=", mf.get(s[0])
 
 
-def cli_verify(options, rest):
-    """
-    Command-line wrapper around verify()
-    """
-
-    if len(rest) != 4:
-        print "Usage: manifest --verify certificate.pem file.jar key_alias"
-        return 1
-
-    certificate = rest[1]
-    jar_file = rest[2]
-    key_alias = rest[3]
-    result_message = verify(certificate, jar_file, key_alias)
-    if result_message is not None:
-        print result_message
-        return 1
-    print "Jar verified."
-    return 0
-
-
 def cli(options, rest):
     if options.verify:
         return cli_verify(options, rest)
@@ -1063,16 +972,18 @@ def cli(options, rest):
         return cli_query(options, rest)
 
     else:
-        print "specify one of --verify, --query, --sign, or --create"
+        print "specify one of --verify, --query or --create"
         return 0
 
 
 def create_optparser():
     from optparse import OptionParser
 
-    parse = OptionParser(usage="Create or verify a MANIFEST for"
+    parse = OptionParser(usage="Create, query or verify a MANIFEST for"
                          " a JAR, ZIP, or directory")
 
+    # TODO: first should be one non-optional command;
+    # each option is applicable only to certain commands
     parse.add_option("-v", "--verify", action="store_true")
     parse.add_option("-c", "--create", action="store_true")
     parse.add_option("-q", "--query", action="append",
@@ -1089,7 +1000,7 @@ def create_optparser():
                      " files")
     parse.add_option("-d", "--digest", action="store",
                      help="comma-separated list of digest"
-                     " algorithms to use in the manifest")
+                     " algorithms to use when creating a manifest")
 
     return parse
 
