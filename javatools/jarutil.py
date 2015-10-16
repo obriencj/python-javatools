@@ -56,30 +56,6 @@ def private_key_type(private_key_file):
     return None
 
 
-def verify_signature_block(certificate_file, content_file, signature):
-    """
-    A wrapper over 'OpenSSL cms -verify'.
-    Verifies the 'signature_stream' over the 'content' with the 'certificate'.
-    :return: Error message, or None if the signature validates.
-    """
-
-    from subprocess import Popen, PIPE, STDOUT
-
-    external_cmd = "openssl cms -verify -CAfile %s -content %s " \
-                   "-inform der" % (certificate_file, content_file)
-
-    proc = Popen(external_cmd.split(),
-                 stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-
-    proc_output = proc.communicate(input=signature)[0]
-
-    if proc.returncode != 0:
-        return "Command \"%s\" returned %s: %s" \
-               % (external_cmd, proc.returncode, proc_output)
-
-    return None
-
-
 def verify(certificate, jar_file, key_alias):
     """
     Verifies signature of a JAR file.
@@ -94,6 +70,7 @@ def verify(certificate, jar_file, key_alias):
     of the whole validation.
     """
 
+    from .crypto import verify_signature_block
     from tempfile import mkstemp
 
     zip_file = ZipFile(jar_file)
