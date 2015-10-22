@@ -43,6 +43,8 @@ setup(name = "javatools",
                                               "data/*.js",
                                               "data/*.png" ] },
 
+      install_requires = [ "M2Crypto" ],
+
       scripts = [ "scripts/classdiff",
                   "scripts/classinfo",
                   "scripts/distdiff",

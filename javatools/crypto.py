@@ -20,73 +20,100 @@ Cryptography-related functions for handling JAR signature block files.
 :license: LGPL
 """
 
-import sys
-from subprocess import Popen, PIPE, CalledProcessError
+from M2Crypto import SMIME, X509, BIO, RSA, DSA, EC, m2
+
+
+class CannotFindKeyTypeError (Exception):
+    """ Failed to determine the type of the private key.  """
+    pass
+
+
+def private_key_type(key_file):
+    """ Determines type of the private key: RSA, DSA, EC.
+
+    :param key_file: file path
+    :type key_file: str
+    :return: one of "RSA", "DSA" or "EC"
+    :except CannotFindKeyTypeError
+    """
+    try:
+        RSA.load_key(key_file)
+        return "RSA"
+    except:
+        pass
+    try:
+        DSA.load_key(key_file)
+        return "DSA"
+    except:
+        pass
+    try:
+        EC.load_key(key_file)
+        return "EC"
+    except:
+        raise CannotFindKeyTypeError
 
 
 def create_signature_block(openssl_digest, certificate, private_key, data):
     """Produces a signature block for the data.
 
-    Executes the `openssl` binary in order to calculate
-    this. TODO: replace this with M2Crypto
-
-    References
-    ----------
+    Reference
+    ---------
     http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Digital_Signatures
-
-    :param openssl_digest: alrogithm known to OpenSSL used to digest the data
-    :type openssl_digest: str
-    :param certificate: filename of the certificate file (PEM format)
-    :type certificate: str
-    :param private_key:filename of private key used to sign (PEM format)
-    :type private_key: str
-    :returns: content of the signature block file as produced by jarsigner
-    :rtype: str
-    :raises CalledProcessError: if there was a non-zero return code from
-        running the underlying openssl exec
 
     Note: Oracle does not specify the content of the "signature
     file block", friendly saying that "These are binary files
     not intended to be interpreted by humans".
+
+    :param openssl_digest: alrogithm known to OpenSSL used to digest the data
+    :type openssl_digest: str
+    TODO: it is not used. M2Crypto cannot pass the signing digest.
+    :param certificate: filename of the certificate file (PEM format)
+    :type certificate: str
+    :param private_key:filename of private key used to sign (PEM format)
+    :type private_key: str
+    :param data: the content to be signed
+    :type data: str
+    :returns: content of the signature block file as produced by jarsigner
+    :rtype: str
     """
 
-    external_cmd = "openssl cms -sign -binary -noattr -md %s" \
-                   " -signer %s -inkey %s -outform der" \
-                   % (openssl_digest, certificate, private_key)
-
-    proc = Popen(external_cmd.split(),
-                 stdin=PIPE, stdout=PIPE, stderr=PIPE)
-
-    (proc_stdout, proc_stderr) = proc.communicate(input=data)
-
-    if proc.returncode != 0:
-        print proc_stderr
-        raise CalledProcessError(proc.returncode, external_cmd, sys.stderr)
-    else:
-        return proc_stdout
+    smime = SMIME.SMIME()
+    smime.load_key_bio(BIO.openfile(private_key), BIO.openfile(certificate))
+    pkcs7 = smime.sign(BIO.MemoryBuffer(data), flags=SMIME.PKCS7_BINARY)
+    tmp = BIO.MemoryBuffer()
+    pkcs7.write_der(tmp)
+    return tmp.read()
 
 
 def verify_signature_block(certificate_file, content_file, signature):
-    """Verifies the 'signature' over the 'content' with the 'certificate'.
+    """Verifies the 'signature' over the 'content', trusting the 'certificate'.
 
+    :param certificate_file: the trusted certificate (PEM format)
+    :type certificate_file: str
+    :param content_file: The signature should match this content
+    :type content_file: str
+    :param signature: data (DER format) subject to check
+    :type signature: str
     :return: Error message, or None if the signature validates.
+    :rtype: str
     """
 
-    from subprocess import Popen, PIPE, STDOUT
-
-    external_cmd = "openssl cms -verify -CAfile %s -content %s " \
-                   "-inform der" % (certificate_file, content_file)
-
-    proc = Popen(external_cmd.split(),
-                 stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-
-    proc_output = proc.communicate(input=signature)[0]
-
-    if proc.returncode != 0:
-        return "Command \"%s\" returned %s: %s" \
-               % (external_cmd, proc.returncode, proc_output)
+    sig_bio = BIO.MemoryBuffer(signature)
+    pkcs7 = SMIME.PKCS7(m2.pkcs7_read_bio_der(sig_bio._ptr()), 1)
+    signers_cert_stack = pkcs7.get0_signers(X509.X509_Stack())
+    trusted_cert_store = X509.X509_Store()
+    trusted_cert_store.load_info(certificate_file)
+    smime = SMIME.SMIME()
+    smime.set_x509_stack(signers_cert_stack)
+    smime.set_x509_store(trusted_cert_store)
+    data_bio = BIO.openfile(content_file)
+    try:
+        smime.verify(pkcs7, data_bio)
+    except SMIME.PKCS7_Error, message:
+        return "Signature verification error: %s" % message
 
     return None
 
 #
 # The end.
+

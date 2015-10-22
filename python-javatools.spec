@@ -15,6 +15,7 @@ BuildArch: noarch
 
 Requires: python2 >= 2.6
 Requires: python-cheetah
+Requires: M2Crypto
 
 BuildRequires: python2-devel
 BuildRequires: python-cheetah

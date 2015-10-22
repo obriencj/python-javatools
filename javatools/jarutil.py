@@ -30,32 +30,6 @@ __all__ = ( "cli_create_jar", "cli_sign_jar",
             "cli_verify_jar_signature", "cli", "main" )
 
 
-def private_key_type(private_key_file):
-    import subprocess
-    import re
-
-    algorithms = ("RSA", "DSA", "EC")
-    # Grepping for a string will work for PKCS8 keys, but not for PKCS1.
-    with open(private_key_file, "r") as f:
-        # We can't just take the first line. PKCS8 may have other headers.
-        for line in f:
-            for algorithm in algorithms:
-                if re.match("-----BEGIN %s PRIVATE KEY-----" % algorithm,
-                            line):
-                    return algorithm
-
-    # No luck.
-    # Anything less ugly and more efficient, but working with all key types??
-    # PyOpenssl has Pkey.type()...
-    with open(os.devnull, "wb") as DEVNULL:
-        for algorithm in algorithms:
-            if not subprocess.call(
-                    ["openssl", algorithm.lower(), "-in", private_key_file],
-                    stdout=DEVNULL, stderr=subprocess.STDOUT):
-                return algorithm
-    return None
-
-
 def verify(certificate, jar_file, key_alias):
     """
     Verifies signature of a JAR file.
@@ -66,8 +40,8 @@ def verify(certificate, jar_file, key_alias):
 
     Reference:
     http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Signature_Validation
-    Note that the validation is done in three steps. Failure at any step is a failure
-    of the whole validation.
+    Note that the validation is done in three steps. Failure at any step is a
+    failure of the whole validation.
     """
 
     from .crypto import verify_signature_block
@@ -131,13 +105,16 @@ def cli_sign_jar(options, jar_file, cert_file, key_file, key_alias):
     Signs the jar (almost) identically to jarsigner.
     """
 
+    from .crypto import private_key_type, CannotFindKeyTypeError
+
     jar = ZipFile(jar_file, "a")
     if not "META-INF/MANIFEST.MF" in jar.namelist():
         print "META-INF/MANIFEST.MF not found in %s" % jar_file
         return 1
 
-    sig_block_extension = private_key_type(key_file)
-    if sig_block_extension is None:
+    try:
+        sig_block_extension = private_key_type(key_file)
+    except CannotFindKeyTypeError:
         print "Cannot determine private key type (is it in PEM format?)"
         return 1
 
