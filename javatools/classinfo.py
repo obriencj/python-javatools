@@ -232,7 +232,7 @@ def cli_print_classinfo(options, info):
             print "  RuntimeVisibleAnnotations:"
             index = 0
             for anno in info.get_annotations():
-                print "  %i: %s" % index, anno.pretty_annotation()
+                print "  %i: %s" % (index, anno.pretty_annotation())
 
         if info.get_enclosingmethod():
             print "  EnclosingMethod:", info.get_enclosingmethod()
