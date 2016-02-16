@@ -63,6 +63,13 @@ class JarutilTest(TestCase):
         self.assertIsNotNone(error_message,
             "Error: verification of non-existing key alias has succeeded")
 
+    def test_tampered_signature_block(self):
+        jar_data = get_data_fn("ec-tampered.jar")
+        cert = get_data_fn("ec-cert.pem")
+        error_message = verify(cert, jar_data, "TEST")
+        self.assertIsNotNone(error_message,
+            "Error: verification of a tampered signature has succeeded")
+
     def test_cli_sign_and_verify(self):
         src = get_data_fn("cli-sign-and-verify.jar")
         key_alias = "SAMPLE3"

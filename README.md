@@ -27,6 +27,7 @@ heck, just fork it!
 * [Python] 2.6 or later (no support for Python 3)
 * [Setuptools]
 * [Cheetah] is used in the generation of HTML reports
+* [M2Crypto] is used for cryptographic operations
 
 In addition, the following tools are used in building and testing the
 project.
@@ -39,6 +40,7 @@ All of these packages are available in most linux distributions
 
 [cheetah]: http://www.cheetahtemplate.org
 [pyxml]: http://www.python.org/community/sigs/current/xml-sig/
+[M2Crypto]: https://gitlab.com/m2crypto/m2crypto/
 
 [setuptools]: http://pythonhosted.org/setuptools/
 [gnu make]: http://www.gnu.org/software/make/
