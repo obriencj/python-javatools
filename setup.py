@@ -34,7 +34,7 @@ from extras import pylint_cmd, cheetah_build_py_cmd
 
 
 setup(name = "javatools",
-      version = "1.5.0",
+      version = "1.4.0",
 
       packages = [ "javatools",
                    "javatools.cheetah" ],
