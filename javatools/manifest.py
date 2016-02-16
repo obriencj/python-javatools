@@ -558,48 +558,8 @@ class SignatureManifest(Manifest):
 
     def get_signature(self, certificate, private_key,
                       digest_algorithm="SHA-256"):
-        """
-        Produces a signature block for the contents of this signature
-        manifest. Executes the `openssl` binary in order to calculate
-        this. TODO: replace this with a pyopenssl call
 
-        References
-        ----------
-        http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Digital_Signatures
-
-        Parameters
-        ----------
-        certificate : `str` filename
-          certificate to embed into the signature (PEM format)
-        private_key : `str` filename
-          private key used to sign (PEM format)
-        digest_algorithm : `str`
-          Java-style algorithm name (must be supported by OpenSSL too)
-
-        Returns
-        -------
-        signature : `str`
-          content of the signature block file as though produced by
-          jarsigner.
-
-        Raises
-        ------
-        cpe : `CalledProcessError`
-          if there was a non-zero return code from running the
-          underlying openssl exec
-        """
-
-        # There seems to be no Python crypto library, which would
-        # produce a JAR-compatible signature. So this is a wrapper
-        # around external command.  OpenSSL is known to work.
-
-        # Any other command which reads data on stdin and returns
-        # JAR-compatible "signature file block" on stdout can be used.
-        # Note: Oracle does not specify the content of the "signature
-        # file block", friendly saying that "These are binary files
-        # not intended to be interpreted by humans"
-
-        from subprocess import Popen, PIPE, CalledProcessError
+        from .crypto import create_signature_block
 
         JAVA_TO_OPENSSL_DIGESTS = {
             "MD5": "MD5",
@@ -614,20 +574,8 @@ class SignatureManifest(Manifest):
         except KeyError:
             raise Exception("Unknown Java digest %s" % digest_algorithm)
 
-        external_cmd = "openssl cms -sign -binary -noattr -md %s" \
-                       " -signer %s -inkey %s -outform der" \
-                       % (openssl_digest, certificate, private_key)
-
-        proc = Popen(external_cmd.split(),
-                     stdin=PIPE, stdout=PIPE, stderr=PIPE)
-
-        (proc_stdout, proc_stderr) = proc.communicate(input=self.get_data())
-
-        if proc.returncode != 0:
-            print proc_stderr
-            raise CalledProcessError(proc.returncode, external_cmd, sys.stderr)
-        else:
-            return proc_stdout
+        return create_signature_block(openssl_digest, certificate, private_key,
+                                      self.get_data())
 
 
 def b64_encoded_digest(data, algorithm):
