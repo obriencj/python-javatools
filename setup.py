@@ -66,6 +66,7 @@ setup(name = "javatools",
       provides = [ "javatools" ],
       install_requires = [ "Cheetah",
                            "M2Crypto" ],
+      setup_requires = [ "Cheetah" ],
       platforms = [ "python2 >= 2.6" ],
 
       classifiers = [ "Development Status :: 5 - Production/Stable",
