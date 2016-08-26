@@ -43,8 +43,6 @@ setup(name = "javatools",
                                               "data/*.js",
                                               "data/*.png" ] },
 
-      install_requires = [ "M2Crypto" ],
-
       scripts = [ "scripts/classdiff",
                   "scripts/classinfo",
                   "scripts/distdiff",
@@ -66,7 +64,9 @@ setup(name = "javatools",
       " class files and JARs",
 
       provides = [ "javatools" ],
-      requires = [ "Cheetah" ],
+      install_requires = [ "Cheetah",
+                           "M2Crypto" ],
+      setup_requires = [ "Cheetah" ],
       platforms = [ "python2 >= 2.6" ],
 
       classifiers = [ "Development Status :: 5 - Production/Stable",
