@@ -488,7 +488,7 @@ class JarReport(JarChange):
 #
 
 
-def cli_jars_diff(parser, options, left, right):
+def cli_jars_diff(options, left, right):
     from .report import quick_report, Reporter
     from .report import JSONReportFormat, TextReportFormat
 
@@ -523,7 +523,7 @@ def cli(parser, options, rest):
         parser.error("wrong number of arguments.")
 
     left, right = rest[1:3]
-    return cli_jars_diff(parser, options, left, right)
+    return cli_jars_diff(options, left, right)
 
 
 def jardiff_optgroup(parser):
