@@ -578,6 +578,21 @@ class SignatureManifest(Manifest):
                                       self.get_data())
 
 
+class SignatureManifestChange(ManifestChange):
+    label = "Signature File"
+
+    def is_ignored(self, options):
+        return getattr(options, "ignore_jar_signature", False) or \
+            SuperChange.is_ignored(self, options)
+
+
+class SignatureBlockFileChange(GenericChange):
+    label = "Signature Block File"
+
+    def get_description(self):
+        return "[binary file change]"
+
+
 def b64_encoded_digest(data, algorithm):
     h = algorithm()
     h.update(data)
