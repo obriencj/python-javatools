@@ -22,12 +22,13 @@ Java archives
 """
 
 import os
+import sys
 from zipfile import ZipFile
 
 from javatools.manifest import Manifest, SignatureManifest
 
 __all__ = ( "cli_create_jar", "cli_sign_jar",
-            "cli_verify_jar_signature", "cli", "main" )
+            "cli_verify_jar_signature", "main" )
 
 
 def verify(certificate, jar_file, key_alias):
@@ -95,17 +96,32 @@ def verify(certificate, jar_file, key_alias):
     return None
 
 
-def cli_create_jar(options, paths):
+def cli_create_jar(argument_list):
     # TODO: create a jar from paths
+    print "Not implemented"
     return 0
 
 
-def cli_sign_jar(options, jar_file, cert_file, key_file, key_alias):
+def cli_sign_jar(argument_list=None):
     """
     Signs the jar (almost) identically to jarsigner.
     """
 
+    from optparse import OptionParser
     from .crypto import private_key_type, CannotFindKeyTypeError
+
+    usage_message = "Usage: jarutil s [OPTIONS] file.jar certificate.pem private_key.pem key_alias"
+
+    parser = OptionParser(usage=usage_message)
+    parser.add_option("-d", "--digest",
+                      help="Digest algorithm used for signing   ")
+    (options, mand_args) = parser.parse_args(argument_list)
+
+    if len(mand_args) != 4:
+        print usage_message
+        return 1
+
+    (jar_file, cert_file, key_file, key_alias) = mand_args
 
     jar = ZipFile(jar_file, "a")
     if not "META-INF/MANIFEST.MF" in jar.namelist():
@@ -138,12 +154,13 @@ def cli_sign_jar(options, jar_file, cert_file, key_file, key_alias):
     return 0
 
 
-def cli_verify_jar_signature(jar_file, certificate, key_alias):
+def cli_verify_jar_signature(argument_list):
     """
     Command-line wrapper around verify()
     TODO: use trusted keystore;
     """
 
+    (jar_file, certificate, key_alias) = argument_list
     result_message = verify(certificate, jar_file, key_alias)
     if result_message is not None:
         print result_message
@@ -152,39 +169,29 @@ def cli_verify_jar_signature(jar_file, certificate, key_alias):
     return 0
 
 
-def cli(parser, options, rest):
-    # TODO: create, check, sign, or verify a JAR file or exploded JAR
-    # directory structure
-    return 0
-
-
-def create_optparser():
-    from optparse import OptionParser
-
-    parser = OptionParser(usage="%prog COMMAND [OPTIONS] JARFILE [ARGUMENTS]")
-
-    # TODO: the command must be not optional
-    parser.add_option("-c", "--create")
-    # mandatory arguments: path(s)
-    # options: ignore, manifest-digest
-
-    parser.add_option("-s", "--sign",
-                      help="sign the JAR file"
-                      " (must be followed with: "
-                      "certificate.pem, private_key.pem, key_alias)")
-    # mandatory arguments: certificate, key, alias
-    # TODO: options: signature-file-digest
-
-    parser.add_option("-v", "--verify")
-    # no mandatory arguments
-    # options: trusted-certificates-storage, trust-all
-
-    return parser
+def usage():
+    print("Usage: jarutil [csv] [options] [argument]...")
+    print("   c: create JAR from paths (NOT IMPLEMENTED)")
+    print("   s: sign JAR")
+    print("   v: verify JAR signature. Arguments: file.jar trusted_certificate.pem key_alias")
+    print("Give option \"-h\" for help on particular commands.")
+    sys.exit(1)
 
 
 def main(args):
-    parser = create_optparser()
-    return cli(parser, *parser.parse_args(args))
+    if len(sys.argv) < 2:
+        usage()
+
+    command = sys.argv[1]
+    rest = sys.argv[2:]
+    if command == "c":
+        return cli_create_jar(rest)
+    elif command == "s":
+        return cli_sign_jar(rest)
+    elif command == "v":
+        return cli_verify_jar_signature(rest)
+    else:
+        usage()
 
 
 #
