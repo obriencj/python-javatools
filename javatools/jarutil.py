@@ -168,6 +168,11 @@ def cli_verify_jar_signature(argument_list):
     TODO: use trusted keystore;
     """
 
+    usage_message = "Usage: jarutil v file.jar trusted_certificate.pem key_alias"
+    if len(argument_list) != 3:
+        print usage_message
+        return 1
+
     (jar_file, certificate, key_alias) = argument_list
     result_message = verify(certificate, jar_file, key_alias)
     if result_message is not None:
