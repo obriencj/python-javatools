@@ -96,6 +96,38 @@ def verify(certificate, jar_file, key_alias):
     return None
 
 
+def sign(jar_file, cert_file, key_file, key_alias, digest=None):
+    """
+    Signs the jar (almost) identically to jarsigner.
+    """
+
+    from .crypto import private_key_type
+
+    jar = ZipFile(jar_file, "a")
+    if "META-INF/MANIFEST.MF" not in jar.namelist():
+        print "META-INF/MANIFEST.MF not found in %s" % jar_file
+        return 1
+
+    mf = Manifest()
+    mf.parse(jar.read("META-INF/MANIFEST.MF"))
+
+    # create a signature manifest, and make it match the line separator
+    # style of the manifest it'll be digesting.
+    sf = SignatureManifest(linesep=mf.linesep)
+
+    sf_digest_algorithm = "SHA-256"
+    sf.digest_manifest(mf, sf_digest_algorithm)
+    jar.writestr("META-INF/%s.SF" % key_alias, sf.get_data())
+
+    sig_digest_algorithm = sf_digest_algorithm  # No point to make it different
+    sig_block_extension = private_key_type(key_file)
+
+    jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension),
+        sf.get_signature(cert_file, key_file, sig_digest_algorithm))
+
+    return 0
+
+
 def cli_create_jar(argument_list):
     # TODO: create a jar from paths
     print "Not implemented"
@@ -104,11 +136,10 @@ def cli_create_jar(argument_list):
 
 def cli_sign_jar(argument_list=None):
     """
-    Signs the jar (almost) identically to jarsigner.
+    Command-line wrapper around sign()
     """
-
     from optparse import OptionParser
-    from .crypto import private_key_type, CannotFindKeyTypeError
+    from .crypto import CannotFindKeyTypeError
 
     usage_message = "Usage: jarutil s [OPTIONS] file.jar certificate.pem private_key.pem key_alias"
 
@@ -122,36 +153,13 @@ def cli_sign_jar(argument_list=None):
         return 1
 
     (jar_file, cert_file, key_file, key_alias) = mand_args
-
-    jar = ZipFile(jar_file, "a")
-    if not "META-INF/MANIFEST.MF" in jar.namelist():
-        print "META-INF/MANIFEST.MF not found in %s" % jar_file
-        return 1
+    digest = options.digest if options and options.digest else None
 
     try:
-        sig_block_extension = private_key_type(key_file)
+        return sign(jar_file, cert_file, key_file, key_alias, digest)
     except CannotFindKeyTypeError:
         print "Cannot determine private key type (is it in PEM format?)"
         return 1
-
-    mf = Manifest()
-    mf.parse(jar.read("META-INF/MANIFEST.MF"))
-
-    # create a signature manifest, and make it match the line separator
-    # style of the manifest it'll be digesting.
-    sf = SignatureManifest(linesep=mf.linesep)
-
-    sf_digest_algorithm = "SHA-256"
-    if options and options.digest:
-        sf_digest_algorithm = options.digest
-    sf.digest_manifest(mf, sf_digest_algorithm)
-    jar.writestr("META-INF/%s.SF" % key_alias, sf.get_data())
-
-    sig_digest_algorithm = sf_digest_algorithm  # No point to make it different
-    jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension),
-        sf.get_signature(cert_file, key_file, sig_digest_algorithm))
-
-    return 0
 
 
 def cli_verify_jar_signature(argument_list):
