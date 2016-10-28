@@ -25,6 +25,7 @@ References
 :license: LGPL v.3
 """
 
+from past.builtins import xrange
 
 from functools import partial
 from .pack import compile_struct
@@ -116,8 +117,8 @@ def __op(name, val, fmt=None, const=False, consume=0, produce=0):
 
     operand = (name, val, fmt, consume, produce, const)
 
-    assert not __OPTABLE.has_key(name)
-    assert not __OPTABLE.has_key(val)
+    assert name not in __OPTABLE
+    assert val not in __OPTABLE
 
     __OPTABLE[name] = operand
     __OPTABLE[val] = operand
@@ -238,7 +239,12 @@ def disassemble(bytecode):
     while offset < end:
         orig_offset = offset
 
-        code = ord(bytecode[offset])
+        if type(bytecode[offset]) == int:
+            bc = chr(bytecode[offset])
+        else:
+            bc = bytecode[offset]
+
+        code = ord(bc)
         offset += 1
 
         args = tuple()

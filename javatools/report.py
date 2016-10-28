@@ -20,9 +20,9 @@ Classes for representing changes as formatted text.
 :license: LGPL
 """
 
+from future.utils import with_metaclass
 
 from abc import ABCMeta, abstractmethod
-from Cheetah.DummyTransaction import DummyTransaction
 from functools import partial
 from json import dump, JSONEncoder
 from optparse import OptionGroup
@@ -39,7 +39,7 @@ __all__ = (
     "quick_report", "general_report_optgroup",
     "JSONReportFormat", "json_report_optgroup",
     "TextReportFormat",
-    "CheetahReportFormat", "html_report_optgroup",
+    # "CheetahReportFormat", "html_report_optgroup",
 )
 
 
@@ -83,8 +83,8 @@ class Reporter(object):
                 self.add_report_format(JSONReportFormat)
             elif fmt in ("txt", "text"):
                 self.add_report_format(TextReportFormat)
-            elif fmt in ("htm", "html"):
-                self.add_report_format(CheetahReportFormat)
+            # elif fmt in ("htm", "html"):
+            #     self.add_report_format(CheetahReportFormat)
 
 
     def add_report_format(self, report_format):
@@ -166,14 +166,13 @@ class Reporter(object):
         self._formats = None
 
 
-class ReportFormat(object):
+class ReportFormat(with_metaclass(ABCMeta, object)):
     """
     Base class of a report format provider. Override to describe a
     concrete format type
     """
 
 
-    __metaclass__ = ABCMeta
     extension = ".report"
 
 
@@ -296,7 +295,7 @@ class JSONReportFormat(ReportFormat):
 
         except TypeError:
             # XXX for debugging. Otherwise the wrapping try isn't necessary
-            print data
+            print(data)
             raise
 
 
@@ -397,234 +396,6 @@ def _indent(stream, indent, *msgs):
     for x in msgs:
         stream.write(x.encode("ascii", "backslashreplace"))
     stream.write("\n")
-
-
-class CheetahReportFormat(ReportFormat):
-    """
-    HTML output for a Change
-    """
-
-    extension = ".html"
-
-
-    def _relative(self, uri):
-        """
-        if uri is relative, re-relate it to our basedir
-        """
-
-        if (uri.startswith("http:") or
-            uri.startswith("https:") or
-            uri.startswith("file:") or
-            uri.startswith("/")):
-            return uri
-
-        elif exists(uri):
-            return relpath(uri, self.basedir)
-
-        else:
-            return uri
-
-
-    def _relative_uris(self, uri_list):
-        """
-        if uris in list are relative, re-relate them to our basedir
-        """
-
-        return [u for u in (self._relative(uri) for uri in uri_list) if u]
-
-
-    def setup(self):
-        """
-        copies default stylesheets and javascript files if necessary, and
-        appends them to the options
-        """
-
-        from javatools import cheetah
-
-        options = self.options
-        datadir = getattr(options, "html_copy_data", None)
-
-        if getattr(options, "html_data_copied", False) or not datadir:
-            # either already run by a parent report, or not supposed
-            # to run at all.
-            return
-
-        # this is where we've installed the default media
-        datasrc = join(cheetah.__path__[0], "data")
-
-        # record the .js and .css content we copy
-        javascripts = list()
-        stylesheets = list()
-
-        # copy the contents of our data source to datadir
-        for _orig, copied in copydir(datasrc, datadir):
-            if copied.endswith(".js"):
-                javascripts.append(copied)
-            elif copied.endswith(".css"):
-                stylesheets.append(copied)
-
-        javascripts.extend(getattr(options, "html_javascripts", tuple()))
-        stylesheets.extend(getattr(options, "html_stylesheets", tuple()))
-
-        options.html_javascripts = javascripts
-        options.html_stylesheets = stylesheets
-
-        # keep from copying again
-        options.html_data_copied = True
-
-
-    def run_impl(self, change, entry, out):
-        """
-        sets up the report directory for an HTML report. Obtains the
-        top-level Cheetah template that is appropriate for the change
-        instance, and runs it.
-
-        The cheetah templates are supplied the following values:
-         * change - the Change instance to report on
-         * entry - the string name of the entry for this report
-         * options - the cli options object
-         * breadcrumbs - list of backlinks
-         * javascripts - list of .js links
-         * stylesheets - list of .css links
-
-        The cheetah templates are also given a render_change method
-        which can be called on another Change instance to cause its
-        template to be resolved and run in-line.
-        """
-
-        options = self.options
-
-        # translate relative paths if necessary
-        javascripts = self._relative_uris(options.html_javascripts)
-        stylesheets = self._relative_uris(options.html_stylesheets)
-
-        # map the class of the change to a template class
-        template_class = resolve_cheetah_template(type(change))
-
-        # instantiate and setup the template
-        template = template_class()
-
-        # create a transaction wrapping the output stream
-        template.transaction = DummyTransaction()
-        template.transaction.response(resp=out)
-
-        # inject our values
-        template.change = change
-        template.entry = entry
-        template.options = options
-        template.breadcrumbs = self.breadcrumbs
-        template.javascripts = javascripts
-        template.stylesheets = stylesheets
-
-        # this lets us call render_change from within the template on
-        # a change instance to chain to another template (eg, for
-        # sub-changes)
-        template.render_change = lambda c: self.run_impl(c, entry, out)
-
-        # execute the template, which will write its contents to the
-        # transaction (and the underlying stream)
-        template.respond()
-
-        # clean up the template
-        template.shutdown()
-
-
-def _compose_cheetah_template_map(cache):
-    """
-    does the work of composing the cheetah template map into the given
-    cache
-    """
-
-    from .cheetah import get_templates
-
-    #pylint: disable=W0406
-    # needed for introspection
-    import javatools
-
-    for template_type in get_templates():
-        if not "_" in template_type.__name__:
-            # we use the _ to denote package and class names. So any
-            # template without a _ in the name isn't meant to be
-            # matched to a change type.
-            continue
-
-        # get the package and change class names based off of the
-        # template class name
-        tn = template_type.__name__
-        pn,cn = tn.split("_", 1)
-
-        # get the package from javatools
-        pk = getattr(javatools, pn, None)
-        if pk is None:
-            __import__("javatools."+pn)
-            pk = getattr(javatools, pn, None)
-
-        # get the class from the package
-        cc = getattr(pk, cn, None)
-        if cc is None:
-            raise Exception("no change class for template %s" % tn)
-
-        # associate a Change class with a Template class
-        cache[cc] = template_type
-
-    return cache
-
-
-#pylint: disable=C0103
-_template_cache = dict()
-
-
-def cheetah_template_map(cache=None):
-    """
-    a map of change types to cheetah template types. Used in
-    resolve_cheetah_template
-    """
-
-    if cache is None:
-        cache = _template_cache
-
-    return cache or _compose_cheetah_template_map(cache)
-
-
-def resolve_cheetah_template(change_type):
-    """
-    return the appropriate cheetah template class for the given change
-    type, using the method-resolution-order of the change type.
-    """
-
-    tm = cheetah_template_map()
-
-    # follow the built-in MRO for a type to find the matching
-    # cheetah template
-    for t in change_type.mro():
-        tmpl = tm.get(t)
-        if tmpl:
-            return tmpl
-
-    # this should never happen, since we'll provide a
-    # change_Change template, and all of the changes should be
-    # inheriting from that type
-    raise Exception("No template for class %s" % change_type.__name__)
-
-
-def html_report_optgroup(parser):
-    """
-    Option group for the HTML report format
-    """
-
-    g = OptionGroup(parser, "HTML Report Options")
-
-    g.add_option("--html-stylesheet", action="append",
-                 dest="html_stylesheets", default=list())
-
-    g.add_option("--html-javascript", action="append",
-                 dest="html_javascripts", default=list())
-
-    g.add_option("--html-copy-data", action="store", default=None,
-                 help="Copy default resources to the given directory and"
-                 " enable them in the template")
-
-    return g
 
 
 def quick_report(report_type, change, options):

@@ -1,6 +1,6 @@
 Summary: Tools for inspecting and comparing binary Java class files
 Name: python-javatools
-Version: 1.4.0
+Version: 1.5.0
 Release: 0
 License: LGPL
 Group: Application/System
@@ -13,12 +13,10 @@ BuildArch: noarch
 # module already, and we do not want to Obsolete it by accident
 #Obsoletes: python-javaclass
 
-Requires: python2 >= 2.6
-Requires: python-cheetah
+Requires: python >= 2.6
 Requires: M2Crypto
 
 BuildRequires: python2-devel
-BuildRequires: python-cheetah
 BuildRequires: python-setuptools
 BuildRequires: coreutils
 
@@ -33,12 +31,12 @@ JAR-based distributions
 
 
 %build
-%{__python2} setup.py build
+%{__python} setup.py build
 
 
 %install
 rm -rf %{buildroot}
-%{__python2} setup.py install --skip-build --root %{buildroot}
+%{__python} setup.py install --skip-build --root %{buildroot}
 
 
 %clean
@@ -53,6 +51,12 @@ rm -rf %{buildroot}
 
 
 %changelog
+
+* Fri Oct 28 2016 Marcus LaFerrera (@mlaferrera) - 1.5.0-0
+- Added support for Python3
+- Removed Cheetah requirements as it is not longer maintained
+  breaks support for Python3
+- bump to 1.5
 
 * Thu Jan 21 2014 Christopher O'Brien <obriencj@gmail.com> - 1.4.0-0
 - bump to 1.4.0

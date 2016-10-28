@@ -20,9 +20,9 @@ Utilities for discovering entry deltas in a pair of zip files.
 :license: LGPL
 """
 
+from future.moves.itertools import zip_longest
 
-from cStringIO import StringIO
-from itertools import izip_longest
+from io import StringIO
 from zipfile import is_zipfile, ZipFile, ZipInfo, _EndRecData
 from zlib import crc32
 from os import walk
@@ -110,7 +110,7 @@ def _deep_different(left, right, entry):
     left = chunk_zip_entry(left, entry)
     right = chunk_zip_entry(right, entry)
 
-    for ldata, rdata in izip_longest(left, right):
+    for ldata, rdata in zip_longest(left, right):
         if ldata != rdata:
             return True
     return False
@@ -187,7 +187,7 @@ def is_zipstream(data):
     rewound after being tested.
     """
 
-    if isinstance(data, (str, buffer)):
+    if isinstance(data, (str, memoryview)):
         data = StringIO(data)
 
     if hasattr(data, "read"):
@@ -204,7 +204,7 @@ def is_zipstream(data):
             data.seek(tell)
 
     else:
-        raise TypeError("requies str, buffer, or stream-like object")
+        raise TypeError("requies str, memoryview, or stream-like object")
 
     return result
 
@@ -282,7 +282,7 @@ class ExplodedZipFile(object):
 
 
     def infolist(self):
-        return self.members.values()
+        return list(self.members.values())
 
 
     def open(self, name, mode='rb'):

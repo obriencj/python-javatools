@@ -30,11 +30,14 @@ References
 :license: LGPL
 """
 
+from past.builtins import xrange
+from future.utils import listitems
+
+import sys
 
 from .dirutils import fnmatches
 from .opcodes import disassemble
 from .pack import compile_struct, unpack, UnpackException
-
 
 __all__ = (
     "JavaClassInfo", "JavaConstantPool", "JavaMemberInfo",
@@ -62,7 +65,7 @@ __all__ = (
 
 # the four bytes at the start of every class file
 JAVA_CLASS_MAGIC = (0xCA, 0xFE, 0xBA, 0xBE)
-JAVA_CLASS_MAGIC_STR = "\xca\xfe\xba\xbe"
+JAVA_CLASS_MAGIC_STR = b"\xca\xfe\xba\xbe"
 
 
 _BUFFERING = 2 ** 14
@@ -424,7 +427,7 @@ class JavaClassInfo(object):
         # only unpack the magic bytes if it wasn't specified
         magic = magic or unpacker.unpack_struct(_BBBB)
 
-        if isinstance(magic, (str, buffer)):
+        if isinstance(magic, (str, memoryview)):
             magic = tuple(ord(m) for m in magic)
         else:
             magic = tuple(magic)
@@ -903,7 +906,7 @@ class JavaClassInfo(object):
                     # the event that this was a method or field on the
                     # array, we'll throw away that as well, and just
                     # emit the type contained in the array.
-                    t, _buff = _next_argsig(buffer(pv))
+                    t, _buff = _next_argsig(memoryview(pv.encode()).tobytes().decode())
                     if t[1] == "L":
                         pv = _pretty_type(t[1:])
                     else:
@@ -1856,7 +1859,7 @@ class JavaAnnotation(dict):
     def pretty_elements(self):
         result = list()
 
-        for key, val in self.items():
+        for key, val in listitems(self):
             val = _pretty_annotation_val(val, self.cpool)
             result.append("%s=%s" % (key, val))
 
@@ -1879,11 +1882,11 @@ class JavaAnnotation(dict):
             return False
 
         # if we have differing sets of keys, not equal
-        if (self.keys() != other.keys()):
+        if (list(self) != list(other)):
             return False
 
         # for each of the key/val pairs, check equality
-        for key, lval in self.items():
+        for key, lval in listitems(self):
             rval = other[key]
             if not _annotation_val_eq(lval[0], lval[1], self.cpool,
                                       rval[0], rval[1], other.cpool):
@@ -2087,10 +2090,7 @@ def _pretty_const_type_val(typecode, val):
 
     if typecode == CONST_Utf8:
         typestr = "Utf8" # formerly Asciz, which was considered Java bug
-        if isinstance(val, unicode):
-            val = repr(val)[2:-1] # trim off the surrounding u"" (HACK)
-        else:
-            val = repr(val)[1:-1] # trim off the surrounding "" (HACK)
+        val = val.encode()
     elif typecode == CONST_Integer:
         typestr = "int"
     elif typecode == CONST_Float:
@@ -2163,21 +2163,21 @@ def _next_argsig(buff):
     c = buff[0]
 
     if c in "BCDFIJSVZ":
-        result = (c, buffer(buff, 1))
+        result = (c, memoryview(buff.encode()).tobytes().decode()[1:])
 
     elif c == "[":
-        d, buff = _next_argsig(buffer(buff, 1))
+        d, buff = _next_argsig(memoryview(buff.encode()).tobytes().decode()[1:])
         result =  (c + d, buff)
 
     elif c == "L":
         s = buff[:]
         i = s.find(';') + 1
-        result = (s[:i], buffer(buff, i))
+        result = (s[:i], memoryview(buff.encode()).tobytes().decode()[i:])
 
     elif c == "(":
         s = buff[:]
         i = s.find(')') + 1
-        result = (s[:i], buffer(buff, i))
+        result = (s[:i], memoryview(buff.encode()).tobytes().decode()[i:])
 
     else:
         raise Unimplemented("_next_argsig is %r in %r" % (c, str(buff)))
@@ -2190,7 +2190,7 @@ def _typeseq_iter(s):
     iterate through all of the type signatures in a sequence
     """
 
-    buff = buffer(str(s))
+    buff = memoryview(s.encode()).tobytes().decode()
     while buff:
         t, buff = _next_argsig(buff)
         yield t
@@ -2281,7 +2281,7 @@ def _clean_array_const(s):
     de-array a constant type.
     """
 
-    t, b = _next_argsig(buffer(s))
+    t, b = _next_argsig(memoryview(s.encode()).tobytes().decode())
     return (t, str(b))
 
 

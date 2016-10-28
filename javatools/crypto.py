@@ -109,11 +109,10 @@ def verify_signature_block(certificate_file, content_file, signature):
     data_bio = BIO.openfile(content_file)
     try:
         smime.verify(pkcs7, data_bio)
-    except SMIME.PKCS7_Error, message:
+    except SMIME.PKCS7_Error as message:
         return "Signature verification error: %s" % message
 
     return None
 
 #
 # The end.
-

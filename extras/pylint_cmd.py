@@ -21,7 +21,8 @@ license: LGPL v.3
 """
 
 
-from itertools import izip
+from builtins import zip
+
 from os.path import join
 from distutils.core import Command
 
@@ -75,7 +76,7 @@ class pylint_cmd(Command):
 
         m_types = ('error', 'warning', 'refactor', 'convention')
         m_counts = (stats.get(mt, 0) for mt in m_types)
-        msg = ", ".join("%s: %i" % p for p in izip(m_types, m_counts))
+        msg = ", ".join("%s: %i" % p for p in zip(m_types, m_counts))
         self.announce(" "+msg, 2)
 
         note = eval(linter.config.evaluation, {}, stats)

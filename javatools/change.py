@@ -23,7 +23,7 @@ modules.
 
 
 from functools import wraps
-
+from future.utils import listvalues
 
 __all__ = (
     "squash",
@@ -93,7 +93,7 @@ def iterate_by_type(objs, typelist):
         for val in cache.pop(t, tuple()):
             yield val
 
-    for tl in cache.values():
+    for tl in listvalues(cache):
         for val in tl:
             yield val
 

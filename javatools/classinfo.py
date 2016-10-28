@@ -22,6 +22,8 @@ Let's pretend to be the javap tool shipped with many Java SDKs
 :license: LGPL
 """
 
+from __future__ import print_function
+from past.builtins import xrange
 
 from json import dump
 from sys import stdout
@@ -66,47 +68,47 @@ def should_show(options, member):
 def print_field(options, field):
 
     if options.indent:
-        print "   ",
+        print("   ")
 
-    print "%s;" % field.pretty_descriptor()
+    print("%s;" % field.pretty_descriptor())
 
     if options.sigs:
-        print "  Signature:", field.get_signature()
+        print("  Signature:", field.get_signature())
 
     if options.verbose:
         if field.get_annotations():
-            print "  RuntimeVisibleAnnotations:"
+            print("  RuntimeVisibleAnnotations:")
             index = 0
             for anno in field.get_annotations():
-                print "  %i: %s" % index, anno.pretty_annotation()
+                print("  %i: %s" % index, anno.pretty_annotation())
 
         cv = field.get_constantvalue()
         if cv is not None:
             t,v = field.cpool.pretty_const(cv)
             if t:
-                print "  Constant value:", t, v
-        print
+                print("  Constant value:", t, v)
+        print("")
 
 
 def print_method(options, method):
     if options.indent:
-        print "   ",
+        print("   ")
 
-    print "%s;" % method.pretty_descriptor()
+    print("%s;" % method.pretty_descriptor())
 
     if options.sigs:
-        print "  Signature:", method.get_signature()
+        print("  Signature:", method.get_signature())
 
     if method.get_annotations():
-        print "  RuntimeVisibleAnnotations:"
+        print("  RuntimeVisibleAnnotations:")
         index = 0
         for anno in method.get_annotations():
-            print "  %i: %s" % (index, anno.pretty_annotation())
+            print("  %i: %s" % (index, anno.pretty_annotation()))
 
     code = method.get_code()
     if options.disassemble and code:
 
-        print "  Code:"
+        print("  Code:")
 
         if options.verbose:
             # the arg count is the number of arguments consumed from
@@ -117,46 +119,46 @@ def print_method(options, method):
             if not method.is_static():
                 argsc += 1
 
-            print "   Stack=%i, Locals=%i, Args_size=%i" % \
-                (code.max_stack, code.max_locals, argsc)
+            print("   Stack=%i, Locals=%i, Args_size=%i" % \
+                (code.max_stack, code.max_locals, argsc))
 
         for line in code.disassemble():
             opname = opcodes.get_opname_by_code(line[1])
             args = line[2]
             if args:
                 args = ", ".join(str(arg) for arg in args)
-                print "   %i:\t%s\t%s" % (line[0], opname, args)
+                print("   %i:\t%s\t%s" % (line[0], opname, args))
             else:
-                print "   %i:\t%s" % (line[0], opname)
+                print("   %i:\t%s" % (line[0], opname))
 
         exps = code.exceptions
         if exps:
-            print "  Exception table:"
-            print "   from\tto\ttarget\ttype"
+            print("  Exception table:")
+            print("   from\tto\ttarget\ttype")
             for e in exps:
                 ctype = e.pretty_catch_type()
-                print "  % 4i\t% 4i\t% 4i\t%s" % \
-                    (e.start_pc, e.end_pc, e.handler_pc, ctype)
+                print("  % 4i\t% 4i\t% 4i\t%s" % \
+                    (e.start_pc, e.end_pc, e.handler_pc, ctype))
 
     if options.verbose:
         if method.is_deprecated():
-            print "  Deprecated: true"
+            print("  Deprecated: true")
 
         if method.is_synthetic():
-            print "  Synthetic: true"
+            print("  Synthetic: true")
 
         if method.is_bridge():
-            print "  Bridge: true"
+            print("  Bridge: true")
 
         if method.is_varargs():
-            print "  Varargs: true"
+            print("  Varargs: true")
 
     if options.lines and code:
         lnt = method.get_code().get_linenumbertable()
         if lnt:
-            print "  LineNumberTable:"
+            print("  LineNumberTable:")
             for (o,l) in lnt:
-                print "   line %i: %i" % (l,o)
+                print("   line %i: %i" % (l,o))
 
     if options.locals and code:
         if method.cpool:
@@ -168,43 +170,43 @@ def print_method(options, method):
         lvtt = method.get_code().get_localvariabletypetable()
 
         if lvt:
-            print "  LocalVariableTable:"
-            print "   Start  Length  Slot\tName\tDescriptor"
+            print("  LocalVariableTable:")
+            print("   Start  Length  Slot\tName\tDescriptor")
             for (o,l,n,d,i) in lvt:
                 line = (str(o), str(l), str(i), cval(n), cval(d))
-                print "   %s" % "\t".join(line)
+                print("   %s" % "\t".join(line))
 
         if lvtt:
-            print "  LocalVariableTypeTable:"
-            print "   Start  Length  Slot\tName\tSignature"
+            print("  LocalVariableTypeTable:")
+            print("   Start  Length  Slot\tName\tSignature")
             for (o,l,n,s,i) in lvtt:
                 line = (str(o), str(l), str(i), cval(n), cval(s))
-                print "   %s" % "\t".join(line)
+                print("   %s" % "\t".join(line))
 
     if options.verbose:
         exps = method.pretty_exceptions()
         if exps:
-            print "  Exceptions:"
+            print("  Exceptions:")
             for e in exps:
-                print "   throws", e
+                print("   throws", e)
 
-        print
+        print("")
 
 
 def cli_class_provides(options, info):
-    print "class %s provides:" % info.pretty_this()
+    print("class %s provides:" % info.pretty_this())
 
     for provided in sorted(info.get_provides(options.api_ignore)):
-        print " ", provided
-    print
+        print(" ", provided)
+    print("")
 
 
 def cli_class_requires(options, info):
-    print "class %s requires:" % info.pretty_this()
+    print("class %s requires:" % info.pretty_this())
 
     for required in sorted(info.get_requires(options.api_ignore)):
-        print " ", required
-    print
+        print(" ", required)
+    print("")
 
 
 def cli_print_classinfo(options, info):
@@ -217,33 +219,33 @@ def cli_print_classinfo(options, info):
 
     sourcefile = info.get_sourcefile()
     if sourcefile:
-        print "Compiled from \"%s\"" % sourcefile
+        print("Compiled from \"%s\"" % sourcefile)
 
-    print info.pretty_descriptor(),
+    print(info.pretty_descriptor())
 
     if options.verbose or options.show == SHOW_HEADER:
-        print
+        print("")
         if info.get_sourcefile():
-            print "  SourceFile: \"%s\"" % info.get_sourcefile()
+            print("  SourceFile: \"%s\"" % info.get_sourcefile())
         if info.get_signature():
-            print "  Signature:", info.get_signature()
+            print("  Signature:", info.get_signature())
 
         if info.get_annotations():
-            print "  RuntimeVisibleAnnotations:"
+            print("  RuntimeVisibleAnnotations:")
             index = 0
             for anno in info.get_annotations():
-                print "  %i: %s" % (index, anno.pretty_annotation())
+                print("  %i: %s" % (index, anno.pretty_annotation()))
 
         if info.get_enclosingmethod():
-            print "  EnclosingMethod:", info.get_enclosingmethod()
+            print("  EnclosingMethod:", info.get_enclosingmethod())
         major, minor = info.get_version()
-        print "  minor version:", major
-        print "  major version:", minor
+        print("  minor version:", major)
+        print("  major version:", minor)
         platform = platform_from_version(*info.version) or "unknown"
-        print "  Platform:", platform
+        print("  Platform:", platform)
 
     if options.constpool:
-        print "  Constants pool:"
+        print("  Constants pool:")
 
         # we don't use the info.pretty_constants() generator here
         # because we actually want numbers for the entries, and that
@@ -255,13 +257,13 @@ def cli_print_classinfo(options, info):
             if t:
                 # skipping the None consts, which would be the entries
                 # comprising the second half of a long or double value
-                print "const #%i = %s\t%s;" % (i, t, v)
-        print
+                print("const #%i = %s\t%s;" % (i, t, v))
+        print("")
 
     if options.show == SHOW_HEADER:
         return
 
-    print "{"
+    print("{")
 
     for field in info.fields:
         if should_show(options, field):
@@ -271,8 +273,8 @@ def cli_print_classinfo(options, info):
         if should_show(options, method):
             print_method(options, method)
 
-    print "}"
-    print
+    print("}")
+    print("")
 
     return 0
 

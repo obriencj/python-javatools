@@ -1,3 +1,9 @@
+Fri Oct 28 2016 Marcus LaFerrera (@mlaferrera) - 1.5.0-0
+	Added support for Python3
+
+	Removed Cheetah requirements as it is not longer maintained
+	breaks support for Python3
+
 Thu Jan 21 2014 Christopher O'Brien <obriencj@gmail.com> - 1.4.0-0
 	fixed issues with auto-exploding a dist and cleaning up
 	afterwards

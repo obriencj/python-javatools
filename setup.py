@@ -30,18 +30,13 @@ try:
 except ImportError:
     from distutils.core import setup
 
-from extras import pylint_cmd, cheetah_build_py_cmd
+from extras import pylint_cmd
 
 
 setup(name = "javatools",
-      version = "1.4.0",
+      version = "1.5.0",
 
-      packages = [ "javatools",
-                   "javatools.cheetah" ],
-
-      package_data = { "javatools.cheetah": [ "data/*.css",
-                                              "data/*.js",
-                                              "data/*.png" ] },
+      packages = [ "javatools"],
 
       scripts = [ "scripts/classdiff",
                   "scripts/classinfo",
@@ -64,10 +59,10 @@ setup(name = "javatools",
       " class files and JARs",
 
       provides = [ "javatools" ],
-      install_requires = [ "Cheetah",
-                           "M2Crypto" ],
-      setup_requires = [ "Cheetah" ],
-      platforms = [ "python2 >= 2.6" ],
+      install_requires = [ "M2Crypto",
+                           "future" ],
+      platforms = [ "python2 >= 2.6",
+                    "python3 >= 3.4"],
 
       classifiers = [ "Development Status :: 5 - Production/Stable",
                       "Environment :: Console",
@@ -77,8 +72,7 @@ setup(name = "javatools",
                       "Topic :: Software Development :: Disassemblers" ],
 
       # extras stuff
-      cmdclass = { 'build_py': cheetah_build_py_cmd,
-                   'pylint': pylint_cmd } )
+      cmdclass = { 'pylint': pylint_cmd } )
 
 
 #
