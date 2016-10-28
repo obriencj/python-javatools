@@ -30,7 +30,10 @@ or stream.
 # profiling showed a significant amount of time spent in this module,
 # so there will be efforts here to increase performance
 
+from past.builtins import xrange
+from future.utils import with_metaclass
 
+import sys
 from struct import Struct
 from abc import ABCMeta, abstractmethod
 
@@ -63,14 +66,12 @@ def compile_struct(fmt, cache=None):
     return sfmt
 
 
-class Unpacker(object):
+class Unpacker(with_metaclass(ABCMeta, object)):
     """
     Abstract base class for `StreamUnpacker` and `BufferUnpacker`. Use
     the `unpack` function to obtain the correct unpacker instance for
     your data.
     """
-
-    __metaclass__ = ABCMeta
 
 
     def __enter__(self):
@@ -339,14 +340,14 @@ def unpack(data):
     unpacker:`
     """
 
-    if isinstance(data, (str, buffer)):
+    if isinstance(data, (str, bytes, memoryview)):
         return BufferUnpacker(data)
 
     elif hasattr(data, "read"):
         return StreamUnpacker(data)
 
     else:
-        raise TypeError("unpack requires a str, buffer, or instance"
+        raise TypeError("unpack requires a str, memoryview, or instance"
                         " supporting the read method")
 
 

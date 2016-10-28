@@ -25,6 +25,10 @@ References
 :license: LGPL
 """
 
+from __future__ import print_function
+
+from builtins import zip
+from future.utils import viewitems, listitems, listvalues
 
 import hashlib
 import os
@@ -32,15 +36,14 @@ import sys
 
 from base64 import b64encode
 from collections import OrderedDict
-from cStringIO import StringIO
-from itertools import izip
-from os.path import isdir, join, sep, split, walk
+from io import StringIO
+from os.path import isdir, join, sep, split
+from os import walk
 from zipfile import ZipFile
 
 from .change import GenericChange, SuperChange
 from .change import Addition, Removal
 from .dirutils import fnmatches, makedirsp
-
 
 __all__ = (
     "ManifestChange", "ManifestSectionChange",
@@ -126,8 +129,8 @@ class ManifestSectionChange(GenericChange):
 
         ikeys = set(getattr(options, "ignore_manifest_key", set()))
         if ikeys:
-            lset = set(self.ldata.items())
-            rset = set(self.rdata.items())
+            lset = viewitems(self.ldata)
+            rset = viewitems(self.rdata)
             changed = set(k for k,v in lset.symmetric_difference(rset))
             return changed.issubset(ikeys)
 
@@ -174,8 +177,8 @@ class ManifestMainChange(GenericChange):
     def is_ignored(self, options):
         ikeys = set(getattr(options, "ignore_manifest_key", set()))
         if ikeys:
-            lset = set(self.ldata.items())
-            rset = set(self.rdata.items())
+            lset = viewitems(self.ldata)
+            rset = viewitems(self.rdata)
             changed = set(k for k,v in lset.symmetric_difference(rset))
             return changed.issubset(ikeys)
 
@@ -248,7 +251,7 @@ class ManifestSection(OrderedDict):
         Populate this section from an iteration of the parse_items call
         """
 
-        for k,vals in items:
+        for k, vals in items:
             self[k] = "".join(vals)
 
 
@@ -257,7 +260,7 @@ class ManifestSection(OrderedDict):
         Serialize this section and write it to a stream
         """
 
-        for k, v in self.items():
+        for k, v in listitems(self):
             write_key_val(stream, k, v, linesep)
 
         stream.write(linesep)
@@ -277,7 +280,7 @@ class ManifestSection(OrderedDict):
         """
         :return: list of keys ending with given :suffix:.
         """
-        return [k.rstrip(suffix) for k in self.keys() if k.endswith(suffix)]
+        return [k.rstrip(suffix) for k in list(self) if k.endswith(suffix)]
 
 
 class Manifest(ManifestSection):
@@ -341,7 +344,7 @@ class Manifest(ManifestSection):
         # the first section is the main one for the manifest. It's
         # also where we will check for our newline seperator
         sections = parse_sections(data)
-        self.load(sections.next())
+        self.load(next(sections))
 
         # and all following sections are considered sub-sections
         for section in sections:
@@ -426,7 +429,7 @@ class Manifest(ManifestSection):
         sub-sections
         """
 
-        for sub in self.sub_sections.values():
+        for sub in listvalues(self.sub_sections):
             sub.clear()
         self.sub_sections.clear()
 
@@ -474,7 +477,7 @@ class SignatureManifest(Manifest):
         h_all.update(manifest.get_main_section())
         self[main_key] = b64encode(h_all.digest())
 
-        for sub_section in manifest.sub_sections.values():
+        for sub_section in listvalues(manifest.sub_sections):
             sub_data = sub_section.get_data(linesep)
 
             # create the checksum of the section body and store it as a
@@ -537,7 +540,7 @@ class SignatureManifest(Manifest):
             return "No matching checksum of the whole manifest and no " \
                    "matching checksum of the manifest main attributes found"
 
-        for s in manifest.sub_sections.values():
+        for s in listvalues(manifest.sub_sections):
             at_least_one_section_digest_matches = False
             sf_section = self.create_section(s.primary(), overwrite=False)
             for java_digest in s.keys_with_suffix("-Digest"):
@@ -599,7 +602,7 @@ def b64_encoded_digest(data, algorithm):
     return b64encode(h.digest())
 
 def detect_linesep(data):
-    if isinstance(data, (str, buffer)):
+    if isinstance(data, (str, memoryview)):
         data = StringIO(data)
 
     offset = data.tell()
@@ -628,8 +631,9 @@ def parse_sections(data):
     if not data:
         return
 
-    if isinstance(data, (str, buffer)):
+    if isinstance(data, (str, memoryview)):
         data = StringIO(data)
+
 
     # our current section
     curr = None
@@ -838,9 +842,9 @@ def cli_create(options, rest):
     """
 
     if len(rest) != 2:
-        print "Usage: manifest --create [-r|--recursive]" \
+        print("Usage: manifest --create [-r|--recursive]" \
               " [-i|--ignore pattern] [-d|--digest algo[,algo ...]]" \
-              " [-m manifest] file|directory"
+              " [-m manifest] file|directory")
         return 1
 
     if options.digest is None:
@@ -849,8 +853,8 @@ def cli_create(options, rest):
     try:
         use_digests = [_get_digest(digest) for digest in requested_digests]
     except UnsupportedDigest:
-        print "Unknown digest algorithm %r" % digest
-        print "Supported algorithms:", ",".join(sorted(NAMED_DIGESTS.keys()))
+        print("Unknown digest algorithm %r" % digest)
+        print("Supported algorithms:", ",".join(sorted(NAMED_DIGESTS.keys())))
         return 1
 
     if options.recursive:
@@ -870,7 +874,7 @@ def cli_create(options, rest):
         sec = mf.create_section(name)
 
         for digest_name, digest_value in \
-            izip(requested_digests, digest_chunks(chunks(), use_digests)):
+            zip(requested_digests, digest_chunks(chunks(), use_digests)):
             sec[digest_name + "-Digest"] = digest_value
 
     output = sys.stdout
@@ -889,7 +893,7 @@ def cli_create(options, rest):
 def cli_verify(options, rest):
     # TODO: handle ignores
     if len(rest) != 1:
-        print "Usage: manifest --verify [--ignore=PATH] JAR_FILE"
+        print("Usage: manifest --verify [--ignore=PATH] JAR_FILE")
         return 2
 
     jar = ZipFile(rest[0])
@@ -898,13 +902,13 @@ def cli_verify(options, rest):
     error = mf.verify_jar_checksums(rest[0])
     if error is None:
         return 0
-    print error
+    print(error)
     return 1
 
 
 def cli_query(options, rest):
     if len(rest) != 2:
-        print "Usage: manifest --query=key file.jar"
+        print("Usage: manifest --query=key file.jar")
         return 1
 
     zf = ZipFile(rest[1])
@@ -916,12 +920,12 @@ def cli_query(options, rest):
         if(len(s) > 1):
             mfs = mf.sub_sections.get(s[0])
             if mfs:
-                print q, "=", mfs.get(s[1])
+                print(q, "=", mfs.get(s[1]))
             else:
-                print q, ": No such section"
+                print(q, ": No such section")
 
         else:
-            print q, "=", mf.get(s[0])
+            print(q, "=", mf.get(s[0]))
 
 
 def cli(options, rest):
@@ -935,7 +939,7 @@ def cli(options, rest):
         return cli_query(options, rest)
 
     else:
-        print "specify one of --verify, --query or --create"
+        print("specify one of --verify, --query or --create")
         return 0
 
 

@@ -21,8 +21,6 @@ Requirements
 
 -  `Python <http://python.org>`__ 2.6 or later (no support for Python 3)
 -  `Setuptools <http://pythonhosted.org/setuptools/>`__
--  `Cheetah <http://www.cheetahtemplate.org>`__ is used in the
-   generation of HTML reports
 
 In addition, the following tools are used in building and testing the
 project.

@@ -24,9 +24,8 @@ heck, just fork it!
 
 ## Requirements
 
-* [Python] 2.6 or later (no support for Python 3)
+* [Python] 2.6 or later (now with Python 3 support!)
 * [Setuptools]
-* [Cheetah] is used in the generation of HTML reports
 * [M2Crypto] is used for cryptographic operations
 
 In addition, the following tools are used in building and testing the
@@ -38,7 +37,6 @@ project.
 All of these packages are available in most linux distributions
 (eg. Fedora), and for OSX via [MacPorts].
 
-[cheetah]: http://www.cheetahtemplate.org
 [pyxml]: http://www.python.org/community/sigs/current/xml-sig/
 [M2Crypto]: https://gitlab.com/m2crypto/m2crypto/
 

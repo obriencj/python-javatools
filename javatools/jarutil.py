@@ -21,6 +21,8 @@ Java archives
 :license: LGPL
 """
 
+from __future__ import print_function
+
 import os
 from zipfile import ZipFile
 
@@ -109,13 +111,13 @@ def cli_sign_jar(options, jar_file, cert_file, key_file, key_alias):
 
     jar = ZipFile(jar_file, "a")
     if not "META-INF/MANIFEST.MF" in jar.namelist():
-        print "META-INF/MANIFEST.MF not found in %s" % jar_file
+        print("META-INF/MANIFEST.MF not found in %s" % jar_file)
         return 1
 
     try:
         sig_block_extension = private_key_type(key_file)
     except CannotFindKeyTypeError:
-        print "Cannot determine private key type (is it in PEM format?)"
+        print("Cannot determine private key type (is it in PEM format?)")
         return 1
 
     mf = Manifest()
@@ -146,9 +148,9 @@ def cli_verify_jar_signature(jar_file, certificate, key_alias):
 
     result_message = verify(certificate, jar_file, key_alias)
     if result_message is not None:
-        print result_message
+        print(result_message)
         return 1
-    print "Jar verified."
+    print("Jar verified.")
     return 0
 
 

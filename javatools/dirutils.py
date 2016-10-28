@@ -21,6 +21,7 @@ trees
 :license: LGPL
 """
 
+from future.utils import listvalues
 
 from os.path import exists, isdir, join, relpath
 from os import makedirs, walk
@@ -138,7 +139,7 @@ def _gen_from_dircmp(dc, lpath, rpath):
     for f in same_files:
         yield (BOTH, join(relpath(dc.left, lpath), f))
 
-    subdirs = dc.subdirs.values()
+    subdirs = listvalues(dc.subdirs)
     subdirs.sort()
     for sub in subdirs:
         for event in _gen_from_dircmp(sub, lpath, rpath):

@@ -24,8 +24,9 @@ be checked for deep differences.
 :license: LGPL
 """
 
+from past.builtins import xrange
+from future.moves.itertools import zip_longest
 
-from itertools import izip_longest
 from os.path import join
 
 from javatools import unpack_classfile
@@ -155,7 +156,7 @@ class DistTextChange(DistContentChange):
         # ignore the change later.
         with self.open_left(mode="rt") as lfd:
             with self.open_right(mode="rt") as rfd:
-                for li, ri in izip_longest(lfd, rfd, fillvalue=""):
+                for li, ri in zip_longest(lfd, rfd, fillvalue=""):
                     if li.rstrip() != ri.rstrip():
                         self.lineending = False
                         break

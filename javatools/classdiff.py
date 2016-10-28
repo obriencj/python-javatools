@@ -25,8 +25,11 @@ added fields or methods, deprecation changes, etc.
 """
 
 
+from past.builtins import xrange
+from future.utils import listvalues, with_metaclass
+from builtins import zip
+
 from abc import ABCMeta
-from itertools import izip
 from javatools import unpack_classfile
 from .change import GenericChange, SuperChange
 from .change import Addition, Removal
@@ -196,9 +199,7 @@ class ClassSignatureChange(GenericChange):
         return c.pretty_signature()
 
 
-class AnnotationsChange(GenericChange):
-
-    __metaclass__ = ABCMeta
+class AnnotationsChange(with_metaclass(ABCMeta, GenericChange)):
 
     label = "Runtime annotations"
 
@@ -212,9 +213,7 @@ class AnnotationsChange(GenericChange):
         return [anno.pretty_annotation() for anno in annos]
 
 
-class InvisibleAnnotationsChange(AnnotationsChange):
-
-    __metaclass__ = ABCMeta
+class InvisibleAnnotationsChange(with_metaclass(ABCMeta, AnnotationsChange)):
 
     label = "Runtime Invisible annotations"
 
@@ -248,12 +247,10 @@ class ClassInfoChange(SuperChange):
                     ClassSignatureChange)
 
 
-class MemberSuperChange(SuperChange):
+class MemberSuperChange(with_metaclass(ABCMeta, SuperChange)):
     """
     basis for FieldChange and MethodChange
     """
-
-    __metaclass__ = ABCMeta
 
     label = "Member"
 
@@ -262,12 +259,10 @@ class MemberSuperChange(SuperChange):
         return "%s: %s" % (self.label, self.ldata.pretty_descriptor())
 
 
-class MemberAdded(Addition):
+class MemberAdded(with_metaclass(ABCMeta, Addition)):
     """
     basis for FieldAdded and MethodAdded
     """
-
-    __metaclass__ = ABCMeta
 
     label = "Member added"
 
@@ -276,12 +271,10 @@ class MemberAdded(Addition):
         return "%s: %s" % (self.label, self.rdata.pretty_descriptor())
 
 
-class MemberRemoved(Removal):
+class MemberRemoved(with_metaclass(ABCMeta, Removal)):
     """
     basis for FieldChange and MethodChange
     """
-
-    __metaclass__ = ABCMeta
 
     label = "Member removed"
 
@@ -290,12 +283,10 @@ class MemberRemoved(Removal):
         return "%s: %s" % (self.label, self.ldata.pretty_descriptor())
 
 
-class ClassMembersChange(SuperChange):
+class ClassMembersChange(with_metaclass(ABCMeta, SuperChange)):
     """
     basis for ClassFieldsChange and ClassMethodsChange
     """
-
-    __metaclass__ = ABCMeta
 
     label = "Members"
 
@@ -320,7 +311,7 @@ class ClassMembersChange(SuperChange):
             else:
                 yield self.member_added(None, member)
 
-        for member in li.values():
+        for member in listvalues(li):
             yield self.member_removed(member, None)
 
 
@@ -438,7 +429,7 @@ class CodeConstantsChange(GenericChange):
             # code body change, can't determine constants
             return True, None
 
-        for l, r in izip(left.disassemble(), right.disassemble()):
+        for l, r in zip(left.disassemble(), right.disassemble()):
             if not ((l[0] == r[0]) and (l[1] == r[1])):
                 # code body change, can't determine constants
                 return True, None
@@ -492,7 +483,7 @@ class CodeBodyChange(GenericChange):
                    (len(left.code), len(right.code))
             return True, desc
 
-        for l, r in izip(left.disassemble(), right.disassemble()):
+        for l, r in zip(left.disassemble(), right.disassemble()):
             if not ((l[0] == r[0]) and (l[1] == r[1])):
                 return True, None
 
