@@ -32,8 +32,8 @@ from javatools.jarutil import cli_create_jar, cli_sign_jar, \
 class JarutilTest(TestCase):
 
     def cli_verify_wrap(self, jar, cert, alias):
-            self.assertEqual(0, cli_verify_jar_signature(
-                get_data_fn(jar), get_data_fn(cert), alias),
+            self.assertEqual(0, cli_verify_jar_signature([
+                get_data_fn(jar), get_data_fn(cert), alias]),
                 "cli_verify_jar_signature() failed on %s with certificate %s,"
                 " alias %s" % (jar, cert, alias))
 
@@ -77,7 +77,7 @@ class JarutilTest(TestCase):
         key = get_data_fn("javatools.pem")
         with NamedTemporaryFile() as tmp_jar:
             copyfile(src, tmp_jar.name)
-            cli_sign_jar(None, tmp_jar.name, cert, key, key_alias)
+            cli_sign_jar([tmp_jar.name, cert, key, key_alias])
             error_message = verify(cert, tmp_jar.name, key_alias)
             self.assertIsNone(error_message,
                               "Verification of JAR which we just signed failed: %s"
@@ -90,7 +90,7 @@ class JarutilTest(TestCase):
         key = get_data_fn("ec-key.pem")
         with NamedTemporaryFile() as tmp_jar:
             copyfile(src, tmp_jar.name)
-            cli_sign_jar(None, tmp_jar.name, cert, key, key_alias)
+            cli_sign_jar([tmp_jar.name, cert, key, key_alias])
             error_message = verify(cert, tmp_jar.name, key_alias)
             self.assertIsNone(error_message,
                               "Verification of JAR which we just signed failed: %s"
