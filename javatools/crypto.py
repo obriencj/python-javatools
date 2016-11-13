@@ -79,7 +79,8 @@ def create_signature_block(openssl_digest, certificate, private_key, data):
 
     smime = SMIME.SMIME()
     smime.load_key_bio(BIO.openfile(private_key), BIO.openfile(certificate))
-    pkcs7 = smime.sign(BIO.MemoryBuffer(data), flags=SMIME.PKCS7_BINARY)
+    pkcs7 = smime.sign(BIO.MemoryBuffer(data),
+                       flags=(SMIME.PKCS7_BINARY | SMIME.PKCS7_DETACHED | SMIME.PKCS7_NOATTR))
     tmp = BIO.MemoryBuffer()
     pkcs7.write_der(tmp)
     return tmp.read()
