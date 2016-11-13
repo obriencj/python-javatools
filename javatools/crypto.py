@@ -53,7 +53,7 @@ def private_key_type(key_file):
         raise CannotFindKeyTypeError
 
 
-def create_signature_block(openssl_digest, certificate, private_key, data):
+def create_signature_block(openssl_digest, certificate, private_key, extra_certs, data):
     """Produces a signature block for the data.
 
     Reference
@@ -71,6 +71,8 @@ def create_signature_block(openssl_digest, certificate, private_key, data):
     :type certificate: str
     :param private_key:filename of private key used to sign (PEM format)
     :type private_key: str
+    :param extra_certs: additional certificates to embed into the signature (PEM format)
+    :type param: array of filenames
     :param data: the content to be signed
     :type data: str
     :returns: content of the signature block file as produced by jarsigner
@@ -79,6 +81,14 @@ def create_signature_block(openssl_digest, certificate, private_key, data):
 
     smime = SMIME.SMIME()
     smime.load_key_bio(BIO.openfile(private_key), BIO.openfile(certificate))
+
+    if extra_certs is not None:
+        # Could we use just X509.new_stack_from_der() instead?
+        stack = X509.X509_Stack()
+        for cert in extra_certs:
+            stack.push(X509.load_cert(cert))
+        smime.set_x509_stack(stack)
+
     pkcs7 = smime.sign(BIO.MemoryBuffer(data),
                        flags=(SMIME.PKCS7_BINARY | SMIME.PKCS7_DETACHED | SMIME.PKCS7_NOATTR))
     tmp = BIO.MemoryBuffer()

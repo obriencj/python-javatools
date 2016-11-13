@@ -556,7 +556,7 @@ class SignatureManifest(Manifest):
         return None
 
 
-    def get_signature(self, certificate, private_key,
+    def get_signature(self, certificate, private_key, extra_certs,
                       digest_algorithm="SHA-256"):
 
         from .crypto import create_signature_block
@@ -575,7 +575,7 @@ class SignatureManifest(Manifest):
             raise Exception("Unknown Java digest %s" % digest_algorithm)
 
         return create_signature_block(openssl_digest, certificate, private_key,
-                                      self.get_data())
+                                      extra_certs, self.get_data())
 
 
 class SignatureManifestChange(ManifestChange):
