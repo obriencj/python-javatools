@@ -95,5 +95,24 @@ class JarutilTest(TestCase):
             self.assertIsNone(error_message,
                               "Verification of JAR which we just signed failed: %s"
                               % error_message)
+
+    def test_sign_with_certchain_and_verify(self):
+        src = get_data_fn("certchain-data.jar")
+        key_alias = "SIGNING"
+        signing_cert = get_data_fn("certchain-signing.pem")
+        key = get_data_fn("certchain-signing-key.pem")
+        intermediate_cert = get_data_fn("certchain-intermediate.pem")
+        root_cert = get_data_fn("certchain-root.pem")
+        with NamedTemporaryFile() as tmp_jar:
+            copyfile(src, tmp_jar.name)
+            self.assertEqual(0, cli_sign_jar(
+                ["-c", root_cert, "-c", intermediate_cert,
+                 tmp_jar.name, signing_cert, key, key_alias]),
+                "Signing with embedding a chain of certificates failed")
+            error_message = verify(root_cert, tmp_jar.name, key_alias)
+            self.assertIsNone(error_message,
+                "Verification of JAR which we signed embedding chain of certificates failed: %s"
+                % error_message)
+
 #
 # The end.

@@ -96,7 +96,7 @@ def verify(certificate, jar_file, key_alias):
     return None
 
 
-def sign(jar_file, cert_file, key_file, key_alias, digest=None):
+def sign(jar_file, cert_file, key_file, key_alias, extra_certs=None, digest=None):
     """
     Signs the jar (almost) identically to jarsigner.
     """
@@ -123,7 +123,7 @@ def sign(jar_file, cert_file, key_file, key_alias, digest=None):
     sig_block_extension = private_key_type(key_file)
 
     jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension),
-        sf.get_signature(cert_file, key_file, sig_digest_algorithm))
+        sf.get_signature(cert_file, key_file, extra_certs, sig_digest_algorithm))
 
     return 0
 
@@ -146,6 +146,8 @@ def cli_sign_jar(argument_list=None):
     parser = OptionParser(usage=usage_message)
     parser.add_option("-d", "--digest",
                       help="Digest algorithm used for signing   ")
+    parser.add_option("-c", "--chain", action="append",
+                      help="Additional certificates to embed into the signature (PEM format). More than one can be provided.")
     (options, mand_args) = parser.parse_args(argument_list)
 
     if len(mand_args) != 4:
@@ -154,9 +156,10 @@ def cli_sign_jar(argument_list=None):
 
     (jar_file, cert_file, key_file, key_alias) = mand_args
     digest = options.digest if options and options.digest else None
+    extra_certs = options.chain if options and options.chain else None
 
     try:
-        return sign(jar_file, cert_file, key_file, key_alias, digest)
+        return sign(jar_file, cert_file, key_file, key_alias, extra_certs, digest)
     except CannotFindKeyTypeError:
         print "Cannot determine private key type (is it in PEM format?)"
         return 1
