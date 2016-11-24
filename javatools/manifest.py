@@ -60,15 +60,6 @@ SIG_FILE_PATTERN = "*.SF"
 SIG_BLOCK_PATTERNS = ("*.RSA", "*.DSA", "*.EC", "SIG-*", )
 
 
-JAVA_TO_OPENSSL_DIGESTS = {
-    "MD5": "MD5",
-    "SHA1": "SHA1",
-    "SHA-256": "SHA256",
-    "SHA-384": "SHA384",
-    "SHA-512": "SHA512"
-}
-
-
 class UnsupportedDigest(Exception):
     """
     Indicates an algorithm was requested for which we had no matching
@@ -93,20 +84,24 @@ class MalformedManifest(Exception):
 
 
 # Digests classes by Java name that have been found present in hashlib
-NAMED_DIGESTS = {}
+JAVA_TO_OPENSSL_DIGESTS = {}
+JAVA_TO_OPENSSL_DIGEST_NAMES = {}
 
 
 def _add_digest(java_name, hashlib_name):
     digest = getattr(hashlib, hashlib_name, None)
     if digest:
-        NAMED_DIGESTS[java_name] = digest
+        JAVA_TO_OPENSSL_DIGESTS[java_name] = digest
+        JAVA_TO_OPENSSL_DIGEST_NAMES[java_name] = hashlib_name
 
 
-def _get_digest(java_name):
+def _get_digest(java_name, as_string=False):
     try:
-        return NAMED_DIGESTS[java_name]
+        return JAVA_TO_OPENSSL_DIGEST_NAMES[java_name] if as_string \
+            else JAVA_TO_OPENSSL_DIGESTS[java_name]
     except KeyError:
-        raise UnsupportedDigest(java_name)
+        raise UnsupportedDigest("Unsupported digest %s. Supported: %s" %
+                                (java_name, ", ".join(sorted(JAVA_TO_OPENSSL_DIGESTS.keys()))))
 
 
 # Note 1: Java supports also MD2, but hashlib does not
@@ -429,7 +424,7 @@ class Manifest(ManifestSection):
                 read_digest = file_section.get(java_digest + "-Digest")
                 calculated_digest = b64_encoded_digest(
                     zip_file.read(filename),
-                    NAMED_DIGESTS[java_digest])
+                    _get_digest(java_digest))
 
                 if calculated_digest == read_digest:
                     # found a match
@@ -550,7 +545,7 @@ class SignatureManifest(Manifest):
         for java_digest in self.keys_with_suffix("-Digest-Manifest"):
             whole_mf_digest = b64_encoded_digest(
                 manifest.get_data(),
-                NAMED_DIGESTS[java_digest])
+                _get_digest(java_digest))
 
             # It is enough for at least one digest to be correct
             if whole_mf_digest == self.get(java_digest + "-Digest-Manifest"):
@@ -569,7 +564,7 @@ class SignatureManifest(Manifest):
         for java_digest in keys:
             mf_main_attr_digest = b64_encoded_digest(
                 manifest.get_main_section(),
-                NAMED_DIGESTS[java_digest])
+                _get_digest(java_digest))
 
             attr = java_digest + "-Digest-Manifest-Main-Attributes"
             if mf_main_attr_digest == self.get(attr):
@@ -608,7 +603,7 @@ class SignatureManifest(Manifest):
             for java_digest in digests:
                 section_digest = b64_encoded_digest(
                     s.get_data(manifest.linesep),
-                    NAMED_DIGESTS[java_digest])
+                    _get_digest(java_digest))
 
                 if section_digest == sf_section.get(java_digest + "-Digest"):
                     # found a match, verified
@@ -637,11 +632,7 @@ class SignatureManifest(Manifest):
 
         from .crypto import create_signature_block
 
-        try:
-            openssl_digest = JAVA_TO_OPENSSL_DIGESTS[digest_algorithm]
-        except KeyError:
-            raise Exception("Unknown Java digest %s" % digest_algorithm)
-
+        openssl_digest = _get_digest(digest_algorithm, as_string=True)
         return create_signature_block(openssl_digest, certificate, private_key,
                                       extra_certs, self.get_data())
 
@@ -936,12 +927,7 @@ def cli_create(argument_list):
     if args.digest is None:
         args.digest = "MD5,SHA1"
     requested_digests = args.digest.split(",")
-    try:
-        use_digests = [_get_digest(digest) for digest in requested_digests]
-    except UnsupportedDigest:
-        print "Unknown digest algorithm %r" % digest
-        print "Supported algorithms:", ",".join(sorted(NAMED_DIGESTS.keys()))
-        return 1
+    use_digests = [_get_digest(digest) for digest in requested_digests]
 
     if args.recursive:
         entries = multi_path_generator(args.content)

@@ -171,9 +171,9 @@ class JarutilTest(TestCase):
         key = get_data_fn("ec-key.pem")
         with NamedTemporaryFile() as tmp_jar:
             copyfile(src, tmp_jar.name)
-            cli_sign_jar([tmp_jar.name, cert, key, key_alias])
+            cli_sign_jar(['-d', 'SHA-512', tmp_jar.name, cert, key, key_alias])
             self.verify_wrap(cert, tmp_jar.name,
-                             "Verification of JAR which we just signed failed")
+                             "Verification of JAR which we just signed with SHA-512 failed")
 
 
     def test_sign_with_certchain_and_verify(self):

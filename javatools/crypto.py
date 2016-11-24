@@ -79,8 +79,6 @@ def create_signature_block(openssl_digest, certificate, private_key,
 
     :param openssl_digest: alrogithm known to OpenSSL used to digest the data
     :type openssl_digest: str
-    NOTE: not used. M2Crypto cannot pass the signing digest. This is in plans
-          for a future release: https://gitlab.com/m2crypto/m2crypto/issues/151
     :param certificate: filename of the certificate file (PEM format)
     :type certificate: str
     :param private_key:filename of private key used to sign (PEM format)
@@ -104,6 +102,7 @@ def create_signature_block(openssl_digest, certificate, private_key,
         smime.set_x509_stack(stack)
 
     pkcs7 = smime.sign(BIO.MemoryBuffer(data),
+                       algo=openssl_digest,
                        flags=(SMIME.PKCS7_BINARY |
                               SMIME.PKCS7_DETACHED |
                               SMIME.PKCS7_NOATTR))
