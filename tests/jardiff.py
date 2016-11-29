@@ -51,7 +51,7 @@ class JardiffTest(TestCase):
             "Change in signature block file is not detected")
 
     def test_sig_block_file_removed(self):
-        self.cli_jardiff_wrap(1, "ec.jar", "ec-tampered.jar",
+        self.cli_jardiff_wrap(1, "ec.jar", "ec-sig-block-removed.jar",
             "Removal of signature block file is not detected")
 
     def test_sig_manifest_tampered(self):
