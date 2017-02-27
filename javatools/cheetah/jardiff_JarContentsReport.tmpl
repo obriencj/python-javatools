@@ -32,9 +32,12 @@ change = getattr(self, "change")
 changemap = javatools.change.collect_by_type(change.collect())
 changeorder = (
     javatools.jardiff.JarManifestChange,
-    javatools.jardiff.JarSignatureAdded,
-    javatools.jardiff.JarSignatureRemoved,
-    javatools.jardiff.JarSignatureChange,
+    javatools.jardiff.JarSignatureFileAdded,
+    javatools.jardiff.JarSignatureFileRemoved,
+    javatools.jardiff.JarSignatureFileChange,
+    javatools.jardiff.JarSignatureBlockFileAdded,
+    javatools.jardiff.JarSignatureBlockFileRemoved,
+    javatools.jardiff.JarSignatureBlockFileChange,
     javatools.jardiff.JarContentAdded,
     javatools.jardiff.JarContentRemoved,
     javatools.jardiff.JarContentChange,
@@ -69,5 +72,5 @@ $render_by_class(changes, ct.label)
 #end block
 
 
-## 
+##
 ## The end.
