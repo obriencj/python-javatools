@@ -62,7 +62,7 @@ reports=yes
 # respectively contain the number of errors / warnings messages and the total
 # number of statements analyzed. This is used by the global evaluation report
 # (RP0004).
-evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
+evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / code_lines) * 10)
 
 # Add a comment according to your evaluation note. This is used by the global
 # evaluation report (RP0004).
@@ -137,7 +137,7 @@ additional-builtins=
 [BASIC]
 
 # Required attributes for module, separated by a comma
-required-attributes=
+#required-attributes=
 
 # List of builtins function names that should not be used, separated by a comma
 bad-functions=map,filter,apply,input
@@ -203,7 +203,7 @@ int-import-graph=
 
 # List of interface methods to ignore, separated by a comma. This is used for
 # instance to not check methods defines in Zope's Interface base class.
-ignore-iface-methods=isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
+#ignore-iface-methods=isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
 
 # List of method names used to declare (i.e. assign) instance attributes.
 defining-attr-methods=__init__,__new__,setUp

@@ -78,6 +78,9 @@ class pylint_cmd(Command):
         msg = ", ".join("%s: %i" % p for p in izip(m_types, m_counts))
         self.announce(" "+msg, 2)
 
+        #print linter.config.evaluation
+        #print stats
+
         note = eval(linter.config.evaluation, {}, stats)
         self.announce(" overall score: %.1f%%" % (note * 10), 2)
         self.announce(" full details at %s" % report_fn, 2)
@@ -114,17 +117,17 @@ class pylint_cmd(Command):
             with open(report_fn, "wt") as out:
                 linter.reporter.set_output(out)
                 linter.check(self.packages)
-
+                linter.generate_reports()
             self.announce_overview(linter, report_fn)
 
-        if self.build_scripts:
+        if False: # self.build_scripts:
             self.announce("pylint is checking scripts", 2)
             report_fn = "scripts_report." + linter.reporter.extension
             report_fn = join(self.build_base, report_fn)
             with open(report_fn, "wt") as out:
                 linter.reporter.set_output(out)
                 linter.check(self.build_scripts)
-
+                linter.generate_reports()
             self.announce_overview(linter, report_fn)
 
 
