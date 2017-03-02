@@ -650,6 +650,7 @@ def parse_sections(data):
                 raise MalformedManifest("bad line continuation, "
                                         " line: %i" % lineno)
             else:
+                #pylint: disable=unsubscriptable-object
                 curr[-1][1].append(cleanline[1:])
 
         else:
