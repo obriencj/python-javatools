@@ -17,44 +17,49 @@
 Cryptography-related functions for handling JAR signature block files.
 
 :author: Konstantin Shemyak  <konstantin@shemyak.com>
-:license: LGPL
+:license: LGPL v.3
 """
+
 
 from M2Crypto import SMIME, X509, BIO, RSA, DSA, EC, m2
 
 
-class CannotFindKeyTypeError (Exception):
-    """ Failed to determine the type of the private key.  """
+class CannotFindKeyTypeError(Exception):
+    """
+    Failed to determine the type of the private key.
+    """
+
     pass
 
 
 def private_key_type(key_file):
-    """ Determines type of the private key: RSA, DSA, EC.
+    """
+    Determines type of the private key: RSA, DSA, EC.
 
     :param key_file: file path
     :type key_file: str
     :return: one of "RSA", "DSA" or "EC"
     :except CannotFindKeyTypeError
     """
-    try:
-        RSA.load_key(key_file)
-        return "RSA"
-    except:
-        pass
-    try:
-        DSA.load_key(key_file)
-        return "DSA"
-    except:
-        pass
-    try:
-        EC.load_key(key_file)
-        return "EC"
-    except:
+
+    keytypes = (("RSA", RSA), ("DSA", DSA), ("EC", EC))
+
+    for key, ktype in keytypes:
+        try:
+            ktype.load_key(key_file)
+        except:
+            continue
+        else:
+            return key
+    else:
         raise CannotFindKeyTypeError
 
 
-def create_signature_block(openssl_digest, certificate, private_key, extra_certs, data):
-    """Produces a signature block for the data.
+def create_signature_block(openssl_digest, certificate, private_key,
+                           extra_certs, data):
+
+    """
+    Produces a signature block for the data.
 
     Reference
     ---------
@@ -90,14 +95,18 @@ def create_signature_block(openssl_digest, certificate, private_key, extra_certs
         smime.set_x509_stack(stack)
 
     pkcs7 = smime.sign(BIO.MemoryBuffer(data),
-                       flags=(SMIME.PKCS7_BINARY | SMIME.PKCS7_DETACHED | SMIME.PKCS7_NOATTR))
+                       flags=(SMIME.PKCS7_BINARY |
+                              SMIME.PKCS7_DETACHED |
+                              SMIME.PKCS7_NOATTR))
     tmp = BIO.MemoryBuffer()
     pkcs7.write_der(tmp)
     return tmp.read()
 
 
 def verify_signature_block(certificate_file, content_file, signature):
-    """Verifies the 'signature' over the 'content', trusting the 'certificate'.
+    """
+    Verifies the 'signature' over the 'content', trusting the
+    'certificate'.
 
     :param certificate_file: the trusted certificate (PEM format)
     :type certificate_file: str
@@ -118,13 +127,14 @@ def verify_signature_block(certificate_file, content_file, signature):
     smime.set_x509_stack(signers_cert_stack)
     smime.set_x509_store(trusted_cert_store)
     data_bio = BIO.openfile(content_file)
+
     try:
         smime.verify(pkcs7, data_bio)
     except SMIME.PKCS7_Error, message:
         return "Signature verification error: %s" % message
+    else:
+        return None
 
-    return None
 
 #
 # The end.
-
