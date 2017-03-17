@@ -1,0 +1,6 @@
+[flake8]
+
+# E251 complains about unexpected spaces around keyword/parameter equals
+# E303 complains about more than one blank lines between methods in a class
+
+ignore = E251,E303
