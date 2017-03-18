@@ -1,6 +1,6 @@
 Summary: Tools for inspecting and comparing binary Java class files
 Name: python-javatools
-Version: 1.4.0
+Version: 1.4.1
 Release: 0
 License: LGPL
 Group: Application/System
