@@ -23,10 +23,8 @@ license: LGPL v.3
 """
 
 
-import sys
-
 from setuptools import setup
-from extras import cheetah_build_py_cmd
+from cheetah_cmd import cheetah_build_py_cmd
 
 
 setup(name = "javatools",
@@ -43,16 +41,18 @@ setup(name = "javatools",
                                 "data/*.png", ]
       },
 
-      scripts = [
-          "scripts/classdiff",
-          "scripts/classinfo",
-          "scripts/distdiff",
-          "scripts/distinfo",
-          "scripts/jardiff",
-          "scripts/jarinfo",
-          "scripts/jarutil",
-          "scripts/manifest",
-      ],
+      entry_points = {
+          "console_scripts": [
+              'classdiff=javatools.classdiff:main',
+              'classinfo=javatools.classinfo:main',
+              'distdiff=javatools.distdiff:main',
+              'distinfo=javatools.distinfo:main',
+              'jardiff=javatools.jardiff:main',
+              'jarinfo=javatools.jarinfo:main',
+              'jarutil=javatools.jarutil:main',
+              'manifest=javatools.manifest:main',
+          ],
+      },
 
       test_suite = "tests",
 

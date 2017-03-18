@@ -20,6 +20,7 @@ Classes for representing changes as formatted text.
 :license: LGPL
 """
 
+import sys
 
 from abc import ABCMeta, abstractmethod
 from Cheetah.DummyTransaction import DummyTransaction
@@ -27,7 +28,6 @@ from functools import partial
 from json import dump, JSONEncoder
 from optparse import OptionGroup
 from os.path import exists, join, relpath
-from sys import stdout
 from .dirutils import copydir, makedirsp
 
 
@@ -214,7 +214,7 @@ class ReportFormat(object):
             return fn
 
         else:
-            self.run_impl(change, entry, stdout)
+            self.run_impl(change, entry, sys.stdout)
             return None
 
 
@@ -542,7 +542,7 @@ def _compose_cheetah_template_map(cache):
     import javatools
 
     for template_type in get_templates():
-        if not "_" in template_type.__name__:
+        if "_" not in template_type.__name__:
             # we use the _ to denote package and class names. So any
             # template without a _ in the name isn't meant to be
             # matched to a change type.
@@ -551,7 +551,7 @@ def _compose_cheetah_template_map(cache):
         # get the package and change class names based off of the
         # template class name
         tn = template_type.__name__
-        pn,cn = tn.split("_", 1)
+        pn, cn = tn.split("_", 1)
 
         # get the package from javatools
         pk = getattr(javatools, pn, None)
@@ -639,7 +639,7 @@ def quick_report(report_type, change, options):
         with open(options.output, "w") as out:
             report.run(change, None, out)
     else:
-        report.run(change, None, stdout)
+        report.run(change, None, sys.stdout)
 
 
 #

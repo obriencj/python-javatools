@@ -25,9 +25,13 @@ added fields or methods, deprecation changes, etc.
 """
 
 
+import sys
+
 from abc import ABCMeta
 from itertools import izip
-from javatools import unpack_classfile
+from optparse import OptionParser, OptionGroup
+
+from . import unpack_classfile
 from .change import GenericChange, SuperChange
 from .change import Addition, Removal
 from .change import yield_sorted_by_type
@@ -989,8 +993,6 @@ def classdiff_optgroup(parser):
     option group specific to class checking
     """
 
-    from optparse import OptionGroup
-
     g = OptionGroup(parser, "Class Checking Options")
 
     g.add_option("--ignore-version-up", action="store_true", default=False)
@@ -1091,8 +1093,6 @@ def general_optgroup(parser):
     option group for general-use features of all javatool CLIs
     """
 
-    from optparse import OptionGroup
-
     g = OptionGroup(parser, "General Options")
 
     g.add_option("-q", "--quiet", dest="silent",
@@ -1118,11 +1118,10 @@ def general_optgroup(parser):
 
 
 def create_optparser():
-
-    """ an OptionParser instance with the appropriate options and groups
-    for the classdiff utility """
-
-    from optparse import OptionParser
+    """
+    an OptionParser instance with the appropriate options and groups
+    for the classdiff utility
+    """
 
     parser = OptionParser("%prog [OPTIONS] OLD_CLASS NEW_CLASS")
 
@@ -1154,7 +1153,7 @@ def default_classdiff_options(updates=None):
     return options
 
 
-def main(args):
+def main(args=sys.argv):
     """
     Main entry point for the classdiff CLI
     """

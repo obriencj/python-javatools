@@ -32,7 +32,7 @@ from os import makedirs
 from os.path import basename, exists, join, splitext
 
 
-DEFAULT_CONFIG = "cheetah.cfg"
+DEFAULT_CONFIG = "extras/cheetah.cfg"
 
 
 class cheetah_cmd(Command):
