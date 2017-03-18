@@ -116,8 +116,8 @@ def __op(name, val, fmt=None, const=False, consume=0, produce=0):
 
     operand = (name, val, fmt, consume, produce, const)
 
-    assert not __OPTABLE.has_key(name)
-    assert not __OPTABLE.has_key(val)
+    assert(name not in __OPTABLE)
+    assert(val not in __OPTABLE)
 
     __OPTABLE[name] = operand
     __OPTABLE[val] = operand

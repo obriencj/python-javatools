@@ -25,17 +25,22 @@ be checked for deep differences.
 """
 
 
+import sys
+
 from itertools import izip_longest
+from multiprocessing import cpu_count
+from optparse import OptionParser, OptionGroup
 from os.path import join
 
-from javatools import unpack_classfile
+from . import report, unpack_classfile
 from .change import SuperChange, Addition, Removal
 from .change import squash, yield_sorted_by_type
 from .classdiff import JavaClassChange, JavaClassReport
+from .classdiff import classdiff_optgroup, general_optgroup
 from .dirutils import compare, fnmatches
 from .dirutils import LEFT, RIGHT, SAME, DIFF
 from .manifest import Manifest, ManifestChange
-from .jardiff import JarChange, JarReport
+from .jardiff import JarChange, JarReport, jardiff_optgroup
 from .jarinfo import JAR_PATTERNS
 
 
@@ -595,9 +600,6 @@ def distdiff_optgroup(parser):
     Option group relating to the use of a DistChange or DistReport
     """
 
-    from optparse import OptionGroup
-    from multiprocessing import cpu_count
-
     # for the --processes default
     cpus = cpu_count()
 
@@ -631,11 +633,6 @@ def create_optparser():
     appropriate for use with the distdiff command
     """
 
-    from optparse import OptionParser
-    from .jardiff import jardiff_optgroup
-    from .classdiff import classdiff_optgroup, general_optgroup
-    from javatools import report
-
     parser = OptionParser(usage="%prog [OPTIONS] OLD_DIST NEW_DIST")
 
     parser.add_option_group(general_optgroup(parser))
@@ -668,7 +665,7 @@ def default_distdiff_options(updates=None):
     return options
 
 
-def main(args):
+def main(args=sys.argv):
     """
     entry point for the distdiff command-line utility
     """
