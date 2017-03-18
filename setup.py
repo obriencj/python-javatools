@@ -28,7 +28,7 @@ from cheetah_cmd import cheetah_build_py_cmd
 
 
 setup(name = "javatools",
-      version = "1.4.0",
+      version = "1.4.1",
 
       packages = [
           "javatools",
