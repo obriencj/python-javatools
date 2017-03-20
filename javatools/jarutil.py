@@ -187,14 +187,17 @@ def cli_sign_jar(argument_list=None):
     parser.add_option("-d", "--digest",
                       help="Digest algorithm used for signing   ")
     parser.add_option("-c", "--chain", action="append",
-                      help="Additional certificates to embed into the signature (PEM format). More than one can be provided.")
-    (options, mand_args) = parser.parse_args(argument_list)
+                      help="Additional certificates to embed into the"
+                      " signature (PEM format). More than one can be"
+                      " provided.")
+
+    options, mand_args = parser.parse_args(argument_list)
 
     if len(mand_args) != 4:
         print usage_message
         return 1
 
-    (jar_file, cert_file, key_file, key_alias) = mand_args
+    jar_file, cert_file, key_file, key_alias = mand_args
     digest = options.digest if options and options.digest else None
     extra_certs = options.chain if options and options.chain else None
 
