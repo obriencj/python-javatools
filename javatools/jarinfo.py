@@ -22,11 +22,13 @@ printing it out.
 """
 
 
-from json import dump
-from sys import stdout
+import sys
 
-from javatools import unpack_class
-from .classinfo import cli_print_classinfo
+from json import dump
+from optparse import OptionParser, OptionGroup
+
+from . import unpack_class
+from .classinfo import cli_print_classinfo, classinfo_optgroup
 from .dirutils import fnmatches
 from .manifest import Manifest
 from .ziputils import open_zip_entry, zip_file, zip_entry_rollup
@@ -203,7 +205,7 @@ def cli_jar_zip_info(options, jarinfo):
     zipfile = jarinfo.get_zipfile()
 
     files, dirs, comp, uncomp = zip_entry_rollup(zipfile)
-    prcnt = (float(comp)  / float(uncomp)) * 100
+    prcnt = (float(comp) / float(uncomp)) * 100
 
     print "Contains %i files, %i directories" % (files, dirs)
     print "Uncompressed size is %i" % uncomp
@@ -266,7 +268,7 @@ def cli_jarinfo_json(options, info):
     if options.zip:
         zipfile = info.get_zipfile()
         filec, dirc, totalc, totalu = zip_entry_rollup(zipfile)
-        prcnt = (float(totalc)  / float(totalu)) * 100
+        prcnt = (float(totalc) / float(totalu)) * 100
 
         data["zip.type"] = zipfile.__class__.__name__
         data["zip.file_count"] = filec
@@ -275,7 +277,7 @@ def cli_jarinfo_json(options, info):
         data["zip.compressed_size"] = totalc
         data["zip.compress_percent"] = prcnt
 
-    dump(data, stdout, sort_keys=True, indent=2)
+    dump(data, sys.stdout, sort_keys=True, indent=2)
 
 
 def cli(parser, options, rest):
@@ -302,8 +304,6 @@ def cli(parser, options, rest):
 
 
 def jarinfo_optgroup(parser):
-    from optparse import OptionGroup
-
     g = OptionGroup(parser, "JAR Info Options")
 
     g.add_option("--zip", action="store_true", default=False,
@@ -327,9 +327,6 @@ def jarinfo_optgroup(parser):
 
 
 def create_optparser():
-    from optparse import OptionParser
-    from .classinfo import classinfo_optgroup
-
     parser = OptionParser("%prog [OPTIONS] JARFILE")
 
     parser.add_option("--json", dest="json", action="store_true",
@@ -341,7 +338,7 @@ def create_optparser():
     return parser
 
 
-def main(args):
+def main(args=sys.argv):
     parser = create_optparser()
     return cli(parser, *parser.parse_args(args))
 
