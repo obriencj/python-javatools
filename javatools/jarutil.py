@@ -96,7 +96,8 @@ def verify(certificate, jar_file, key_alias):
     return None
 
 
-def sign(jar_file, cert_file, key_file, key_alias, extra_certs=None, digest=None):
+def sign(jar_file, cert_file, key_file, key_alias,
+         extra_certs=None, digest=None):
     """
     Signs the jar (almost) identically to jarsigner.
     """
@@ -122,8 +123,10 @@ def sign(jar_file, cert_file, key_file, key_alias, extra_certs=None, digest=None
     sig_digest_algorithm = sf_digest_algorithm  # No point to make it different
     sig_block_extension = private_key_type(key_file)
 
-    jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension),
-        sf.get_signature(cert_file, key_file, extra_certs, sig_digest_algorithm))
+    sigdata = sf.get_signature(cert_file, key_file,
+                               extra_certs, sig_digest_algorithm))
+
+    jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension), sigdata)
 
     return 0
 

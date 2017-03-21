@@ -32,10 +32,12 @@ from javatools.jarutil import cli_create_jar, cli_sign_jar, \
 class JarutilTest(TestCase):
 
     def cli_verify_wrap(self, jar, cert, alias):
-            self.assertEqual(0, cli_verify_jar_signature([
-                get_data_fn(jar), get_data_fn(cert), alias]),
-                "cli_verify_jar_signature() failed on %s with certificate %s,"
-                " alias %s" % (jar, cert, alias))
+        data = [get_data_fn(jar), get_data_fn(cert), alias]
+        result = cli_verify_jar_signature(data)
+
+        self.assertEqual(0, result,
+                         "cli_verify_jar_signature() failed on %s with"
+                         " certificate %s, alias %s" % (jar, cert, alias))
 
     def test_cli_verify_signature_by_javatools(self):
         self.cli_verify_wrap("jarutil-signed.jar", "javatools-cert.pem",

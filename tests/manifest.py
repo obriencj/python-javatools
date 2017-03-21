@@ -45,7 +45,8 @@ class ManifestTest(TestCase):
         # the invocation of the script
         src_jar = get_data_fn("manifest-sample1.jar")
         with NamedTemporaryFile() as tmp_out:
-            cmd = ["manifest", "-c", src_jar, "-m", tmp_out.name] + args.split()
+            cmd = ["manifest", "-c", src_jar, "-m", tmp_out.name]
+            cmd.append(args.split())
 
             # rather than trying to actually execute the script in a
             # subprocess, we'll give it an output file call it in the
@@ -58,10 +59,11 @@ class ManifestTest(TestCase):
             main(cmd)
             result = tmp_out.read()
 
-            self.assertEqual(result, expected_result,
-                         "Result of \"%r\" does not match expected output."
-                         " Expected:\n%s\nReceived:\n%s"
-                         % (cmd, expected_result, result))
+            self.assertEqual(
+                result, expected_result,
+                "Result of \"%r\" does not match expected output."
+                " Expected:\n%s\nReceived:\n%s"
+                % (cmd, expected_result, result))
 
 
     def manifest_load_store(self, src_file):
@@ -90,6 +92,7 @@ class ManifestTest(TestCase):
 
         return mf
 
+
     def test_create_sha1(self):
         self.manifest_cli_create("-d SHA1", "manifest.SHA1.mf")
 
@@ -115,13 +118,16 @@ class ManifestTest(TestCase):
         mf = self.manifest_load_store("manifest.dos-newlines.mf")
         self.assertEqual(mf.linesep, "\r\n")
 
+
     def test_cli_verify_ok(self):
         jar_file = get_data_fn("cli-verify-ok.jar")
         self.assertEqual(0, main(["-v", jar_file]))
 
+
     def test_cli_verify_nok(self):
         jar_file = get_data_fn("cli-verify-nok.jar")
         self.assertEqual(1, main(["-v", jar_file]))
+
 
     def test_verify_mf_checksums_no_whole_digest(self):
         sf_file = "sf-no-whole-digest.sf"
@@ -131,8 +137,10 @@ class ManifestTest(TestCase):
         mf = Manifest()
         mf.parse_file(get_data_fn(mf_file))
         error_message = sf.verify_manifest_checksums(mf)
-        self.assertIsNone(error_message,
-            "Verification of signature file %s against manifest %s failed: %s"
+        self.assertIsNone(
+            error_message,
+            "Verification of signature file %s against manifest %s"
+            " failed: %s"
             % (sf_file, mf_file, error_message))
 
 
@@ -142,17 +150,25 @@ class ManifestTest(TestCase):
         mf_ok_file = "one-valid-digest-of-several.mf"
         mf = Manifest()
         mf.parse_file(get_data_fn(mf_ok_file))
-        error_message = mf.verify_jar_checksums(get_data_fn(jar_file))
-        self.assertIsNone(error_message,
-            "Digest verification of %s against JAR %s failed: %s" \
+        errors = mf.verify_jar_checksums(get_data_fn(jar_file))
+        self.assertIsEmpty(
+            errors,
+            "Digest verification of %s against JAR %s failed: %s"
             % (mf_ok_file, jar_file, error_message))
 
         sf_ok_file = "one-valid-digest-of-several.sf"
         sf = SignatureManifest()
         sf.parse_file(get_data_fn(sf_ok_file))
-        error_message = sf.verify_manifest_checksums(mf)
-        self.assertIsNone(error_message,
-            "Signature file digest verification of %s against manifest %s failed: %s" \
+
+        self.assertTrue(sf.verify_manifest_main_checksum(mf))
+
+        errors = sf.verify_manifest_entry_checksums(mf)
+        self.assertIsEmpty(
+            errors,
+            "Signature file digest verification of %s against manifest %s"
+            " failed: %s"
             % (sf_ok_file, mf_ok_file, error_message))
+
+
 #
 # The end.

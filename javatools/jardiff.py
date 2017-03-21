@@ -26,7 +26,7 @@ JAR files.
 
 from os.path import isdir
 
-from javatools import unpack_class
+from . import unpack_class
 from .change import GenericChange, SuperChange
 from .change import Addition, Removal
 from .change import squash, yield_sorted_by_type
@@ -34,7 +34,7 @@ from .classdiff import JavaClassChange, JavaClassReport
 from .dirutils import fnmatches
 from .manifest import Manifest, ManifestChange, \
     SignatureManifestChange, SignatureBlockFileChange, \
-    file_is_signature_related
+    file_matches_sigfile, file_matches_sigblock
 from .ziputils import compare_zips, open_zip, open_zip_entry
 from .ziputils import LEFT, RIGHT, DIFF, SAME
 
@@ -44,8 +44,10 @@ __all__ = (
     "JarTypeChange", "JarContentsChange",
     "JarManifestChange",
     "JarContentChange", "JarContentAdded", "JarContentRemoved",
-    "JarSignatureFileChange", "JarSignatureFileAdded", "JarSignatureFileRemoved",
-    "JarSignatureBlockFileChange", "JarSignatureBlockFileAdded", "JarSignatureBlockFileRemoved",
+    "JarSignatureFileChange", "JarSignatureFileAdded",
+    "JarSignatureFileRemoved",
+    "JarSignatureBlockFileChange", "JarSignatureBlockFileAdded",
+    "JarSignatureBlockFileRemoved",
     "JarClassChange", "JarClassAdded", "JarClassRemoved",
     "JarReport", "JarContentsReport", "JarClassReport",
     "cli", "main",
@@ -108,12 +110,12 @@ class JarContentChange(SuperChange):
 
 
     def get_description(self):
-        c = ("has changed", "is unchanged")[not self.is_change()]
+        c = "has changed" if self.is_change() else "is unchanged"
         return "%s %s: %s" % (self.label, c, self.entry)
 
 
     def is_ignored(self, options):
-        return  fnmatches(self.entry, *options.ignore_jar_entry) or \
+        return fnmatches(self.entry, *options.ignore_jar_entry) or \
             super(JarContentChange, self).is_ignored(options)
 
 
@@ -312,12 +314,10 @@ class JarContentsChange(SuperChange):
                 if entry == "META-INF/MANIFEST.MF":
                     yield JarManifestChange(left, right, entry, False)
 
-                elif file_is_signature_related(entry) \
-                        and fnmatches(entry, "*.SF"):
+                elif file_matches_sigfile(entry):
                     yield JarSignatureFileChange(left, right, entry, False)
 
-                elif file_is_signature_related(entry) \
-                        and fnmatches(entry, "*.RSA", "*.DSA", "*.EC", "SIG-*"):
+                elif file_matches_sigblock(entry):
                     yield JarSignatureBlockFileChange(left, right, entry, False)
 
                 elif fnmatches(entry, "*.class"):
@@ -330,12 +330,10 @@ class JarContentsChange(SuperChange):
                 if entry == "META-INF/MANIFEST.MF":
                     yield JarManifestChange(left, right, entry)
 
-                elif file_is_signature_related(entry) \
-                        and fnmatches(entry, "*.SF"):
+                elif file_matches_sigfile(entry):
                     yield JarSignatureFileChange(left, right, entry)
 
-                elif file_is_signature_related(entry) \
-                        and fnmatches(entry, "*.RSA", "*.DSA", "*.EC", "SIG-*"):
+                elif file_matches_sigblock(entry):
                     yield JarSignatureBlockFileChange(left, right, entry)
 
                 elif fnmatches(entry, "*.class"):
@@ -345,12 +343,10 @@ class JarContentsChange(SuperChange):
                     yield JarContentChange(left, right, entry)
 
             elif event == LEFT:
-                if file_is_signature_related(entry) \
-                        and fnmatches(entry, "*.SF"):
+                if file_matches_sigfile(entry):
                     yield JarSignatureFileRemoved(left, right, entry)
 
-                elif file_is_signature_related(entry) \
-                        and fnmatches(entry, "*.RSA", "*.DSA", "*.EC", "SIG-*"):
+                elif file_matches_sigblock(entry):
                     yield JarSignatureBlockFileRemoved(left, right, entry)
 
                 elif fnmatches(entry, "*.class"):
@@ -360,12 +356,10 @@ class JarContentsChange(SuperChange):
                     yield JarContentRemoved(left, right, entry)
 
             elif event == RIGHT:
-                if file_is_signature_related(entry) \
-                        and fnmatches(entry, "*.SF"):
+                if file_matches_sigfile(entry):
                     yield JarSignatureFileAdded(left, right, entry)
 
-                elif file_is_signature_related(entry) \
-                        and fnmatches(entry, "*.RSA","*.DSA", "*.EC", "SIG-*"):
+                elif file_matches_sigblock(entry):
                     yield JarSignatureBlockFileAdded(left, right, entry)
 
                 elif fnmatches(entry, "*.class"):
