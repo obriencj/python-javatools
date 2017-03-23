@@ -37,7 +37,7 @@ def verify(certificate, jar_file, key_alias):
 
     Limitations:
     - diagnostic is less verbose than of jarsigner
-    :return: tuple (exit_status, result_message)
+    :return: error message, or None if verification succeeds.
 
     Reference:
     http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Signature_Validation
@@ -83,15 +83,21 @@ def verify(certificate, jar_file, key_alias):
     jar_manifest = Manifest()
     jar_manifest.parse(zip_file.read("META-INF/MANIFEST.MF"))
 
-    error = signature_manifest.verify_manifest_checksums(jar_manifest)
-    if error is not None:
-        return error
+    if not signature_manifest.verify_manifest_main_checksum(jar_manifest):
+        # TODO: Test this path!
+        # The above is allowed to fail. If so, second attempt below:
+        errors = signature_manifest.verify_manifest_entry_checksums(jar_manifest)
+        if len(errors) > 0:
+            return ("%s: in the signature manifest, main checksum for the"
+                    " manifest fails, and section checksum(s) failed for: %s"
+                    % (jar_file, ",".join(errors)))
 
     # Checksums of MANIFEST.MF itself are correct.
     # Step 3: Check that it contains valid checksums for each file from the JAR.
-    error = jar_manifest.verify_jar_checksums(jar_file)
-    if error is not None:
-        return error
+    errors = jar_manifest.verify_jar_checksums(jar_file)
+    if len(errors) > 0:
+        return ("Checksum(s) for jar entries of jar file %s failed for: %s"
+                % (jar_file, ",".join(errors)))
 
     return None
 
@@ -124,7 +130,7 @@ def sign(jar_file, cert_file, key_file, key_alias,
     sig_block_extension = private_key_type(key_file)
 
     sigdata = sf.get_signature(cert_file, key_file,
-                               extra_certs, sig_digest_algorithm))
+                               extra_certs, sig_digest_algorithm)
 
     jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension), sigdata)
 
