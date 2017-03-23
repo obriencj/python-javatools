@@ -815,10 +815,21 @@ def file_skips_verification(filename):
     # http://docs.oracle.com/javase/8/docs/technotes/guides/jar/jar.html#SignedJar-Overview
 
     filename = filename.upper()
-    return (filename == "META-INF/MANIFEST.MF"
-            or (fnmatches(filename, "META-INF/*")
-                and (not fnmatches(filename, "*/", "*/*/*"))
-                and fnmatches(filename, SIG_FILE_PATTERN, *SIG_BLOCK_PATTERNS)))
+    if filename == "META-INF/MANIFEST.MF":
+        return True
+    if fnmatches(filename, "*/"):       # Skip directories
+        return True
+    if not fnmatches(filename, "META-INF/*"):
+        return False
+
+    # We are down to files inside META-INF. Strip this prefix.
+    filename = filename[len("META-INF/"):]
+    if fnmatches(filename, "*/*"):
+        return False        # Files in subdirs are NOT sig-related
+    if fnmatches(filename, SIG_FILE_PATTERN, *SIG_BLOCK_PATTERNS):
+        return True
+
+    return False
 
 
 def file_matches_sigfile(filename):
