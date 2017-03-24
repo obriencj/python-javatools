@@ -26,7 +26,7 @@ JAR files.
 
 from os.path import isdir
 
-from javatools import unpack_class
+from . import unpack_class
 from .change import GenericChange, SuperChange
 from .change import Addition, Removal
 from .change import squash, yield_sorted_by_type
@@ -44,8 +44,10 @@ __all__ = (
     "JarTypeChange", "JarContentsChange",
     "JarManifestChange",
     "JarContentChange", "JarContentAdded", "JarContentRemoved",
-    "JarSignatureFileChange", "JarSignatureFileAdded", "JarSignatureFileRemoved",
-    "JarSignatureBlockFileChange", "JarSignatureBlockFileAdded", "JarSignatureBlockFileRemoved",
+    "JarSignatureFileChange", "JarSignatureFileAdded",
+    "JarSignatureFileRemoved",
+    "JarSignatureBlockFileChange", "JarSignatureBlockFileAdded",
+    "JarSignatureBlockFileRemoved",
     "JarClassChange", "JarClassAdded", "JarClassRemoved",
     "JarReport", "JarContentsReport", "JarClassReport",
     "cli", "main",
@@ -108,12 +110,12 @@ class JarContentChange(SuperChange):
 
 
     def get_description(self):
-        c = ("has changed", "is unchanged")[not self.is_change()]
+        c = "has changed" if self.is_change() else "is unchanged"
         return "%s %s: %s" % (self.label, c, self.entry)
 
 
     def is_ignored(self, options):
-        return  fnmatches(self.entry, *options.ignore_jar_entry) or \
+        return fnmatches(self.entry, *options.ignore_jar_entry) or \
             super(JarContentChange, self).is_ignored(options)
 
 
@@ -298,9 +300,9 @@ class JarContentsChange(SuperChange):
         left = self.lzip
         right = self.rzip
 
-        # this is our guarantee from invokation order
-        assert left != None
-        assert right != None
+        # this is our guarantee from invocation order
+        assert left is not None
+        assert right is not None
 
         for event, entry in compare_zips(left, right):
             if event == SAME:

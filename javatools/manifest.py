@@ -56,6 +56,18 @@ __all__ = (
 _BUFFERING = 2 ** 14
 
 
+SIG_FILE_PATTERN = "*.SF"
+SIG_BLOCK_PATTERNS = ("*.RSA", "*.DSA", "*.EC", "SIG-*", )
+
+
+JAVA_TO_OPENSSL_DIGESTS = {
+    "MD5": "MD5",
+    "SHA1": "SHA1",
+    "SHA-256": "SHA256",
+    "SHA-384": "SHA384",
+    "SHA-512": "SHA512"
+}
+
 
 class UnsupportedDigest(Exception):
     """
@@ -248,7 +260,7 @@ class ManifestSection(OrderedDict):
         Populate this section from an iteration of the parse_items call
         """
 
-        for k,vals in items:
+        for k, vals in items:
             self[k] = "".join(vals)
 
 
@@ -339,7 +351,7 @@ class Manifest(ManifestSection):
         self.linesep = detect_linesep(data)
 
         # the first section is the main one for the manifest. It's
-        # also where we will check for our newline seperator
+        # also where we will check for our newline separator
         sections = parse_sections(data)
         self.load(sections.next())
 
@@ -407,8 +419,7 @@ class Manifest(ManifestSection):
                 read_digest = file_section.get(java_digest + "-Digest")
                 calculated_digest = b64_encoded_digest(
                     zip_file.read(filename),
-                    NAMED_DIGESTS[java_digest]
-                )
+                    NAMED_DIGESTS[java_digest])
 
                 if calculated_digest == read_digest:
                     at_least_one_digest_matches = True
@@ -508,8 +519,7 @@ class SignatureManifest(Manifest):
         for java_digest in self.keys_with_suffix("-Digest-Manifest"):
             whole_mf_digest = b64_encoded_digest(
                 manifest.get_data(),
-                NAMED_DIGESTS[java_digest]
-            )
+                NAMED_DIGESTS[java_digest])
 
             # It is enough for at least one digest to be correct
             if whole_mf_digest == self.get(java_digest + "-Digest-Manifest"):
@@ -521,12 +531,11 @@ class SignatureManifest(Manifest):
         # plus checksum for every subsection matches.
 
         at_least_one_main_attr_digest_matches = False
-        for java_digest in self.keys_with_suffix(
-                "-Digest-Manifest-Main-Attributes"):
+        keys = self.keys_with_suffix("-Digest-Manifest-Main-Attributes")
+        for java_digest in keys:
             mf_main_attr_digest = b64_encoded_digest(
                 manifest.get_main_section(),
-                NAMED_DIGESTS[java_digest]
-            )
+                NAMED_DIGESTS[java_digest])
 
             if mf_main_attr_digest == self.get(
                     java_digest + "-Digest-Manifest-Main-Attributes"):
@@ -543,8 +552,8 @@ class SignatureManifest(Manifest):
             for java_digest in s.keys_with_suffix("-Digest"):
                 section_digest = b64_encoded_digest(
                     s.get_data(manifest.linesep),
-                    NAMED_DIGESTS[java_digest]
-                )
+                    NAMED_DIGESTS[java_digest])
+
                 if section_digest == sf_section.get(java_digest + "-Digest"):
                     at_least_one_section_digest_matches = True
                     break
@@ -560,14 +569,6 @@ class SignatureManifest(Manifest):
                       digest_algorithm="SHA-256"):
 
         from .crypto import create_signature_block
-
-        JAVA_TO_OPENSSL_DIGESTS = {
-            "MD5": "MD5",
-            "SHA1": "SHA1",
-            "SHA-256": "SHA256",
-            "SHA-384": "SHA384",
-            "SHA-512": "SHA512"
-        }
 
         try:
             openssl_digest = JAVA_TO_OPENSSL_DIGESTS[digest_algorithm]
@@ -893,14 +894,19 @@ def cli_verify(options, rest):
         print "Usage: manifest --verify [--ignore=PATH] JAR_FILE"
         return 2
 
-    jar = ZipFile(rest[0])
-    mf = Manifest()
-    mf.parse(jar.read("META-INF/MANIFEST.MF"))
-    error = mf.verify_jar_checksums(rest[0])
-    if error is None:
+    jarfn = rest[0]
+
+    with ZipFile(jarfn) as jar:
+        mf = Manifest()
+        mf.parse(jar.read("META-INF/MANIFEST.MF"))
+
+    error = mf.verify_jar_checksums(jarfn)
+    if error:
+        print error
+        return 1
+
+    else:
         return 0
-    print error
-    return 1
 
 
 def cli_query(options, rest):
@@ -914,7 +920,7 @@ def cli_query(options, rest):
 
     for q in options.query:
         s = q.split(':', 1)
-        if(len(s) > 1):
+        if len(s) > 1:
             mfs = mf.sub_sections.get(s[0])
             if mfs:
                 print q, "=", mfs.get(s[1])

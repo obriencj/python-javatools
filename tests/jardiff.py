@@ -25,8 +25,9 @@ from . import get_data_fn
 from javatools.jardiff import cli_jars_diff
 
 
-class OptionsHolder:
+class OptionsHolder(object):
     pass
+
 
 class JardiffTest(TestCase):
 
