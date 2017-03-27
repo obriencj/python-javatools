@@ -410,7 +410,7 @@ class Manifest(ManifestSection):
         error_message = ""
         zip_file = ZipFile(jar_file)
         for filename in zip_file.namelist():
-            if file_is_signature_related(filename):
+            if file_skips_verification(filename):
                 continue
 
             file_section = self.create_section(filename, overwrite=False)
@@ -785,28 +785,29 @@ def multi_path_generator(pathnames):
             yield pathname, file_chunk(pathname)
 
 
-def file_is_signature_related(filename):
+def _in_sig_related_dir(filename):
+    path_components = filename.split("/")
+    return len(path_components) == 2 and path_components[0] == "META-INF"
+
+
+def file_matches_sigfile(filename):
+    return _in_sig_related_dir(filename) \
+        and fnmatches(filename.upper(), SIG_FILE_PATTERN)
+
+
+def file_matches_sigblock(filename):
+    return _in_sig_related_dir(filename) \
+        and fnmatches(filename[len("META-INF/"):].upper(), *SIG_BLOCK_PATTERNS)
+
+
+def file_skips_verification(filename):
     # http://docs.oracle.com/javase/8/docs/technotes/guides/jar/jar.html#SignedJar-Overview
-    # Specifies files, which are considered "signature-related":
 
-    if not filename.startswith("META-INF/"):
-        return False
-
-    basename = filename[9:]
-    # Files in subdirectories are not signature-related:
-    if "/" in basename:
-        return False
-
-    # Case-insensitive variants are "reserved" and also not checked:
-    basename = basename.upper()
-
-    return basename == "" \
-        or basename == "MANIFEST.MF" \
-        or basename.startswith("SIG-") \
-        or basename.endswith(".SF") \
-        or basename.endswith(".RSA") \
-        or basename.endswith(".DSA") \
-        or basename.endswith(".EC")
+    filename = filename.upper()
+    return filename == "META-INF/MANIFEST.MF" \
+        or filename.endswith("/") \
+        or file_matches_sigblock(filename) \
+        or file_matches_sigfile(filename)
 
 
 def single_path_generator(pathname):
