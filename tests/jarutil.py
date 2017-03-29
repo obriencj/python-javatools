@@ -26,7 +26,8 @@ from tempfile import NamedTemporaryFile
 from . import get_data_fn
 
 from javatools.jarutil import cli_create_jar, cli_sign_jar, \
-    cli_verify_jar_signature, verify
+    cli_verify_jar_signature, verify, VerificationError, \
+    JarSignatureMissingError, SignatureBlockFileVerificationError
 
 
 class JarutilTest(TestCase):
@@ -38,6 +39,12 @@ class JarutilTest(TestCase):
         self.assertEqual(0, result,
                          "cli_verify_jar_signature() failed on %s with"
                          " certificate %s, alias %s" % (jar, cert, alias))
+
+    def verify_wrap(self, cert, jar, key, error_prefix):
+        try:
+            verify(cert, jar, key)
+        except VerificationError, error_message:
+            self.fail("%s: %s" % (error_prefix, error_message))
 
     def test_cli_verify_signature_by_javatools(self):
         self.cli_verify_wrap("jarutil-signed.jar", "javatools-cert.pem",
@@ -61,16 +68,15 @@ class JarutilTest(TestCase):
     def test_missing_signature_block(self):
         jar_data = get_data_fn("ec-must-fail.jar")
         cert = get_data_fn("ec-cert.pem")
-        error_message = verify(cert, jar_data, "TEST")
-        self.assertIsNotNone(error_message,
-            "Error: verification of non-existing key alias has succeeded")
+        with self.assertRaises(JarSignatureMissingError):
+            verify(cert, jar_data, "TEST")
 
     def test_tampered_signature_block(self):
         jar_data = get_data_fn("ec-tampered.jar")
         cert = get_data_fn("ec-cert.pem")
-        error_message = verify(cert, jar_data, "TEST")
-        self.assertIsNotNone(error_message,
-            "Error: verification of a tampered signature has succeeded")
+        with self.assertRaises(SignatureBlockFileVerificationError):
+            verify(cert, jar_data, "TEST")
+
 
     def test_cli_sign_and_verify(self):
         src = get_data_fn("cli-sign-and-verify.jar")
@@ -80,10 +86,9 @@ class JarutilTest(TestCase):
         with NamedTemporaryFile() as tmp_jar:
             copyfile(src, tmp_jar.name)
             cli_sign_jar([tmp_jar.name, cert, key, key_alias])
-            error_message = verify(cert, tmp_jar.name, key_alias)
-            self.assertIsNone(error_message,
-                              "Verification of JAR which we just signed failed: %s"
-                              % error_message)
+            self.verify_wrap(cert, tmp_jar.name, key_alias,
+                        "Verification of JAR which we just signed failed")
+
 
     def test_cli_sign_and_verify_ecdsa_pkcs8_sha512(self):
         src = get_data_fn("cli-sign-and-verify.jar")
@@ -93,10 +98,9 @@ class JarutilTest(TestCase):
         with NamedTemporaryFile() as tmp_jar:
             copyfile(src, tmp_jar.name)
             cli_sign_jar([tmp_jar.name, cert, key, key_alias])
-            error_message = verify(cert, tmp_jar.name, key_alias)
-            self.assertIsNone(error_message,
-                              "Verification of JAR which we just signed failed: %s"
-                              % error_message)
+            self.verify_wrap(cert, tmp_jar.name, key_alias,
+                             "Verification of JAR which we just signed failed")
+
 
     def test_sign_with_certchain_and_verify(self):
         src = get_data_fn("certchain-data.jar")
@@ -111,10 +115,9 @@ class JarutilTest(TestCase):
                 ["-c", root_cert, "-c", intermediate_cert,
                  tmp_jar.name, signing_cert, key, key_alias]),
                 "Signing with embedding a chain of certificates failed")
-            error_message = verify(root_cert, tmp_jar.name, key_alias)
-            self.assertIsNone(error_message,
-                "Verification of JAR which we signed embedding chain of certificates failed: %s"
-                % error_message)
+            self.verify_wrap(root_cert, tmp_jar.name, key_alias,
+                             "Verification of JAR which we signed embedding chain of certificates failed")
+
 
 #
 # The end.
