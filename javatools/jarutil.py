@@ -89,9 +89,10 @@ def verify(certificate, jar_file, key_alias):
 
     # Checksums of MANIFEST.MF itself are correct.
     # Step 3: Check that it contains valid checksums for each file from the JAR.
-    error = jar_manifest.verify_jar_checksums(jar_file)
-    if error is not None:
-        return error
+    errors = jar_manifest.verify_jar_checksums(jar_file)
+    if len(errors) > 0:
+        return "Checksum(s) for jar entries of jar file %s failed for: %s" \
+                % (jar_file, ",".join(errors))
 
     return None
 

@@ -401,34 +401,41 @@ class Manifest(ManifestSection):
         return stream.getvalue()
 
 
-    def verify_jar_checksums(self, jar_file):
+    def verify_jar_checksums(self, jar_file, strict=True):
         """
         Verify checksums, present in the manifest, against the JAR content.
-        :return: error_message, or None if verification succeeds
+        :return: list of entries for which verification has failed
         """
 
-        error_message = ""
+        verify_failures = []
+
         zip_file = ZipFile(jar_file)
         for filename in zip_file.namelist():
             if file_skips_verification(filename):
                 continue
 
             file_section = self.create_section(filename, overwrite=False)
-            at_least_one_digest_matches = False
-            for java_digest in file_section.keys_with_suffix("-Digest"):
+
+            digests = file_section.keys_with_suffix("-Digest")
+            if not digests and strict:
+                verify_failures.append(filename)
+                continue
+
+            for java_digest in digests:
                 read_digest = file_section.get(java_digest + "-Digest")
                 calculated_digest = b64_encoded_digest(
                     zip_file.read(filename),
                     NAMED_DIGESTS[java_digest])
 
                 if calculated_digest == read_digest:
-                    at_least_one_digest_matches = True
+                    # found a match
                     break
+            else:
+                # for all the digests, not one of them matched. Add
+                # this filename to the error list
+                verify_failures.append(filename)
 
-            if not at_least_one_digest_matches:
-                error_message += "No valid checksum of jar member %s\n" % filename
-
-        return None if error_message == "" else error_message
+        return verify_failures
 
 
     def clear(self):
@@ -901,9 +908,10 @@ def cli_verify(options, rest):
         mf = Manifest()
         mf.parse(jar.read("META-INF/MANIFEST.MF"))
 
-    error = mf.verify_jar_checksums(jarfn)
-    if error:
-        print error
+    errors = mf.verify_jar_checksums(jarfn)
+    if len(errors) > 0:
+        print "Verify failed, no matching checksums for files: %s" \
+              % ", ".join(errors)
         return 1
 
     else:

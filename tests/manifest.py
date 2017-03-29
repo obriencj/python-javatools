@@ -148,10 +148,11 @@ class ManifestTest(TestCase):
         mf_ok_file = "one-valid-digest-of-several.mf"
         mf = Manifest()
         mf.parse_file(get_data_fn(mf_ok_file))
-        error_message = mf.verify_jar_checksums(get_data_fn(jar_file))
-        self.assertIsNone(error_message,
+        errors = mf.verify_jar_checksums(get_data_fn(jar_file))
+        self.assertEqual(
+            0, len(errors),
             "Digest verification of %s against JAR %s failed: %s" \
-            % (mf_ok_file, jar_file, error_message))
+            % (mf_ok_file, jar_file, ", ".join(errors)))
 
         sf_ok_file = "one-valid-digest-of-several.sf"
         sf = SignatureManifest()
