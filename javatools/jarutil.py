@@ -51,6 +51,10 @@ class JarSignatureMissingError(VerificationError):
     pass
 
 
+class MissingManifestError(Exception):
+    pass
+
+
 def verify(certificate, jar_file, key_alias):
     """
     Verifies signature of a JAR file.
@@ -134,14 +138,15 @@ def sign(jar_file, cert_file, key_file, key_alias,
          extra_certs=None, digest=None):
     """
     Signs the jar (almost) identically to jarsigner.
+    :exception ManifestNotFoundError, CannotFindKeyTypeError
+    :return None
     """
 
     from .crypto import private_key_type
 
     jar = ZipFile(jar_file, "a")
     if "META-INF/MANIFEST.MF" not in jar.namelist():
-        print "META-INF/MANIFEST.MF not found in %s" % jar_file
-        return 1
+        raise MissingManifestError, "META-INF/MANIFEST.MF not found in %s" % jar_file
 
     mf = Manifest()
     mf.parse(jar.read("META-INF/MANIFEST.MF"))
@@ -161,8 +166,6 @@ def sign(jar_file, cert_file, key_file, key_alias,
                                extra_certs, sig_digest_algorithm)
 
     jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension), sigdata)
-
-    return 0
 
 
 def cli_create_jar(argument_list):
@@ -196,11 +199,14 @@ def cli_sign_jar(argument_list=None):
     extra_certs = options.chain if options and options.chain else None
 
     try:
-        return sign(jar_file, cert_file, key_file, key_alias, extra_certs, digest)
+        sign(jar_file, cert_file, key_file, key_alias, extra_certs, digest)
     except CannotFindKeyTypeError:
         print "Cannot determine private key type (is it in PEM format?)"
         return 1
+    except MissingManifestError:
+        print "Manifest missing in jar file %s" % jar_file
 
+    return 0
 
 def cli_verify_jar_signature(argument_list):
     """
