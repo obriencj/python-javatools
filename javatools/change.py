@@ -397,7 +397,7 @@ class SuperChange(GenericChange):
     An instance of SuperChange is considered unchanged if all of its
     sub-changes are also unchanged (or if there were no sub-changes).
 
-    An instance of Superchange is considered ignored if it was a
+    An instance of SuperChange is considered ignored if it was a
     change and all of its changed children were also ignored.
     """
 
@@ -431,7 +431,7 @@ class SuperChange(GenericChange):
 
     def collect_impl(self):
         """
-        instanciates each of the entries in in the overriden change_types
+        instantiates each of the entries in in the overriden change_types
         field with the left and right data
         """
 

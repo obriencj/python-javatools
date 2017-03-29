@@ -31,13 +31,39 @@ __all__ = ( "cli_create_jar", "cli_sign_jar",
             "cli_verify_jar_signature", "main" )
 
 
+class VerificationError(Exception):
+    pass
+
+
+class SignatureBlockFileVerificationError(VerificationError):
+    pass
+
+
+class ManifestChecksumError(VerificationError):
+    pass
+
+
+class JarChecksumError(VerificationError):
+    pass
+
+
+class JarSignatureMissingError(VerificationError):
+    pass
+
+
+class MissingManifestError(Exception):
+    pass
+
+
 def verify(certificate, jar_file, key_alias):
     """
     Verifies signature of a JAR file.
 
     Limitations:
     - diagnostic is less verbose than of jarsigner
-    :return: tuple (exit_status, result_message)
+    :return None if verification succeeds.
+    :exception SignatureBlockFileVerificationError, ManifestChecksumError,
+        JarChecksumError, JarSignatureMissingError
 
     Reference:
     http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Signature_Validation
@@ -45,7 +71,7 @@ def verify(certificate, jar_file, key_alias):
     failure of the whole validation.
     """
 
-    from .crypto import verify_signature_block
+    from .crypto import verify_signature_block, SignatureBlockVerificationError
     from tempfile import mkstemp
 
     zip_file = ZipFile(jar_file)
@@ -66,14 +92,18 @@ def verify(certificate, jar_file, key_alias):
                 sig_block_filename = candidate_filename
                 break
         if sig_block_filename is None:
-            return "None of %s found in JAR" % \
+            raise JarSignatureMissingError, "None of %s found in JAR" % \
                    ", ".join(key_alias + "." + x for x in signature_extensions)
 
         sig_block_data = zip_file.read(sig_block_filename)
-        error = verify_signature_block(certificate, sf_file, sig_block_data)
-        os.unlink(sf_file)
-        if error is not None:
-            return error
+        try:
+            verify_signature_block(certificate, sf_file, sig_block_data)
+        except SignatureBlockVerificationError, message:
+            raise SignatureBlockFileVerificationError,\
+                "Signature block verification failed: %s" % message
+        finally:
+            os.unlink(sf_file)
+
 
     # KEYALIAS.SF is correctly signed.
     # Step 2: Check that it contains correct checksum of the manifest.
@@ -83,30 +113,40 @@ def verify(certificate, jar_file, key_alias):
     jar_manifest = Manifest()
     jar_manifest.parse(zip_file.read("META-INF/MANIFEST.MF"))
 
-    error = signature_manifest.verify_manifest_checksums(jar_manifest)
-    if error is not None:
-        return error
+    if not signature_manifest.verify_manifest_main_checksum(jar_manifest):
+        # TODO: Test this path!
+        # The above is allowed to fail. If so, second attempt below:
+        errors = signature_manifest.verify_manifest_entry_checksums(jar_manifest)
+        if len(errors) > 0:
+            raise ManifestChecksumError,\
+                "%s: in the signature manifest, main checksum for the"\
+                " manifest fails, and section checksum(s) failed for: %s"\
+                % (jar_file, ",".join(errors))
 
     # Checksums of MANIFEST.MF itself are correct.
     # Step 3: Check that it contains valid checksums for each file from the JAR.
-    error = jar_manifest.verify_jar_checksums(jar_file)
-    if error is not None:
-        return error
+    errors = jar_manifest.verify_jar_checksums(jar_file)
+    if len(errors) > 0:
+        raise JarChecksumError,\
+            "Checksum(s) for jar entries of jar file %s failed for: %s" \
+            % (jar_file, ",".join(errors))
 
     return None
 
 
-def sign(jar_file, cert_file, key_file, key_alias, extra_certs=None, digest=None):
+def sign(jar_file, cert_file, key_file, key_alias,
+         extra_certs=None, digest=None):
     """
     Signs the jar (almost) identically to jarsigner.
+    :exception ManifestNotFoundError, CannotFindKeyTypeError
+    :return None
     """
 
     from .crypto import private_key_type
 
     jar = ZipFile(jar_file, "a")
     if "META-INF/MANIFEST.MF" not in jar.namelist():
-        print "META-INF/MANIFEST.MF not found in %s" % jar_file
-        return 1
+        raise MissingManifestError, "META-INF/MANIFEST.MF not found in %s" % jar_file
 
     mf = Manifest()
     mf.parse(jar.read("META-INF/MANIFEST.MF"))
@@ -122,10 +162,10 @@ def sign(jar_file, cert_file, key_file, key_alias, extra_certs=None, digest=None
     sig_digest_algorithm = sf_digest_algorithm  # No point to make it different
     sig_block_extension = private_key_type(key_file)
 
-    jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension),
-        sf.get_signature(cert_file, key_file, extra_certs, sig_digest_algorithm))
+    sigdata = sf.get_signature(cert_file, key_file,
+                               extra_certs, sig_digest_algorithm)
 
-    return 0
+    jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension), sigdata)
 
 
 def cli_create_jar(argument_list):
@@ -159,11 +199,14 @@ def cli_sign_jar(argument_list=None):
     extra_certs = options.chain if options and options.chain else None
 
     try:
-        return sign(jar_file, cert_file, key_file, key_alias, extra_certs, digest)
+        sign(jar_file, cert_file, key_file, key_alias, extra_certs, digest)
     except CannotFindKeyTypeError:
         print "Cannot determine private key type (is it in PEM format?)"
         return 1
+    except MissingManifestError:
+        print "Manifest missing in jar file %s" % jar_file
 
+    return 0
 
 def cli_verify_jar_signature(argument_list):
     """
@@ -177,9 +220,10 @@ def cli_verify_jar_signature(argument_list):
         return 1
 
     (jar_file, certificate, key_alias) = argument_list
-    result_message = verify(certificate, jar_file, key_alias)
-    if result_message is not None:
-        print result_message
+    try:
+        verify(certificate, jar_file, key_alias)
+    except VerificationError, error_message:
+        print error_message
         return 1
     print "Jar verified."
     return 0

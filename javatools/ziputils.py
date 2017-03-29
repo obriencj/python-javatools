@@ -66,7 +66,7 @@ def compare_zips(left, right):
         if f in rl:
             rl.remove(f)
 
-            if (f[-1] == '/'):
+            if f[-1] == '/':
                 # it's a directory entry
                 pass
 
