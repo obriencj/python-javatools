@@ -45,7 +45,7 @@ def verify(certificate, jar_file, key_alias):
     failure of the whole validation.
     """
 
-    from .crypto import verify_signature_block
+    from .crypto import verify_signature_block, SignatureBlockVerificationError
     from tempfile import mkstemp
 
     zip_file = ZipFile(jar_file)
@@ -70,10 +70,13 @@ def verify(certificate, jar_file, key_alias):
                    ", ".join(key_alias + "." + x for x in signature_extensions)
 
         sig_block_data = zip_file.read(sig_block_filename)
-        error = verify_signature_block(certificate, sf_file, sig_block_data)
-        os.unlink(sf_file)
-        if error is not None:
-            return error
+        try:
+            verify_signature_block(certificate, sf_file, sig_block_data)
+        except SignatureBlockVerificationError, message:
+            return "Signature block verification failed: %s" % message
+        finally:
+            os.unlink(sf_file)
+
 
     # KEYALIAS.SF is correctly signed.
     # Step 2: Check that it contains correct checksum of the manifest.

@@ -32,6 +32,14 @@ class CannotFindKeyTypeError(Exception):
     pass
 
 
+class SignatureBlockVerificationError(Exception):
+    """
+    The Signature Block File verification failed.
+    """
+
+    pass
+
+
 def private_key_type(key_file):
     """
     Determines type of the private key: RSA, DSA, EC.
@@ -71,7 +79,8 @@ def create_signature_block(openssl_digest, certificate, private_key,
 
     :param openssl_digest: alrogithm known to OpenSSL used to digest the data
     :type openssl_digest: str
-    TODO: it is not used. M2Crypto cannot pass the signing digest.
+    NOTE: not used. M2Crypto cannot pass the signing digest. This is in plans
+          for a future release: https://gitlab.com/m2crypto/m2crypto/issues/151
     :param certificate: filename of the certificate file (PEM format)
     :type certificate: str
     :param private_key:filename of private key used to sign (PEM format)
@@ -114,8 +123,8 @@ def verify_signature_block(certificate_file, content_file, signature):
     :type content_file: str
     :param signature: data (DER format) subject to check
     :type signature: str
-    :return: Error message, or None if the signature validates.
-    :rtype: str
+    :return None if the signature validates.
+    :exception SignatureBlockVerificationError
     """
 
     sig_bio = BIO.MemoryBuffer(signature)
@@ -131,7 +140,7 @@ def verify_signature_block(certificate_file, content_file, signature):
     try:
         smime.verify(pkcs7, data_bio)
     except SMIME.PKCS7_Error, message:
-        return "Signature verification error: %s" % message
+        raise SignatureBlockVerificationError, message
     else:
         return None
 
