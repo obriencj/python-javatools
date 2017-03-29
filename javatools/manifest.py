@@ -510,12 +510,11 @@ class SignatureManifest(Manifest):
         self[all_key] = b64encode(h_all.digest())
 
 
-    def verify_manifest_checksums(self, manifest):
+    def verify_manifest_main_checksum(self, manifest):
         """
-        Verifies the checksums over the given manifest.
-        :return: error message, or None if verification succeeds
-        Reference:
-        http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Signature_Validation
+        Verify the checksum over the manifest main section.
+
+        :return: True if the signature over main section verifies
         """
 
         # NOTE: JAR spec does not state whether there can be >1 digest used,
@@ -530,46 +529,66 @@ class SignatureManifest(Manifest):
 
             # It is enough for at least one digest to be correct
             if whole_mf_digest == self.get(java_digest + "-Digest-Manifest"):
-                return None
+                return True
 
         # JAR spec allows for the checksum of the whole manifest to mismatch.
         # There is a second chance for the verification to succeed:
         # checksum for the main section matches,
         # plus checksum for every subsection matches.
 
-        at_least_one_main_attr_digest_matches = False
         keys = self.keys_with_suffix("-Digest-Manifest-Main-Attributes")
         for java_digest in keys:
             mf_main_attr_digest = b64_encoded_digest(
                 manifest.get_main_section(),
                 NAMED_DIGESTS[java_digest])
 
-            if mf_main_attr_digest == self.get(
-                    java_digest + "-Digest-Manifest-Main-Attributes"):
-                at_least_one_main_attr_digest_matches = True
-                break
+            attr = java_digest + "-Digest-Manifest-Main-Attributes"
+            if mf_main_attr_digest == self.get(attr):
+                return True
+        else:
+            return False
 
-        if not at_least_one_main_attr_digest_matches:
-            return "No matching checksum of the whole manifest and no " \
-                   "matching checksum of the manifest main attributes found"
+
+    def verify_manifest_entry_checksums(self, manifest, strict=True):
+        """
+        Verifies the checksums over the given manifest. If strict is True
+        then entries which had no digests will fail verification. If
+        strict is False then entries with no digests will not be
+        considered failing.
+
+        :return: List of entries which failed to verify.
+
+        Reference:
+        http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Signature_Validation
+        """
+
+        # TODO: this behavior is probably wrong -- surely if there are
+        # multiple digests, they should ALL match, or verification would
+        # fail?
+
+        failures = []
 
         for s in manifest.sub_sections.values():
-            at_least_one_section_digest_matches = False
             sf_section = self.create_section(s.primary(), overwrite=False)
-            for java_digest in s.keys_with_suffix("-Digest"):
+
+            digests = s.keys_with_suffix("-Digest")
+            if not digests and strict:
+                failures.append(s.primary())
+                continue
+
+            for java_digest in digests:
                 section_digest = b64_encoded_digest(
                     s.get_data(manifest.linesep),
                     NAMED_DIGESTS[java_digest])
 
                 if section_digest == sf_section.get(java_digest + "-Digest"):
-                    at_least_one_section_digest_matches = True
+                    # found a match, verified
                     break
+            else:
+                # no matches found for the digests present
+                failures.append(s.primary())
 
-            if not at_least_one_section_digest_matches:
-                return "No matching checksum of the whole manifest and " \
-                       "no matching checksum for subsection %s found" \
-                           % s.primary()
-        return None
+        return failures
 
 
     def get_signature(self, certificate, private_key, extra_certs,

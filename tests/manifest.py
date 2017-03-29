@@ -136,10 +136,21 @@ class ManifestTest(TestCase):
         sf.parse_file(get_data_fn(sf_file))
         mf = Manifest()
         mf.parse_file(get_data_fn(mf_file))
-        error_message = sf.verify_manifest_checksums(mf)
-        self.assertIsNone(error_message,
-            "Verification of signature file %s against manifest %s failed: %s"
-            % (sf_file, mf_file, error_message))
+
+        ok = sf.verify_manifest_main_checksum(mf)
+        self.assertTrue(
+            ok,
+            "Verification of main signature in file %s against manifest %s"
+            " failed"
+            % (sf_file, mf_file))
+
+        errors = sf.verify_manifest_entry_checksums(mf)
+        self.assertEqual(
+            0, len(errors),
+            "The following entries in signature file %s against manifest %s"
+            " failed: %s"
+            % (sf_file, mf_file, ",".join(errors)))
+
 
 
     def test_multi_digests(self):
@@ -151,15 +162,23 @@ class ManifestTest(TestCase):
         errors = mf.verify_jar_checksums(get_data_fn(jar_file))
         self.assertEqual(
             0, len(errors),
-            "Digest verification of %s against JAR %s failed: %s" \
-            % (mf_ok_file, jar_file, ", ".join(errors)))
+            "The following entries in jar file %s do not match"
+            " in manifest %s: %s"
+            % (jar_file, mf_ok_file, ",".join(errors)))
 
         sf_ok_file = "one-valid-digest-of-several.sf"
         sf = SignatureManifest()
         sf.parse_file(get_data_fn(sf_ok_file))
-        error_message = sf.verify_manifest_checksums(mf)
-        self.assertIsNone(error_message,
-            "Signature file digest verification of %s against manifest %s failed: %s" \
-            % (sf_ok_file, mf_ok_file, error_message))
+
+        self.assertTrue(sf.verify_manifest_main_checksum(mf))
+
+        errors = sf.verify_manifest_entry_checksums(mf)
+        self.assertEqual(
+            0, len(errors),
+            "The following entries in signature file %s against manifest %s"
+            " failed: %s"
+            % (sf_ok_file, mf_ok_file, ",".join(errors)))
+
+
 #
 # The end.

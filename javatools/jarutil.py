@@ -83,9 +83,14 @@ def verify(certificate, jar_file, key_alias):
     jar_manifest = Manifest()
     jar_manifest.parse(zip_file.read("META-INF/MANIFEST.MF"))
 
-    error = signature_manifest.verify_manifest_checksums(jar_manifest)
-    if error is not None:
-        return error
+    if not signature_manifest.verify_manifest_main_checksum(jar_manifest):
+        # TODO: Test this path!
+        # The above is allowed to fail. If so, second attempt below:
+        errors = signature_manifest.verify_manifest_entry_checksums(jar_manifest)
+        if len(errors) > 0:
+            return ("%s: in the signature manifest, main checksum for the"
+                    " manifest fails, and section checksum(s) failed for: %s"
+                    % (jar_file, ",".join(errors)))
 
     # Checksums of MANIFEST.MF itself are correct.
     # Step 3: Check that it contains valid checksums for each file from the JAR.
