@@ -137,7 +137,7 @@ def verify(certificate, jar_file, key_alias):
 
 
 def sign(jar_file, cert_file, key_file, key_alias,
-         extra_certs=None, digest=None):
+         extra_certs=None, digest="SHA-256"):
     """
     Signs the jar (almost) identically to jarsigner.
     :exception ManifestNotFoundError, CannotFindKeyTypeError
@@ -152,15 +152,16 @@ def sign(jar_file, cert_file, key_file, key_alias,
 
     mf = Manifest()
     mf.parse(jar.read("META-INF/MANIFEST.MF"))
+    mf.add_jar_entries(jar_file, digest)
 
     # create a signature manifest, and make it match the line separator
     # style of the manifest it'll be digesting.
     sf = SignatureManifest(linesep=mf.linesep)
 
-    sf_digest_algorithm = "SHA-256"
+    sf_digest_algorithm = digest    # No point to make it different
     sf.digest_manifest(mf, sf_digest_algorithm)
 
-    sig_digest_algorithm = sf_digest_algorithm  # No point to make it different
+    sig_digest_algorithm = digest  # No point to make it different
     sig_block_extension = private_key_type(key_file)
 
     sigdata = sf.get_signature(cert_file, key_file,
@@ -209,7 +210,7 @@ def cli_sign_jar(argument_list=None):
         return 1
 
     (jar_file, cert_file, key_file, key_alias) = mand_args
-    digest = options.digest if options and options.digest else None
+    digest = options.digest if options and options.digest else "SHA-256"
     extra_certs = options.chain if options and options.chain else None
 
     try:
