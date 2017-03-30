@@ -23,7 +23,9 @@ Java archives
 
 import os
 import sys
-from zipfile import ZipFile
+from zipfile import ZipFile, ZIP_DEFLATED
+from tempfile import NamedTemporaryFile
+from shutil import copyfile
 
 from javatools.manifest import Manifest, SignatureManifest
 
@@ -135,7 +137,7 @@ def verify(certificate, jar_file, key_alias):
 
 
 def sign(jar_file, cert_file, key_file, key_alias,
-         extra_certs=None, digest=None):
+         extra_certs=None, digest="SHA-256"):
     """
     Signs the jar (almost) identically to jarsigner.
     :exception ManifestNotFoundError, CannotFindKeyTypeError
@@ -150,22 +152,35 @@ def sign(jar_file, cert_file, key_file, key_alias,
 
     mf = Manifest()
     mf.parse(jar.read("META-INF/MANIFEST.MF"))
+    mf.add_jar_entries(jar_file, digest)
 
     # create a signature manifest, and make it match the line separator
     # style of the manifest it'll be digesting.
     sf = SignatureManifest(linesep=mf.linesep)
 
-    sf_digest_algorithm = "SHA-256"
+    sf_digest_algorithm = digest    # No point to make it different
     sf.digest_manifest(mf, sf_digest_algorithm)
-    jar.writestr("META-INF/%s.SF" % key_alias, sf.get_data())
 
-    sig_digest_algorithm = sf_digest_algorithm  # No point to make it different
+    sig_digest_algorithm = digest  # No point to make it different
     sig_block_extension = private_key_type(key_file)
 
     sigdata = sf.get_signature(cert_file, key_file,
                                extra_certs, sig_digest_algorithm)
 
-    jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension), sigdata)
+    # We might just add new entries to the original JAR, but jarsigner puts
+    # all META-INF/ to the beginning of the archive. Let's do the same.
+    with NamedTemporaryFile() as new_jar_file:
+        new_jar = ZipFile(new_jar_file, "w", ZIP_DEFLATED)
+        new_jar.writestr("META-INF/MANIFEST.MF", mf.get_data())
+        new_jar.writestr("META-INF/%s.SF" % key_alias, sf.get_data())
+        new_jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension), sigdata)
+        for entry in jar.namelist():
+            if not entry.upper() == "META-INF/MANIFEST.MF":
+                new_jar.writestr(entry, jar.read(entry))
+
+        new_jar.close()
+        new_jar_file.flush()
+        copyfile(new_jar_file.name, jar_file)
 
 
 def cli_create_jar(argument_list):
@@ -195,7 +210,7 @@ def cli_sign_jar(argument_list=None):
         return 1
 
     (jar_file, cert_file, key_file, key_alias) = mand_args
-    digest = options.digest if options and options.digest else None
+    digest = options.digest if options and options.digest else "SHA-256"
     extra_certs = options.chain if options and options.chain else None
 
     try:
