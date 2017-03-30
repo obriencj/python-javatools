@@ -179,5 +179,13 @@ class ManifestTest(TestCase):
             % (sf_ok_file, mf_ok_file, ",".join(errors)))
 
 
+    def test_add_jar_entries(self):
+        mf = Manifest()
+        mf.parse_file(get_data_fn("no-entries.mf"))
+        mf.add_jar_entries(get_data_fn("junk-entries.jar"), "SHA-512")
+        self.assertIsNotNone(mf.sub_sections.get("README.md", None),
+                             "Expected entry not added to the manifest")
+
+
 #
 # The end.
