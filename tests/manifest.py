@@ -152,7 +152,6 @@ class ManifestTest(TestCase):
             % (sf_file, mf_file, ",".join(errors)))
 
 
-
     def test_multi_digests(self):
         jar_file = "multi-digests.jar"
 

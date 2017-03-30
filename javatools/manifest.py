@@ -891,7 +891,7 @@ def cli_create(options, rest):
 
     ignores = options.ignore
 
-    for name,chunks in entries:
+    for name, chunks in entries:
         # skip the stuff that we were told to ignore
         if ignores and fnmatches(name, *ignores):
             continue
