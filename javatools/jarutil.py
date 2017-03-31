@@ -86,23 +86,27 @@ def verify(certificate, jar_file, key_alias):
         tmp_buf.flush()
         file_list = zip_file.namelist()
         sig_block_filename = None
+
         # JAR specification mentions only RSA and DSA; jarsigner also has EC
         signature_extensions = ("RSA", "DSA", "EC")
+
         for extension in signature_extensions:
             candidate_filename = "META-INF/%s.%s" % (key_alias, extension)
             if candidate_filename in file_list:
                 sig_block_filename = candidate_filename
                 break
         if sig_block_filename is None:
-            raise JarSignatureMissingError, "None of %s found in JAR" % \
-                   ", ".join(key_alias + "." + x for x in signature_extensions)
+            msg = "None of %s found in JAR" % \
+                  ", ".join(key_alias + "." + x for x in signature_extensions)
+            raise JarSignatureMissingError(msg)
 
         sig_block_data = zip_file.read(sig_block_filename)
         try:
             verify_signature_block(certificate, sf_file, sig_block_data)
         except SignatureBlockVerificationError, message:
-            raise SignatureBlockFileVerificationError,\
-                "Signature block verification failed: %s" % message
+            msg = "Signature block verification failed: %s" % message
+            raise SignatureBlockFileVerificationError(msg)
+
         finally:
             os.unlink(sf_file)
 
