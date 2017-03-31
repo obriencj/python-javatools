@@ -137,7 +137,7 @@ def verify(certificate, jar_file, key_alias):
 
 
 def sign(jar_file, cert_file, key_file, key_alias,
-         extra_certs=None, digest="SHA-256"):
+         extra_certs=None, digest="SHA-256", output=None):
     """
     Signs the jar (almost) identically to jarsigner.
     :exception ManifestNotFoundError, CannotFindKeyTypeError
@@ -180,7 +180,7 @@ def sign(jar_file, cert_file, key_file, key_alias,
 
         new_jar.close()
         new_jar_file.flush()
-        copyfile(new_jar_file.name, jar_file)
+        copyfile(new_jar_file.name, jar_file if output is None else output)
 
 
 def cli_create_jar(argument_list):
@@ -203,6 +203,9 @@ def cli_sign_jar(argument_list=None):
                       help="Digest algorithm used for signing   ")
     parser.add_option("-c", "--chain", action="append",
                       help="Additional certificates to embed into the signature (PEM format). More than one can be provided.")
+    parser.add_option("-o", "--output",
+                      help="Filename to put signed jar. If not provided, the"
+                      " signature is added to the original jar file.")
     (options, mand_args) = parser.parse_args(argument_list)
 
     if len(mand_args) != 4:
@@ -212,9 +215,10 @@ def cli_sign_jar(argument_list=None):
     (jar_file, cert_file, key_file, key_alias) = mand_args
     digest = options.digest if options and options.digest else "SHA-256"
     extra_certs = options.chain if options and options.chain else None
+    output = options.output if options and options.output else None
 
     try:
-        sign(jar_file, cert_file, key_file, key_alias, extra_certs, digest)
+        sign(jar_file, cert_file, key_file, key_alias, extra_certs, digest, output)
     except CannotFindKeyTypeError:
         print "Cannot determine private key type (is it in PEM format?)"
         return 1
