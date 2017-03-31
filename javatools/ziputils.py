@@ -157,7 +157,7 @@ def collect_compare_zips_into(left, right, added, removed, altered, same):
     of added, removed, altered, same
     """
 
-    for event,filename in compare_zips(left, right):
+    for event, filename in compare_zips(left, right):
         if event == LEFT:
             group = removed
         elif event == RIGHT:
@@ -172,7 +172,7 @@ def collect_compare_zips_into(left, right, added, removed, altered, same):
         if group is not None:
             group.append(filename)
 
-    return added,removed,altered,same
+    return added, removed, altered, same
 
 
 def is_zipstream(data):
@@ -216,7 +216,7 @@ def file_crc32(filename, chunksize=_CHUNKSIZE):
 
     check = 0
     with open(filename, 'rb') as fd:
-        for data in iter(lambda:fd.read(chunksize), ""):
+        for data in iter(lambda: fd.read(chunksize), ""):
             check = crc32(data, check)
     return check
 
