@@ -90,6 +90,20 @@ class JarutilTest(TestCase):
                         "Verification of JAR which we just signed failed")
 
 
+    def test_cli_sign_new_file_and_verify(self):
+        src = get_data_fn("cli-sign-and-verify.jar")
+        #dst = get_data_fn("tmp.jar")
+        key_alias = "SAMPLE3"
+        cert = get_data_fn("javatools-cert.pem")
+        key = get_data_fn("javatools.pem")
+        with NamedTemporaryFile() as tmp_jar, NamedTemporaryFile() as dst:
+            copyfile(src, tmp_jar.name)
+            cli_sign_jar([tmp_jar.name, cert, key, key_alias,
+                          "-o", dst.name])
+            self.verify_wrap(cert, dst.name, key_alias,
+                        "Verification of JAR which we just signed failed")
+
+
     def test_cli_sign_and_verify_ecdsa_pkcs8_sha512(self):
         src = get_data_fn("cli-sign-and-verify.jar")
         key_alias = "SAMPLE3"
