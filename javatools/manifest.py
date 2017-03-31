@@ -438,6 +438,26 @@ class Manifest(ManifestSection):
         return verify_failures
 
 
+    def add_jar_entries(self, jar_file, digest_name="SHA-256"):
+        """
+        Add manifest sections for all but signature-related entries
+        of :param jar_file.
+        :param digest The digest algorithm to use
+        :return None
+        TODO: join code with cli_create
+        """
+
+        key_digest = digest_name + "-Digest"
+        digest = _get_digest(digest_name)
+
+        with ZipFile(jar_file, 'r') as jar:
+            for entry in jar.namelist():
+                if file_skips_verification(entry):
+                    continue
+                section = self.create_section(entry)
+                section[key_digest] = b64_encoded_digest(jar.read(entry), digest)
+
+
     def clear(self):
         """
         removes all items from this manifest, and clears and removes all
@@ -891,7 +911,7 @@ def cli_create(options, rest):
 
     ignores = options.ignore
 
-    for name,chunks in entries:
+    for name, chunks in entries:
         # skip the stuff that we were told to ignore
         if ignores and fnmatches(name, *ignores):
             continue
