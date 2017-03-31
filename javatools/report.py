@@ -286,7 +286,7 @@ class JSONReportFormat(ReportFormat):
         data = {
             "runtime_options": options.__dict__,
             "report": change,
-            }
+        }
 
         # not what they expected, but it works
         cls = partial(JSONChangeEncoder, options)
@@ -326,7 +326,7 @@ class JSONChangeEncoder(JSONEncoder):
 
 
     def default(self, o):
-        #pylint: disable=E0202
+        # pylint: disable=E0202
         # JSONEncoder.default confuses pylint
 
         # if there is a simplify method, call it to convert the object
@@ -338,11 +338,9 @@ class JSONChangeEncoder(JSONEncoder):
         try:
             i = iter(o)
         except TypeError:
-            pass
+            return JSONEncoder.default(self, o)
         else:
             return tuple(i)
-
-        return JSONEncoder.default(self, o)
 
 
 class TextReportFormat(ReportFormat):
@@ -412,10 +410,10 @@ class CheetahReportFormat(ReportFormat):
         if uri is relative, re-relate it to our basedir
         """
 
-        if (uri.startswith("http:") or
-            uri.startswith("https:") or
-            uri.startswith("file:") or
-            uri.startswith("/")):
+        if uri.startswith("http:") or \
+           uri.startswith("https:") or \
+           uri.startswith("file:") or \
+           uri.startswith("/"):
             return uri
 
         elif exists(uri):
@@ -537,7 +535,7 @@ def _compose_cheetah_template_map(cache):
 
     from .cheetah import get_templates
 
-    #pylint: disable=W0406
+    # pylint: disable=W0406
     # needed for introspection
     import javatools
 
@@ -556,7 +554,7 @@ def _compose_cheetah_template_map(cache):
         # get the package from javatools
         pk = getattr(javatools, pn, None)
         if pk is None:
-            __import__("javatools."+pn)
+            __import__("javatools." + pn)
             pk = getattr(javatools, pn, None)
 
         # get the class from the package
@@ -570,7 +568,7 @@ def _compose_cheetah_template_map(cache):
     return cache
 
 
-#pylint: disable=C0103
+# pylint: disable=C0103
 _template_cache = dict()
 
 
