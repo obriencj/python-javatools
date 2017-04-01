@@ -615,7 +615,7 @@ class MethodCodeChange(SuperChange):
     def collect_impl(self):
         # if both sides are abstract, don't bother collecting subchanges
 
-        if self.ldata == self.rdata == None:
+        if self.ldata is self.rdata is None:
             return tuple()
         else:
             return super(MethodCodeChange, self).collect_impl()
