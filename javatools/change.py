@@ -174,7 +174,7 @@ class Change(object):
 
     def get_description(self):
         return self.description or \
-               (self.label + (" unchanged", " changed")[self.is_change()])
+            (self.label + (" changed" if self.is_change() else " unchanged"))
 
 
     def collect(self, force=False):
@@ -192,7 +192,7 @@ class Change(object):
             "is_change": self.is_change(),
             "description": self.get_description(),
             "label": self.label,
-            }
+        }
 
         if options:
             simple["is_ignored"] = self.is_ignored(options)
