@@ -21,7 +21,6 @@ Java archives
 :license: LGPL
 """
 
-import os
 import sys
 from zipfile import ZipFile, ZIP_DEFLATED
 from tempfile import NamedTemporaryFile
@@ -57,7 +56,7 @@ class MissingManifestError(Exception):
     pass
 
 
-def verify(certificate, jar_file, key_alias):
+def verify(certificate, jar_file):
     """
     Verifies signature of a JAR file.
 
@@ -74,9 +73,19 @@ def verify(certificate, jar_file, key_alias):
     """
 
     from .crypto import verify_signature_block, SignatureBlockVerificationError
+    from .manifest import file_matches_sigfile
 
+    # Step 0: get the "key alias", used also for naming of sig-related files.
     zip_file = ZipFile(jar_file)
-    sf_data = zip_file.read("META-INF/%s.SF" % key_alias)
+    sf_files = filter(file_matches_sigfile, zip_file.namelist())
+    if len(sf_files) == 0:
+        raise JarSignatureMissingError, "No .SF file in %s" % jar_file
+    elif len(sf_files) > 1:
+        raise VerificationError, "Multiple .SF files in %s" % jar_file
+
+    sf_filename = sf_files[0]
+    key_alias = sf_filename[9:-3]       # "META-INF/%s.SF"
+    sf_data = zip_file.read(sf_filename)
 
     # Step 1: check the crypto part.
     with NamedTemporaryFile('w') as tmp_buf:
@@ -231,14 +240,14 @@ def cli_verify_jar_signature(argument_list):
     TODO: use trusted keystore;
     """
 
-    usage_message = "Usage: jarutil v file.jar trusted_certificate.pem key_alias"
-    if len(argument_list) != 3:
+    usage_message = "Usage: jarutil v file.jar trusted_certificate.pem"
+    if len(argument_list) != 2:
         print usage_message
         return 1
 
-    (jar_file, certificate, key_alias) = argument_list
+    (jar_file, certificate) = argument_list
     try:
-        verify(certificate, jar_file, key_alias)
+        verify(certificate, jar_file)
     except VerificationError, error_message:
         print error_message
         return 1
