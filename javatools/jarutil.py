@@ -74,19 +74,19 @@ def verify(certificate, jar_file, key_alias):
     """
 
     from .crypto import verify_signature_block, SignatureBlockVerificationError
-    from tempfile import mkstemp
 
     zip_file = ZipFile(jar_file)
     sf_data = zip_file.read("META-INF/%s.SF" % key_alias)
 
     # Step 1: check the crypto part.
-    sf_file = mkstemp()[1]
-    with open(sf_file, "w") as tmp_buf:
+    with NamedTemporaryFile('w') as tmp_buf:
+        sf_file = tmp_buf.name
         tmp_buf.write(sf_data)
         tmp_buf.flush()
         file_list = zip_file.namelist()
         sig_block_filename = None
         # JAR specification mentions only RSA and DSA; jarsigner also has EC
+        # TODO: what about "SIG-*"?
         signature_extensions = ("RSA", "DSA", "EC")
         for extension in signature_extensions:
             candidate_filename = "META-INF/%s.%s" % (key_alias, extension)
@@ -103,8 +103,6 @@ def verify(certificate, jar_file, key_alias):
         except SignatureBlockVerificationError, message:
             raise SignatureBlockFileVerificationError,\
                 "Signature block verification failed: %s" % message
-        finally:
-            os.unlink(sf_file)
 
 
     # KEYALIAS.SF is correctly signed.

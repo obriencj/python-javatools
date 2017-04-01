@@ -113,6 +113,7 @@ _add_digest("MD5", "md5")
 # Note 2: Oracle specifies "SHA-1" algorithm name in their
 # documentation, but it's called "SHA1" elsewhere and that is what
 # jarsigner uses as well.
+# http://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#MessageDigest
 _add_digest("SHA1", "sha1")
 _add_digest("SHA-256", "sha256")
 _add_digest("SHA-384", "sha384")
