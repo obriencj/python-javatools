@@ -22,14 +22,16 @@ Java archives
 """
 
 import sys
-from zipfile import ZipFile, ZIP_DEFLATED
-from tempfile import NamedTemporaryFile
+
 from shutil import copyfile
+from tempfile import NamedTemporaryFile
+from zipfile import ZipFile, ZIP_DEFLATED
 
-from javatools.manifest import Manifest, SignatureManifest
+from .manifest import Manifest, SignatureManifest
 
-__all__ = ( "cli_create_jar", "cli_sign_jar",
-            "cli_verify_jar_signature", "main" )
+
+__all__ = ("cli_create_jar", "cli_sign_jar",
+           "cli_verify_jar_signature", "main", )
 
 
 class VerificationError(Exception):
@@ -136,7 +138,8 @@ def verify(certificate, jar_file):
             raise ManifestChecksumError(msg)
 
     # Checksums of MANIFEST.MF itself are correct.
-    # Step 3: Check that it contains valid checksums for each file from the JAR.
+    # Step 3: Check that it contains valid checksums for each file
+    # from the JAR.
     errors = jar_manifest.verify_jar_checksums(jar_file)
     if len(errors) > 0:
         msg = "Checksum(s) for jar entries of jar file %s failed for: %s" \
