@@ -60,7 +60,7 @@ def private_key_type(key_file):
         else:
             return key
     else:
-        raise CannotFindKeyTypeError
+        raise CannotFindKeyTypeError()
 
 
 def create_signature_block(openssl_digest, certificate, private_key,
@@ -139,8 +139,8 @@ def verify_signature_block(certificate_file, content_file, signature):
 
     try:
         smime.verify(pkcs7, data_bio)
-    except SMIME.PKCS7_Error, message:
-        raise SignatureBlockVerificationError, message
+    except SMIME.PKCS7_Error as message:
+        raise SignatureBlockVerificationError(message)
     else:
         return None
 

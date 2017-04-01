@@ -79,9 +79,9 @@ def verify(certificate, jar_file):
     zip_file = ZipFile(jar_file)
     sf_files = filter(file_matches_sigfile, zip_file.namelist())
     if len(sf_files) == 0:
-        raise JarSignatureMissingError, "No .SF file in %s" % jar_file
+        raise JarSignatureMissingError("No .SF file in %s" % jar_file)
     elif len(sf_files) > 1:
-        raise VerificationError, "Multiple .SF files in %s" % jar_file
+        raise VerificationError("Multiple .SF files in %s" % jar_file)
 
     sf_filename = sf_files[0]
     key_alias = sf_filename[9:-3]       # "META-INF/%s.SF"
