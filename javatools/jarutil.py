@@ -23,14 +23,16 @@ Java archives
 
 import os
 import sys
-from zipfile import ZipFile, ZIP_DEFLATED
-from tempfile import NamedTemporaryFile, mkdtemp
+
 from shutil import copyfile, rmtree
+from tempfile import NamedTemporaryFile, mkdtemp
+from zipfile import ZipFile, ZIP_DEFLATED
 
-from javatools.manifest import Manifest, SignatureManifest
+from .manifest import Manifest, SignatureManifest
 
-__all__ = ( "cli_create_jar", "cli_sign_jar",
-            "cli_verify_jar_signature", "main" )
+
+__all__ = ("cli_create_jar", "cli_sign_jar",
+           "cli_verify_jar_signature", "main", )
 
 
 class VerificationError(Exception):
@@ -136,9 +138,10 @@ def verify(certificate, jar_file):
             % (jar_file, ",".join(errors)))
 
     # Checksums of MANIFEST.MF itself are correct.
-    # Step 3: Check that it contains valid checksums for each file from the JAR.
-    # NOTE: the check is done for JAR entries. If some JAR entries are deleted
-    # after signing, the verification still succeeds.
+    # Step 3: Check that it contains valid checksums for each file
+    # from the JAR.
+    # NOTE: the check is done for JAR entries. If some JAR entries are
+    # deleted after signing, the verification still succeeds.
     # This seems to not follow the reference specification, but that's what
     # jarsigner does.
     errors = jar_manifest.verify_jar_checksums(jar_file)

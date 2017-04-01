@@ -44,11 +44,12 @@ __all__ = (
 
 
 # for reference by other modules
-JAR_PATTERNS = ( "*.ear",
-                 "*.jar",
-                 "*.rar",
-                 "*.sar",
-                 "*.war", )
+JAR_PATTERNS = (
+    "*.ear",
+    "*.jar",
+    "*.rar",
+    "*.sar",
+    "*.war", )
 
 
 REQ_BY_CLASS = "class.requires"
@@ -98,13 +99,13 @@ class JarInfo(object):
         for entry in self.get_classes():
             ci = self.get_classinfo(entry)
             for sym in ci.get_requires():
-                req.setdefault(sym, list()).append((REQ_BY_CLASS,entry))
+                req.setdefault(sym, list()).append((REQ_BY_CLASS, entry))
             for sym in ci.get_provides(private=False):
-                prov.setdefault(sym, list()).append((PROV_BY_CLASS,entry))
+                prov.setdefault(sym, list()).append((PROV_BY_CLASS, entry))
             for sym in ci.get_provides(private=True):
                 p.add(sym)
 
-        req = dict((k,v) for k,v in req.iteritems() if k not in p)
+        req = dict((k, v) for k, v in req.iteritems() if k not in p)
 
         self._requires = req
         self._provides = prov
@@ -116,7 +117,7 @@ class JarInfo(object):
 
         d = self._requires
         if ignored:
-            d = dict((k,v) for k,v in d.iteritems()
+            d = dict((k, v) for k, v in d.iteritems()
                      if not fnmatches(k, *ignored))
         return d
 
@@ -127,7 +128,7 @@ class JarInfo(object):
 
         d = self._provides
         if ignored:
-            d = dict((k,v) for k,v in d.iteritems()
+            d = dict((k, v) for k, v in d.iteritems()
                      if not fnmatches(k, *ignored))
         return d
 
@@ -272,7 +273,7 @@ def cli_jarinfo_json(options, info):
 
         data["zip.type"] = zipfile.__class__.__name__
         data["zip.file_count"] = filec
-        data["zip.dir_count" ] = dirc
+        data["zip.dir_count"] = dirc
         data["zip.uncompressed_size"] = totalu
         data["zip.compressed_size"] = totalc
         data["zip.compress_percent"] = prcnt
