@@ -552,6 +552,10 @@ class SignatureManifest(Manifest):
             if whole_mf_digest == self.get(java_digest + "-Digest-Manifest"):
                 return True
 
+        return False
+
+
+    def verify_manifest_main_attributes_checksum(self, manifest):
         # JAR spec allows for the checksum of the whole manifest to mismatch.
         # There is a second chance for the verification to succeed:
         # checksum for the main section matches,
@@ -610,6 +614,18 @@ class SignatureManifest(Manifest):
                 failures.append(s.primary())
 
         return failures
+
+
+    def verify_manifest(self, manifest):
+        if self.verify_manifest_main_checksum(manifest):
+            return []
+        # Main checksum does not validate, but there is a second chance.
+        if not self.verify_manifest_main_attributes_checksum(manifest):
+            # Let's return the manifest itself - such return value can be
+            # interpreted only in exactly this way
+            return ["META-INF/MANIFEST.MF"]
+
+        return self.verify_manifest_entry_checksums(manifest)
 
 
     def get_signature(self, certificate, private_key, extra_certs,
