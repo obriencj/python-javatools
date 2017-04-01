@@ -32,50 +32,55 @@ from javatools.jarutil import cli_create_jar, cli_sign_jar, \
 
 class JarutilTest(TestCase):
 
-    def cli_verify_wrap(self, jar, cert, alias):
-        data = [get_data_fn(jar), get_data_fn(cert), alias]
+    def cli_verify_wrap(self, jar, cert):
+        data = [get_data_fn(jar), get_data_fn(cert)]
         result = cli_verify_jar_signature(data)
 
         self.assertEqual(0, result,
                          "cli_verify_jar_signature() failed on %s with"
-                         " certificate %s, alias %s" % (jar, cert, alias))
+                         " certificate %s" % (jar, cert))
 
-    def verify_wrap(self, cert, jar, key, error_prefix):
+    def verify_wrap(self, cert, jar, error_prefix):
         try:
-            verify(cert, jar, key)
+            verify(cert, jar)
         except VerificationError, error_message:
             self.fail("%s: %s" % (error_prefix, error_message))
 
     def test_cli_verify_signature_by_javatools(self):
-        self.cli_verify_wrap("jarutil-signed.jar", "javatools-cert.pem",
-                             "UNUSED")
+        self.cli_verify_wrap("jarutil-signed.jar", "javatools-cert.pem")
 
     def test_cli_verify_signature_by_jarsigner(self):
         self.cli_verify_wrap("jarutil-signed-by-jarsigner.jar",
-                             "javatools-cert.pem", "UNUSED")
+                             "javatools-cert.pem")
 
     # Tests that signature-related files are skipped when the signature is
     # verified. The JAR file is a normal signed JAR, plus junk files with
     # "signature-related" names.
     # The test does not guarantee that no other files are skipped.
     def test_signature_related_files_skip(self):
-        self.cli_verify_wrap("sig-related-junk-files.jar",
-                             "javatools-cert.pem", "UNUSED")
+        self.cli_verify_wrap("sig-related-junk-files-ok.jar",
+                             "javatools-cert.pem")
+
+    def test_multiple_sf_files(self):
+        jar_data = get_data_fn("multiple-sf-files.jar")
+        cert = get_data_fn("javatools-cert.pem")
+        with self.assertRaises(VerificationError):
+            verify(cert, jar_data)
 
     def test_ecdsa_pkcs8_verify(self):
-        self.cli_verify_wrap("ec.jar", "ec-cert.pem", "TEST")
+        self.cli_verify_wrap("ec.jar", "ec-cert.pem")
 
     def test_missing_signature_block(self):
         jar_data = get_data_fn("ec-must-fail.jar")
         cert = get_data_fn("ec-cert.pem")
         with self.assertRaises(JarSignatureMissingError):
-            verify(cert, jar_data, "TEST")
+            verify(cert, jar_data)
 
     def test_tampered_signature_block(self):
         jar_data = get_data_fn("ec-tampered.jar")
         cert = get_data_fn("ec-cert.pem")
         with self.assertRaises(SignatureBlockFileVerificationError):
-            verify(cert, jar_data, "TEST")
+            verify(cert, jar_data)
 
 
     def test_cli_sign_and_verify(self):
@@ -86,7 +91,7 @@ class JarutilTest(TestCase):
         with NamedTemporaryFile() as tmp_jar:
             copyfile(src, tmp_jar.name)
             cli_sign_jar([tmp_jar.name, cert, key, key_alias])
-            self.verify_wrap(cert, tmp_jar.name, key_alias,
+            self.verify_wrap(cert, tmp_jar.name,
                         "Verification of JAR which we just signed failed")
 
 
@@ -100,7 +105,7 @@ class JarutilTest(TestCase):
             copyfile(src, tmp_jar.name)
             cli_sign_jar([tmp_jar.name, cert, key, key_alias,
                           "-o", dst.name])
-            self.verify_wrap(cert, dst.name, key_alias,
+            self.verify_wrap(cert, dst.name,
                         "Verification of JAR which we just signed failed")
 
 
@@ -112,7 +117,7 @@ class JarutilTest(TestCase):
         with NamedTemporaryFile() as tmp_jar:
             copyfile(src, tmp_jar.name)
             cli_sign_jar([tmp_jar.name, cert, key, key_alias])
-            self.verify_wrap(cert, tmp_jar.name, key_alias,
+            self.verify_wrap(cert, tmp_jar.name,
                              "Verification of JAR which we just signed failed")
 
 
@@ -129,7 +134,7 @@ class JarutilTest(TestCase):
                 ["-c", root_cert, "-c", intermediate_cert,
                  tmp_jar.name, signing_cert, key, key_alias]),
                 "Signing with embedding a chain of certificates failed")
-            self.verify_wrap(root_cert, tmp_jar.name, key_alias,
+            self.verify_wrap(root_cert, tmp_jar.name,
                              "Verification of JAR which we signed embedding chain of certificates failed")
 
 
