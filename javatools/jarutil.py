@@ -81,7 +81,10 @@ def verify(certificate, jar_file):
     if len(sf_files) == 0:
         raise JarSignatureMissingError, "No .SF file in %s" % jar_file
     elif len(sf_files) > 1:
-        raise VerificationError, "Multiple .SF files in %s" % jar_file
+        # This is acceptable: SF file represents a signer. But then the
+        # validation logic becomes more complicated...
+        raise VerificationError,\
+            "Multiple .SF files in %s, this is not supported yet" % jar_file
 
     sf_filename = sf_files[0]
     key_alias = sf_filename[9:-3]       # "META-INF/%s.SF"
@@ -130,6 +133,10 @@ def verify(certificate, jar_file):
 
     # Checksums of MANIFEST.MF itself are correct.
     # Step 3: Check that it contains valid checksums for each file from the JAR.
+    # NOTE: the check is done for JAR entries. If some JAR entries are deleted
+    # after signing, the verification still succeeds.
+    # This seems to not follow the reference specification, but that's what
+    # jarsigner does.
     errors = jar_manifest.verify_jar_checksums(jar_file)
     if len(errors) > 0:
         raise JarChecksumError,\
