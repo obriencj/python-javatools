@@ -21,7 +21,6 @@ Java archives
 :license: LGPL
 """
 
-import os
 import sys
 from zipfile import ZipFile, ZIP_DEFLATED
 from tempfile import NamedTemporaryFile
@@ -57,7 +56,7 @@ class MissingManifestError(Exception):
     pass
 
 
-def verify(certificate, jar_file, key_alias):
+def verify(certificate, jar_file):
     """
     Verifies signature of a JAR file.
 
@@ -74,20 +73,30 @@ def verify(certificate, jar_file, key_alias):
     """
 
     from .crypto import verify_signature_block, SignatureBlockVerificationError
-    from tempfile import mkstemp
+    from .manifest import file_matches_sigfile
 
+    # Step 0: get the "key alias", used also for naming of sig-related files.
     zip_file = ZipFile(jar_file)
-    sf_data = zip_file.read("META-INF/%s.SF" % key_alias)
+    sf_files = filter(file_matches_sigfile, zip_file.namelist())
+    if len(sf_files) == 0:
+        raise JarSignatureMissingError, "No .SF file in %s" % jar_file
+    elif len(sf_files) > 1:
+        raise VerificationError, "Multiple .SF files in %s" % jar_file
+
+    sf_filename = sf_files[0]
+    key_alias = sf_filename[9:-3]       # "META-INF/%s.SF"
+    sf_data = zip_file.read(sf_filename)
 
     # Step 1: check the crypto part.
-    sf_file = mkstemp()[1]
-    with open(sf_file, "w") as tmp_buf:
+    with NamedTemporaryFile('w') as tmp_buf:
+        sf_file = tmp_buf.name
         tmp_buf.write(sf_data)
         tmp_buf.flush()
         file_list = zip_file.namelist()
         sig_block_filename = None
 
         # JAR specification mentions only RSA and DSA; jarsigner also has EC
+        # TODO: what about "SIG-*"?
         signature_extensions = ("RSA", "DSA", "EC")
 
         for extension in signature_extensions:
@@ -103,13 +112,10 @@ def verify(certificate, jar_file, key_alias):
         sig_block_data = zip_file.read(sig_block_filename)
         try:
             verify_signature_block(certificate, sf_file, sig_block_data)
+
         except SignatureBlockVerificationError, message:
             msg = "Signature block verification failed: %s" % message
             raise SignatureBlockFileVerificationError(msg)
-
-        finally:
-            os.unlink(sf_file)
-
 
     # KEYALIAS.SF is correctly signed.
     # Step 2: Check that it contains correct checksum of the manifest.
@@ -123,19 +129,19 @@ def verify(certificate, jar_file, key_alias):
         # TODO: Test this path!
         # The above is allowed to fail. If so, second attempt below:
         errors = signature_manifest.verify_manifest_entry_checksums(jar_manifest)
-        if len(errors) > 0:
-            raise ManifestChecksumError,\
-                "%s: in the signature manifest, main checksum for the"\
-                " manifest fails, and section checksum(s) failed for: %s"\
-                % (jar_file, ",".join(errors))
+        if errors:
+            msg = "%s: in the signature manifest, main checksum for the" \
+                  " manifest fails, and section checksum(s) failed for: %s" \
+                  % (jar_file, ",".join(errors))
+            raise ManifestChecksumError(msg)
 
     # Checksums of MANIFEST.MF itself are correct.
     # Step 3: Check that it contains valid checksums for each file from the JAR.
     errors = jar_manifest.verify_jar_checksums(jar_file)
     if len(errors) > 0:
-        raise JarChecksumError,\
-            "Checksum(s) for jar entries of jar file %s failed for: %s" \
-            % (jar_file, ",".join(errors))
+        msg = "Checksum(s) for jar entries of jar file %s failed for: %s" \
+              % (jar_file, ",".join(errors))
+        raise JarChecksumError(msg)
 
     return None
 
@@ -152,7 +158,8 @@ def sign(jar_file, cert_file, key_file, key_alias,
 
     jar = ZipFile(jar_file, "a")
     if "META-INF/MANIFEST.MF" not in jar.namelist():
-        raise MissingManifestError, "META-INF/MANIFEST.MF not found in %s" % jar_file
+        msg = "META-INF/MANIFEST.MF not found in %s" % jar_file
+        raise MissingManifestError(msg)
 
     mf = Manifest()
     mf.parse(jar.read("META-INF/MANIFEST.MF"))
@@ -177,7 +184,9 @@ def sign(jar_file, cert_file, key_file, key_alias,
         new_jar = ZipFile(new_jar_file, "w", ZIP_DEFLATED)
         new_jar.writestr("META-INF/MANIFEST.MF", mf.get_data())
         new_jar.writestr("META-INF/%s.SF" % key_alias, sf.get_data())
-        new_jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension), sigdata)
+        new_jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension),
+                         sigdata)
+
         for entry in jar.namelist():
             if not entry.upper() == "META-INF/MANIFEST.MF":
                 new_jar.writestr(entry, jar.read(entry))
@@ -200,7 +209,8 @@ def cli_sign_jar(argument_list=None):
     from optparse import OptionParser
     from .crypto import CannotFindKeyTypeError
 
-    usage_message = "Usage: jarutil s [OPTIONS] file.jar certificate.pem private_key.pem key_alias"
+    usage_message = "Usage: jarutil s [OPTIONS] file.jar certificate.pem" \
+                    " private_key.pem key_alias"
 
     parser = OptionParser(usage=usage_message)
     parser.add_option("-d", "--digest",
@@ -244,14 +254,14 @@ def cli_verify_jar_signature(argument_list):
     TODO: use trusted keystore;
     """
 
-    usage_message = "Usage: jarutil v file.jar trusted_certificate.pem key_alias"
-    if len(argument_list) != 3:
+    usage_message = "Usage: jarutil v file.jar trusted_certificate.pem"
+    if len(argument_list) != 2:
         print usage_message
         return 1
 
-    (jar_file, certificate, key_alias) = argument_list
+    (jar_file, certificate) = argument_list
     try:
-        verify(certificate, jar_file, key_alias)
+        verify(certificate, jar_file)
     except VerificationError, error_message:
         print error_message
         return 1
@@ -263,7 +273,8 @@ def usage():
     print("Usage: jarutil [csv] [options] [argument]...")
     print("   c: create JAR from paths (NOT IMPLEMENTED)")
     print("   s: sign JAR")
-    print("   v: verify JAR signature. Arguments: file.jar trusted_certificate.pem key_alias")
+    print("   v: verify JAR signature. Arguments: file.jar"
+          " trusted_certificate.pem key_alias")
     print("Give option \"-h\" for help on particular commands.")
     sys.exit(1)
 
