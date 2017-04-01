@@ -21,21 +21,21 @@ author: Christopher O'Brien <obriencj@gmail.com>
 license: LGPL
 """
 
+from Cheetah.Template import Template
+from pkgutil import iter_modules
+
 
 def _iter_templates():
     """
     uses reflection to yield the Cheetah templates under this module
     """
 
-    from Cheetah.Template import Template
-    from pkgutil import iter_modules
-
-    #pylint: disable=W0406
+    # pylint: disable=W0406
     # needed for introspection
     import javatools.cheetah
 
-    for _,name,_ in iter_modules(__path__):
-        __import__("javatools.cheetah."+name)
+    for _, name, _ in iter_modules(__path__):
+        __import__("javatools.cheetah." + name)
         found = getattr(getattr(javatools.cheetah, name), name)
         if issubclass(found, Template):
             yield found
