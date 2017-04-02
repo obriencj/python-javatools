@@ -21,10 +21,11 @@ Java archives
 :license: LGPL
 """
 
+import os
 import sys
 from zipfile import ZipFile, ZIP_DEFLATED
-from tempfile import NamedTemporaryFile
-from shutil import copyfile
+from tempfile import NamedTemporaryFile, mkdtemp
+from shutil import copyfile, rmtree
 
 from javatools.manifest import Manifest, SignatureManifest
 
@@ -194,9 +195,46 @@ def sign(jar_file, cert_file, key_file, key_alias,
         copyfile(new_jar_file.name, jar_file if output is None else output)
 
 
+def create_jar(jar_file, entries):
+    """
+    Create JAR from given entries.
+    :param jar_file: filename of the created JAR
+    :type jar_file: str
+    :param entries: files to put into the JAR
+    :type entries: list[str]
+    :return: None
+    """
+
+    # 'jar' adds separate entries for directories, also for empty ones.
+    with ZipFile(jar_file, "w") as jar:
+        jar.writestr("META-INF/", "")
+        jar.writestr("META-INF/MANIFEST.MF", Manifest().get_data())
+        for entry in entries:
+            jar.write(entry)
+            if os.path.isdir(entry):
+                for root, dirs, files in os.walk(entry):
+                    for filename in dirs + files:
+                        jar.write(os.path.join(root, filename))
+
+
 def cli_create_jar(argument_list):
-    # TODO: create a jar from paths
-    print "Not implemented"
+    """
+    A subset of "jar" command. Creating new JARs only.
+    """
+    from optparse import OptionParser
+
+    usage_message = "usage: jarutil c [OPTIONS] file.jar files..."
+    parser = OptionParser(usage=usage_message)
+    parser.add_option("-m", "--main-class",
+                      help="Specify application entry point")
+    (options, mand_args) = parser.parse_args(argument_list)
+    if len(mand_args) < 2:
+        print usage_message
+        return 1
+
+    jar_file = mand_args[0]
+    entries = mand_args[1:]
+    create_jar(jar_file, entries)
     return 0
 
 
@@ -238,6 +276,7 @@ def cli_sign_jar(argument_list=None):
 
     return 0
 
+
 def cli_verify_jar_signature(argument_list):
     """
     Command-line wrapper around verify()
@@ -261,9 +300,9 @@ def cli_verify_jar_signature(argument_list):
 
 def usage():
     print("Usage: jarutil [csv] [options] [argument]...")
-    print("   c: create JAR from paths (NOT IMPLEMENTED)")
+    print("   c: create JAR from paths")
     print("   s: sign JAR")
-    print("   v: verify JAR signature. Arguments: file.jar trusted_certificate.pem key_alias")
+    print("   v: verify JAR signature")
     print("Give option \"-h\" for help on particular commands.")
     sys.exit(1)
 
