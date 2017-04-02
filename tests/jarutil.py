@@ -27,7 +27,8 @@ from . import get_data_fn
 
 from javatools.jarutil import cli_create_jar, cli_sign_jar, \
     cli_verify_jar_signature, verify, VerificationError, \
-    JarSignatureMissingError, SignatureBlockFileVerificationError
+    JarSignatureMissingError, SignatureBlockFileVerificationError, \
+    JarChecksumError
 
 
 class JarutilTest(TestCase):
@@ -82,6 +83,25 @@ class JarutilTest(TestCase):
         with self.assertRaises(SignatureBlockFileVerificationError):
             verify(cert, jar_data)
 
+    def test_tampered_jar_entry(self):
+        jar_data = get_data_fn("tampered-entry.jar")
+        cert = get_data_fn("javatools-cert.pem")
+        with self.assertRaises(JarChecksumError):
+            verify(cert, jar_data)
+
+    def test_several_mf_attributes(self):
+        # First "x-Digest-Manifest" checksum is invalid, second is OK.
+        # .SF is edited by hand, .RSA created with:
+        # openssl cms -sign -binary -noattr -in META-INF/UNUSED.SF -outform der -out META-INF/UNUSED.RSA -signer tests/data/javatools-cert.pem -inkey tests/data/javatools.pem -md sha256
+        self.cli_verify_wrap("several-manifest-attributes.jar",
+                             "javatools-cert.pem")
+
+    def test_main_mf_section_fails(self):
+        # x-Digest-Manifest checksum is wrong,
+        # but "x-Digest-Manifest-Main-Attributes is OK
+        # .SF and .RSA created similarly as in test_several_mf_attributes()
+        self.cli_verify_wrap("wrong-digest-manifest.jar",
+                             "javatools-cert.pem")
 
     def test_cli_sign_and_verify(self):
         src = get_data_fn("cli-sign-and-verify.jar")

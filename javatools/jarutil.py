@@ -79,9 +79,12 @@ def verify(certificate, jar_file):
     zip_file = ZipFile(jar_file)
     sf_files = filter(file_matches_sigfile, zip_file.namelist())
     if len(sf_files) == 0:
-        raise JarSignatureMissingError, "No .SF file in %s" % jar_file
+        raise JarSignatureMissingError("No .SF file in %s" % jar_file)
     elif len(sf_files) > 1:
-        raise VerificationError, "Multiple .SF files in %s" % jar_file
+        # This is acceptable: SF file represents a signer. But then the
+        # validation logic becomes more complicated...
+        raise VerificationError(
+            "Multiple .SF files in %s, this is not supported yet" % jar_file)
 
     sf_filename = sf_files[0]
     key_alias = sf_filename[9:-3]       # "META-INF/%s.SF"
@@ -103,15 +106,15 @@ def verify(certificate, jar_file):
                 sig_block_filename = candidate_filename
                 break
         if sig_block_filename is None:
-            raise JarSignatureMissingError, "None of %s found in JAR" % \
-                   ", ".join(key_alias + "." + x for x in signature_extensions)
+            raise JarSignatureMissingError("None of %s found in JAR" %
+                ", ".join(key_alias + "." + x for x in signature_extensions))
 
         sig_block_data = zip_file.read(sig_block_filename)
         try:
             verify_signature_block(certificate, sf_file, sig_block_data)
         except SignatureBlockVerificationError, message:
-            raise SignatureBlockFileVerificationError,\
-                "Signature block verification failed: %s" % message
+            raise SignatureBlockFileVerificationError(
+                "Signature block verification failed: %s" % message)
 
 
     # KEYALIAS.SF is correctly signed.
@@ -122,23 +125,23 @@ def verify(certificate, jar_file):
     jar_manifest = Manifest()
     jar_manifest.parse(zip_file.read("META-INF/MANIFEST.MF"))
 
-    if not signature_manifest.verify_manifest_main_checksum(jar_manifest):
-        # TODO: Test this path!
-        # The above is allowed to fail. If so, second attempt below:
-        errors = signature_manifest.verify_manifest_entry_checksums(jar_manifest)
-        if len(errors) > 0:
-            raise ManifestChecksumError,\
-                "%s: in the signature manifest, main checksum for the"\
-                " manifest fails, and section checksum(s) failed for: %s"\
-                % (jar_file, ",".join(errors))
+    errors = signature_manifest.verify_manifest(jar_manifest)
+    if len(errors) > 0:
+        raise ManifestChecksumError(
+            "%s: in .SF file, section checksum(s) failed for: %s"
+            % (jar_file, ",".join(errors)))
 
     # Checksums of MANIFEST.MF itself are correct.
     # Step 3: Check that it contains valid checksums for each file from the JAR.
+    # NOTE: the check is done for JAR entries. If some JAR entries are deleted
+    # after signing, the verification still succeeds.
+    # This seems to not follow the reference specification, but that's what
+    # jarsigner does.
     errors = jar_manifest.verify_jar_checksums(jar_file)
     if len(errors) > 0:
-        raise JarChecksumError,\
-            "Checksum(s) for jar entries of jar file %s failed for: %s" \
-            % (jar_file, ",".join(errors))
+        raise JarChecksumError(
+            "Checksum(s) for jar entries of jar file %s failed for: %s"
+            % (jar_file, ",".join(errors)))
 
     return None
 
@@ -155,7 +158,8 @@ def sign(jar_file, cert_file, key_file, key_alias,
 
     jar = ZipFile(jar_file, "a")
     if "META-INF/MANIFEST.MF" not in jar.namelist():
-        raise MissingManifestError, "META-INF/MANIFEST.MF not found in %s" % jar_file
+        raise MissingManifestError(
+            "META-INF/MANIFEST.MF not found in %s" % jar_file)
 
     mf = Manifest()
     mf.parse(jar.read("META-INF/MANIFEST.MF"))
