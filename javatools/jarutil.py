@@ -21,10 +21,11 @@ Java archives
 :license: LGPL
 """
 
+import os
 import sys
 
-from shutil import copyfile
-from tempfile import NamedTemporaryFile
+from shutil import copyfile, rmtree
+from tempfile import NamedTemporaryFile, mkdtemp
 from zipfile import ZipFile, ZIP_DEFLATED
 
 from .manifest import Manifest, SignatureManifest
@@ -80,13 +81,18 @@ def verify(certificate, jar_file):
     # Step 0: get the "key alias", used also for naming of sig-related files.
     zip_file = ZipFile(jar_file)
     sf_files = filter(file_matches_sigfile, zip_file.namelist())
+
     if len(sf_files) == 0:
         raise JarSignatureMissingError("No .SF file in %s" % jar_file)
+
     elif len(sf_files) > 1:
-        raise VerificationError("Multiple .SF files in %s" % jar_file)
+        # This is acceptable: SF file represents a signer. But then the
+        # validation logic becomes more complicated...
+        msg = "Multiple .SF files in %s, this is not supported yet" % jar_file
+        raise VerificationError(msg)
 
     sf_filename = sf_files[0]
-    key_alias = sf_filename[9:-3]       # "META-INF/%s.SF"
+    key_alias = sf_filename[9:-3] # "META-INF/%s.SF"
     sf_data = zip_file.read(sf_filename)
 
     # Step 1: check the crypto part.
@@ -115,7 +121,7 @@ def verify(certificate, jar_file):
         try:
             verify_signature_block(certificate, sf_file, sig_block_data)
 
-        except SignatureBlockVerificationError, message:
+        except SignatureBlockVerificationError as message:
             msg = "Signature block verification failed: %s" % message
             raise SignatureBlockFileVerificationError(msg)
 
@@ -127,19 +133,18 @@ def verify(certificate, jar_file):
     jar_manifest = Manifest()
     jar_manifest.parse(zip_file.read("META-INF/MANIFEST.MF"))
 
-    if not signature_manifest.verify_manifest_main_checksum(jar_manifest):
-        # TODO: Test this path!
-        # The above is allowed to fail. If so, second attempt below:
-        errors = signature_manifest.verify_manifest_entry_checksums(jar_manifest)
-        if errors:
-            msg = "%s: in the signature manifest, main checksum for the" \
-                  " manifest fails, and section checksum(s) failed for: %s" \
-                  % (jar_file, ",".join(errors))
-            raise ManifestChecksumError(msg)
+    errors = signature_manifest.verify_manifest(jar_manifest)
+    if len(errors) > 0:
+        msg = "%s: in .SF file, section checksum(s) failed for: %s" \
+              % (jar_file, ",".join(errors))
+        raise ManifestChecksumError(msg)
 
     # Checksums of MANIFEST.MF itself are correct.
-    # Step 3: Check that it contains valid checksums for each file
-    # from the JAR.
+    # Step 3: Check that it contains valid checksums for each file from the JAR.
+    # NOTE: the check is done for JAR entries. If some JAR entries are deleted
+    # after signing, the verification still succeeds.
+    # This seems to not follow the reference specification, but that's what
+    # jarsigner does.
     errors = jar_manifest.verify_jar_checksums(jar_file)
     if len(errors) > 0:
         msg = "Checksum(s) for jar entries of jar file %s failed for: %s" \
@@ -199,9 +204,46 @@ def sign(jar_file, cert_file, key_file, key_alias,
         copyfile(new_jar_file.name, jar_file if output is None else output)
 
 
+def create_jar(jar_file, entries):
+    """
+    Create JAR from given entries.
+    :param jar_file: filename of the created JAR
+    :type jar_file: str
+    :param entries: files to put into the JAR
+    :type entries: list[str]
+    :return: None
+    """
+
+    # 'jar' adds separate entries for directories, also for empty ones.
+    with ZipFile(jar_file, "w") as jar:
+        jar.writestr("META-INF/", "")
+        jar.writestr("META-INF/MANIFEST.MF", Manifest().get_data())
+        for entry in entries:
+            jar.write(entry)
+            if os.path.isdir(entry):
+                for root, dirs, files in os.walk(entry):
+                    for filename in dirs + files:
+                        jar.write(os.path.join(root, filename))
+
+
 def cli_create_jar(argument_list):
-    # TODO: create a jar from paths
-    print "Not implemented"
+    """
+    A subset of "jar" command. Creating new JARs only.
+    """
+    from optparse import OptionParser
+
+    usage_message = "usage: jarutil c [OPTIONS] file.jar files..."
+    parser = OptionParser(usage=usage_message)
+    parser.add_option("-m", "--main-class",
+                      help="Specify application entry point")
+    (options, mand_args) = parser.parse_args(argument_list)
+    if len(mand_args) < 2:
+        print usage_message
+        return 1
+
+    jar_file = mand_args[0]
+    entries = mand_args[1:]
+    create_jar(jar_file, entries)
     return 0
 
 
@@ -274,10 +316,9 @@ def cli_verify_jar_signature(argument_list):
 
 def usage():
     print("Usage: jarutil [csv] [options] [argument]...")
-    print("   c: create JAR from paths (NOT IMPLEMENTED)")
+    print("   c: create JAR from paths")
     print("   s: sign JAR")
-    print("   v: verify JAR signature. Arguments: file.jar"
-          " trusted_certificate.pem key_alias")
+    print("   v: verify JAR signature")
     print("Give option \"-h\" for help on particular commands.")
     sys.exit(1)
 
