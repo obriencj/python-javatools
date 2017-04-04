@@ -722,8 +722,14 @@ def parse_sections(data):
             if curr is None:
                 curr = list()
 
-            key, val = cleanline.split(':', 1)
-            curr.append((key, [val[1:]]))
+            try:
+                key, val = cleanline.split(':', 1)
+                curr.append((key, [val[1:]]))
+            except ValueError:
+                raise MalformedManifest(
+                    "Invalid manifest line: %i; line contents: %s"
+                    % (lineno, cleanline))
+
 
     # yield and leftovers
     if curr:

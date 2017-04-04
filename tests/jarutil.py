@@ -21,8 +21,9 @@ license: LGPL v.3
 """
 
 from unittest import TestCase
-from shutil import copyfile
-from tempfile import NamedTemporaryFile
+from shutil import copyfile, copytree, rmtree
+import os
+from tempfile import NamedTemporaryFile, mkdtemp
 from . import get_data_fn
 
 from javatools.jarutil import cli_create_jar, cli_sign_jar, \
@@ -32,6 +33,7 @@ from javatools.jarutil import cli_create_jar, cli_sign_jar, \
 
 
 class JarutilTest(TestCase):
+
 
     def cli_verify_wrap(self, jar, cert):
         data = [get_data_fn(jar), get_data_fn(cert)]
@@ -157,6 +159,37 @@ class JarutilTest(TestCase):
             self.verify_wrap(root_cert, tmp_jar.name,
                              "Verification of JAR which we signed embedding chain of certificates failed")
 
+
+    def test_cli_create_jar(self):
+        from .manifest import Manifest
+        from zipfile import ZipFile
+
+        tmp_dir = mkdtemp("-test_cli_create_jar")
+        rmtree(tmp_dir)     # A better way to get name for non-existing dir?
+        copytree(get_data_fn("test_cli_create"), tmp_dir)
+        os.chdir(tmp_dir)
+        # There seems to be no way to add empty dir to Git repo:
+        os.unlink(os.path.join("example_dir", "empty_dir", "unused"))
+
+        jar_fn = "test-cli-create.jar"
+
+        cli_create_jar([jar_fn, "example_file", "example_dir"])
+        mf = Manifest()
+        with ZipFile(jar_fn) as jar_file:
+            entries = jar_file.namelist()
+            n_entries = len(entries)
+            self.assertEqual(8, n_entries,
+                             "8 entries expected in JAR, %s read" % n_entries)
+            if "META-INF/MANIFEST.MF" not in entries:
+                self.fail("No META-INF/MANIFEST.MF in just created JAR\n"
+                          "JAR content:\n%s" % ", ".join(entries))
+            mf.parse(jar_file.read("META-INF/MANIFEST.MF"))
+
+        rmtree(tmp_dir)
+
+        self.assertEqual(0, len(mf.sub_sections),
+                         "0 subsections expected in manifest, %i found"
+                         % len(mf.sub_sections))
 
 #
 # The end.
