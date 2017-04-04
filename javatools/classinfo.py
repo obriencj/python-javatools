@@ -83,7 +83,7 @@ def print_field(options, field):
 
         cv = field.get_constantvalue()
         if cv is not None:
-            t,v = field.cpool.pretty_const(cv)
+            t, v = field.cpool.pretty_const(cv)
             if t:
                 print "  Constant value:", t, v
         print
@@ -156,8 +156,8 @@ def print_method(options, method):
         lnt = method.get_code().get_linenumbertable()
         if lnt:
             print "  LineNumberTable:"
-            for (o,l) in lnt:
-                print "   line %i: %i" % (l,o)
+            for o, l in lnt:
+                print "   line %i: %i" % (l, o)
 
     if options.locals and code:
         if method.cpool:
@@ -171,14 +171,14 @@ def print_method(options, method):
         if lvt:
             print "  LocalVariableTable:"
             print "   Start  Length  Slot\tName\tDescriptor"
-            for (o,l,n,d,i) in lvt:
+            for o, l, n, d, i in lvt:
                 line = (str(o), str(l), str(i), cval(n), cval(d))
                 print "   %s" % "\t".join(line)
 
         if lvtt:
             print "  LocalVariableTypeTable:"
             print "   Start  Length  Slot\tName\tSignature"
-            for (o,l,n,s,i) in lvtt:
+            for o, l, n, s, i in lvtt:
                 line = (str(o), str(l), str(i), cval(n), cval(s))
                 print "   %s" % "\t".join(line)
 

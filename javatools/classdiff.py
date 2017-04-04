@@ -1038,7 +1038,7 @@ def _opt_cb_ignore(_opt, _opt_str, value, parser):
     ign = (i for i in ign if i)
     for i in ign:
         ignore.append(i)
-        iopt_str = "--ignore-" + i.replace("_","-")
+        iopt_str = "--ignore-" + i.replace("_", "-")
         iopt = parser.get_option(iopt_str)
         if iopt:
             iopt.process(iopt_str, value, options, parser)
@@ -1147,7 +1147,7 @@ def default_classdiff_options(updates=None):
     options, _args = parser.parse_args(list())
 
     if updates:
-        #pylint: disable=W0212
+        # pylint: disable=W0212
         options._update_careful(updates)
 
     return options
