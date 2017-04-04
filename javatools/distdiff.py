@@ -54,8 +54,7 @@ __all__ = (
     "DistReport", "DistClassReport", "DistJarReport",
     "cli", "main",
     "cli_dist_diff",
-    "distdiff_optgroup", "default_distdiff_options",
-)
+    "distdiff_optgroup", "default_distdiff_options", )
 
 
 # glob patterns used to trigger a DistTextChange
@@ -71,8 +70,7 @@ TEXT_PATTERNS = (
     "*.sh",
     "*.text",
     "*.txt",
-    "*.xml",
-)
+    "*.xml", )
 
 
 class DistContentChange(SuperChange):

@@ -84,8 +84,7 @@ __all__ = (
     "cli", "main",
     "cli_classes_diff",
     "classdiff_optgroup", "default_classdiff_options",
-    "general_optgroup",
-)
+    "general_optgroup", )
 
 
 class ClassNameChange(GenericChange):

@@ -30,13 +30,14 @@ from shutil import copyfile
 from tempfile import NamedTemporaryFile
 from zipfile import ZipFile, ZIP_DEFLATED
 
-from .crypto import (CannotFindKeyTypeError, SignatureBlockVerificationError,
-                     private_key_type, verify_signature_block, )
+from .crypto import CannotFindKeyTypeError, SignatureBlockVerificationError
+from .crypto import private_key_type, verify_signature_block
 from .manifest import Manifest, SignatureManifest, file_matches_sigfile
 
 
-__all__ = ("cli_create_jar", "cli_sign_jar",
-           "cli_verify_jar_signature", "main", )
+__all__ = (
+    "cli_create_jar", "cli_sign_jar",
+    "cli_verify_jar_signature", "main", )
 
 
 class VerificationError(Exception):

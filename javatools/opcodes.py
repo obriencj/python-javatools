@@ -27,6 +27,7 @@ References
 
 
 from functools import partial
+
 from .pack import compile_struct
 
 
@@ -75,8 +76,7 @@ __all__ = (
     "OP_multianewarray", "OP_new", "OP_newarray", "OP_nop", "OP_pop",
     "OP_pop2", "OP_putfield", "OP_putstatic", "OP_ret", "OP_return",
     "OP_saload", "OP_sastore", "OP_sipush", "OP_swap", "OP_tableswitch",
-    "OP_wide",
-)
+    "OP_wide", )
 
 
 # the op table itself

@@ -31,8 +31,7 @@ __all__ = (
     "iterate_by_type", "yield_sorted_by_type",
     "Change", "Addition", "Removal",
     "GenericChange", "SuperChange",
-    "SquashedChange", "SquashedAddition", "SquashedRemoval",
-)
+    "SquashedChange", "SquashedAddition", "SquashedRemoval", )
 
 
 def collect_by_typename(obj_sequence, cache=None):

@@ -31,15 +31,14 @@ or stream.
 # so there will be efforts here to increase performance
 
 
-from struct import Struct
 from abc import ABCMeta, abstractmethod
+from struct import Struct
 
 
 __all__ = (
     "compile_struct", "unpack",
     "Unpacker", "UnpackException",
-    "StreamUnpacker", "BufferUnpacker",
-)
+    "StreamUnpacker", "BufferUnpacker", )
 
 
 # pylint: disable=C0103

@@ -27,14 +27,13 @@ JAR files.
 from os.path import isdir
 
 from . import unpack_class
-from .change import GenericChange, SuperChange
-from .change import Addition, Removal
+from .change import GenericChange, SuperChange, Addition, Removal
 from .change import squash, yield_sorted_by_type
 from .classdiff import JavaClassChange, JavaClassReport
 from .dirutils import fnmatches
-from .manifest import Manifest, ManifestChange, \
-    SignatureManifestChange, SignatureBlockFileChange, \
-    file_matches_sigfile, file_matches_sigblock
+from .manifest import Manifest, ManifestChange
+from .manifest import SignatureManifestChange, SignatureBlockFileChange
+from .manifest import file_matches_sigfile, file_matches_sigblock
 from .ziputils import compare_zips, open_zip, open_zip_entry
 from .ziputils import LEFT, RIGHT, DIFF, SAME
 
@@ -52,8 +51,7 @@ __all__ = (
     "JarReport", "JarContentsReport", "JarClassReport",
     "cli", "main",
     "cli_jars_diff",
-    "jardiff_optgroup", "default_jardiff_options",
-)
+    "jardiff_optgroup", "default_jardiff_options", )
 
 
 class JarTypeChange(GenericChange):

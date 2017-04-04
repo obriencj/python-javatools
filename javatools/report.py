@@ -20,6 +20,7 @@ Classes for representing changes as formatted text.
 :license: LGPL
 """
 
+
 import sys
 
 from abc import ABCMeta, abstractmethod
@@ -28,6 +29,7 @@ from functools import partial
 from json import dump, JSONEncoder
 from optparse import OptionGroup
 from os.path import exists, join, relpath
+
 from .dirutils import copydir, makedirsp
 
 
@@ -39,8 +41,7 @@ __all__ = (
     "quick_report", "general_report_optgroup",
     "JSONReportFormat", "json_report_optgroup",
     "TextReportFormat",
-    "CheetahReportFormat", "html_report_optgroup",
-)
+    "CheetahReportFormat", "html_report_optgroup", )
 
 
 class Reporter(object):

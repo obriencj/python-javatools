@@ -49,8 +49,7 @@ __all__ = (
     "SignatureManifest",
     "ManifestKeyException", "MalformedManifest",
     "main", "cli",
-    "cli_create", "cli_query", "cli_verify",
-)
+    "cli_create", "cli_query", "cli_verify", )
 
 
 _BUFFERING = 2 ** 14

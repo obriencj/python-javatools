@@ -23,20 +23,19 @@ Utilities for discovering entry deltas in a pair of zip files.
 
 from cStringIO import StringIO
 from itertools import izip_longest
-from zipfile import is_zipfile, ZipFile, ZipInfo, _EndRecData
-from zlib import crc32
 from os import walk
 from os.path import getsize, isdir, isfile, islink, join, relpath
-from .dirutils import LEFT, RIGHT, DIFF, SAME
-from .dirutils import closing
+from zipfile import is_zipfile, ZipFile, ZipInfo, _EndRecData
+from zlib import crc32
+
+from .dirutils import LEFT, RIGHT, DIFF, SAME, closing
 
 
 __all__ = (
     "compare", "compare_zips",
     "open_zip", "open_zip_entry",
     "zip_file", "zip_entry_rollup",
-    "LEFT", "RIGHT", "DIFF", "SAME",
-)
+    "LEFT", "RIGHT", "DIFF", "SAME", )
 
 
 _CHUNKSIZE = 2 ** 14
