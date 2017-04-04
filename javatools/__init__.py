@@ -34,6 +34,7 @@ References
 from .dirutils import fnmatches
 from .opcodes import disassemble
 from .pack import compile_struct, unpack, UnpackException
+from functools import partial
 
 
 __all__ = (
@@ -69,7 +70,7 @@ _BUFFERING = 2 ** 14
 
 
 # The constant pool types
-#pylint: disable=C0103
+# pylint: disable=C0103
 CONST_Utf8 = 1
 CONST_Integer = 3
 CONST_Float = 4
@@ -81,10 +82,10 @@ CONST_Fieldref = 9
 CONST_Methodref = 10
 CONST_InterfaceMethodref = 11
 CONST_NameAndType = 12
-CONST_ModuleId = 13 # Removed? Maybe OpenJDK only?
-CONST_MethodHandle = 15 # TODO
-CONST_MethodType = 16 # TODO
-CONST_InvokeDynamic = 18 # TODO
+CONST_ModuleId = 13  # Removed? Maybe OpenJDK only?
+CONST_MethodHandle = 15  # TODO
+CONST_MethodType = 16  # TODO
+CONST_InvokeDynamic = 18  # TODO
 
 
 # class and member flags
@@ -174,7 +175,7 @@ class JavaConstantPool(object):
         Unpacks the constant pool from an unpacker stream
         """
 
-        (count,) = unpacker.unpack_struct(_H)
+        (count, ) = unpacker.unpack_struct(_H)
 
         # first item is never present in the actual data buffer, but
         # the count number acts like it would be.
@@ -324,11 +325,11 @@ class JavaConstantPool(object):
         elif t == CONST_NameAndType:
             a, b = (self.deref_const(i) for i in v)
             b = "".join(_pretty_typeseq(b))
-            result = "%s:%s" % (a,b)
+            result = "%s:%s" % (a, b)
 
         elif t == CONST_ModuleId:
             a, b = (self.deref_const(i) for i in v)
-            result = "%s@%s" % (a,b)
+            result = "%s@%s" % (a, b)
 
         elif not t:
             # the skipped-type, meaning the prior index was a
@@ -505,8 +506,8 @@ class JavaClassInfo(object):
         arg_types = tuple(arg_types)
 
         for m in self.get_methods_by_name(name):
-            if ((not m.is_bridge()) and
-                m.get_arg_type_descriptors() == arg_types):
+            if (((not m.is_bridge()) and
+                 m.get_arg_type_descriptors() == arg_types)):
                 return m
         return None
 
@@ -519,8 +520,8 @@ class JavaClassInfo(object):
         """
 
         for m in self.get_methods_by_name(name):
-            if (m.is_bridge() and
-                m.get_arg_type_descriptors() == arg_types):
+            if ((m.is_bridge() and
+                 m.get_arg_type_descriptors() == arg_types)):
                 yield m
 
 
@@ -775,7 +776,7 @@ class JavaClassInfo(object):
 
         if ci and mi:
             enc_class = self.deref_const(ci)
-            enc_meth,enc_type = self.deref_const(mi)
+            enc_meth, enc_type = self.deref_const(mi)
             result = "%s.%s%s" % (enc_class, enc_meth, enc_type)
 
         elif ci:
@@ -861,7 +862,7 @@ class JavaClassInfo(object):
         iterator of provided classes, fields, methods
         """
 
-        #TODO I probably need to add inner classes here
+        # TODO I probably need to add inner classes here
 
         me = self.pretty_this()
         yield me
@@ -1187,7 +1188,8 @@ class JavaMemberInfo(object):
         return bool(self.get_attribute("Deprecated"))
 
 
-    def _get_annotations(self, python_attr_name, java_attr_name, for_params=False):
+    def _get_annotations(self, python_attr_name, java_attr_name,
+                         for_params=False):
 
         annos = getattr(self, python_attr_name)
 
@@ -1198,12 +1200,12 @@ class JavaMemberInfo(object):
 
             else:
                 with unpack(buff) as up:
+                    unp = partial(up.unpack_objects, JavaAnnotation, self.cpool)
                     if for_params:
-                        (param_count,) = up.unpack_struct(_B)
-                        annos = (tuple(up.unpack_objects(JavaAnnotation, self.cpool))
-                                for i in range(param_count))
+                        (param_count, ) = up.unpack_struct(_B)
+                        annos = (tuple(unp()) for i in xrange(param_count))
                     else:
-                        annos = up.unpack_objects(JavaAnnotation, self.cpool)
+                        annos = unp()
                     annos = tuple(annos)
 
             setattr(self, python_attr_name, annos)
@@ -1236,27 +1238,27 @@ class JavaMemberInfo(object):
 
 
     def get_parameter_annotations(self):
-      """
-      The RuntimeVisibleParameterAnnotations attribute.
-      Contains a tuple of JavaAnnotation instances for each param.
+        """
+        The RuntimeVisibleParameterAnnotations attribute.  Contains a
+        tuple of JavaAnnotation instances for each param.
 
-      reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.18
-      """
-      return self._get_annotations("parameter_annotations",
-                                   "RuntimeVisibleParameterAnnotations",
-                                   for_params=True)
+        reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.18
+        """
+        return self._get_annotations("parameter_annotations",
+                                     "RuntimeVisibleParameterAnnotations",
+                                     for_params=True)
 
 
     def get_invisible_parameter_annotations(self):
-      """
-      The RuntimeInvisibleParameterAnnotations attribute.
-      Contains a tuple of JavaAnnotation instances for each param.
+        """
+        The RuntimeInvisibleParameterAnnotations attribute.  Contains a
+        tuple of JavaAnnotation instances for each param.
 
-      reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.19
-      """
-      return self._get_annotations("invisible_parameter_annotations",
-                                   "RuntimeInvisibleParameterAnnotations",
-                                   for_params=True)
+        reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.19
+        """
+        return self._get_annotations("invisible_parameter_annotations",
+                                     "RuntimeInvisibleParameterAnnotations",
+                                     for_params=True)
 
 
     def get_annotationdefault(self):
@@ -1272,7 +1274,7 @@ class JavaMemberInfo(object):
             return None
 
         with unpack(buff) as up:
-            (ti,) = up.unpack_struct(_H)
+            (ti, ) = up.unpack_struct(_H)
 
         return ti
 
@@ -1338,7 +1340,7 @@ class JavaMemberInfo(object):
             return None
 
         with unpack(buff) as up:
-            (cval_ref,) = up.unpack_struct(_H)
+            (cval_ref, ) = up.unpack_struct(_H)
 
         return cval_ref
 
@@ -1895,7 +1897,7 @@ class JavaAnnotation(dict):
         return not self.__eq__(other)
 
     def __repr__(self):
-      return '@' + self.pretty_annotation()
+        return '@' + self.pretty_annotation()
 
 
 def _annotation_val_eq(left_tag, left_data, left_cpool,
@@ -2167,7 +2169,7 @@ def _next_argsig(buff):
 
     elif c == "[":
         d, buff = _next_argsig(buffer(buff, 1))
-        result =  (c + d, buff)
+        result = (c + d, buff)
 
     elif c == "L":
         s = buff[:]

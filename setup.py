@@ -23,34 +23,36 @@ license: LGPL v.3
 """
 
 
-import sys
-
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-
-from extras import pylint_cmd, cheetah_build_py_cmd
+from setuptools import setup
+from cheetah_cmd import cheetah_build_py_cmd
 
 
 setup(name = "javatools",
-      version = "1.4.0",
+      version = "1.4.1",
 
-      packages = [ "javatools",
-                   "javatools.cheetah" ],
+      packages = [
+          "javatools",
+          "javatools.cheetah",
+      ],
 
-      package_data = { "javatools.cheetah": [ "data/*.css",
-                                              "data/*.js",
-                                              "data/*.png" ] },
+      package_data = {
+          "javatools.cheetah": ["data/*.css",
+                                "data/*.js",
+                                "data/*.png", ]
+      },
 
-      scripts = [ "scripts/classdiff",
-                  "scripts/classinfo",
-                  "scripts/distdiff",
-                  "scripts/distinfo",
-                  "scripts/jardiff",
-                  "scripts/jarinfo",
-                  "scripts/jarutil",
-                  "scripts/manifest" ],
+      entry_points = {
+          "console_scripts": [
+              'classdiff=javatools.classdiff:main',
+              'classinfo=javatools.classinfo:main',
+              'distdiff=javatools.distdiff:main',
+              'distinfo=javatools.distinfo:main',
+              'jardiff=javatools.jardiff:main',
+              'jarinfo=javatools.jarinfo:main',
+              'jarutil=javatools.jarutil:main',
+              'manifest=javatools.manifest:main',
+          ],
+      },
 
       test_suite = "tests",
 
@@ -63,22 +65,26 @@ setup(name = "javatools",
       description = "Tools for finding meaningful deltas in Java"
       " class files and JARs",
 
-      provides = [ "javatools" ],
-      install_requires = [ "Cheetah",
-                           "M2Crypto" ],
-      setup_requires = [ "Cheetah" ],
-      platforms = [ "python2 >= 2.6" ],
+      provides = ["javatools", ],
 
-      classifiers = [ "Development Status :: 5 - Production/Stable",
-                      "Environment :: Console",
-                      "Intended Audience :: Developers",
-                      "Intended Audience :: Information Technology",
-                      "Programming Language :: Python :: 2",
-                      "Topic :: Software Development :: Disassemblers" ],
+      install_requires = ["Cheetah",
+                          "M2Crypto", ],
+
+      setup_requires = ["Cheetah", ],
+
+      platforms = ["python2 >= 2.6", ],
+
+      classifiers = [
+          "Development Status :: 5 - Production/Stable",
+          "Environment :: Console",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Information Technology",
+          "Programming Language :: Python :: 2",
+          "Topic :: Software Development :: Disassemblers",
+      ],
 
       # extras stuff
-      cmdclass = { 'build_py': cheetah_build_py_cmd,
-                   'pylint': pylint_cmd } )
+      cmdclass = {'build_py': cheetah_build_py_cmd, })
 
 
 #

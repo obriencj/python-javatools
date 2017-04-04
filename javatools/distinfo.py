@@ -23,16 +23,25 @@ distribution of mixed class files and JARs.
 """
 
 
+import sys
+
+from json import dump
+from optparse import OptionParser, OptionGroup
+from os.path import isdir, join
+from shutil import rmtree
+from tempfile import mkdtemp
+
+from . import unpack_classfile
+from .jarinfo import JarInfo, JAR_PATTERNS, REQ_BY_CLASS, PROV_BY_CLASS
+from .dirutils import fnmatches
+from .ziputils import open_zip
+
 
 DIST_JAR = "jar"
 DIST_CLASS = "class"
 
-
-
-from .jarinfo import REQ_BY_CLASS, PROV_BY_CLASS
 REQ_BY_JAR = "jar.requires"
 PROV_BY_JAR = "jar.provides"
-
 
 
 class DistInfo(object):
@@ -58,10 +67,6 @@ class DistInfo(object):
 
 
     def _working_path(self):
-        from os.path import isdir
-        from tempfile import mkdtemp
-        from .ziputils import open_zip
-
         if self.tmpdir:
             return self.tmpdir
 
@@ -84,22 +89,22 @@ class DistInfo(object):
         for entry in self.get_jars():
             ji = self.get_jarinfo(entry)
             for sym,data in ji.get_requires().iteritems():
-                req.setdefault(sym, list()).append((REQ_BY_JAR,entry,data))
+                req.setdefault(sym, []).append((REQ_BY_JAR, entry,data))
             for sym,data in ji.get_provides().iteritems():
-                prov.setdefault(sym, list()).append((PROV_BY_JAR,entry,data))
+                prov.setdefault(sym, []).append((PROV_BY_JAR, entry,data))
                 p.add(sym)
             ji.close()
 
         for entry in self.get_classes():
             ci = self.get_classinfo(entry)
             for sym in ci.get_requires():
-                req.setdefault(sym, list()).append((REQ_BY_CLASS,entry))
+                req.setdefault(sym, []).append((REQ_BY_CLASS, entry))
             for sym in ci.get_provides(private=False):
-                prov.setdefault(sym, list()).append((PROV_BY_CLASS,entry))
+                prov.setdefault(sym, []).append((PROV_BY_CLASS, entry))
             for sym in ci.get_provides(private=True):
                 p.add(sym)
 
-        req = dict((k,v) for k,v in req.iteritems() if k not in p)
+        req = dict((k, v) for k, v in req.iteritems() if k not in p)
 
         self._requires = req
         self._provides = prov
@@ -110,14 +115,12 @@ class DistInfo(object):
         optional list of globbed patterns indicating packages,
         classes, etc that shouldn't be included in the provides map"""
 
-        from .dirutils import fnmatches
-
         if self._requires is None:
             self._collect_requires_provides()
 
         d = self._requires
         if ignored:
-            d = dict((k,v) for k,v in d.iteritems()
+            d = dict((k, v) for k, v in d.iteritems()
                      if not fnmatches(k, *ignored))
         return d
 
@@ -128,14 +131,12 @@ class DistInfo(object):
         indicating packages, classes, etc that shouldn't be included
         in the provides map"""
 
-        from .dirutils import fnmatches
-
         if self._provides is None:
             self._collect_requires_provides()
 
         d = self._provides
         if ignored:
-            d = dict((k,v) for k,v in d.iteritems()
+            d = dict((k, v) for k, v in d.iteritems()
                      if not fnmatches(k, *ignored))
         return d
 
@@ -143,19 +144,13 @@ class DistInfo(object):
     def get_jars(self):
         """ sequence of entry names found in this distribution """
 
-        from .jarinfo import JAR_PATTERNS
-        from .dirutils import fnmatches
-
         for entry in self.get_contents():
             if fnmatches(entry, *JAR_PATTERNS):
                 yield entry
 
 
     def get_jarinfo(self, entry):
-        from .jarinfo import JarInfo
-        from os.path import join
-
-        return JarInfo(join(self.base_path,entry))
+        return JarInfo(join(self.base_path, entry))
 
 
     def get_classes(self):
@@ -163,18 +158,13 @@ class DistInfo(object):
         is only the collection of class files directly in the dist, it
         does not include classes within JARs that are inthe dist."""
 
-        from .dirutils import fnmatches
-
         for entry in self.get_contents():
             if fnmatches(entry, "*.class"):
                 yield entry
 
 
     def get_classinfo(self, entry):
-        from javatools import unpack_classfile
-        from os.path import join
-
-        return unpack_classfile(join(self.base_path,entry))
+        return unpack_classfile(join(self.base_path, entry))
 
 
     def get_contents(self):
@@ -188,14 +178,11 @@ class DistInfo(object):
         may have resulted in opening or creating temporary files.
         Call close in order to clean up. """
 
-        from shutil import rmtree
-
         if self.tmpdir:
             rmtree(self.tmpdir)
             self.tmpdir = None
 
         self._contents = None
-
 
 
 def _collect_dist(pathn):
@@ -206,10 +193,8 @@ def _collect_dist(pathn):
             yield relpath(join(r, f), pathn)
 
 
-
-#
 # --- CLI ---
-
+#
 
 
 def cli_dist_provides(options, info):
@@ -220,14 +205,12 @@ def cli_dist_provides(options, info):
     print
 
 
-
 def cli_dist_requires(options, info):
     print "distribution requires:"
 
     for required in sorted(info.get_requires(options.api_ignore)):
         print " ", required
     print
-
 
 
 def cli_distinfo(options, info):
@@ -241,11 +224,7 @@ def cli_distinfo(options, info):
     #TODO: simple things like listing JARs and non-JAR files
 
 
-
 def cli_distinfo_json(options, info):
-    from json import dump
-    from sys import stdout
-
     data = {}
 
     if options.dist_provides:
@@ -254,8 +233,7 @@ def cli_distinfo_json(options, info):
     if options.dist_requires:
         data["dist.requires"] = info.get_requires(options.api_ignore)
 
-    dump(data, stdout, sort_keys=True, indent=2)
-
+    dump(data, sys.stdout, sort_keys=True, indent=2)
 
 
 def cli(parser, options, rest):
@@ -274,10 +252,7 @@ def cli(parser, options, rest):
     return 0
 
 
-
 def distinfo_optgroup(parser):
-    from optparse import OptionGroup
-
     g = OptionGroup(parser, "Distribution Info Options")
 
     g.add_option("--dist-provides", dest="dist_provides",
@@ -291,9 +266,7 @@ def distinfo_optgroup(parser):
     return g
 
 
-
 def create_optparser():
-    from optparse import OptionParser
     from .jarinfo import jarinfo_optgroup
     from .classinfo import classinfo_optgroup
 
@@ -309,11 +282,9 @@ def create_optparser():
     return parser
 
 
-
-def main(args):
+def main(args=sys.argv):
     parser = create_optparser()
     return cli(parser, *parser.parse_args(args))
-
 
 
 #

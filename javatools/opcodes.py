@@ -92,7 +92,7 @@ _OPINDEX_CONST = 5
 
 
 # commonly re-occurring struct formats
-#pylint: disable=C0103
+# pylint: disable=C0103
 _struct_i = compile_struct(">i")
 _struct_ii = compile_struct(">ii")
 _struct_iii = compile_struct(">iii")
@@ -116,8 +116,8 @@ def __op(name, val, fmt=None, const=False, consume=0, produce=0):
 
     operand = (name, val, fmt, consume, produce, const)
 
-    assert not __OPTABLE.has_key(name)
-    assert not __OPTABLE.has_key(val)
+    assert(name not in __OPTABLE)
+    assert(val not in __OPTABLE)
 
     __OPTABLE[name] = operand
     __OPTABLE[val] = operand
@@ -254,7 +254,7 @@ def disassemble(bytecode):
 # The individual OP_* constants just have the numerical value. The
 # rest is just information to get stored in the __OPTABLE
 
-#pylint: disable=C0103
+# pylint: disable=C0103
 
 OP_aaload = __op('aaload', 0x32)
 OP_aastore = __op('aastore', 0x53)

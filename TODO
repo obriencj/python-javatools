@@ -66,4 +66,6 @@
 
 - invokedynamic and all of its friends need support
 
+- investigate jinja2 as a replacement for Cheetah
+
 #

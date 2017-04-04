@@ -33,7 +33,7 @@ In addition, the following tools are used in building and testing the
 project.
 
 * [GNU Make]
-* [Pylint]
+* [Flake8]
 
 All of these packages are available in most linux distributions
 (eg. Fedora), and for OSX via [MacPorts].
@@ -44,7 +44,7 @@ All of these packages are available in most linux distributions
 
 [setuptools]: http://pythonhosted.org/setuptools/
 [gnu make]: http://www.gnu.org/software/make/
-[pylint]: http://pypi.python.org/pypi/pylint/
+[flake8]: https://gitlab.com/pycqa/flake8
 
 [fedora]: http://fedoraproject.org/
 [macports]: http://www.macports.org
@@ -69,10 +69,6 @@ simply invoke:
 
 ```python setup.py test```
 
-There is also a custom `pylint` command, which can be use via:
-
-```python setup.py pylint```
-
 
 ### RPM
 
@@ -96,7 +92,7 @@ If you'd prefer to build an RPM, see the wiki entry for
 * jardiff - prints the deltas between the contents of a JAR, and runs
   classdiff on differing Java class files contained in the JARs
 
-* jarutil - creates JAR, signs JAR, verifies JAR signature
+* jarutil - creates and signs JARs, verifies JAR signatures
 
 * manifest - creates and queries JAR manifests
 
