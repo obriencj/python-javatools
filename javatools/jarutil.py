@@ -92,7 +92,7 @@ def verify(certificate, jar_file):
         raise VerificationError(msg)
 
     sf_filename = sf_files[0]
-    key_alias = sf_filename[9:-3] # "META-INF/%s.SF"
+    key_alias = sf_filename[9:-3]  # "META-INF/%s.SF"
     sf_data = zip_file.read(sf_filename)
 
     # Step 1: check the crypto part.

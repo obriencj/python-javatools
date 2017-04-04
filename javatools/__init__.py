@@ -31,10 +31,11 @@ References
 """
 
 
+from functools import partial
+
 from .dirutils import fnmatches
 from .opcodes import disassemble
 from .pack import compile_struct, unpack, UnpackException
-from functools import partial
 
 
 __all__ = (
@@ -57,8 +58,7 @@ __all__ = (
     "ACC_TRANSIENT", "ACC_VARARGS", "ACC_NATIVE",
     "ACC_INTERFACE", "ACC_ABSTRACT", "ACC_STRICT",
     "ACC_SYNTHETIC", "ACC_ANNOTATION", "ACC_ENUM",
-    "ACC_MODULE",
-)
+    "ACC_MODULE", )
 
 
 # the four bytes at the start of every class file
@@ -2000,15 +2000,16 @@ def _pretty_annotation_val(val, cpool):
 # inclusive, and the string of the platform version.
 
 
-_platforms = ( ((45, 0), (45, 3), "1.0.2"),
-               ((45, 4), (45, 65535), "1.1"),
-               ((46, 0), (46, 65535), "1.2"),
-               ((47, 0), (47, 65535), "1.3"),
-               ((48, 0), (48, 65535), "1.4"),
-               ((49, 0), (49, 65535), "1.5"),
-               ((50, 0), (50, 65535), "1.6"),
-               ((51, 0), (51, 65535), "1.7"),
-               ((52, 0), (52, 65535), "1.8") )
+_platforms = (
+    ((45, 0), (45, 3), "1.0.2"),
+    ((45, 4), (45, 65535), "1.1"),
+    ((46, 0), (46, 65535), "1.2"),
+    ((47, 0), (47, 65535), "1.3"),
+    ((48, 0), (48, 65535), "1.4"),
+    ((49, 0), (49, 65535), "1.5"),
+    ((50, 0), (50, 65535), "1.6"),
+    ((51, 0), (51, 65535), "1.7"),
+    ((52, 0), (52, 65535), "1.8"), )
 
 
 def platform_from_version(major, minor):
@@ -2089,11 +2090,11 @@ def _pretty_const_type_val(typecode, val):
     """
 
     if typecode == CONST_Utf8:
-        typestr = "Utf8" # formerly Asciz, which was considered Java bug
+        typestr = "Utf8"  # formerly Asciz, which was considered Java bug
         if isinstance(val, unicode):
-            val = repr(val)[2:-1] # trim off the surrounding u"" (HACK)
+            val = repr(val)[2:-1]  # trim off the surrounding u"" (HACK)
         else:
-            val = repr(val)[1:-1] # trim off the surrounding "" (HACK)
+            val = repr(val)[1:-1]  # trim off the surrounding "" (HACK)
     elif typecode == CONST_Integer:
         typestr = "int"
     elif typecode == CONST_Float:
@@ -2216,7 +2217,7 @@ def _pretty_typeseq(type_s):
 
 
 def _pretty_type(s, offset=0):
-    #pylint: disable=R0911, R0912
+    # pylint: disable=R0911, R0912
     # too many returns, too many branches. Not converting this to a
     # dict lookup. Waiving instead.
 
