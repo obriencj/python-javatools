@@ -24,8 +24,8 @@ Java archives
 import os
 import sys
 
-from shutil import copyfile, rmtree
-from tempfile import NamedTemporaryFile, mkdtemp
+from shutil import copyfile
+from tempfile import NamedTemporaryFile
 from zipfile import ZipFile, ZIP_DEFLATED
 
 from .manifest import Manifest, SignatureManifest
@@ -86,8 +86,8 @@ def verify(certificate, jar_file):
     elif len(sf_files) > 1:
         # This is acceptable: SF file represents a signer. But then the
         # validation logic becomes more complicated...
-        raise VerificationError(
-            "Multiple .SF files in %s, this is not supported yet" % jar_file)
+        msg = "Multiple .SF files in %s, this is not supported yet" % jar_file
+        raise VerificationError(msg)
 
     sf_filename = sf_files[0]
     key_alias = sf_filename[9:-3]       # "META-INF/%s.SF"
@@ -118,10 +118,10 @@ def verify(certificate, jar_file):
         sig_block_data = zip_file.read(sig_block_filename)
         try:
             verify_signature_block(certificate, sf_file, sig_block_data)
+
         except SignatureBlockVerificationError, message:
             msg = "Signature block verification failed: %s" % message
             raise SignatureBlockFileVerificationError(msg)
-
 
     # KEYALIAS.SF is correctly signed.
     # Step 2: Check that it contains correct checksum of the manifest.
@@ -133,9 +133,10 @@ def verify(certificate, jar_file):
 
     errors = signature_manifest.verify_manifest(jar_manifest)
     if len(errors) > 0:
-        raise ManifestChecksumError(
-            "%s: in .SF file, section checksum(s) failed for: %s"
-            % (jar_file, ",".join(errors)))
+        msg = "%s: in the signature manifest, main checksum for the" \
+              " manifest fails, and section checksum(s) failed for: %s" \
+              % (jar_file, ",".join(errors))
+        raise ManifestChecksumError(msg)
 
     # Checksums of MANIFEST.MF itself are correct.
     # Step 3: Check that it contains valid checksums for each file
@@ -146,9 +147,9 @@ def verify(certificate, jar_file):
     # jarsigner does.
     errors = jar_manifest.verify_jar_checksums(jar_file)
     if len(errors) > 0:
-        raise JarChecksumError(
-            "Checksum(s) for jar entries of jar file %s failed for: %s"
-            % (jar_file, ",".join(errors)))
+        msg = "Checksum(s) for jar entries of jar file %s failed for: %s" \
+              % (jar_file, ",".join(errors))
+        raise JarChecksumError(msg)
 
     return None
 
@@ -165,8 +166,8 @@ def sign(jar_file, cert_file, key_file, key_alias,
 
     jar = ZipFile(jar_file, "a")
     if "META-INF/MANIFEST.MF" not in jar.namelist():
-        raise MissingManifestError(
-            "META-INF/MANIFEST.MF not found in %s" % jar_file)
+        msg = "META-INF/MANIFEST.MF not found in %s" % jar_file
+        raise MissingManifestError(msg)
 
     mf = Manifest()
     mf.parse(jar.read("META-INF/MANIFEST.MF"))
@@ -191,7 +192,9 @@ def sign(jar_file, cert_file, key_file, key_alias,
         new_jar = ZipFile(new_jar_file, "w", ZIP_DEFLATED)
         new_jar.writestr("META-INF/MANIFEST.MF", mf.get_data())
         new_jar.writestr("META-INF/%s.SF" % key_alias, sf.get_data())
-        new_jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension), sigdata)
+        new_jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension),
+                         sigdata)
+
         for entry in jar.namelist():
             if not entry.upper() == "META-INF/MANIFEST.MF":
                 new_jar.writestr(entry, jar.read(entry))
@@ -251,19 +254,23 @@ def cli_sign_jar(argument_list=None):
     from optparse import OptionParser
     from .crypto import CannotFindKeyTypeError
 
-    usage_message = "Usage: jarutil s [OPTIONS] file.jar certificate.pem private_key.pem key_alias"
+    usage_message = "Usage: jarutil s [OPTIONS] file.jar certificate.pem" \
+                    " private_key.pem key_alias"
 
     parser = OptionParser(usage=usage_message)
     parser.add_option("-d", "--digest",
-                      help="Digest algorithm used for signing   ")
+                      help="Digest algorithm used for signing")
+
     parser.add_option("-c", "--chain", action="append",
                       help="Additional certificates to embed into the"
                       " signature (PEM format). More than one can be"
                       " provided.")
+
     parser.add_option("-o", "--output",
                       help="Filename to put signed jar. If not provided, the"
                       " signature is added to the original jar file.")
-    options, mand_args = parser.parse_args(argument_list)
+
+    (options, mand_args) = parser.parse_args(argument_list)
 
     if len(mand_args) != 4:
         print usage_message
@@ -275,7 +282,8 @@ def cli_sign_jar(argument_list=None):
     output = options.output if options and options.output else None
 
     try:
-        sign(jar_file, cert_file, key_file, key_alias, extra_certs, digest, output)
+        sign(jar_file, cert_file, key_file, key_alias, extra_certs,
+             digest, output)
     except CannotFindKeyTypeError:
         print "Cannot determine private key type (is it in PEM format?)"
         return 1

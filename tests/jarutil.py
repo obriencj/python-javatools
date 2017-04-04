@@ -20,9 +20,9 @@ author: Konstantin Shemyak  <konstantin@shemyak.com>
 license: LGPL v.3
 """
 
+import os
 from unittest import TestCase
 from shutil import copyfile, copytree, rmtree
-import os
 from tempfile import NamedTemporaryFile, mkdtemp
 from . import get_data_fn
 
@@ -33,7 +33,6 @@ from javatools.jarutil import cli_create_jar, cli_sign_jar, \
 
 
 class JarutilTest(TestCase):
-
 
     def cli_verify_wrap(self, jar, cert):
         data = [get_data_fn(jar), get_data_fn(cert)]

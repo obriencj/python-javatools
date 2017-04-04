@@ -137,14 +137,16 @@ class ManifestTest(TestCase):
         mf = Manifest()
         mf.parse_file(get_data_fn(mf_file))
 
+        ok = sf.verify_manifest_main_checksum(mf)
         self.assertFalse(
-            sf.verify_manifest_main_checksum(mf),
+            ok,
             "Verification of main signature in file %s against manifest %s"
             " succeeded, but the SF file has no Digest-Manifest section"
             % (sf_file, mf_file))
 
+        ok = sf.verify_manifest_main_attributes_checksum(mf)
         self.assertTrue(
-            sf.verify_manifest_main_attributes_checksum(mf),
+            ok,
             "Verification of Main-Attibutes in file %s against manifest %s"
             "failed" % (sf_file, mf_file))
 
