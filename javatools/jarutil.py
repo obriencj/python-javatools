@@ -21,14 +21,18 @@ Java archives
 :license: LGPL
 """
 
+
 import os
 import sys
 
+from optparse import OptionParser
 from shutil import copyfile
 from tempfile import NamedTemporaryFile
 from zipfile import ZipFile, ZIP_DEFLATED
 
-from .manifest import Manifest, SignatureManifest
+from .crypto import (CannotFindKeyTypeError, SignatureBlockVerificationError,
+                     private_key_type, verify_signature_block, )
+from .manifest import Manifest, SignatureManifest, file_matches_sigfile
 
 
 __all__ = ("cli_create_jar", "cli_sign_jar",
@@ -74,9 +78,6 @@ def verify(certificate, jar_file):
     Note that the validation is done in three steps. Failure at any step is a
     failure of the whole validation.
     """  # noqa
-
-    from .crypto import verify_signature_block, SignatureBlockVerificationError
-    from .manifest import file_matches_sigfile
 
     # Step 0: get the "key alias", used also for naming of sig-related files.
     zip_file = ZipFile(jar_file)
@@ -163,8 +164,6 @@ def sign(jar_file, cert_file, key_file, key_alias,
     :return None
     """
 
-    from .crypto import private_key_type
-
     jar = ZipFile(jar_file, "a")
     if "META-INF/MANIFEST.MF" not in jar.namelist():
         msg = "META-INF/MANIFEST.MF not found in %s" % jar_file
@@ -231,7 +230,6 @@ def cli_create_jar(argument_list):
     """
     A subset of "jar" command. Creating new JARs only.
     """
-    from optparse import OptionParser
 
     usage_message = "usage: jarutil c [OPTIONS] file.jar files..."
     parser = OptionParser(usage=usage_message)
@@ -252,8 +250,6 @@ def cli_sign_jar(argument_list=None):
     """
     Command-line wrapper around sign()
     """
-    from optparse import OptionParser
-    from .crypto import CannotFindKeyTypeError
 
     usage_message = "Usage: jarutil s [OPTIONS] file.jar certificate.pem" \
                     " private_key.pem key_alias"
