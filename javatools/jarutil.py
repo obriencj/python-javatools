@@ -73,7 +73,7 @@ def verify(certificate, jar_file):
     http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Signature_Validation
     Note that the validation is done in three steps. Failure at any step is a
     failure of the whole validation.
-    """
+    """  # noqa
 
     from .crypto import verify_signature_block, SignatureBlockVerificationError
     from .manifest import file_matches_sigfile
@@ -308,9 +308,11 @@ def cli_verify_jar_signature(argument_list):
     (jar_file, certificate) = argument_list
     try:
         verify(certificate, jar_file)
-    except VerificationError, error_message:
+
+    except VerificationError as error_message:
         print error_message
         return 1
+
     print "Jar verified."
     return 0
 
