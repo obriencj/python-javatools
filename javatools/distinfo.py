@@ -88,10 +88,10 @@ class DistInfo(object):
 
         for entry in self.get_jars():
             ji = self.get_jarinfo(entry)
-            for sym,data in ji.get_requires().iteritems():
-                req.setdefault(sym, []).append((REQ_BY_JAR, entry,data))
-            for sym,data in ji.get_provides().iteritems():
-                prov.setdefault(sym, []).append((PROV_BY_JAR, entry,data))
+            for sym, data in ji.get_requires().iteritems():
+                req.setdefault(sym, []).append((REQ_BY_JAR, entry, data))
+            for sym, data in ji.get_provides().iteritems():
+                prov.setdefault(sym, []).append((PROV_BY_JAR, entry, data))
                 p.add(sym)
             ji.close()
 
@@ -221,7 +221,7 @@ def cli_distinfo(options, info):
     if options.dist_requires:
         cli_dist_requires(options, info)
 
-    #TODO: simple things like listing JARs and non-JAR files
+    # TODO: simple things like listing JARs and non-JAR files
 
 
 def cli_distinfo_json(options, info):
@@ -237,7 +237,7 @@ def cli_distinfo_json(options, info):
 
 
 def cli(parser, options, rest):
-    #pylint: disable=W0613
+    # pylint: disable=W0613
     # parser unused
 
     pathn = rest[1]

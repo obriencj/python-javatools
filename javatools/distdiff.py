@@ -111,7 +111,7 @@ class DistContentChange(SuperChange):
 
 
     def get_description(self):
-        c = ("has changed","is unchanged")[not self.is_change()]
+        c = "has changed" if self.is_change() else "is unchanged"
         return "%s %s: %s" % (self.label, c, self.entry)
 
 
@@ -289,9 +289,9 @@ class DistChange(SuperChange):
 
 
     def get_description(self):
+        changed = "changed" if self.is_change() else "unchanged"
         return "%s %s from %s to %s" % \
-            (self.label, ("unchanged","changed")[self.is_change()],
-             self.ldata, self.rdata)
+            (self.label, changed, self.ldata, self.rdata)
 
 
     @yield_sorted_by_type(DistClassAdded,
@@ -659,7 +659,7 @@ def default_distdiff_options(updates=None):
     options, _args = parser.parse_args(list())
 
     if updates:
-        #pylint: disable=W0212
+        # pylint: disable=W0212
         options._update_careful(updates)
 
     return options

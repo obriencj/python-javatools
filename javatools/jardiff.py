@@ -593,7 +593,7 @@ def default_jardiff_options(updates=None):
     options, _args = parser.parse_args(list())
 
     if updates:
-        #pylint: disable=W0212
+        # pylint: disable=W0212
         options._update_careful(updates)
 
     return options

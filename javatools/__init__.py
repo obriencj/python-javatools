@@ -1876,8 +1876,9 @@ class JavaAnnotation(dict):
             return False
 
         # if we have a different type name, not equal
-        if (self.cpool.deref_const(self.type_ref) !=
-            other.cpool.deref_const(other.type_ref)):
+        left = self.cpool.deref_const(self.type_ref)
+        right = other.cpool.deref_const(other.type_ref)
+        if left != right:
             return False
 
         # if we have differing sets of keys, not equal
