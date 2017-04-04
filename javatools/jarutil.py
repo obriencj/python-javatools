@@ -24,8 +24,8 @@ Java archives
 import os
 import sys
 
-from shutil import copyfile, rmtree
-from tempfile import NamedTemporaryFile, mkdtemp
+from shutil import copyfile
+from tempfile import NamedTemporaryFile
 from zipfile import ZipFile, ZIP_DEFLATED
 
 from .manifest import Manifest, SignatureManifest
