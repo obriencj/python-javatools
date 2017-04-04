@@ -91,7 +91,7 @@ def create_signature_block(openssl_digest, certificate, private_key,
     :type data: str
     :returns: content of the signature block file as produced by jarsigner
     :rtype: str
-    """
+    """  # noqa
 
     smime = SMIME.SMIME()
     smime.load_key_bio(BIO.openfile(private_key), BIO.openfile(certificate))

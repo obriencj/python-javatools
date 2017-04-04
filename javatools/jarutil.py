@@ -140,11 +140,12 @@ def verify(certificate, jar_file):
         raise ManifestChecksumError(msg)
 
     # Checksums of MANIFEST.MF itself are correct.
-    # Step 3: Check that it contains valid checksums for each file from the JAR.
-    # NOTE: the check is done for JAR entries. If some JAR entries are deleted
-    # after signing, the verification still succeeds.
-    # This seems to not follow the reference specification, but that's what
-    # jarsigner does.
+    # Step 3: Check that it contains valid checksums for each file
+    # from the JAR.  NOTE: the check is done for JAR entries. If some
+    # JAR entries are deleted after signing, the verification still
+    # succeeds.  This seems to not follow the reference specification,
+    # but that's what jarsigner does.
+
     errors = jar_manifest.verify_jar_checksums(jar_file)
     if len(errors) > 0:
         msg = "Checksum(s) for jar entries of jar file %s failed for: %s" \

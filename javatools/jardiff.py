@@ -318,7 +318,8 @@ class JarContentsChange(SuperChange):
                     yield JarSignatureFileChange(left, right, entry, False)
 
                 elif file_matches_sigblock(entry):
-                    yield JarSignatureBlockFileChange(left, right, entry, False)
+                    yield JarSignatureBlockFileChange(left, right,
+                                                      entry, False)
 
                 elif fnmatches(entry, "*.class"):
                     yield JarClassChange(left, right, entry, False)

@@ -28,7 +28,7 @@ References
 
 :author: Christopher O'Brien  <obriencj@gmail.com>
 :license: LGPL
-"""
+"""  # noqa
 
 
 from functools import partial
@@ -155,7 +155,7 @@ class JavaConstantPool(object):
     A constants pool
 
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.4
-    """
+    """  # noqa
 
     def __init__(self):
         self.consts = tuple()
@@ -614,7 +614,7 @@ class JavaClassInfo(object):
         is this class deprecated
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.15
-        """
+        """  # noqa
 
         return bool(self.get_attribute("Deprecated"))
 
@@ -660,7 +660,7 @@ class JavaClassInfo(object):
         instances
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
-        """
+        """  # noqa
 
         return self._get_annotations("annotations",
                                      "RuntimeVisibleAnnotations")
@@ -672,7 +672,7 @@ class JavaClassInfo(object):
         JavaAnnotation instances
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.17
-        """
+        """  # noqa
 
         return self._get_annotations("invisible_annotations",
                                      "RuntimeInvisibleAnnotations")
@@ -684,7 +684,7 @@ class JavaClassInfo(object):
         indicated
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.10
-        """
+        """  # noqa
 
         buff = self.get_attribute("SourceFile")
         if buff is None:
@@ -700,7 +700,7 @@ class JavaClassInfo(object):
         """
         reference:
         http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.11
-        """
+        """  # noqa
 
         buff = self.get_attribute("SourceDebugExtension")
         return (buff and str(buff)) or None
@@ -712,7 +712,7 @@ class JavaClassInfo(object):
         classes of this class definition
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.6
-        """
+        """  # noqa
 
         buff = self.get_attribute("InnerClasses")
         if buff is None:
@@ -727,7 +727,7 @@ class JavaClassInfo(object):
         the generics class signature
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.9
-        """
+        """  # noqa
 
         buff = self.get_attribute("Signature")
         if buff is None:
@@ -754,7 +754,7 @@ class JavaClassInfo(object):
         None if this was not an inner class.
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.7
-        """
+        """  # noqa
 
         buff = self.get_attribute("EnclosingMethod")
 
@@ -1156,7 +1156,7 @@ class JavaMemberInfo(object):
         is this a synthetic method
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.8
-        """
+        """  # noqa
 
         return ((self.access_flags & ACC_SYNTHETIC) or
                 bool(self.get_attribute("Synthetic")))
@@ -1183,7 +1183,7 @@ class JavaMemberInfo(object):
         is this member deprecated
 
         reference: http://docs.oracle.com/javase/specs/jvms/se5.0/html/ClassFile.doc.html#78232
-        """
+        """  # noqa
 
         return bool(self.get_attribute("Deprecated"))
 
@@ -1200,7 +1200,9 @@ class JavaMemberInfo(object):
 
             else:
                 with unpack(buff) as up:
-                    unp = partial(up.unpack_objects, JavaAnnotation, self.cpool)
+                    unp = partial(up.unpack_objects,
+                                  JavaAnnotation, self.cpool)
+
                     if for_params:
                         (param_count, ) = up.unpack_struct(_B)
                         annos = (tuple(unp()) for i in xrange(param_count))
@@ -1219,7 +1221,7 @@ class JavaMemberInfo(object):
         instances
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
-        """
+        """  # noqa
 
         return self._get_annotations("annotations",
                                      "RuntimeVisibleAnnotations")
@@ -1231,7 +1233,7 @@ class JavaMemberInfo(object):
         JavaAnnotation instances
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.17
-        """
+        """  # noqa
 
         return self._get_annotations("invisible_annotations",
                                      "RuntimeInvisibleAnnotations")
@@ -1243,7 +1245,7 @@ class JavaMemberInfo(object):
         tuple of JavaAnnotation instances for each param.
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.18
-        """
+        """  # noqa
         return self._get_annotations("parameter_annotations",
                                      "RuntimeVisibleParameterAnnotations",
                                      for_params=True)
@@ -1255,7 +1257,7 @@ class JavaMemberInfo(object):
         tuple of JavaAnnotation instances for each param.
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.19
-        """
+        """  # noqa
         return self._get_annotations("invisible_parameter_annotations",
                                      "RuntimeInvisibleParameterAnnotations",
                                      for_params=True)
@@ -1267,7 +1269,7 @@ class JavaMemberInfo(object):
         annotaion.
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.20
-        """
+        """  # noqa
 
         buff = self.get_attribute("AnnotationDefault")
         if buff is None:
@@ -1297,7 +1299,7 @@ class JavaMemberInfo(object):
         None otherwise
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.3
-        """
+        """  # noqa
 
         buff = self.get_attribute("Code")
         if buff is None:
@@ -1316,7 +1318,7 @@ class JavaMemberInfo(object):
         raise, or None if this is not a method
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.5
-        """
+        """  # noqa
 
         buff = self.get_attribute("Exceptions")
         if buff is None:
@@ -1333,7 +1335,7 @@ class JavaMemberInfo(object):
         contant field
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.2
-        """
+        """  # noqa
 
         buff = self.get_attribute("ConstantValue")
         if buff is None:
@@ -1529,7 +1531,7 @@ class JavaCodeInfo(object):
     The 'Code' attribue of a method member of a java class
 
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.3
-    """
+    """  # noqa
 
     def __init__(self, cpool):
         self.cpool = cpool
@@ -1585,7 +1587,7 @@ class JavaCodeInfo(object):
         a sequence of (code_offset, line_number) pairs.
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.12
-        """
+        """  # noqa
 
         lnt = self._lnt
         if lnt is None:
@@ -1620,7 +1622,7 @@ class JavaCodeInfo(object):
         tuples
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.13
-        """
+        """  # noqa
 
         buff = self.get_attribute("LocalVariableTable")
         if buff is None:
@@ -1636,7 +1638,7 @@ class JavaCodeInfo(object):
         index) tuples
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.14
-        """
+        """  # noqa
 
         buff = self.get_attribute("LocalVariableTypeTable")
         if buff is None:
@@ -1795,7 +1797,7 @@ class JavaInnerClassInfo(object):
     Information about an inner class
 
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.6
-    """
+    """  # noqa
 
     def __init__(self, cpool):
         self.cpool = cpool
@@ -1832,7 +1834,7 @@ class JavaAnnotation(dict):
     Java Annotations info
 
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
-    """
+    """  # noqa
 
     def __init__(self, cpool):
         dict.__init__(self)
