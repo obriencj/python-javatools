@@ -112,15 +112,15 @@ def create_signature_block(openssl_digest, certificate, private_key,
     return tmp.read()
 
 
-def verify_signature_block(certificate_file, content_file, signature):
+def verify_signature_block(certificate_file, content, signature):
     """
     Verifies the 'signature' over the 'content', trusting the
     'certificate'.
 
     :param certificate_file: the trusted certificate (PEM format)
     :type certificate_file: str
-    :param content_file: The signature should match this content
-    :type content_file: str
+    :param content: The signature should match this content
+    :type content: str
     :param signature: data (DER format) subject to check
     :type signature: str
     :return None if the signature validates.
@@ -135,7 +135,7 @@ def verify_signature_block(certificate_file, content_file, signature):
     smime = SMIME.SMIME()
     smime.set_x509_stack(signers_cert_stack)
     smime.set_x509_store(trusted_cert_store)
-    data_bio = BIO.openfile(content_file)
+    data_bio = BIO.MemoryBuffer(content)
 
     try:
         smime.verify(pkcs7, data_bio)
