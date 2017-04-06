@@ -212,7 +212,7 @@ class JarutilTest(TestCase):
 
         tmp_dir = mkdtemp("-test_cli_create_jar")
         rmtree(tmp_dir)     # A better way to get name for non-existing dir?
-        copytree(get_data_fn("test_cli_create"), tmp_dir)
+        copytree(get_data_fn("test_cli_create_jar__test_cli_create"), tmp_dir)
         os.chdir(tmp_dir)
         # There seems to be no way to add empty dir to Git repo:
         os.unlink(os.path.join("example_dir", "empty_dir", "unused"))
