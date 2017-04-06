@@ -27,19 +27,19 @@ from . import get_data_fn
 class CryptoTest(TestCase):
 
     def test_private_key_type(self):
-        rsa_key = get_data_fn("key-rsa.pem")
+        rsa_key = get_data_fn("test_private_key_type__key-rsa.pem")
         self.assertEqual(private_key_type(rsa_key), "RSA")
 
-        rsa_key_pkcs8 = get_data_fn("key-rsa-pkcs8.pem")
+        rsa_key_pkcs8 = get_data_fn("test_private_key_type__key-rsa-pkcs8.pem")
         self.assertEqual(private_key_type(rsa_key_pkcs8), "RSA")
 
-        dsa_key = get_data_fn("key-dsa.pem")
+        dsa_key = get_data_fn("test_private_key_type__key-dsa.pem")
         self.assertEqual(private_key_type(dsa_key), "DSA")
 
-        ec_key = get_data_fn("key-ec.pem")
+        ec_key = get_data_fn("test_private_key_type__key-ec.pem")
         self.assertEqual(private_key_type(ec_key), "EC")
 
-        invalid_key = get_data_fn("key-invalid.pem")
+        invalid_key = get_data_fn("test_private_key_type__key-invalid.pem")
         with self.assertRaises(CannotFindKeyTypeError):
             private_key_type(invalid_key)
 
