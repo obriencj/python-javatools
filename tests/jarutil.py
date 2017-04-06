@@ -29,7 +29,7 @@ from . import get_data_fn
 from javatools.jarutil import cli_create_jar, cli_sign_jar, \
     cli_verify_jar_signature, verify, VerificationError, \
     JarSignatureMissingError, SignatureBlockFileVerificationError, \
-    JarChecksumError
+    JarChecksumError, ManifestChecksumError
 
 
 class JarutilTest(TestCase):
@@ -89,6 +89,14 @@ class JarutilTest(TestCase):
         jar_data = get_data_fn("tampered-entry.jar")
         cert = get_data_fn("javatools-cert.pem")
         with self.assertRaises(JarChecksumError):
+            verify(cert, jar_data)
+
+    def test_tampered_manifest(self):
+        # MANIFEST.MF does not verify against .SF in either way.
+        # Was tampered manually.
+        jar_data = get_data_fn("tampered-manifest.jar")
+        cert = get_data_fn("javatools-cert.pem")
+        with self.assertRaises(ManifestChecksumError):
             verify(cert, jar_data)
 
     def test_several_mf_attributes(self):
