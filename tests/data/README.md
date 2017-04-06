@@ -49,30 +49,3 @@ methods with try/catch.
 
 TODO -- annotations
 
-
-## Manifest Samples
-
-- Files: manifest-sample1.jar, manifest.SHA-512.mf, manifest.SHA1.mf,
-  manifest.ignores.mf
-
-Tests the reading and writing of the manifest file format, and
-checksum features.
-
-
-## JAR Handling Samples
-
-- Files: jarutil-sample1.jar, cli-sign-and-verify.jar,
-  sig-related-junk-files.jar, jarutil-signed.jar,
-  jarutil-signed-by-jarsigner.jar, ec.jar, ec-must-fail.jar,
-  multiple-sf-files-all-valid.jar, multiple-sf-files-some-junk.jar
-
-
-## Example Certificate
-
-- Files: javatools.pem, javatools-cert.pem, javatools-2.pem,
-  javatools-cert-2.pem ec-cert.pem, ec-key.pem, keystore.jks
-
-Sample openssl keys and certificates, and java key store with certs
-imported. The signing keys are unencrypted, so no passphrase
-required. The keystore passphrase is "javatools" but that's only
-needed when adding keys to it.
