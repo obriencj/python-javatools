@@ -316,14 +316,14 @@ def usage():
     return 1
 
 
-def main(args):
-    if len(sys.argv) < 2:
+def main(args=sys.argv):
+    if len(args) < 2:
         return usage()
 
     # TODO: maybe use argparse for subcommands?
 
-    command = sys.argv[1]
-    rest = sys.argv[2:]
+    command = args[1]
+    rest = args[2:]
 
     if command == "c":
         return cli_create_jar(rest)
