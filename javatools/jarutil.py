@@ -21,7 +21,6 @@ Java archives
 :license: LGPL
 """
 
-
 import os
 import sys
 
@@ -30,9 +29,9 @@ from shutil import copyfile
 from tempfile import NamedTemporaryFile
 from zipfile import ZipFile, ZIP_DEFLATED
 
-from .crypto import CannotFindKeyTypeError, SignatureBlockVerificationError
-from .crypto import private_key_type, verify_signature_block
-from .manifest import Manifest, SignatureManifest, file_matches_sigfile
+from .manifest import file_matches_sigfile, Manifest, SignatureManifest
+from .crypto import private_key_type, CannotFindKeyTypeError
+from .crypto import verify_signature_block, SignatureBlockVerificationError
 
 
 __all__ = (
@@ -78,7 +77,7 @@ def verify(certificate, jar_file):
     http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Signature_Validation
     Note that the validation is done in three steps. Failure at any step is a
     failure of the whole validation.
-    """  # noqa
+    """  # noqua
 
     # Step 0: get the "key alias", used also for naming of sig-related files.
     zip_file = ZipFile(jar_file)
@@ -98,34 +97,29 @@ def verify(certificate, jar_file):
     sf_data = zip_file.read(sf_filename)
 
     # Step 1: check the crypto part.
-    with NamedTemporaryFile('w') as tmp_buf:
-        sf_file = tmp_buf.name
-        tmp_buf.write(sf_data)
-        tmp_buf.flush()
-        file_list = zip_file.namelist()
-        sig_block_filename = None
+    file_list = zip_file.namelist()
+    sig_block_filename = None
 
-        # JAR specification mentions only RSA and DSA; jarsigner also has EC
-        # TODO: what about "SIG-*"?
-        signature_extensions = ("RSA", "DSA", "EC")
+    # JAR specification mentions only RSA and DSA; jarsigner also has EC
+    # TODO: what about "SIG-*"?
+    signature_extensions = ("RSA", "DSA", "EC")
+    for extension in signature_extensions:
+        candidate_filename = "META-INF/%s.%s" % (key_alias, extension)
+        if candidate_filename in file_list:
+            sig_block_filename = candidate_filename
+            break
 
-        for extension in signature_extensions:
-            candidate_filename = "META-INF/%s.%s" % (key_alias, extension)
-            if candidate_filename in file_list:
-                sig_block_filename = candidate_filename
-                break
-        if sig_block_filename is None:
-            msg = "None of %s found in JAR" % \
-                  ", ".join(key_alias + "." + x for x in signature_extensions)
-            raise JarSignatureMissingError(msg)
+    if sig_block_filename is None:
+        msg = "None of %s found in JAR" % \
+              ", ".join(key_alias + "." + x for x in signature_extensions)
+        raise JarSignatureMissingError(msg)
 
-        sig_block_data = zip_file.read(sig_block_filename)
-        try:
-            verify_signature_block(certificate, sf_file, sig_block_data)
-
-        except SignatureBlockVerificationError as message:
-            msg = "Signature block verification failed: %s" % message
-            raise SignatureBlockFileVerificationError(msg)
+    sig_block_data = zip_file.read(sig_block_filename)
+    try:
+        verify_signature_block(certificate, sf_data, sig_block_data)
+    except SignatureBlockVerificationError as message:
+        message = "Signature block verification failed: %s" % message
+        raise SignatureBlockFileVerificationError(message)
 
     # KEYALIAS.SF is correctly signed.
     # Step 2: Check that it contains correct checksum of the manifest.
@@ -142,12 +136,12 @@ def verify(certificate, jar_file):
         raise ManifestChecksumError(msg)
 
     # Checksums of MANIFEST.MF itself are correct.
+
     # Step 3: Check that it contains valid checksums for each file
     # from the JAR.  NOTE: the check is done for JAR entries. If some
     # JAR entries are deleted after signing, the verification still
     # succeeds.  This seems to not follow the reference specification,
     # but that's what jarsigner does.
-
     errors = jar_manifest.verify_jar_checksums(jar_file)
     if len(errors) > 0:
         msg = "Checksum(s) for jar entries of jar file %s failed for: %s" \
@@ -167,8 +161,8 @@ def sign(jar_file, cert_file, key_file, key_alias,
 
     jar = ZipFile(jar_file, "a")
     if "META-INF/MANIFEST.MF" not in jar.namelist():
-        msg = "META-INF/MANIFEST.MF not found in %s" % jar_file
-        raise MissingManifestError(msg)
+        raise MissingManifestError(
+            "META-INF/MANIFEST.MF not found in %s" % jar_file)
 
     mf = Manifest()
     mf.parse(jar.read("META-INF/MANIFEST.MF"))
@@ -195,7 +189,6 @@ def sign(jar_file, cert_file, key_file, key_alias,
         new_jar.writestr("META-INF/%s.SF" % key_alias, sf.get_data())
         new_jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension),
                          sigdata)
-
         for entry in jar.namelist():
             if not entry.upper() == "META-INF/MANIFEST.MF":
                 new_jar.writestr(entry, jar.read(entry))
@@ -236,7 +229,8 @@ def cli_create_jar(argument_list):
     parser = OptionParser(usage=usage_message)
     parser.add_option("-m", "--main-class",
                       help="Specify application entry point")
-    (options, mand_args) = parser.parse_args(argument_list)
+
+    options, mand_args = parser.parse_args(argument_list)
     if len(mand_args) < 2:
         print usage_message
         return 1
@@ -256,35 +250,35 @@ def cli_sign_jar(argument_list=None):
                     " private_key.pem key_alias"
 
     parser = OptionParser(usage=usage_message)
-    parser.add_option("-d", "--digest",
+
+    parser.add_option("-d", "--digest", action="store", default="SHA-256",
                       help="Digest algorithm used for signing")
 
-    parser.add_option("-c", "--chain", action="append",
+    parser.add_option("-c", "--chain", action="append", default=[],
                       help="Additional certificates to embed into the"
                       " signature (PEM format). More than one can be"
                       " provided.")
 
-    parser.add_option("-o", "--output",
+    parser.add_option("-o", "--output", action="store", default=None,
                       help="Filename to put signed jar. If not provided, the"
                       " signature is added to the original jar file.")
 
-    (options, mand_args) = parser.parse_args(argument_list)
+    options, mand_args = parser.parse_args(argument_list)
 
     if len(mand_args) != 4:
         print usage_message
         return 1
 
     jar_file, cert_file, key_file, key_alias = mand_args
-    digest = options.digest if options and options.digest else "SHA-256"
-    extra_certs = options.chain if options and options.chain else None
-    output = options.output if options and options.output else None
 
     try:
-        sign(jar_file, cert_file, key_file, key_alias, extra_certs,
-             digest, output)
+        sign(jar_file, cert_file, key_file, key_alias,
+             options.extra_certs, options.digest, options.output)
+
     except CannotFindKeyTypeError:
         print "Cannot determine private key type (is it in PEM format?)"
         return 1
+
     except MissingManifestError:
         print "Manifest missing in jar file %s" % jar_file
 
@@ -302,16 +296,15 @@ def cli_verify_jar_signature(argument_list):
         print usage_message
         return 1
 
-    (jar_file, certificate) = argument_list
+    jar_file, certificate = argument_list
     try:
         verify(certificate, jar_file)
-
     except VerificationError as error_message:
         print error_message
         return 1
-
-    print "Jar verified."
-    return 0
+    else:
+        print "Jar verified."
+        return 0
 
 
 def usage():
@@ -320,15 +313,18 @@ def usage():
     print("   s: sign JAR")
     print("   v: verify JAR signature")
     print("Give option \"-h\" for help on particular commands.")
-    sys.exit(1)
+    return 1
 
 
 def main(args):
     if len(sys.argv) < 2:
-        usage()
+        return usage()
+
+    # TODO: maybe use argparse for subcommands?
 
     command = sys.argv[1]
     rest = sys.argv[2:]
+
     if command == "c":
         return cli_create_jar(rest)
     elif command == "s":
@@ -336,7 +332,7 @@ def main(args):
     elif command == "v":
         return cli_verify_jar_signature(rest)
     else:
-        usage()
+        return usage()
 
 
 #
