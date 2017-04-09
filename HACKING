@@ -1,0 +1,30 @@
+
+Conventions to follow while hacking:
+
+1. API should return data, not text.
+
+2. functions or methods which print to stdout should be named with a
+prefix of cli_ and should only be used when invoked via the
+CLI. ie. API calls should not print to stdout.
+
+3. Two blank lines after every function and method
+
+4. Separate blocks of ideas within a function with a single blank line
+
+5. flake8 otherwise
+
+6. imports at the module level unless doing something tricky. Use
+relative imports as appropriate
+
+7. don't over-nest function calls. don't be afraid to use a local
+variable to hold data between steps. It can be much clearer to read
+later.
+
+8. delete-trailing-whitespace
+
+9. Run `./setup.py flake8` and `./setup.py test` and fix any
+unexpected issues before committing.
+
+
+#
+# The end.

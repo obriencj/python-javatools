@@ -23,11 +23,12 @@ Let's pretend to be the javap tool shipped with many Java SDKs
 """
 
 
-from json import dump
-from sys import stdout
-
+import sys
 import javatools.opcodes as opcodes
-from javatools import platform_from_version, unpack_classfile
+
+from json import dump
+from optparse import OptionParser, OptionGroup
+from . import platform_from_version, unpack_classfile
 
 
 __all__ = (
@@ -82,7 +83,7 @@ def print_field(options, field):
 
         cv = field.get_constantvalue()
         if cv is not None:
-            t,v = field.cpool.pretty_const(cv)
+            t, v = field.cpool.pretty_const(cv)
             if t:
                 print "  Constant value:", t, v
         print
@@ -155,8 +156,8 @@ def print_method(options, method):
         lnt = method.get_code().get_linenumbertable()
         if lnt:
             print "  LineNumberTable:"
-            for (o,l) in lnt:
-                print "   line %i: %i" % (l,o)
+            for o, l in lnt:
+                print "   line %i: %i" % (l, o)
 
     if options.locals and code:
         if method.cpool:
@@ -170,14 +171,14 @@ def print_method(options, method):
         if lvt:
             print "  LocalVariableTable:"
             print "   Start  Length  Slot\tName\tDescriptor"
-            for (o,l,n,d,i) in lvt:
+            for o, l, n, d, i in lvt:
                 line = (str(o), str(l), str(i), cval(n), cval(d))
                 print "   %s" % "\t".join(line)
 
         if lvtt:
             print "  LocalVariableTypeTable:"
             print "   Start  Length  Slot\tName\tSignature"
-            for (o,l,n,s,i) in lvtt:
+            for o, l, n, s, i in lvtt:
                 line = (str(o), str(l), str(i), cval(n), cval(s))
                 print "   %s" % "\t".join(line)
 
@@ -374,7 +375,7 @@ def ifonly(data, key, val):
 def cli_json_class(options, classfile):
     info = unpack_classfile(classfile)
     data = cli_simplify_classinfo(options, info)
-    dump(data, stdout, sort_keys=True, indent=2)
+    dump(data, sys.stdout, sort_keys=True, indent=2)
 
 
 def cli(parser, options, rest):
@@ -403,8 +404,6 @@ def cli(parser, options, rest):
 
 
 def classinfo_optgroup(parser):
-    from optparse import OptionGroup
-
     g = OptionGroup(parser, "Class Info Options")
 
     g.add_option("--class-provides", dest="class_provides",
@@ -458,8 +457,6 @@ def classinfo_optgroup(parser):
 
 
 def create_optparser():
-    from optparse import OptionParser
-
     parser = OptionParser("%prog <options> <classfiles>")
 
     parser.add_option_group(classinfo_optgroup(parser))
@@ -470,7 +467,7 @@ def create_optparser():
     return parser
 
 
-def main(args):
+def main(args=sys.argv):
     parser = create_optparser()
     return cli(parser, *parser.parse_args(args))
 

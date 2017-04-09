@@ -23,14 +23,20 @@ Java archives
 
 import os
 import sys
+
+from optparse import OptionParser
+from shutil import copyfile
+from tempfile import NamedTemporaryFile
 from zipfile import ZipFile, ZIP_DEFLATED
-from tempfile import NamedTemporaryFile, mkdtemp
-from shutil import copyfile, rmtree
 
-from javatools.manifest import Manifest, SignatureManifest
+from .manifest import file_matches_sigfile, Manifest, SignatureManifest
+from .crypto import private_key_type, CannotFindKeyTypeError
+from .crypto import verify_signature_block, SignatureBlockVerificationError
 
-__all__ = ( "cli_create_jar", "cli_sign_jar",
-            "cli_verify_jar_signature", "main" )
+
+__all__ = (
+    "cli_create_jar", "cli_sign_jar",
+    "cli_verify_jar_signature", "main", )
 
 
 class VerificationError(Exception):
@@ -71,29 +77,29 @@ def verify(certificate, jar_file):
     http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Signature_Validation
     Note that the validation is done in three steps. Failure at any step is a
     failure of the whole validation.
-    """
-
-    from .crypto import verify_signature_block, SignatureBlockVerificationError
-    from .manifest import file_matches_sigfile
+    """  # noqua
 
     # Step 0: get the "key alias", used also for naming of sig-related files.
     zip_file = ZipFile(jar_file)
     sf_files = filter(file_matches_sigfile, zip_file.namelist())
+
     if len(sf_files) == 0:
         raise JarSignatureMissingError("No .SF file in %s" % jar_file)
+
     elif len(sf_files) > 1:
         # This is acceptable: SF file represents a signer. But then the
         # validation logic becomes more complicated...
-        raise VerificationError(
-            "Multiple .SF files in %s, this is not supported yet" % jar_file)
+        msg = "Multiple .SF files in %s, this is not supported yet" % jar_file
+        raise VerificationError(msg)
 
     sf_filename = sf_files[0]
-    key_alias = sf_filename[9:-3]       # "META-INF/%s.SF"
+    key_alias = sf_filename[9:-3]  # "META-INF/%s.SF"
     sf_data = zip_file.read(sf_filename)
 
     # Step 1: check the crypto part.
     file_list = zip_file.namelist()
     sig_block_filename = None
+
     # JAR specification mentions only RSA and DSA; jarsigner also has EC
     # TODO: what about "SIG-*"?
     signature_extensions = ("RSA", "DSA", "EC")
@@ -102,17 +108,18 @@ def verify(certificate, jar_file):
         if candidate_filename in file_list:
             sig_block_filename = candidate_filename
             break
+
     if sig_block_filename is None:
-        raise JarSignatureMissingError("None of %s found in JAR" %
-            ", ".join(key_alias + "." + x for x in signature_extensions))
+        msg = "None of %s found in JAR" % \
+              ", ".join(key_alias + "." + x for x in signature_extensions)
+        raise JarSignatureMissingError(msg)
 
     sig_block_data = zip_file.read(sig_block_filename)
     try:
         verify_signature_block(certificate, sf_data, sig_block_data)
-    except SignatureBlockVerificationError, message:
-        raise SignatureBlockFileVerificationError(
-            "Signature block verification failed: %s" % message)
-
+    except SignatureBlockVerificationError as message:
+        message = "Signature block verification failed: %s" % message
+        raise SignatureBlockFileVerificationError(message)
 
     # KEYALIAS.SF is correctly signed.
     # Step 2: Check that it contains correct checksum of the manifest.
@@ -124,21 +131,22 @@ def verify(certificate, jar_file):
 
     errors = signature_manifest.verify_manifest(jar_manifest)
     if len(errors) > 0:
-        raise ManifestChecksumError(
-            "%s: in .SF file, section checksum(s) failed for: %s"
-            % (jar_file, ",".join(errors)))
+        msg = "%s: in .SF file, section checksum(s) failed for: %s" \
+              % (jar_file, ",".join(errors))
+        raise ManifestChecksumError(msg)
 
     # Checksums of MANIFEST.MF itself are correct.
-    # Step 3: Check that it contains valid checksums for each file from the JAR.
-    # NOTE: the check is done for JAR entries. If some JAR entries are deleted
-    # after signing, the verification still succeeds.
-    # This seems to not follow the reference specification, but that's what
-    # jarsigner does.
+
+    # Step 3: Check that it contains valid checksums for each file
+    # from the JAR.  NOTE: the check is done for JAR entries. If some
+    # JAR entries are deleted after signing, the verification still
+    # succeeds.  This seems to not follow the reference specification,
+    # but that's what jarsigner does.
     errors = jar_manifest.verify_jar_checksums(jar_file)
     if len(errors) > 0:
-        raise JarChecksumError(
-            "Checksum(s) for jar entries of jar file %s failed for: %s"
-            % (jar_file, ",".join(errors)))
+        msg = "Checksum(s) for jar entries of jar file %s failed for: %s" \
+              % (jar_file, ",".join(errors))
+        raise JarChecksumError(msg)
 
     return None
 
@@ -150,8 +158,6 @@ def sign(jar_file, cert_file, key_file, key_alias,
     :exception ManifestNotFoundError, CannotFindKeyTypeError
     :return None
     """
-
-    from .crypto import private_key_type
 
     jar = ZipFile(jar_file, "a")
     if "META-INF/MANIFEST.MF" not in jar.namelist():
@@ -181,7 +187,8 @@ def sign(jar_file, cert_file, key_file, key_alias,
         new_jar = ZipFile(new_jar_file, "w", ZIP_DEFLATED)
         new_jar.writestr("META-INF/MANIFEST.MF", mf.get_data())
         new_jar.writestr("META-INF/%s.SF" % key_alias, sf.get_data())
-        new_jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension), sigdata)
+        new_jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension),
+                         sigdata)
         for entry in jar.namelist():
             if not entry.upper() == "META-INF/MANIFEST.MF":
                 new_jar.writestr(entry, jar.read(entry))
@@ -217,13 +224,13 @@ def cli_create_jar(argument_list):
     """
     A subset of "jar" command. Creating new JARs only.
     """
-    from optparse import OptionParser
 
     usage_message = "usage: jarutil c [OPTIONS] file.jar files..."
     parser = OptionParser(usage=usage_message)
     parser.add_option("-m", "--main-class",
                       help="Specify application entry point")
-    (options, mand_args) = parser.parse_args(argument_list)
+
+    options, mand_args = parser.parse_args(argument_list)
     if len(mand_args) < 2:
         print usage_message
         return 1
@@ -238,35 +245,40 @@ def cli_sign_jar(argument_list=None):
     """
     Command-line wrapper around sign()
     """
-    from optparse import OptionParser
-    from .crypto import CannotFindKeyTypeError
 
-    usage_message = "Usage: jarutil s [OPTIONS] file.jar certificate.pem private_key.pem key_alias"
+    usage_message = "Usage: jarutil s [OPTIONS] file.jar certificate.pem" \
+                    " private_key.pem key_alias"
 
     parser = OptionParser(usage=usage_message)
-    parser.add_option("-d", "--digest",
-                      help="Digest algorithm used for signing   ")
-    parser.add_option("-c", "--chain", action="append",
-                      help="Additional certificates to embed into the signature (PEM format). More than one can be provided.")
-    parser.add_option("-o", "--output",
+
+    parser.add_option("-d", "--digest", action="store", default="SHA-256",
+                      help="Digest algorithm used for signing")
+
+    parser.add_option("-c", "--chain", action="append", default=[],
+                      help="Additional certificates to embed into the"
+                      " signature (PEM format). More than one can be"
+                      " provided.")
+
+    parser.add_option("-o", "--output", action="store", default=None,
                       help="Filename to put signed jar. If not provided, the"
                       " signature is added to the original jar file.")
-    (options, mand_args) = parser.parse_args(argument_list)
+
+    options, mand_args = parser.parse_args(argument_list)
 
     if len(mand_args) != 4:
         print usage_message
         return 1
 
-    (jar_file, cert_file, key_file, key_alias) = mand_args
-    digest = options.digest if options and options.digest else "SHA-256"
-    extra_certs = options.chain if options and options.chain else None
-    output = options.output if options and options.output else None
+    jar_file, cert_file, key_file, key_alias = mand_args
 
     try:
-        sign(jar_file, cert_file, key_file, key_alias, extra_certs, digest, output)
+        sign(jar_file, cert_file, key_file, key_alias,
+             options.extra_certs, options.digest, options.output)
+
     except CannotFindKeyTypeError:
         print "Cannot determine private key type (is it in PEM format?)"
         return 1
+
     except MissingManifestError:
         print "Manifest missing in jar file %s" % jar_file
 
@@ -284,14 +296,15 @@ def cli_verify_jar_signature(argument_list):
         print usage_message
         return 1
 
-    (jar_file, certificate) = argument_list
+    jar_file, certificate = argument_list
     try:
         verify(certificate, jar_file)
-    except VerificationError, error_message:
+    except VerificationError as error_message:
         print error_message
         return 1
-    print "Jar verified."
-    return 0
+    else:
+        print "Jar verified."
+        return 0
 
 
 def usage():
@@ -300,15 +313,18 @@ def usage():
     print("   s: sign JAR")
     print("   v: verify JAR signature")
     print("Give option \"-h\" for help on particular commands.")
-    sys.exit(1)
+    return 1
 
 
-def main(args):
-    if len(sys.argv) < 2:
-        usage()
+def main(args=sys.argv):
+    if len(args) < 2:
+        return usage()
 
-    command = sys.argv[1]
-    rest = sys.argv[2:]
+    # TODO: maybe use argparse for subcommands?
+
+    command = args[1]
+    rest = args[2:]
+
     if command == "c":
         return cli_create_jar(rest)
     elif command == "s":
@@ -316,7 +332,7 @@ def main(args):
     elif command == "v":
         return cli_verify_jar_signature(rest)
     else:
-        usage()
+        return usage()
 
 
 #

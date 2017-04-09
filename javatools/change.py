@@ -31,8 +31,7 @@ __all__ = (
     "iterate_by_type", "yield_sorted_by_type",
     "Change", "Addition", "Removal",
     "GenericChange", "SuperChange",
-    "SquashedChange", "SquashedAddition", "SquashedRemoval",
-)
+    "SquashedChange", "SquashedAddition", "SquashedRemoval", )
 
 
 def collect_by_typename(obj_sequence, cache=None):
@@ -174,7 +173,7 @@ class Change(object):
 
     def get_description(self):
         return self.description or \
-               (self.label + (" unchanged", " changed")[self.is_change()])
+            (self.label + (" changed" if self.is_change() else " unchanged"))
 
 
     def collect(self, force=False):
@@ -192,7 +191,7 @@ class Change(object):
             "is_change": self.is_change(),
             "description": self.get_description(),
             "label": self.label,
-            }
+        }
 
         if options:
             simple["is_ignored"] = self.is_ignored(options)

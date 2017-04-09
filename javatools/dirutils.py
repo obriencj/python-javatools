@@ -22,15 +22,18 @@ trees
 """
 
 
-from os.path import exists, isdir, join, relpath
+from filecmp import dircmp
+from fnmatch import fnmatch
 from os import makedirs, walk
+from os.path import exists, isdir, join, relpath
+from shutil import copy
 
 
 LEFT = "left only"
 RIGHT = "right only"
 DIFF = "changed"
 SAME = "same"
-BOTH = SAME # meh, synonyms
+BOTH = SAME  # meh, synonyms
 
 
 def fnmatches(entry, *pattern_list):
@@ -39,7 +42,6 @@ def fnmatches(entry, *pattern_list):
     otherwise
     """
 
-    from fnmatch import fnmatch
     for pattern in pattern_list:
         if pattern and fnmatch(entry, pattern):
             return True
@@ -60,8 +62,6 @@ def copydir(orig, dest):
     copies directory orig to dest. Returns a list of tuples of
     relative filenames which were copied from orig to dest
     """
-
-    from shutil import copy
 
     copied = list()
 
@@ -88,8 +88,6 @@ def compare(left, right):
     filename) where difference is one of the LEFT, RIGHT, DIFF, or
     BOTH constants. This generator recursively walks both trees.
     """
-
-    from filecmp import dircmp
 
     dc = dircmp(left, right, ignore=[])
     return _gen_from_dircmp(dc, left, right)
@@ -184,7 +182,7 @@ def collect_compare_into(left, right, added, removed, altered, same):
 
 
 class ClosingContext(object):
-    #pylint: disable=R0903
+    # pylint: disable=R0903
     # too few public methods (none)
 
     """

@@ -31,18 +31,17 @@ or stream.
 # so there will be efforts here to increase performance
 
 
-from struct import Struct
 from abc import ABCMeta, abstractmethod
+from struct import Struct
 
 
 __all__ = (
     "compile_struct", "unpack",
     "Unpacker", "UnpackException",
-    "StreamUnpacker", "BufferUnpacker",
-)
+    "StreamUnpacker", "BufferUnpacker", )
 
 
-#pylint: disable=C0103
+# pylint: disable=C0103
 _struct_cache = dict()
 
 
@@ -83,7 +82,7 @@ class Unpacker(object):
 
 
     @abstractmethod
-    def unpack(self, format_str): # pragma: no cover
+    def unpack(self, format_str):  # pragma: no cover
         """
         unpacks the given format_str from the underlying data and returns
         the results. Will raise an UnpackException if there is not
@@ -94,7 +93,7 @@ class Unpacker(object):
 
 
     @abstractmethod
-    def unpack_struct(self, struct): # pragma: no cover
+    def unpack_struct(self, struct):  # pragma: no cover
         """
         unpacks the given struct from the underlying data and returns the
         results. Will raise an UnpackException if there is not enough
@@ -105,7 +104,7 @@ class Unpacker(object):
 
 
     @abstractmethod
-    def read(self, count): # pragma: no cover
+    def read(self, count):  # pragma: no cover
         """
         read count bytes from the unpacker and return it. Raises an
         UnpackException if there is not enough data in the underlying
@@ -116,7 +115,7 @@ class Unpacker(object):
 
 
     @abstractmethod
-    def close(self): # pragma: no cover
+    def close(self):  # pragma: no cover
         """
         close this unpacker and release the underlying data
         """

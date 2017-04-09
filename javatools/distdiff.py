@@ -25,17 +25,22 @@ be checked for deep differences.
 """
 
 
+import sys
+
 from itertools import izip_longest
+from multiprocessing import cpu_count
+from optparse import OptionParser, OptionGroup
 from os.path import join
 
-from javatools import unpack_classfile
+from . import report, unpack_classfile
 from .change import SuperChange, Addition, Removal
 from .change import squash, yield_sorted_by_type
 from .classdiff import JavaClassChange, JavaClassReport
+from .classdiff import classdiff_optgroup, general_optgroup
 from .dirutils import compare, fnmatches
 from .dirutils import LEFT, RIGHT, SAME, DIFF
 from .manifest import Manifest, ManifestChange
-from .jardiff import JarChange, JarReport
+from .jardiff import JarChange, JarReport, jardiff_optgroup
 from .jarinfo import JAR_PATTERNS
 
 
@@ -49,8 +54,7 @@ __all__ = (
     "DistReport", "DistClassReport", "DistJarReport",
     "cli", "main",
     "cli_dist_diff",
-    "distdiff_optgroup", "default_distdiff_options",
-)
+    "distdiff_optgroup", "default_distdiff_options", )
 
 
 # glob patterns used to trigger a DistTextChange
@@ -66,8 +70,7 @@ TEXT_PATTERNS = (
     "*.sh",
     "*.text",
     "*.txt",
-    "*.xml",
-)
+    "*.xml", )
 
 
 class DistContentChange(SuperChange):
@@ -106,7 +109,7 @@ class DistContentChange(SuperChange):
 
 
     def get_description(self):
-        c = ("has changed","is unchanged")[not self.is_change()]
+        c = "has changed" if self.is_change() else "is unchanged"
         return "%s %s: %s" % (self.label, c, self.entry)
 
 
@@ -284,9 +287,9 @@ class DistChange(SuperChange):
 
 
     def get_description(self):
+        changed = "changed" if self.is_change() else "unchanged"
         return "%s %s from %s to %s" % \
-            (self.label, ("unchanged","changed")[self.is_change()],
-             self.ldata, self.rdata)
+            (self.label, changed, self.ldata, self.rdata)
 
 
     @yield_sorted_by_type(DistClassAdded,
@@ -595,9 +598,6 @@ def distdiff_optgroup(parser):
     Option group relating to the use of a DistChange or DistReport
     """
 
-    from optparse import OptionGroup
-    from multiprocessing import cpu_count
-
     # for the --processes default
     cpus = cpu_count()
 
@@ -631,11 +631,6 @@ def create_optparser():
     appropriate for use with the distdiff command
     """
 
-    from optparse import OptionParser
-    from .jardiff import jardiff_optgroup
-    from .classdiff import classdiff_optgroup, general_optgroup
-    from javatools import report
-
     parser = OptionParser(usage="%prog [OPTIONS] OLD_DIST NEW_DIST")
 
     parser.add_option_group(general_optgroup(parser))
@@ -662,13 +657,13 @@ def default_distdiff_options(updates=None):
     options, _args = parser.parse_args(list())
 
     if updates:
-        #pylint: disable=W0212
+        # pylint: disable=W0212
         options._update_careful(updates)
 
     return options
 
 
-def main(args):
+def main(args=sys.argv):
     """
     entry point for the distdiff command-line utility
     """

@@ -49,8 +49,7 @@ __all__ = (
     "SignatureManifest",
     "ManifestKeyException", "MalformedManifest",
     "main", "cli",
-    "cli_create", "cli_query", "cli_verify",
-)
+    "cli_create", "cli_query", "cli_verify", )
 
 
 _BUFFERING = 2 ** 14
@@ -95,16 +94,19 @@ class MalformedManifest(Exception):
 # Digests classes by Java name that have been found present in hashlib
 NAMED_DIGESTS = {}
 
+
 def _add_digest(java_name, hashlib_name):
     digest = getattr(hashlib, hashlib_name, None)
     if digest:
         NAMED_DIGESTS[java_name] = digest
+
 
 def _get_digest(java_name):
     try:
         return NAMED_DIGESTS[java_name]
     except KeyError:
         raise UnsupportedDigest(java_name)
+
 
 # Note 1: Java supports also MD2, but hashlib does not
 _add_digest("MD2", "md2")
@@ -141,7 +143,7 @@ class ManifestSectionChange(GenericChange):
         if ikeys:
             lset = set(self.ldata.items())
             rset = set(self.rdata.items())
-            changed = set(k for k,v in lset.symmetric_difference(rset))
+            changed = set(k for k, _v in lset.symmetric_difference(rset))
             return changed.issubset(ikeys)
 
         else:
@@ -189,7 +191,7 @@ class ManifestMainChange(GenericChange):
         if ikeys:
             lset = set(self.ldata.items())
             rset = set(self.rdata.items())
-            changed = set(k for k,v in lset.symmetric_difference(rset))
+            changed = set(k for k, _v in lset.symmetric_difference(rset))
             return changed.issubset(ikeys)
 
         else:
@@ -234,7 +236,7 @@ class ManifestSection(OrderedDict):
 
 
     def __setitem__(self, k, v):
-        #pylint: disable=W0221
+        # pylint: disable=W0221
         # we want the behavior of OrderedDict, but don't take the
         # additional parameter
 
@@ -456,7 +458,8 @@ class Manifest(ManifestSection):
                 if file_skips_verification(entry):
                     continue
                 section = self.create_section(entry)
-                section[key_digest] = b64_encoded_digest(jar.read(entry), digest)
+                section[key_digest] = b64_encoded_digest(jar.read(entry),
+                                                         digest)
 
 
     def clear(self):
@@ -662,6 +665,7 @@ def b64_encoded_digest(data, algorithm):
     h.update(data)
     return b64encode(h.digest())
 
+
 def detect_linesep(data):
     if isinstance(data, (str, buffer)):
         data = StringIO(data)
@@ -698,7 +702,7 @@ def parse_sections(data):
     # our current section
     curr = None
 
-    for lineno,line in enumerate(data):
+    for lineno, line in enumerate(data):
         # Clean up the line
         cleanline = line.splitlines()[0].replace('\x00', '')
 
@@ -714,7 +718,7 @@ def parse_sections(data):
                 raise MalformedManifest("bad line continuation, "
                                         " line: %i" % lineno)
             else:
-                #pylint: disable=unsubscriptable-object
+                # pylint: disable=unsubscriptable-object
                 curr[-1][1].append(cleanline[1:])
 
         else:
@@ -941,8 +945,8 @@ def cli_create(options, rest):
 
         sec = mf.create_section(name)
 
-        for digest_name, digest_value in \
-            izip(requested_digests, digest_chunks(chunks(), use_digests)):
+        digests = izip(requested_digests, digest_chunks(chunks(), use_digests))
+        for digest_name, digest_value in digests:
             sec[digest_name + "-Digest"] = digest_value
 
     output = sys.stdout

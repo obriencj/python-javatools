@@ -27,14 +27,13 @@ JAR files.
 from os.path import isdir
 
 from . import unpack_class
-from .change import GenericChange, SuperChange
-from .change import Addition, Removal
+from .change import GenericChange, SuperChange, Addition, Removal
 from .change import squash, yield_sorted_by_type
 from .classdiff import JavaClassChange, JavaClassReport
 from .dirutils import fnmatches
-from .manifest import Manifest, ManifestChange, \
-    SignatureManifestChange, SignatureBlockFileChange, \
-    file_matches_sigfile, file_matches_sigblock
+from .manifest import Manifest, ManifestChange
+from .manifest import SignatureManifestChange, SignatureBlockFileChange
+from .manifest import file_matches_sigfile, file_matches_sigblock
 from .ziputils import compare_zips, open_zip, open_zip_entry
 from .ziputils import LEFT, RIGHT, DIFF, SAME
 
@@ -52,8 +51,7 @@ __all__ = (
     "JarReport", "JarContentsReport", "JarClassReport",
     "cli", "main",
     "cli_jars_diff",
-    "jardiff_optgroup", "default_jardiff_options",
-)
+    "jardiff_optgroup", "default_jardiff_options", )
 
 
 class JarTypeChange(GenericChange):
@@ -300,9 +298,9 @@ class JarContentsChange(SuperChange):
         left = self.lzip
         right = self.rzip
 
-        # this is our guarantee from invocation order
-        assert left is not None
-        assert right is not None
+        # this is our guarantee from invokation order
+        assert(left is not None)
+        assert(right is not None)
 
         for event, entry in compare_zips(left, right):
             if event == SAME:
@@ -318,7 +316,8 @@ class JarContentsChange(SuperChange):
                     yield JarSignatureFileChange(left, right, entry, False)
 
                 elif file_matches_sigblock(entry):
-                    yield JarSignatureBlockFileChange(left, right, entry, False)
+                    yield JarSignatureBlockFileChange(left, right,
+                                                      entry, False)
 
                 elif fnmatches(entry, "*.class"):
                     yield JarClassChange(left, right, entry, False)
@@ -593,7 +592,7 @@ def default_jardiff_options(updates=None):
     options, _args = parser.parse_args(list())
 
     if updates:
-        #pylint: disable=W0212
+        # pylint: disable=W0212
         options._update_careful(updates)
 
     return options

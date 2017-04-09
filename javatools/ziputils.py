@@ -23,20 +23,19 @@ Utilities for discovering entry deltas in a pair of zip files.
 
 from cStringIO import StringIO
 from itertools import izip_longest
-from zipfile import is_zipfile, ZipFile, ZipInfo, _EndRecData
-from zlib import crc32
 from os import walk
 from os.path import getsize, isdir, isfile, islink, join, relpath
-from .dirutils import LEFT, RIGHT, DIFF, SAME
-from .dirutils import closing
+from zipfile import is_zipfile, ZipFile, ZipInfo, _EndRecData
+from zlib import crc32
+
+from .dirutils import LEFT, RIGHT, DIFF, SAME, closing
 
 
 __all__ = (
     "compare", "compare_zips",
     "open_zip", "open_zip_entry",
     "zip_file", "zip_entry_rollup",
-    "LEFT", "RIGHT", "DIFF", "SAME",
-)
+    "LEFT", "RIGHT", "DIFF", "SAME", )
 
 
 _CHUNKSIZE = 2 ** 14
@@ -157,7 +156,7 @@ def collect_compare_zips_into(left, right, added, removed, altered, same):
     of added, removed, altered, same
     """
 
-    for event,filename in compare_zips(left, right):
+    for event, filename in compare_zips(left, right):
         if event == LEFT:
             group = removed
         elif event == RIGHT:
@@ -172,7 +171,7 @@ def collect_compare_zips_into(left, right, added, removed, altered, same):
         if group is not None:
             group.append(filename)
 
-    return added,removed,altered,same
+    return added, removed, altered, same
 
 
 def is_zipstream(data):
@@ -216,7 +215,7 @@ def file_crc32(filename, chunksize=_CHUNKSIZE):
 
     check = 0
     with open(filename, 'rb') as fd:
-        for data in iter(lambda:fd.read(chunksize), ""):
+        for data in iter(lambda: fd.read(chunksize), ""):
             check = crc32(data, check)
     return check
 

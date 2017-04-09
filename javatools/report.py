@@ -21,13 +21,15 @@ Classes for representing changes as formatted text.
 """
 
 
+import sys
+
 from abc import ABCMeta, abstractmethod
 from Cheetah.DummyTransaction import DummyTransaction
 from functools import partial
 from json import dump, JSONEncoder
 from optparse import OptionGroup
 from os.path import exists, join, relpath
-from sys import stdout
+
 from .dirutils import copydir, makedirsp
 
 
@@ -39,8 +41,7 @@ __all__ = (
     "quick_report", "general_report_optgroup",
     "JSONReportFormat", "json_report_optgroup",
     "TextReportFormat",
-    "CheetahReportFormat", "html_report_optgroup",
-)
+    "CheetahReportFormat", "html_report_optgroup", )
 
 
 class Reporter(object):
@@ -214,7 +215,7 @@ class ReportFormat(object):
             return fn
 
         else:
-            self.run_impl(change, entry, stdout)
+            self.run_impl(change, entry, sys.stdout)
             return None
 
 
@@ -286,7 +287,7 @@ class JSONReportFormat(ReportFormat):
         data = {
             "runtime_options": options.__dict__,
             "report": change,
-            }
+        }
 
         # not what they expected, but it works
         cls = partial(JSONChangeEncoder, options)
@@ -326,7 +327,7 @@ class JSONChangeEncoder(JSONEncoder):
 
 
     def default(self, o):
-        #pylint: disable=E0202
+        # pylint: disable=E0202
         # JSONEncoder.default confuses pylint
 
         # if there is a simplify method, call it to convert the object
@@ -338,11 +339,9 @@ class JSONChangeEncoder(JSONEncoder):
         try:
             i = iter(o)
         except TypeError:
-            pass
+            return JSONEncoder.default(self, o)
         else:
             return tuple(i)
-
-        return JSONEncoder.default(self, o)
 
 
 class TextReportFormat(ReportFormat):
@@ -412,10 +411,10 @@ class CheetahReportFormat(ReportFormat):
         if uri is relative, re-relate it to our basedir
         """
 
-        if (uri.startswith("http:") or
-            uri.startswith("https:") or
-            uri.startswith("file:") or
-            uri.startswith("/")):
+        if uri.startswith("http:") or \
+           uri.startswith("https:") or \
+           uri.startswith("file:") or \
+           uri.startswith("/"):
             return uri
 
         elif exists(uri):
@@ -537,12 +536,12 @@ def _compose_cheetah_template_map(cache):
 
     from .cheetah import get_templates
 
-    #pylint: disable=W0406
+    # pylint: disable=W0406
     # needed for introspection
     import javatools
 
     for template_type in get_templates():
-        if not "_" in template_type.__name__:
+        if "_" not in template_type.__name__:
             # we use the _ to denote package and class names. So any
             # template without a _ in the name isn't meant to be
             # matched to a change type.
@@ -551,12 +550,12 @@ def _compose_cheetah_template_map(cache):
         # get the package and change class names based off of the
         # template class name
         tn = template_type.__name__
-        pn,cn = tn.split("_", 1)
+        pn, cn = tn.split("_", 1)
 
         # get the package from javatools
         pk = getattr(javatools, pn, None)
         if pk is None:
-            __import__("javatools."+pn)
+            __import__("javatools." + pn)
             pk = getattr(javatools, pn, None)
 
         # get the class from the package
@@ -570,7 +569,7 @@ def _compose_cheetah_template_map(cache):
     return cache
 
 
-#pylint: disable=C0103
+# pylint: disable=C0103
 _template_cache = dict()
 
 
@@ -639,7 +638,7 @@ def quick_report(report_type, change, options):
         with open(options.output, "w") as out:
             report.run(change, None, out)
     else:
-        report.run(change, None, stdout)
+        report.run(change, None, sys.stdout)
 
 
 #

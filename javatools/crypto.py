@@ -60,7 +60,7 @@ def private_key_type(key_file):
         else:
             return key
     else:
-        raise CannotFindKeyTypeError
+        raise CannotFindKeyTypeError()
 
 
 def create_signature_block(openssl_digest, certificate, private_key,
@@ -91,7 +91,7 @@ def create_signature_block(openssl_digest, certificate, private_key,
     :type data: str
     :returns: content of the signature block file as produced by jarsigner
     :rtype: str
-    """
+    """  # noqa
 
     smime = SMIME.SMIME()
     smime.load_key_bio(BIO.openfile(private_key), BIO.openfile(certificate))
@@ -139,8 +139,8 @@ def verify_signature_block(certificate_file, content, signature):
 
     try:
         smime.verify(pkcs7, data_bio)
-    except SMIME.PKCS7_Error, message:
-        raise SignatureBlockVerificationError, message
+    except SMIME.PKCS7_Error as message:
+        raise SignatureBlockVerificationError(message)
     else:
         return None
 

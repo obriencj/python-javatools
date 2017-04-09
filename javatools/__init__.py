@@ -28,8 +28,10 @@ References
 
 :author: Christopher O'Brien  <obriencj@gmail.com>
 :license: LGPL
-"""
+"""  # noqa
 
+
+from functools import partial
 
 from .dirutils import fnmatches
 from .opcodes import disassemble
@@ -56,8 +58,7 @@ __all__ = (
     "ACC_TRANSIENT", "ACC_VARARGS", "ACC_NATIVE",
     "ACC_INTERFACE", "ACC_ABSTRACT", "ACC_STRICT",
     "ACC_SYNTHETIC", "ACC_ANNOTATION", "ACC_ENUM",
-    "ACC_MODULE",
-)
+    "ACC_MODULE", )
 
 
 # the four bytes at the start of every class file
@@ -69,7 +70,7 @@ _BUFFERING = 2 ** 14
 
 
 # The constant pool types
-#pylint: disable=C0103
+# pylint: disable=C0103
 CONST_Utf8 = 1
 CONST_Integer = 3
 CONST_Float = 4
@@ -81,10 +82,10 @@ CONST_Fieldref = 9
 CONST_Methodref = 10
 CONST_InterfaceMethodref = 11
 CONST_NameAndType = 12
-CONST_ModuleId = 13 # Removed? Maybe OpenJDK only?
-CONST_MethodHandle = 15 # TODO
-CONST_MethodType = 16 # TODO
-CONST_InvokeDynamic = 18 # TODO
+CONST_ModuleId = 13  # Removed? Maybe OpenJDK only?
+CONST_MethodHandle = 15  # TODO
+CONST_MethodType = 16  # TODO
+CONST_InvokeDynamic = 18  # TODO
 
 
 # class and member flags
@@ -154,7 +155,7 @@ class JavaConstantPool(object):
     A constants pool
 
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.4
-    """
+    """  # noqa
 
     def __init__(self):
         self.consts = tuple()
@@ -174,7 +175,7 @@ class JavaConstantPool(object):
         Unpacks the constant pool from an unpacker stream
         """
 
-        (count,) = unpacker.unpack_struct(_H)
+        (count, ) = unpacker.unpack_struct(_H)
 
         # first item is never present in the actual data buffer, but
         # the count number acts like it would be.
@@ -324,11 +325,11 @@ class JavaConstantPool(object):
         elif t == CONST_NameAndType:
             a, b = (self.deref_const(i) for i in v)
             b = "".join(_pretty_typeseq(b))
-            result = "%s:%s" % (a,b)
+            result = "%s:%s" % (a, b)
 
         elif t == CONST_ModuleId:
             a, b = (self.deref_const(i) for i in v)
-            result = "%s@%s" % (a,b)
+            result = "%s@%s" % (a, b)
 
         elif not t:
             # the skipped-type, meaning the prior index was a
@@ -505,8 +506,8 @@ class JavaClassInfo(object):
         arg_types = tuple(arg_types)
 
         for m in self.get_methods_by_name(name):
-            if ((not m.is_bridge()) and
-                m.get_arg_type_descriptors() == arg_types):
+            if (((not m.is_bridge()) and
+                 m.get_arg_type_descriptors() == arg_types)):
                 return m
         return None
 
@@ -519,8 +520,8 @@ class JavaClassInfo(object):
         """
 
         for m in self.get_methods_by_name(name):
-            if (m.is_bridge() and
-                m.get_arg_type_descriptors() == arg_types):
+            if ((m.is_bridge() and
+                 m.get_arg_type_descriptors() == arg_types)):
                 yield m
 
 
@@ -613,7 +614,7 @@ class JavaClassInfo(object):
         is this class deprecated
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.15
-        """
+        """  # noqa
 
         return bool(self.get_attribute("Deprecated"))
 
@@ -659,7 +660,7 @@ class JavaClassInfo(object):
         instances
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
-        """
+        """  # noqa
 
         return self._get_annotations("annotations",
                                      "RuntimeVisibleAnnotations")
@@ -671,7 +672,7 @@ class JavaClassInfo(object):
         JavaAnnotation instances
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.17
-        """
+        """  # noqa
 
         return self._get_annotations("invisible_annotations",
                                      "RuntimeInvisibleAnnotations")
@@ -683,7 +684,7 @@ class JavaClassInfo(object):
         indicated
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.10
-        """
+        """  # noqa
 
         buff = self.get_attribute("SourceFile")
         if buff is None:
@@ -699,7 +700,7 @@ class JavaClassInfo(object):
         """
         reference:
         http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.11
-        """
+        """  # noqa
 
         buff = self.get_attribute("SourceDebugExtension")
         return (buff and str(buff)) or None
@@ -711,7 +712,7 @@ class JavaClassInfo(object):
         classes of this class definition
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.6
-        """
+        """  # noqa
 
         buff = self.get_attribute("InnerClasses")
         if buff is None:
@@ -726,7 +727,7 @@ class JavaClassInfo(object):
         the generics class signature
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.9
-        """
+        """  # noqa
 
         buff = self.get_attribute("Signature")
         if buff is None:
@@ -753,7 +754,7 @@ class JavaClassInfo(object):
         None if this was not an inner class.
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.7
-        """
+        """  # noqa
 
         buff = self.get_attribute("EnclosingMethod")
 
@@ -775,7 +776,7 @@ class JavaClassInfo(object):
 
         if ci and mi:
             enc_class = self.deref_const(ci)
-            enc_meth,enc_type = self.deref_const(mi)
+            enc_meth, enc_type = self.deref_const(mi)
             result = "%s.%s%s" % (enc_class, enc_meth, enc_type)
 
         elif ci:
@@ -861,7 +862,7 @@ class JavaClassInfo(object):
         iterator of provided classes, fields, methods
         """
 
-        #TODO I probably need to add inner classes here
+        # TODO I probably need to add inner classes here
 
         me = self.pretty_this()
         yield me
@@ -1155,7 +1156,7 @@ class JavaMemberInfo(object):
         is this a synthetic method
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.8
-        """
+        """  # noqa
 
         return ((self.access_flags & ACC_SYNTHETIC) or
                 bool(self.get_attribute("Synthetic")))
@@ -1182,12 +1183,13 @@ class JavaMemberInfo(object):
         is this member deprecated
 
         reference: http://docs.oracle.com/javase/specs/jvms/se5.0/html/ClassFile.doc.html#78232
-        """
+        """  # noqa
 
         return bool(self.get_attribute("Deprecated"))
 
 
-    def _get_annotations(self, python_attr_name, java_attr_name, for_params=False):
+    def _get_annotations(self, python_attr_name, java_attr_name,
+                         for_params=False):
 
         annos = getattr(self, python_attr_name)
 
@@ -1198,12 +1200,14 @@ class JavaMemberInfo(object):
 
             else:
                 with unpack(buff) as up:
+                    unp = partial(up.unpack_objects,
+                                  JavaAnnotation, self.cpool)
+
                     if for_params:
-                        (param_count,) = up.unpack_struct(_B)
-                        annos = (tuple(up.unpack_objects(JavaAnnotation, self.cpool))
-                                for i in range(param_count))
+                        (param_count, ) = up.unpack_struct(_B)
+                        annos = (tuple(unp()) for i in xrange(param_count))
                     else:
-                        annos = up.unpack_objects(JavaAnnotation, self.cpool)
+                        annos = unp()
                     annos = tuple(annos)
 
             setattr(self, python_attr_name, annos)
@@ -1217,7 +1221,7 @@ class JavaMemberInfo(object):
         instances
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
-        """
+        """  # noqa
 
         return self._get_annotations("annotations",
                                      "RuntimeVisibleAnnotations")
@@ -1229,34 +1233,34 @@ class JavaMemberInfo(object):
         JavaAnnotation instances
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.17
-        """
+        """  # noqa
 
         return self._get_annotations("invisible_annotations",
                                      "RuntimeInvisibleAnnotations")
 
 
     def get_parameter_annotations(self):
-      """
-      The RuntimeVisibleParameterAnnotations attribute.
-      Contains a tuple of JavaAnnotation instances for each param.
+        """
+        The RuntimeVisibleParameterAnnotations attribute.  Contains a
+        tuple of JavaAnnotation instances for each param.
 
-      reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.18
-      """
-      return self._get_annotations("parameter_annotations",
-                                   "RuntimeVisibleParameterAnnotations",
-                                   for_params=True)
+        reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.18
+        """  # noqa
+        return self._get_annotations("parameter_annotations",
+                                     "RuntimeVisibleParameterAnnotations",
+                                     for_params=True)
 
 
     def get_invisible_parameter_annotations(self):
-      """
-      The RuntimeInvisibleParameterAnnotations attribute.
-      Contains a tuple of JavaAnnotation instances for each param.
+        """
+        The RuntimeInvisibleParameterAnnotations attribute.  Contains a
+        tuple of JavaAnnotation instances for each param.
 
-      reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.19
-      """
-      return self._get_annotations("invisible_parameter_annotations",
-                                   "RuntimeInvisibleParameterAnnotations",
-                                   for_params=True)
+        reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.19
+        """  # noqa
+        return self._get_annotations("invisible_parameter_annotations",
+                                     "RuntimeInvisibleParameterAnnotations",
+                                     for_params=True)
 
 
     def get_annotationdefault(self):
@@ -1265,14 +1269,14 @@ class JavaMemberInfo(object):
         annotaion.
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.20
-        """
+        """  # noqa
 
         buff = self.get_attribute("AnnotationDefault")
         if buff is None:
             return None
 
         with unpack(buff) as up:
-            (ti,) = up.unpack_struct(_H)
+            (ti, ) = up.unpack_struct(_H)
 
         return ti
 
@@ -1295,7 +1299,7 @@ class JavaMemberInfo(object):
         None otherwise
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.3
-        """
+        """  # noqa
 
         buff = self.get_attribute("Code")
         if buff is None:
@@ -1314,7 +1318,7 @@ class JavaMemberInfo(object):
         raise, or None if this is not a method
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.5
-        """
+        """  # noqa
 
         buff = self.get_attribute("Exceptions")
         if buff is None:
@@ -1331,14 +1335,14 @@ class JavaMemberInfo(object):
         contant field
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.2
-        """
+        """  # noqa
 
         buff = self.get_attribute("ConstantValue")
         if buff is None:
             return None
 
         with unpack(buff) as up:
-            (cval_ref,) = up.unpack_struct(_H)
+            (cval_ref, ) = up.unpack_struct(_H)
 
         return cval_ref
 
@@ -1527,7 +1531,7 @@ class JavaCodeInfo(object):
     The 'Code' attribue of a method member of a java class
 
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.3
-    """
+    """  # noqa
 
     def __init__(self, cpool):
         self.cpool = cpool
@@ -1583,7 +1587,7 @@ class JavaCodeInfo(object):
         a sequence of (code_offset, line_number) pairs.
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.12
-        """
+        """  # noqa
 
         lnt = self._lnt
         if lnt is None:
@@ -1618,7 +1622,7 @@ class JavaCodeInfo(object):
         tuples
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.13
-        """
+        """  # noqa
 
         buff = self.get_attribute("LocalVariableTable")
         if buff is None:
@@ -1634,7 +1638,7 @@ class JavaCodeInfo(object):
         index) tuples
 
         reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.14
-        """
+        """  # noqa
 
         buff = self.get_attribute("LocalVariableTypeTable")
         if buff is None:
@@ -1793,7 +1797,7 @@ class JavaInnerClassInfo(object):
     Information about an inner class
 
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.6
-    """
+    """  # noqa
 
     def __init__(self, cpool):
         self.cpool = cpool
@@ -1830,7 +1834,7 @@ class JavaAnnotation(dict):
     Java Annotations info
 
     reference: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
-    """
+    """  # noqa
 
     def __init__(self, cpool):
         dict.__init__(self)
@@ -1874,8 +1878,9 @@ class JavaAnnotation(dict):
             return False
 
         # if we have a different type name, not equal
-        if (self.cpool.deref_const(self.type_ref) !=
-            other.cpool.deref_const(other.type_ref)):
+        left = self.cpool.deref_const(self.type_ref)
+        right = other.cpool.deref_const(other.type_ref)
+        if left != right:
             return False
 
         # if we have differing sets of keys, not equal
@@ -1895,7 +1900,7 @@ class JavaAnnotation(dict):
         return not self.__eq__(other)
 
     def __repr__(self):
-      return '@' + self.pretty_annotation()
+        return '@' + self.pretty_annotation()
 
 
 def _annotation_val_eq(left_tag, left_data, left_cpool,
@@ -1997,15 +2002,16 @@ def _pretty_annotation_val(val, cpool):
 # inclusive, and the string of the platform version.
 
 
-_platforms = ( ((45, 0), (45, 3), "1.0.2"),
-               ((45, 4), (45, 65535), "1.1"),
-               ((46, 0), (46, 65535), "1.2"),
-               ((47, 0), (47, 65535), "1.3"),
-               ((48, 0), (48, 65535), "1.4"),
-               ((49, 0), (49, 65535), "1.5"),
-               ((50, 0), (50, 65535), "1.6"),
-               ((51, 0), (51, 65535), "1.7"),
-               ((52, 0), (52, 65535), "1.8") )
+_platforms = (
+    ((45, 0), (45, 3), "1.0.2"),
+    ((45, 4), (45, 65535), "1.1"),
+    ((46, 0), (46, 65535), "1.2"),
+    ((47, 0), (47, 65535), "1.3"),
+    ((48, 0), (48, 65535), "1.4"),
+    ((49, 0), (49, 65535), "1.5"),
+    ((50, 0), (50, 65535), "1.6"),
+    ((51, 0), (51, 65535), "1.7"),
+    ((52, 0), (52, 65535), "1.8"), )
 
 
 def platform_from_version(major, minor):
@@ -2086,11 +2092,11 @@ def _pretty_const_type_val(typecode, val):
     """
 
     if typecode == CONST_Utf8:
-        typestr = "Utf8" # formerly Asciz, which was considered Java bug
+        typestr = "Utf8"  # formerly Asciz, which was considered Java bug
         if isinstance(val, unicode):
-            val = repr(val)[2:-1] # trim off the surrounding u"" (HACK)
+            val = repr(val)[2:-1]  # trim off the surrounding u"" (HACK)
         else:
-            val = repr(val)[1:-1] # trim off the surrounding "" (HACK)
+            val = repr(val)[1:-1]  # trim off the surrounding "" (HACK)
     elif typecode == CONST_Integer:
         typestr = "int"
     elif typecode == CONST_Float:
@@ -2167,7 +2173,7 @@ def _next_argsig(buff):
 
     elif c == "[":
         d, buff = _next_argsig(buffer(buff, 1))
-        result =  (c + d, buff)
+        result = (c + d, buff)
 
     elif c == "L":
         s = buff[:]
@@ -2213,7 +2219,7 @@ def _pretty_typeseq(type_s):
 
 
 def _pretty_type(s, offset=0):
-    #pylint: disable=R0911, R0912
+    # pylint: disable=R0911, R0912
     # too many returns, too many branches. Not converting this to a
     # dict lookup. Waiving instead.
 
