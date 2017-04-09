@@ -254,7 +254,8 @@ def cli_sign_jar(argument_list=None):
     parser.add_option("-d", "--digest", action="store", default="SHA-256",
                       help="Digest algorithm used for signing")
 
-    parser.add_option("-c", "--chain", action="append", default=[],
+    parser.add_option("-c", "--chain", action="append",
+                      dest="extra_certs", default=[],
                       help="Additional certificates to embed into the"
                       " signature (PEM format). More than one can be"
                       " provided.")
