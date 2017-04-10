@@ -1,16 +1,23 @@
-Thu Jan 21 2014 Christopher O'Brien <obriencj@gmail.com> - 1.4.0-0
+Mon Apr 10 2017 Christopher O'Brien <obriencj@gmail.com> - 1.4.0-0
+	Python 2.7+
+
+	Support for signing and verifying JAR signatures (adds
+	M2Crypto dependency)
+	
 	fixed issues with auto-exploding a dist and cleaning up
 	afterwards
 
 	InvokeDynamic, MethodType, and MethodHandle CONSTANT types
 
-	added --ignore-manifest-key option
-
 	RuntimeInvisibleAnnotations support
+
+	added --ignore-manifest-key option
 
 	more crypto hashes supported in manifests
 
 	removed PyXML dependency
+	
+	Use entry_points for CLI invocation
 
 	manifest enhancements
 
