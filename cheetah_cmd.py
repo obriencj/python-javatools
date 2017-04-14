@@ -22,7 +22,6 @@ license: LGPL v.3
 """
 
 
-from Cheetah.Compiler import Compiler
 from distutils.core import Command
 from distutils.util import newer
 from distutils.command.build_py import build_py
@@ -92,7 +91,13 @@ class cheetah_build_py_cmd(build_py):
         Compile the cheetah template in src into a python file in build
         """
 
-        comp = Compiler(file=template_file, moduleName=template)
+        try:
+            from Cheetah.Compiler import Compiler
+        except ImportError:
+            self.announce("unable to import Cheetah.Compiler, build failed")
+            raise
+        else:
+            comp = Compiler(file=template_file, moduleName=template)
 
         # load configuration if it exists
         conf_fn = DEFAULT_CONFIG
