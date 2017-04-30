@@ -23,7 +23,8 @@ JAR files.
 :licence: LGPL
 """
 
-
+import sys
+from argparse import ArgumentParser
 from os.path import isdir
 
 from . import unpack_class
@@ -51,7 +52,7 @@ __all__ = (
     "JarReport", "JarContentsReport", "JarClassReport",
     "cli", "main",
     "cli_jars_diff",
-    "jardiff_optgroup", "default_jardiff_options", )
+    "add_jardiff_optgroup", "default_jardiff_options", )
 
 
 class JarTypeChange(GenericChange):
@@ -519,63 +520,58 @@ def cli_jars_diff(options, left, right):
         return 1
 
 
-def cli(parser, options, rest):
-    if len(rest) != 3:
-        parser.error("wrong number of arguments.")
+def cli(options):
 
-    left, right = rest[1:3]
+    left, right = options.jar
     return cli_jars_diff(options, left, right)
 
 
-def jardiff_optgroup(parser):
+def add_jardiff_optgroup(parser):
     """
     option group specific to the tests in jardiff
     """
 
-    from optparse import OptionGroup
+    og = parser.add_argument_group("JAR Checking Options")
 
-    og = OptionGroup(parser, "JAR Checking Options")
+    og.add_argument("--ignore-jar-entry", action="append", default=[])
 
-    og.add_option("--ignore-jar-entry", action="append", default=[])
-
-    og.add_option("--ignore-jar-signature",
+    og.add_argument("--ignore-jar-signature",
                   action="store_true", default=False,
                   help="Ignore JAR signing changes")
 
-    og.add_option("--ignore-manifest",
+    og.add_argument("--ignore-manifest",
                   action="store_true", default=False,
                   help="Ignore changes to manifests")
 
-    og.add_option("--ignore-manifest-subsections",
+    og.add_argument("--ignore-manifest-subsections",
                   action="store_true", default=False,
                   help="Ignore changes to manifest subsections")
 
-    og.add_option("--ignore-manifest-key",
+    og.add_argument("--ignore-manifest-key",
                   action="append", default=[],
                   help="case-insensitive manifest keys to ignore")
 
-    return og
 
-
-def create_optparser():
+def create_optparser(progname=None):
     """
     an OptionParser instance with the appropriate options and groups
     for the jardiff utility
     """
 
-    from optparse import OptionParser
-    from .classdiff import general_optgroup, classdiff_optgroup
+    from .classdiff import add_general_optgroup, add_classdiff_optgroup
     from javatools import report
 
-    parser = OptionParser(usage="%prog [OPTIONS] OLD_JAR NEW_JAR")
+    parser = ArgumentParser(prog=progname)
+    parser.add_argument("jar", nargs=2,
+                        help="JAR files to compare")
 
-    parser.add_option_group(general_optgroup(parser))
-    parser.add_option_group(jardiff_optgroup(parser))
-    parser.add_option_group(classdiff_optgroup(parser))
+    add_general_optgroup(parser)
+    add_jardiff_optgroup(parser)
+    add_classdiff_optgroup(parser)
 
-    parser.add_option_group(report.general_report_optgroup(parser))
-    parser.add_option_group(report.json_report_optgroup(parser))
-    parser.add_option_group(report.html_report_optgroup(parser))
+    report.add_general_report_optgroup(parser)
+    report.add_json_report_optgroup(parser)
+    report.add_html_report_optgroup(parser)
 
     return parser
 
@@ -598,13 +594,13 @@ def default_jardiff_options(updates=None):
     return options
 
 
-def main(args):
+def main(args=sys.argv):
     """
     main entry point for the jardiff CLI
     """
 
-    parser = create_optparser()
-    return cli(parser, *parser.parse_args(args))
+    parser = create_optparser(args[0])
+    return cli(parser.parse_args(args[1:]))
 
 
 #

@@ -29,7 +29,7 @@ import sys
 
 from abc import ABCMeta
 from itertools import izip
-from optparse import OptionParser, OptionGroup
+from argparse import ArgumentParser, Action
 
 from . import unpack_classfile
 from .change import GenericChange, SuperChange
@@ -38,8 +38,8 @@ from .change import yield_sorted_by_type
 from .opcodes import get_opname_by_code, has_const_arg
 from .report import quick_report, Reporter
 from .report import JSONReportFormat, TextReportFormat
-from .report import general_report_optgroup
-from .report import json_report_optgroup, html_report_optgroup
+from .report import add_general_report_optgroup
+from .report import add_json_report_optgroup, add_html_report_optgroup
 
 
 __all__ = (
@@ -83,8 +83,8 @@ __all__ = (
 
     "cli", "main",
     "cli_classes_diff",
-    "classdiff_optgroup", "default_classdiff_options",
-    "general_optgroup", )
+    "add_classdiff_optgroup", "default_classdiff_options",
+    "add_general_optgroup", )
 
 
 class ClassNameChange(GenericChange):
@@ -950,7 +950,7 @@ def merge_code(left_code, right_code):
 #
 
 
-def cli_classes_diff(parser, options, left, right):
+def cli_classes_diff(options, left, right):
     reports = getattr(options, "reports", tuple())
     if reports:
         rdir = options.report_dir or "./"
@@ -977,159 +977,150 @@ def cli_classes_diff(parser, options, left, right):
         return 1
 
 
-def cli(parser, options, rest):
-    if len(rest) != 3:
-        parser.error("wrong number of arguments.")
+def cli(options):
+    left = unpack_classfile(options.classfile[0])
+    right = unpack_classfile(options.classfile[1])
 
-    left = unpack_classfile(rest[1])
-    right = unpack_classfile(rest[2])
-
-    return cli_classes_diff(parser, options, left, right)
+    return cli_classes_diff(options, left, right)
 
 
-def classdiff_optgroup(parser):
+def add_classdiff_optgroup(parser):
     """
     option group specific to class checking
     """
 
-    g = OptionGroup(parser, "Class Checking Options")
+    g = parser.add_argument_group("Class Checking Options")
 
-    g.add_option("--ignore-version-up", action="store_true", default=False)
-    g.add_option("--ignore-version-down", action="store_true", default=False)
-    g.add_option("--ignore-platform-up", action="store_true", default=False)
-    g.add_option("--ignore-platform-down", action="store_true", default=False)
-    g.add_option("--ignore-absolute-lines", action="store_true", default=False)
-    g.add_option("--ignore-relative-lines", action="store_true", default=False)
-    g.add_option("--ignore-deprecated", action="store_true", default=False)
-    g.add_option("--ignore-added", action="store_true", default=False)
-    g.add_option("--ignore-pool", action="store_true", default=False)
+    g.add_argument("--ignore-version-up", action="store_true", default=False)
+    g.add_argument("--ignore-version-down", action="store_true", default=False)
+    g.add_argument("--ignore-platform-up", action="store_true", default=False)
+    g.add_argument("--ignore-platform-down", action="store_true", default=False)
+    g.add_argument("--ignore-absolute-lines", action="store_true", default=False)
+    g.add_argument("--ignore-relative-lines", action="store_true", default=False)
+    g.add_argument("--ignore-deprecated", action="store_true", default=False)
+    g.add_argument("--ignore-added", action="store_true", default=False)
+    g.add_argument("--ignore-pool", action="store_true", default=False)
 
-    g.add_option("--ignore-lines",
+    g.add_argument("--ignore-lines", nargs=0,
                  help="ignore relative and absolute line-number changes",
-                 action="callback", callback=_opt_cb_ign_lines)
+                 action=_opt_cb_ign_lines)
 
-    g.add_option("--ignore-platform",
+    g.add_argument("--ignore-platform", nargs=0,
                  help="ignore platform changes",
-                 action="callback", callback=_opt_cb_ign_platform)
+                 action=_opt_cb_ign_platform)
 
-    g.add_option("--ignore-version",
+    g.add_argument("--ignore-version", nargs=0,
                  help="ignore version changes",
-                 action="callback", callback=_opt_cb_ign_version)
-
-    return g
+                 action=_opt_cb_ign_version)
 
 
-def _opt_cb_ignore(_opt, _opt_str, value, parser):
+class _opt_cb_ignore(Action):
     """
     handle the --ignore option, which trigges other options
     """
 
-    if not value:
-        return
+    def __call__(self, parser, options, values, option_string=None):
 
-    options = parser.values
+        if not values:
+            return
 
-    ignore = getattr(options, "ignore", None)
-    if ignore is None:
-        options.ignore = ignore = list()
+        ignore = getattr(options, "ignore", None)
+        if ignore is None:
+            options.ignore = ignore = list()
 
-    ign = (i.strip() for i in value.split(","))
-    ign = (i for i in ign if i)
-    for i in ign:
-        ignore.append(i)
-        iopt_str = "--ignore-" + i.replace("_", "-")
-        iopt = parser.get_option(iopt_str)
-        if iopt:
-            iopt.process(iopt_str, value, options, parser)
+        ign = (i.strip() for i in values.split(","))
+        ign = (i for i in ign if i)
+        for i in ign:
+            ignore.append(i)
+            iopt_str = "--ignore-" + i.replace("_", "-")
+            iopt = parser.get_option(iopt_str)
+            if iopt:
+                iopt.process(iopt_str, values, options, parser)
 
 
-def _opt_cb_ign_lines(_opt, _opt_str, _value, parser):
+class _opt_cb_ign_lines(Action):
     """
     handle the --ignore-lines option
     """
 
-    options = parser.values
-    options.ignore_lines = True
-    options.ignore_absolute_lines = True
-    options.ignore_relative_lines = True
+    def __call__(self, parser, options, values, option_string=None):
+        options.ignore_lines = True
+        options.ignore_absolute_lines = True
+        options.ignore_relative_lines = True
 
 
-def _opt_cb_ign_version(_opt, _opt_str, _value, parser):
+class _opt_cb_ign_version(Action):
     """
     handle the --ignore-version option
     """
 
-    options = parser.values
-    options.ignore_version = True
-    options.ignore_version_up = True
-    options.ignore_version_down = True
+    def __call__(self, parser, options, values, option_string=None):
+        options.ignore_version = True
+        options.ignore_version_up = True
+        options.ignore_version_down = True
 
 
-def _opt_cb_ign_platform(_opt, _opt_str, _value, parser):
+class _opt_cb_ign_platform(Action):
     """
     handle the --ignore-platform option
     """
 
-    options = parser.values
-    options.ignore_platform = True
-    options.ignore_platform_up = True
-    options.ignore_platform_down = True
+    def __call__(self, parser, options, values, option_string=None):
+        options.ignore_platform = True
+        options.ignore_platform_up = True
+        options.ignore_platform_down = True
 
 
-def _opt_cb_verbose(_opt, _opt_str, _value, parser):
+class _opt_cb_verbose(Action):
     """
     handle the --verbose option
     """
 
-    options = parser.values
-    options.verbose = True
-    options.show_unchanged = True
-    options.show_ignored = True
+    def __call__(self, parser, options, values, option_string=None):
+        options.verbose = True
+        options.show_unchanged = True
+        options.show_ignored = True
 
 
-def general_optgroup(parser):
+def add_general_optgroup(parser):
     """
     option group for general-use features of all javatool CLIs
     """
 
-    g = OptionGroup(parser, "General Options")
+    g = parser.add_argument_group("General Options")
 
-    g.add_option("-q", "--quiet", dest="silent",
+    g.add_argument("-q", "--quiet", dest="silent",
                  action="store_true", default=False)
 
-    g.add_option("-v", "--verbose",
-                 action="callback", callback=_opt_cb_verbose)
+    g.add_argument("-v", "--verbose", nargs=0, action=_opt_cb_verbose)
 
-    g.add_option("-o", "--output", dest="output",
-                 action="store", default=None)
+    g.add_argument("-o", "--output", dest="output", default=None)
 
-    g.add_option("-j", "--json", dest="json",
+    g.add_argument("-j", "--json", dest="json",
                  action="store_true", default=False)
 
-    g.add_option("--show-ignored", action="store_true", default=False)
-    g.add_option("--show-unchanged", action="store_true", default=False)
+    g.add_argument("--show-ignored", action="store_true", default=False)
+    g.add_argument("--show-unchanged", action="store_true", default=False)
 
-    g.add_option("--ignore", type="string",
-                 action="callback", callback=_opt_cb_ignore,
+    g.add_argument("--ignore", action=_opt_cb_ignore,
                  help="comma-separated list of ignores")
 
-    return g
 
-
-def create_optparser():
+def create_optparser(progname=None):
     """
     an OptionParser instance with the appropriate options and groups
     for the classdiff utility
     """
 
-    parser = OptionParser("%prog [OPTIONS] OLD_CLASS NEW_CLASS")
+    parser = ArgumentParser(prog=progname)
+    parser.add_argument("classfile", nargs=2,
+                        help="class files to compare")
+    add_general_optgroup(parser)
+    add_classdiff_optgroup(parser)
 
-    parser.add_option_group(general_optgroup(parser))
-    parser.add_option_group(classdiff_optgroup(parser))
-
-    parser.add_option_group(general_report_optgroup(parser))
-    parser.add_option_group(json_report_optgroup(parser))
-    parser.add_option_group(html_report_optgroup(parser))
+    add_general_report_optgroup(parser)
+    add_json_report_optgroup(parser)
+    add_html_report_optgroup(parser)
 
     return parser
 
@@ -1157,8 +1148,8 @@ def main(args=sys.argv):
     Main entry point for the classdiff CLI
     """
 
-    parser = create_optparser()
-    return cli(parser, *parser.parse_args(args))
+    parser = create_optparser(args[0])
+    return cli(parser.parse_args(args[1:]))
 
 
 #

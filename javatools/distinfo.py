@@ -26,7 +26,7 @@ distribution of mixed class files and JARs.
 import sys
 
 from json import dump
-from optparse import OptionParser, OptionGroup
+from argparse import ArgumentParser
 from os.path import isdir, join
 from shutil import rmtree
 from tempfile import mkdtemp
@@ -236,11 +236,11 @@ def cli_distinfo_json(options, info):
     dump(data, sys.stdout, sort_keys=True, indent=2)
 
 
-def cli(parser, options, rest):
+def cli(options):
     # pylint: disable=W0613
     # parser unused
 
-    pathn = rest[1]
+    pathn = options.dist
     info = DistInfo(pathn)
 
     if options.json:
@@ -252,39 +252,37 @@ def cli(parser, options, rest):
     return 0
 
 
-def distinfo_optgroup(parser):
-    g = OptionGroup(parser, "Distribution Info Options")
+def add_distinfo_optgroup(parser):
+    g = parser.add_argument_group("Distribution Info Options")
 
-    g.add_option("--dist-provides", dest="dist_provides",
+    g.add_argument("--dist-provides", dest="dist_provides",
                  action="store_true", default=False,
                  help="API provides information at the distribution level")
 
-    g.add_option("--dist-requires", dest="dist_requires",
+    g.add_argument("--dist-requires", dest="dist_requires",
                  action="store_true", default=False,
                  help="API requires information at the distribution level")
 
-    return g
 
+def create_optparser(progname):
+    from .jarinfo import add_jarinfo_optgroup
+    from .classinfo import add_classinfo_optgroup
 
-def create_optparser():
-    from .jarinfo import jarinfo_optgroup
-    from .classinfo import classinfo_optgroup
-
-    parser = OptionParser("%prog [OPTIONS] DISTRIBUTION")
-
-    parser.add_option("--json", dest="json", action="store_true",
+    parser = ArgumentParser(prog=progname)
+    parser.add_argument("dist", help="distribution to inspect")
+    parser.add_argument("--json", dest="json", action="store_true",
                       help="output in JSON mode")
 
-    parser.add_option_group(distinfo_optgroup(parser))
-    parser.add_option_group(jarinfo_optgroup(parser))
-    parser.add_option_group(classinfo_optgroup(parser))
+    add_distinfo_optgroup(parser)
+    add_jarinfo_optgroup(parser)
+    add_classinfo_optgroup(parser)
 
     return parser
 
 
 def main(args=sys.argv):
-    parser = create_optparser()
-    return cli(parser, *parser.parse_args(args))
+    parser = create_optparser(args[0])
+    return cli(parser.parse_args(args[1:]))
 
 
 #

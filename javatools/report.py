@@ -27,7 +27,7 @@ from abc import ABCMeta, abstractmethod
 from Cheetah.DummyTransaction import DummyTransaction
 from functools import partial
 from json import dump, JSONEncoder
-from optparse import OptionGroup
+from argparse import Action
 from os.path import exists, join, relpath
 
 from .dirutils import copydir, makedirsp
@@ -38,10 +38,10 @@ _BUFFERING = 2 ** 16
 
 __all__ = (
     "Reporter", "ReportFormat",
-    "quick_report", "general_report_optgroup",
-    "JSONReportFormat", "json_report_optgroup",
+    "quick_report", "add_general_report_optgroup",
+    "JSONReportFormat", "add_json_report_optgroup",
     "TextReportFormat",
-    "CheetahReportFormat", "html_report_optgroup", )
+    "CheetahReportFormat", "add_html_report_optgroup", )
 
 
 class Reporter(object):
@@ -239,36 +239,33 @@ class ReportFormat(object):
         self.breadcrumbs = None
 
 
-def _opt_cb_report(_opt, _optstr, value, parser):
+class _opt_cb_report(Action):
+
     """
     callback for the --report option in general_report_optgroup
     """
+    def __call__(self, parser, options, values, option_string=None):
 
-    options = parser.values
+        if not hasattr(options, "reports"):
+            options.reports = list()
 
-    if not hasattr(options, "reports"):
-        options.reports = list()
-
-    if "," in value:
-        options.reports.extend(v for v in value.split(",") if v)
-    else:
-        options.reports.append(value)
+        if "," in values:
+            options.reports.extend(v for v in values.split(",") if v)
+        else:
+            options.reports.append(values)
 
 
-def general_report_optgroup(parser):
+def add_general_report_optgroup(parser):
     """
     General Reporting Options
     """
 
-    g = OptionGroup(parser, "Reporting Options")
+    g = parser.add_argument_group("Reporting Options")
 
-    g.add_option("--report-dir", action="store", default=None)
+    g.add_argument("--report-dir", action="store", default=None)
 
-    g.add_option("--report", action="callback", type="string",
-                 help="comma-separated list of report formats",
-                 callback=_opt_cb_report)
-
-    return g
+    g.add_argument("--report", action=_opt_cb_report,
+                 help="comma-separated list of report formats")
 
 
 class JSONReportFormat(ReportFormat):
@@ -301,16 +298,14 @@ class JSONReportFormat(ReportFormat):
             raise
 
 
-def json_report_optgroup(parser):
+def add_json_report_optgroup(parser):
     """
     Option group for the JON report format
     """
 
-    g = OptionGroup(parser, "JON Report Options")
+    g = parser.add_argument_group("JSON Report Options")
 
-    g.add_option("--json-indent", action="store", default=2)
-
-    return g
+    g.add_argument("--json-indent", action="store", default=2)
 
 
 class JSONChangeEncoder(JSONEncoder):
@@ -606,24 +601,22 @@ def resolve_cheetah_template(change_type):
     raise Exception("No template for class %s" % change_type.__name__)
 
 
-def html_report_optgroup(parser):
+def add_html_report_optgroup(parser):
     """
     Option group for the HTML report format
     """
 
-    g = OptionGroup(parser, "HTML Report Options")
+    g = parser.add_argument_group("HTML Report Options")
 
-    g.add_option("--html-stylesheet", action="append",
+    g.add_argument("--html-stylesheet", action="append",
                  dest="html_stylesheets", default=list())
 
-    g.add_option("--html-javascript", action="append",
+    g.add_argument("--html-javascript", action="append",
                  dest="html_javascripts", default=list())
 
-    g.add_option("--html-copy-data", action="store", default=None,
+    g.add_argument("--html-copy-data", action="store", default=None,
                  help="Copy default resources to the given directory and"
                  " enable them in the template")
-
-    return g
 
 
 def quick_report(report_type, change, options):

@@ -25,10 +25,10 @@ printing it out.
 import sys
 
 from json import dump
-from optparse import OptionParser, OptionGroup
+from argparse import ArgumentParser
 
 from . import unpack_class
-from .classinfo import cli_print_classinfo, classinfo_optgroup
+from .classinfo import cli_print_classinfo, add_classinfo_optgroup
 from .dirutils import fnmatches
 from .manifest import Manifest
 from .ziputils import open_zip_entry, zip_file, zip_entry_rollup
@@ -36,7 +36,7 @@ from .ziputils import open_zip_entry, zip_file, zip_entry_rollup
 
 __all__ = (
     "JAR_PATTERNS", "JarInfo",
-    "main", "cli", "jarinfo_optgroup",
+    "main", "cli", "add_jarinfo_optgroup",
     "cli_jar_classes", "cli_jar_manifest_info",
     "cli_jar_provides", "cli_jar_requires",
     "cli_jar_zip_info", "cli_jarinfo",
@@ -281,7 +281,7 @@ def cli_jarinfo_json(options, info):
     dump(data, sys.stdout, sort_keys=True, indent=2)
 
 
-def cli(parser, options, rest):
+def cli(options):
     if options.verbose:
         options.zip = True
         options.lines = True
@@ -294,7 +294,7 @@ def cli(parser, options, rest):
                          options.disassemble or
                          options.sigs)
 
-    for fn in rest[1:]:
+    for fn in options.jarfiles:
         with JarInfo(filename=fn) as ji:
             if options.json:
                 cli_jarinfo_json(options, ji)
@@ -304,44 +304,43 @@ def cli(parser, options, rest):
     return 0
 
 
-def jarinfo_optgroup(parser):
-    g = OptionGroup(parser, "JAR Info Options")
+def add_jarinfo_optgroup(parser):
+    g = parser.add_argument_group("JAR Info Options")
 
-    g.add_option("--zip", action="store_true", default=False,
+    g.add_argument("--zip", action="store_true", default=False,
                  help="print zip information")
 
-    g.add_option("--manifest", action="store_true", default=False,
+    g.add_argument("--manifest", action="store_true", default=False,
                  help="print manifest information")
 
-    g.add_option("--jar-classes", action="store_true", default=False,
+    g.add_argument("--jar-classes", action="store_true", default=False,
                  help="print information about contained classes")
 
-    g.add_option("--jar-provides", dest="jar_provides",
+    g.add_argument("--jar-provides", dest="jar_provides",
                  action="store_true", default=False,
                  help="API provides information at the JAR level")
 
-    g.add_option("--jar-requires", dest="jar_requires",
+    g.add_argument("--jar-requires", dest="jar_requires",
                  action="store_true", default=False,
                  help="API requires information at the JAR level")
 
-    return g
 
+def create_optparser(progname):
+    parser = ArgumentParser(progname)
 
-def create_optparser():
-    parser = OptionParser("%prog [OPTIONS] JARFILE")
-
-    parser.add_option("--json", dest="json", action="store_true",
+    parser.add_argument("jarfiles", nargs="+",
+                        help="JAR files to inspect")
+    parser.add_argument("--json", dest="json", action="store_true",
                       help="output in JSON mode")
-
-    parser.add_option_group(jarinfo_optgroup(parser))
-    parser.add_option_group(classinfo_optgroup(parser))
+    add_jarinfo_optgroup(parser)
+    add_classinfo_optgroup(parser)
 
     return parser
 
 
 def main(args=sys.argv):
-    parser = create_optparser()
-    return cli(parser, *parser.parse_args(args))
+    parser = create_optparser(args[0])
+    return cli(parser.parse_args(args[1:]))
 
 
 #
