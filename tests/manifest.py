@@ -45,7 +45,7 @@ class ManifestTest(TestCase):
         # the invocation of the script
         src_jar = get_data_fn("manifest-sample1.jar")
         with NamedTemporaryFile() as tmp_out:
-            cmd = ["manifest", "-c", src_jar, "-m", tmp_out.name]
+            cmd = ["manifest", "c", src_jar, "-m", tmp_out.name]
             cmd.extend(args.split())
 
             # rather than trying to actually execute the script in a
@@ -121,12 +121,12 @@ class ManifestTest(TestCase):
 
     def test_cli_verify_ok(self):
         jar_file = get_data_fn("cli-verify-ok.jar")
-        self.assertEqual(0, main(["-v", jar_file]))
+        self.assertEqual(0, main(["argv0", "v", jar_file]))
 
 
     def test_cli_verify_nok(self):
         jar_file = get_data_fn("cli-verify-nok.jar")
-        self.assertEqual(1, main(["-v", jar_file]))
+        self.assertEqual(1, main(["argv0", "v", jar_file]))
 
 
     def test_verify_mf_checksums_no_whole_digest(self):

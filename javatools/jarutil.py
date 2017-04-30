@@ -21,10 +21,10 @@ Java archives
 :license: LGPL
 """
 
+import argparse
 import os
 import sys
 
-from optparse import OptionParser
 from shutil import copyfile
 from tempfile import NamedTemporaryFile
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -226,18 +226,15 @@ def cli_create_jar(argument_list):
     """
 
     usage_message = "usage: jarutil c [OPTIONS] file.jar files..."
-    parser = OptionParser(usage=usage_message)
-    parser.add_option("-m", "--main-class",
-                      help="Specify application entry point")
+    parser = argparse.ArgumentParser(usage=usage_message)
 
-    options, mand_args = parser.parse_args(argument_list)
-    if len(mand_args) < 2:
-        print usage_message
-        return 1
+    parser.add_argument("jar_file", type=str,
+                        help="The file to create")
+    parser.add_argument("-m", "--main-class", type=str,
+                        help="Specify application entry point")
 
-    jar_file = mand_args[0]
-    entries = mand_args[1:]
-    create_jar(jar_file, entries)
+    args, entries = parser.parse_known_args(argument_list)
+    create_jar(args.jar_file, entries)
     return 0
 
 
@@ -246,42 +243,46 @@ def cli_sign_jar(argument_list=None):
     Command-line wrapper around sign()
     """
 
-    usage_message = "Usage: jarutil s [OPTIONS] file.jar certificate.pem" \
-                    " private_key.pem key_alias"
+    usage_message = "jarutil s [OPTIONS] jar_file cert_file " \
+                    "key_file key_alias"
 
-    parser = OptionParser(usage=usage_message)
+    parser = argparse.ArgumentParser(usage=usage_message)
 
-    parser.add_option("-d", "--digest", action="store", default="SHA-256",
-                      help="Digest algorithm used for signing")
+    parser.add_argument("jar_file", type=str,
+                        help="JAR file to sign")
+    parser.add_argument("cert_file", type=str,
+                        help="Certificate file (PEM format)")
+    parser.add_argument("key_file", type=str,
+                        help="Private key file (PEM format)")
+    parser.add_argument("key_alias", type=str,
+                        help="JAR \"key alias\" to use")
 
-    parser.add_option("-c", "--chain", action="append",
-                      dest="extra_certs", default=[],
-                      help="Additional certificates to embed into the"
-                      " signature (PEM format). More than one can be"
-                      " provided.")
+    parser.add_argument("-d", "--digest", action="store", default="SHA-256",  # TODO: factor to a constant
+                        help="Digest algorithm used for signing")
 
-    parser.add_option("-o", "--output", action="store", default=None,
-                      help="Filename to put signed jar. If not provided, the"
-                      " signature is added to the original jar file.")
+    parser.add_argument("-c", "--chain", action="append",
+                        dest="extra_certs", default=[],
+                        help="Additional certificates to embed into the"
+                        " signature (PEM format). More than one \"-c\" option"
+                        " can be provided.")
 
-    options, mand_args = parser.parse_args(argument_list)
+    parser.add_argument("-o", "--output", action="store", default=None,
+                        help="Filename to put signed jar. If not provided, the"
+                        " signature is added to the original jar file.")
 
-    if len(mand_args) != 4:
-        print usage_message
-        return 1
-
-    jar_file, cert_file, key_file, key_alias = mand_args
+    args = parser.parse_args(argument_list)
 
     try:
-        sign(jar_file, cert_file, key_file, key_alias,
-             options.extra_certs, options.digest, options.output)
+        sign(args.jar_file, args.cert_file, args.key_file, args.key_alias,
+             args.extra_certs, args.digest, args.output)
 
     except CannotFindKeyTypeError:
-        print "Cannot determine private key type (is it in PEM format?)"
+        print "Cannot determine private key type in %s" % args.key_file
         return 1
 
     except MissingManifestError:
-        print "Manifest missing in jar file %s" % jar_file
+        print "Manifest missing in jar file %s" % args.jar_file
+        return 2
 
     return 0
 
@@ -292,7 +293,7 @@ def cli_verify_jar_signature(argument_list):
     TODO: use trusted keystore;
     """
 
-    usage_message = "Usage: jarutil v file.jar trusted_certificate.pem"
+    usage_message = "jarutil v file.jar trusted_certificate.pem"
     if len(argument_list) != 2:
         print usage_message
         return 1
@@ -321,16 +322,14 @@ def main(args=sys.argv):
     if len(args) < 2:
         return usage()
 
-    # TODO: maybe use argparse for subcommands?
-
     command = args[1]
     rest = args[2:]
 
-    if command == "c":
+    if "create".startswith(command):
         return cli_create_jar(rest)
-    elif command == "s":
+    elif "sign".startswith(command):
         return cli_sign_jar(rest)
-    elif command == "v":
+    elif "view".startswith(command):
         return cli_verify_jar_signature(rest)
     else:
         return usage()
