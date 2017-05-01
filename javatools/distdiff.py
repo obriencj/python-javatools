@@ -29,18 +29,18 @@ import sys
 
 from itertools import izip_longest
 from multiprocessing import cpu_count
-from optparse import OptionParser, OptionGroup
+from argparse import ArgumentParser
 from os.path import join
 
-from . import report, unpack_classfile
+from . import unpack_classfile
 from .change import SuperChange, Addition, Removal
 from .change import squash, yield_sorted_by_type
 from .classdiff import JavaClassChange, JavaClassReport
-from .classdiff import classdiff_optgroup, general_optgroup
+from .classdiff import add_classdiff_optgroup, add_general_optgroup
 from .dirutils import compare, fnmatches
 from .dirutils import LEFT, RIGHT, SAME, DIFF
 from .manifest import Manifest, ManifestChange
-from .jardiff import JarChange, JarReport, jardiff_optgroup
+from .jardiff import JarChange, JarReport, add_jardiff_optgroup
 from .jarinfo import JAR_PATTERNS
 
 
@@ -555,7 +555,7 @@ def _mp_run_check(tasks, results, options):
 #
 
 
-def cli_dist_diff(parser, options, left, right):
+def cli_dist_diff(options, left, right):
     from .report import quick_report, Reporter
     from .report import JSONReportFormat, TextReportFormat
 
@@ -585,15 +585,12 @@ def cli_dist_diff(parser, options, left, right):
         return 1
 
 
-def cli(parser, options, rest):
-    if len(rest) != 3:
-        parser.error("wrong number of arguments.")
-
-    left, right = rest[1:3]
-    return cli_dist_diff(parser, options, left, right)
+def cli(options):
+    left, right = options.dist
+    return cli_dist_diff(options, left, right)
 
 
-def distdiff_optgroup(parser):
+def add_distdiff_optgroup(parser):
     """
     Option group relating to the use of a DistChange or DistReport
     """
@@ -601,46 +598,46 @@ def distdiff_optgroup(parser):
     # for the --processes default
     cpus = cpu_count()
 
-    og = OptionGroup(parser, "Distribution Checking Options")
+    og = parser.add_argument_group("Distribution Checking Options")
 
-    og.add_option("--processes", action="store",
-                  type="int", default=cpus,
+    og.add_argument("--processes", type=int, default=cpus,
                   help="Number of child processes to spawn to handle"
                   " sub-reports. Set to 0 to disable multi-processing."
                   " Defaults to the number of CPUs (%r)" % cpus)
 
-    og.add_option("--shallow", action="store_true", default=False,
+    og.add_argument("--shallow", action="store_true", default=False,
                   help="Check only that the files of this dist have"
                   "changed, do not infer the meaning")
 
-    og.add_option("--ignore-filenames", action="append", default=[],
+    og.add_argument("--ignore-filenames", action="append", default=[],
                   help="file glob to ignore. Can be specified multiple"
                   " times")
 
-    og.add_option("--ignore-trailing-whitespace",
+    og.add_argument("--ignore-trailing-whitespace",
                   action="store_true", default=False,
                   help="ignore trailing whitespace when comparing text"
                   " files")
 
-    return og
 
-
-def create_optparser():
+def create_optparser(progname=None):
     """
     an OptionParser instance filled with options and groups
     appropriate for use with the distdiff command
     """
+    from . import report
 
-    parser = OptionParser(usage="%prog [OPTIONS] OLD_DIST NEW_DIST")
+    parser = ArgumentParser(prog=progname)
+    parser.add_argument("dist", nargs=2,
+                        help="distributions to compare")
 
-    parser.add_option_group(general_optgroup(parser))
-    parser.add_option_group(distdiff_optgroup(parser))
-    parser.add_option_group(jardiff_optgroup(parser))
-    parser.add_option_group(classdiff_optgroup(parser))
+    add_general_optgroup(parser)
+    add_distdiff_optgroup(parser)
+    add_jardiff_optgroup(parser)
+    add_classdiff_optgroup(parser)
 
-    parser.add_option_group(report.general_report_optgroup(parser))
-    parser.add_option_group(report.json_report_optgroup(parser))
-    parser.add_option_group(report.html_report_optgroup(parser))
+    report.add_general_report_optgroup(parser)
+    report.add_json_report_optgroup(parser)
+    report.add_html_report_optgroup(parser)
 
     return parser
 
@@ -654,7 +651,7 @@ def default_distdiff_options(updates=None):
     """
 
     parser = create_optparser()
-    options, _args = parser.parse_args(list())
+    options = parser.parse_args(list())
 
     if updates:
         # pylint: disable=W0212
@@ -668,8 +665,8 @@ def main(args=sys.argv):
     entry point for the distdiff command-line utility
     """
 
-    parser = create_optparser()
-    return cli(parser, *parser.parse_args(args))
+    parser = create_optparser(args[0])
+    return cli(parser.parse_args(args[1:]))
 
 
 #

@@ -27,14 +27,14 @@ import sys
 import javatools.opcodes as opcodes
 
 from json import dump
-from optparse import OptionParser, OptionGroup
+from argparse import ArgumentParser
 from . import platform_from_version, unpack_classfile
 
 
 __all__ = (
     "SHOW_HEADER", "SHOW_PUBLIC",
     "SHOW_PACKAGE", "SHOW_PRIVATE",
-    "main", "cli", "classinfo_optgroup",
+    "main", "cli", "add_classinfo_optgroup",
     "cli_class_provides", "cli_class_requires",
     "cli_json_class", "cli_print_class",
     "cli_print_classinfo", "cli_simplify_classinfo",
@@ -378,7 +378,7 @@ def cli_json_class(options, classfile):
     dump(data, sys.stdout, sort_keys=True, indent=2)
 
 
-def cli(parser, options, rest):
+def cli(options):
     if options.verbose:
         # verbose also sets all of the following options
         options.lines = True
@@ -397,79 +397,78 @@ def cli(parser, options, rest):
     if options.json:
         style = cli_json_class
 
-    for f in rest[1:]:
+    for f in options.classfile:
         style(options, f)
 
     return 0
 
 
-def classinfo_optgroup(parser):
-    g = OptionGroup(parser, "Class Info Options")
+def add_classinfo_optgroup(parser):
+    g = parser.add_argument_group("Class Info Options")
 
-    g.add_option("--class-provides", dest="class_provides",
+    g.add_argument("--class-provides", dest="class_provides",
                  action="store_true", default=False,
                  help="API provides information at the class level")
 
-    g.add_option("--class-requires", dest="class_requires",
+    g.add_argument("--class-requires", dest="class_requires",
                  action="store_true", default=False,
                  help="API requires information at the class level")
 
-    g.add_option("--api-ignore", dest="api_ignore",
+    g.add_argument("--api-ignore", dest="api_ignore",
                  action="append", default=list(),
                  help="globs of packages to not print in provides"
                  " or requires modes")
 
-    g.add_option("--header", dest="show",
+    g.add_argument("--header", dest="show",
                  action="store_const", default=SHOW_PUBLIC, const=SHOW_HEADER,
                  help="show just the class header, no members")
 
-    g.add_option("--public", dest="show",
+    g.add_argument("--public", dest="show",
                  action="store_const", const=SHOW_PUBLIC,
                  help="show only public members")
 
-    g.add_option("--package", dest="show",
+    g.add_argument("--package", dest="show",
                  action="store_const", const=SHOW_PACKAGE,
                  help="show public and protected members")
 
-    g.add_option("--private", dest="show",
+    g.add_argument("--private", dest="show",
                  action="store_const", const=SHOW_PRIVATE,
                  help="show all members")
 
-    g.add_option("-l", dest="lines", action="store_true",
+    g.add_argument("-l", dest="lines", action="store_true",
                  help="show the line number table")
 
-    g.add_option("-o", dest="locals", action="store_true",
+    g.add_argument("-o", dest="locals", action="store_true",
                  help="show the local variable tables")
 
-    g.add_option("-c", dest="disassemble", action="store_true",
+    g.add_argument("-c", dest="disassemble", action="store_true",
                  help="disassemble method code")
 
-    g.add_option("-s", dest="sigs", action="store_true",
+    g.add_argument("-s", dest="sigs", action="store_true",
                  help="show internal type signatures")
 
-    g.add_option("-p", dest="constpool", action="store_true",
+    g.add_argument("-p", dest="constpool", action="store_true",
                  help="show the constants pool")
 
-    g.add_option("--verbose", dest="verbose", action="store_true",
+    g.add_argument("--verbose", dest="verbose", action="store_true",
                  help="sets -locsp options and shows stack bounds")
 
-    return g
 
-
-def create_optparser():
-    parser = OptionParser("%prog <options> <classfiles>")
-
-    parser.add_option_group(classinfo_optgroup(parser))
-
-    parser.add_option("--json", action="store_true", default=False,
+def create_optparser(progname):
+    parser = ArgumentParser(prog=progname)
+    parser.add_argument("classfile", nargs="+",
+                        help="Java class file(s) to inspect")
+    parser.add_argument("--json", action="store_true", default=False,
                       help="output JSON")
+
+    add_classinfo_optgroup(parser)
 
     return parser
 
 
 def main(args=sys.argv):
-    parser = create_optparser()
-    return cli(parser, *parser.parse_args(args))
+    parser = create_optparser(args[0])
+    return cli(parser.parse_args(args[1:]))
 
 
 #

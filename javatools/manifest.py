@@ -26,6 +26,7 @@ References
 """
 
 
+import argparse
 import hashlib
 import os
 import sys
@@ -907,21 +908,31 @@ def single_path_generator(pathname):
         zf.close()
 
 
-def cli_create(options, rest):
+def cli_create(argument_list):
     """
     command-line call to create a manifest from a JAR file or a
     directory
     """
 
-    if len(rest) != 2:
-        print "Usage: manifest --create [-r|--recursive]" \
-              " [-i|--ignore pattern] [-d|--digest algo[,algo ...]]" \
-              " [-m manifest] file|directory"
-        return 1
+    parser = argparse.ArgumentParser()
+    parser.add_argument("content", help="file or directory")
+    # TODO: shouldn't we always process directories recursively?
+    parser.add_argument("-r", "--recursive",
+                        help="process directories recursively")
+    parser.add_argument("-i", "--ignore", nargs="+", action="append",
+                        help="patterns to ignore "
+                             "(can be given more than once)")
+    parser.add_argument("-m", "--manifest", default=None,
+                        help="output file (default is stdout)")
+    parser.add_argument("-d", "--digest",
+                        help="digest(s) to use, comma-separated")
 
-    if options.digest is None:
-        options.digest = "MD5,SHA1"
-    requested_digests = options.digest.split(",")
+    args = parser.parse_args(argument_list)
+
+    # TODO: remove digest from here, they are created when signing!
+    if args.digest is None:
+        args.digest = "MD5,SHA1"
+    requested_digests = args.digest.split(",")
     try:
         use_digests = [_get_digest(digest) for digest in requested_digests]
     except UnsupportedDigest:
@@ -929,14 +940,16 @@ def cli_create(options, rest):
         print "Supported algorithms:", ",".join(sorted(NAMED_DIGESTS.keys()))
         return 1
 
-    if options.recursive:
-        entries = multi_path_generator(rest[1:])
+    if args.recursive:
+        entries = multi_path_generator(args.content)
     else:
-        entries = single_path_generator(rest[1])
+        entries = single_path_generator(args.content)
 
     mf = Manifest()
 
-    ignores = options.ignore
+    ignores = ["META-INF/*"]
+    if args.ignore:
+        ignores.extend(*args.ignore)
 
     for name, chunks in entries:
         # skip the stuff that we were told to ignore
@@ -950,25 +963,24 @@ def cli_create(options, rest):
             sec[digest_name + "-Digest"] = digest_value
 
     output = sys.stdout
-    if options.manifest:
+    if args.manifest:
         # we'll output to the manifest file if specified, and we'll
         # even create parent directories for it, if necessary
-        makedirsp(split(options.manifest)[0])
-        output = open(options.manifest, "w")
+        makedirsp(split(args.manifest)[0])
+        output = open(args.manifest, "w")
 
     mf.store(output)
 
-    if options.manifest:
+    if args.manifest:
         output.close()
 
 
-def cli_verify(options, rest):
-    # TODO: handle ignores
-    if len(rest) != 1:
-        print "Usage: manifest --verify [--ignore=PATH] JAR_FILE"
+def cli_verify(args):
+    if len(args) != 1 or "-h" in args:
+        print "Usage: manifest v [--ignore=PATH] JAR_FILE"
         return 2
 
-    jarfn = rest[0]
+    jarfn = args[0]
 
     with ZipFile(jarfn) as jar:
         mf = Manifest()
@@ -984,16 +996,16 @@ def cli_verify(options, rest):
         return 0
 
 
-def cli_query(options, rest):
-    if len(rest) != 2:
-        print "Usage: manifest --query=key file.jar"
+def cli_query(args):
+    if len(args) < 2 or "-h" in args:
+        print "Usage: manifest file.jar key_to_query..."
         return 1
 
-    zf = ZipFile(rest[1])
+    zf = ZipFile(args[0])
     mf = Manifest()
     mf.parse(zf.read("META-INF/MANIFEST.MF"))
 
-    for q in options.query:
+    for q in args[1:]:
         s = q.split(':', 1)
         if len(s) > 1:
             mfs = mf.sub_sections.get(s[0])
@@ -1006,48 +1018,15 @@ def cli_query(options, rest):
             print q, "=", mf.get(s[0])
 
 
-def cli(options, rest):
-    if options.verify:
-        return cli_verify(options, rest)
-
-    elif options.create:
-        return cli_create(options, rest)
-
-    elif options.query:
-        return cli_query(options, rest)
-
-    else:
-        print "specify one of --verify, --query or --create"
-        return 0
-
-
-def create_optparser():
-    from optparse import OptionParser
-
-    parse = OptionParser(usage="Create, query or verify a MANIFEST for"
-                         " a JAR, ZIP, or directory")
-
-    # TODO: first should be one non-optional command;
-    # each option is applicable only to certain commands
-    parse.add_option("-v", "--verify", action="store_true")
-    parse.add_option("-c", "--create", action="store_true")
-    parse.add_option("-q", "--query", action="append",
-                     default=[],
-                     help="Query the manifest for keys")
-    parse.add_option("-r", "--recursive", action="store_true")
-    parse.add_option("-m", "--manifest", action="store", default=None,
-                     help="manifest file, default is stdout for create"
-                     " or the argument-relative META-INF/MANIFEST.MF"
-                     " for verify.")
-    parse.add_option("-i", "--ignore", action="append",
-                     default=["META-INF/*"],
-                     help="patterns to ignore when creating or checking"
-                     " files")
-    parse.add_option("-d", "--digest", action="store",
-                     help="comma-separated list of digest"
-                     " algorithms to use when creating a manifest")
-
-    return parse
+def usage(error_msg=None):
+    if error_msg is not None:
+        print error_msg
+    print("Usage: manifest [cqv] [options]...")
+    print("    c: create a manifest")
+    print("    q: query manifest for values")
+    print("    v: verify manifest checksums")
+    print("Give option \"-h\" for help on particular commands.")
+    return 1
 
 
 def main(args):
@@ -1055,9 +1034,20 @@ def main(args):
     main entry point for the manifest CLI
     """
 
-    parser = create_optparser()
-    return cli(*parser.parse_args(args))
+    if len(args) < 2:
+        return usage("Command expected")
 
+    command = args[1]
+    rest = args[2:]
+
+    if "create".startswith(command):
+        return cli_create(rest)
+    elif "query".startswith(command):
+        return cli_query(rest)
+    elif "verify".startswith(command):
+        return cli_verify(rest)
+    else:
+        return usage("Unknown command: %s" % command)
 
 #
 # The end.

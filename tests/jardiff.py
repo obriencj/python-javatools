@@ -20,9 +20,10 @@ author: Konstantin Shemyak  <konstantin@shemyak.com>
 license: LGPL v.3
 """
 
+import os
 from unittest import TestCase
 from . import get_data_fn
-from javatools.jardiff import cli_jars_diff
+from javatools.jardiff import cli_jars_diff, main
 
 
 class OptionsHolder(object):
@@ -58,6 +59,24 @@ class JardiffTest(TestCase):
     def test_sig_manifest_tampered(self):
         self.cli_jardiff_wrap(1, "ec.jar", "ec-sig-mf-tampered.jar",
             "Change in manifest signature file is not detected")
+
+    # Options from relevant option groups are accepted:
+    def test_options_accepted(self):
+        left = get_data_fn(os.path.join("test_jardiff", "ec.jar"))
+        right = get_data_fn(os.path.join("test_jardiff", "ec-tampered.jar"))
+        # General options:
+        self.assertEqual(1, main(["argv0", "-q", left, right]))
+        # JAR checking options:
+        self.assertEqual(0, main(["argv0", "--ignore-jar-signature", left, right]))
+        # Class checking options:
+        self.assertEqual(1, main(["argv0", "--ignore-platform-up", left, right]))
+        # Reporting options:
+        self.assertEqual(1, main(["argv0", "--report-dir=foo", left, right]))
+        # JSON reporting options:
+        self.assertEqual(1, main(["argv0", "--json-indent=4", left, right]))
+        # HTML reporting options:
+        self.assertEqual(1, main(["argv0", "--html-copy-data=foo", left, right]))
+
 
 
 #
