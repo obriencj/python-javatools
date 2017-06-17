@@ -63,7 +63,7 @@ class MissingManifestError(Exception):
     pass
 
 
-def verify(certificate, jar_file):
+def verify(certificate, jar_file, sf_name = None):
     """
     Verifies signature of a JAR file.
 
@@ -85,13 +85,25 @@ def verify(certificate, jar_file):
 
     if len(sf_files) == 0:
         raise JarSignatureMissingError("No .SF file in %s" % jar_file)
-
     elif len(sf_files) > 1:
-        # This is acceptable: SF file represents a signer. But then the
-        # validation logic becomes more complicated...
-        msg = "Multiple .SF files in %s, this is not supported yet" % jar_file
-        raise VerificationError(msg)
-
+        if sf_name is None:
+            msg = "Multiple .SF files in %s, but SF_NAME.SF not specified" \
+                    % jar_file
+            raise VerificationError(msg)
+        elif ('META-INF/' + sf_name) in sf_files:
+            sf_filename = 'META-INF/' + sf_name
+        else:
+            msg = "No .SF file in %s named META-INF/%s (found %d .SF files)" \
+                    % (jar_file, sf_name, len(sf_files))
+            raise VerificationError(msg)
+    elif len(sf_files) == 1:
+        if sf_name is None:
+            sf_filename = sf_files[0]
+        elif sf_files[0] == 'META-INF/' + sf_name:
+            sf_filename = sf_files[0]
+        else:
+            msg = "No .SF file in %s named META-INF/%s" % (jar_file, sf_name)
+            raise VerificationError(msg)
     sf_filename = sf_files[0]
     key_alias = sf_filename[9:-3]  # "META-INF/%s.SF"
     sf_data = zip_file.read(sf_filename)
@@ -293,14 +305,14 @@ def cli_verify_jar_signature(argument_list):
     TODO: use trusted keystore;
     """
 
-    usage_message = "jarutil v file.jar trusted_certificate.pem"
-    if len(argument_list) != 2:
+    usage_message = "jarutil v file.jar trusted_certificate.pem [SF_NAME.SF]"
+    if len(argument_list) < 2 or len(argument_list) > 3:
         print usage_message
         return 1
 
-    jar_file, certificate = argument_list
+    jar_file, certificate, sf_name = (argument_list + [None])[:3]
     try:
-        verify(certificate, jar_file)
+        verify(certificate, jar_file, sf_name)
     except VerificationError as error_message:
         print error_message
         return 1
