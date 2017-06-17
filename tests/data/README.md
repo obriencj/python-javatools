@@ -63,15 +63,16 @@ checksum features.
 
 - Files: jarutil-sample1.jar, cli-sign-and-verify.jar,
   sig-related-junk-files.jar, jarutil-signed.jar,
-  jarutil-signed-by-jarsigner.jar, ec.jar, ec-must-fail.jar
+  jarutil-signed-by-jarsigner.jar, ec.jar, ec-must-fail.jar,
+  multiple-sf-files-all-valid.jar, multiple-sf-files-some-junk.jar
 
 
 ## Example Certificate
 
-- Files: javatools.pem, javatools-cert.pem, ec-cert.pem, ec-key.pem, 
-  keystore.jks
+- Files: javatools.pem, javatools-cert.pem, javatools-2.pem,
+  javatools-cert-2.pem ec-cert.pem, ec-key.pem, keystore.jks
 
-Sample openssl key and certificate, and java key store with cert
-imported. The signing key is unencrypted, so no passphrase
+Sample openssl keys and certificates, and java key store with certs
+imported. The signing keys are unencrypted, so no passphrase
 required. The keystore passphrase is "javatools" but that's only
 needed when adding keys to it.

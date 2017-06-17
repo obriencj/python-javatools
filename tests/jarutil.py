@@ -64,11 +64,36 @@ class JarutilTest(TestCase):
         self.cli_verify_wrap("sig-related-junk-files-ok.jar",
                              "javatools-cert.pem")
 
-    def test_multiple_sf_files(self):
-        jar_data = get_data_fn("multiple-sf-files.jar")
+    def test_multiple_sf_files_no_cert_specified(self):
+        jar_data = get_data_fn("multiple-sf-files-some-junk.jar")
         cert = get_data_fn("javatools-cert.pem")
         with self.assertRaises(VerificationError):
             verify(cert, jar_data)
+
+    def test_multiple_valid_sf_files_cert1(self):
+        jar_data = get_data_fn("multiple-sf-files-all-valid.jar")
+        cert = get_data_fn("javatools-cert.pem")
+        sf_file = "KEY1.SF"
+        self.assertEquals(verify(cert, jar_data, sf_file), None)
+
+    def test_multiple_valid_sf_files_cert2(self):
+        jar_data = get_data_fn("multiple-sf-files-all-valid.jar")
+        cert = get_data_fn("javatools-cert-2.pem")
+        sf_file = "KEY2.SF"
+        self.assertEquals(verify(cert, jar_data, sf_file), None)
+
+    def test_single_sf_file_wrong_cert_specified(self):
+        jar_data = get_data_fn("jarutil-signed.jar")
+        cert = get_data_fn("javatools-cert.pem")
+        sf_file = "DOES_NOT_EXIST.SF"
+        with self.assertRaises(VerificationError):
+            verify(cert, jar_data, sf_file)
+
+    def test_single_sf_file_correct_cert_specified(self):
+        jar_data = get_data_fn("jarutil-signed.jar")
+        cert = get_data_fn("javatools-cert.pem")
+        sf_file = "UNUSED.SF"
+        self.assertEquals(verify(cert, jar_data, sf_file), None)
 
     def test_ecdsa_pkcs8_verify(self):
         self.cli_verify_wrap("ec.jar", "ec-cert.pem")
