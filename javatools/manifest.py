@@ -660,6 +660,9 @@ class SignatureBlockFileChange(GenericChange):
     def get_description(self):
         return "[binary file change]"
 
+    def fn_pretty(self, side_data):
+        return "[binary data]"
+
 
 def b64_encoded_digest(data, algorithm):
     h = algorithm()
