@@ -78,7 +78,7 @@ class JardiffTest(TestCase):
         # Reporting options:
         self.assertEqual(1, main(["argv0", "--report-dir=foo", left, right]))
         # JSON reporting options:
-        self.assertEqual(1, main(["argv0", "--json-indent=4", left, right]))
+        self.assertEqual(1, main(["argv0", "--json", "--json-indent=4", left, right]))
         # HTML reporting options:
         self.assertEqual(1, main(["argv0", "--html-copy-data=foo", left, right]))
 
