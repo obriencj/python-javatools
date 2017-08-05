@@ -658,7 +658,7 @@ class SignatureBlockFileChange(GenericChange):
     label = "Signature Block File"
 
     def get_description(self):
-        return "[binary file change]"
+        return "[binary data change]"
 
     def fn_pretty(self, side_data):
         return "[binary data]"
