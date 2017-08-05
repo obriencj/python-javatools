@@ -300,12 +300,12 @@ class JSONReportFormat(ReportFormat):
 
 def add_json_report_optgroup(parser):
     """
-    Option group for the JON report format
+    Option group for the JSON report format
     """
 
     g = parser.add_argument_group("JSON Report Options")
 
-    g.add_argument("--json-indent", action="store", default=2)
+    g.add_argument("--json-indent", action="store", default=2, type=int)
 
 
 class JSONChangeEncoder(JSONEncoder):
