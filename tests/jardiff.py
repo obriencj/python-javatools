@@ -60,6 +60,11 @@ class JardiffTest(TestCase):
         self.cli_jardiff_wrap(1, "ec.jar", "ec-sig-mf-tampered.jar",
             "Change in manifest signature file is not detected")
 
+    def test_generic_file_change(self):
+        self.cli_jardiff_wrap(1, os.path.join("test_jardiff", "generic1.jar"),
+            os.path.join("test_jardiff", "generic2.jar"),
+            "Change in generic file is not detected")
+
     def test_json_binary_diff(self):
         left = get_data_fn(os.path.join("test_jardiff", "ec.jar"))
         right = get_data_fn(os.path.join("test_jardiff", "ec-tampered.jar"))
