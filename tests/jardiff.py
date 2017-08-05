@@ -60,6 +60,11 @@ class JardiffTest(TestCase):
         self.cli_jardiff_wrap(1, "ec.jar", "ec-sig-mf-tampered.jar",
             "Change in manifest signature file is not detected")
 
+    def test_json_binary_diff(self):
+        left = get_data_fn(os.path.join("test_jardiff", "ec.jar"))
+        right = get_data_fn(os.path.join("test_jardiff", "ec-tampered.jar"))
+        self.assertEqual(1, main(["argv0", "--json", left, right]))
+
     # Options from relevant option groups are accepted:
     def test_options_accepted(self):
         left = get_data_fn(os.path.join("test_jardiff", "ec.jar"))
@@ -76,7 +81,6 @@ class JardiffTest(TestCase):
         self.assertEqual(1, main(["argv0", "--json-indent=4", left, right]))
         # HTML reporting options:
         self.assertEqual(1, main(["argv0", "--html-copy-data=foo", left, right]))
-
 
 
 #
