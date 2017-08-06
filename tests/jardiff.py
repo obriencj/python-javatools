@@ -61,6 +61,7 @@ class JardiffTest(TestCase):
             "Change in manifest signature file is not detected")
 
     def test_generic_file_change(self):
+        self.options.ignore_jar_entry = []  # Needed, as argparse is not called
         self.cli_jardiff_wrap(1, os.path.join("test_jardiff", "generic1.jar"),
             os.path.join("test_jardiff", "generic2.jar"),
             "Change in generic file is not detected")

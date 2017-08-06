@@ -270,6 +270,30 @@ class JarSignatureBlockFileRemoved(JarContentRemoved):
         return options.ignore_jar_signature
 
 
+class GenericFileChange(GenericChange):
+    label = "Generic File"
+
+    def get_description(self):
+        return "[generic file change]"
+
+    def fn_pretty(self, side_data):
+        # We do not know how to represent it.
+        # E.g. binary data can choke JSON encoder.
+        return "[data]"
+
+
+class JarGenericFileChange(JarContentChange):
+
+    label = "Jar Generic File"
+
+    def collect_impl(self):
+        if self.is_change():
+            with self.open_left() as lfd, self.open_right() as rfd:
+                lsig = lfd.read()
+                rsig = rfd.read()
+            yield GenericFileChange(lsig, rsig)
+
+
 class JarContentsChange(SuperChange):
 
     label = "JAR Contents"
@@ -288,6 +312,7 @@ class JarContentsChange(SuperChange):
                           JarSignatureBlockFileAdded,
                           JarSignatureBlockFileRemoved,
                           JarSignatureBlockFileChange,
+                          JarGenericFileChange,
                           JarContentAdded,
                           JarContentRemoved,
                           JarContentChange,
@@ -340,7 +365,7 @@ class JarContentsChange(SuperChange):
                     yield JarClassChange(left, right, entry)
 
                 else:
-                    yield JarContentChange(left, right, entry)
+                    yield JarGenericFileChange(left, right, entry)
 
             elif event == LEFT:
                 if file_matches_sigfile(entry):
