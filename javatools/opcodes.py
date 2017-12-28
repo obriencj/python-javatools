@@ -451,7 +451,7 @@ OP_lxor = __op('lxor', 0x83)
 
 OP_monitorentry = __op('monitorentry', 0xc2)
 OP_monitorexit = __op('monitorexit', 0xc3)
-OP_multianewarray = __op('multianewarray', 0xc5)
+OP_multianewarray = __op('multianewarray', 0xc5, fmt='>HB')
 
 OP_new = __op('new', 0xbb, fmt='>H', const=True)
 OP_newarray = __op('newarray', 0xbc, fmt='>B')
