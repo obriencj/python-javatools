@@ -193,6 +193,19 @@ class JarutilTest(TestCase):
                              "Verification of JAR which we signed embedding chain of certificates failed")
 
 
+    def test_overriden_extension_handling(self):
+        jar_data = get_data_fn("test_extensions/data-no-email-protection.jar")
+        cert = get_data_fn("test_extensions/ca.pem")
+        self.verify_wrap(cert, jar_data,
+                         "Signature by certificate without EmailProtection EKU extension failed")
+        jar_data = get_data_fn("test_extensions/no-eku.jar")
+        self.verify_wrap(cert, jar_data,
+                         "Signature by certificate without DigitalSignature KU extension failed")
+        jar_data = get_data_fn("test_extensions/wrong-ku.jar")
+        with self.assertRaises(SignatureBlockFileVerificationError):
+            verify(cert, jar_data)
+
+
     def test_cli_create_jar(self):
         from .manifest import Manifest
         from zipfile import ZipFile
