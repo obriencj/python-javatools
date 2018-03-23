@@ -112,6 +112,42 @@ def create_signature_block(openssl_digest, certificate, private_key,
     return tmp.read()
 
 
+def ignore_missing_email_protection_eku_cb(ok, ctx):
+    """
+    For verifying PKCS7 signature, m2Crypto uses OpenSSL's PKCS7_verify().
+    The latter requires that ExtendedKeyUsage extension, if present,
+    contains 'emailProtection' OID. (Is it because S/MIME is/was the
+    primary use case for PKCS7?)
+    We do not want to fail the verification in this case. At present,
+    M2Crypto lacks possibility of removing or modifying an existing
+    extension. Let's assign a custom verification callback.
+    """
+    # The error we want to ignore is indicated by X509_V_ERR_INVALID_PURPOSE.
+    err = ctx.get_error()
+    if err != m2.X509_V_ERR_INVALID_PURPOSE:
+        return ok
+
+    # PKCS7_verify() has this requriement only for the signing certificate.
+    # Do not modify the behavior for certificates upper in the chain.
+    if ctx.get_error_depth() > 0:
+        return ok
+
+    # There is also another cause of ERR_INVALID_PURPOSE: incompatible keyUsage.
+    # In this case, we do not want to ignore it; do not modify the default behavior.
+    cert = ctx.get_current_cert()
+    try:
+        key_usage = cert.get_ext('keyUsage').get_value()
+        if 'digitalSignature' not in key_usage and 'nonRepudiation' not in key_usage:
+            return ok
+    except LookupError:
+        pass
+
+    # Here, keyUsage is either absent, or contains the needed bit(s).
+    # So, ERR_INVALID_PURPOSE is caused by EKU not containing 'emailProtection'.
+    # Ignore this error.
+    return 1
+
+
 def verify_signature_block(certificate_file, content, signature):
     """
     Verifies the 'signature' over the 'content', trusting the
@@ -131,6 +167,7 @@ def verify_signature_block(certificate_file, content, signature):
     pkcs7 = SMIME.PKCS7(m2.pkcs7_read_bio_der(sig_bio._ptr()), 1)
     signers_cert_stack = pkcs7.get0_signers(X509.X509_Stack())
     trusted_cert_store = X509.X509_Store()
+    trusted_cert_store.set_verify_cb(ignore_missing_email_protection_eku_cb)
     trusted_cert_store.load_info(certificate_file)
     smime = SMIME.SMIME()
     smime.set_x509_stack(signers_cert_stack)

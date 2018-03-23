@@ -68,7 +68,7 @@ setup(name = "javatools",
       provides = ["javatools", ],
 
       install_requires = ["Cheetah",
-                          "M2Crypto", ],
+                          "M2Crypto >= 0.26.0", ],
 
       setup_requires = ["Cheetah", ],
 
