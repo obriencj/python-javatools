@@ -184,7 +184,7 @@ def sign(jar_file, cert_file, key_file, key_alias,
     # style of the manifest it'll be digesting.
     sf = SignatureManifest(linesep=mf.linesep)
 
-    sf_digest_algorithm = digest    # No point to make it different
+    sf_digest_algorithm = "SHA-256" if digest is None else digest
     sf.digest_manifest(mf, sf_digest_algorithm)
 
     sig_digest_algorithm = digest  # No point to make it different
