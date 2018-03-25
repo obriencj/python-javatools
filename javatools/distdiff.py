@@ -53,8 +53,7 @@ __all__ = (
     "DistJarChange", "DistJarAdded", "DistJarRemoved",
     "DistReport", "DistClassReport", "DistJarReport",
     "cli", "main",
-    "cli_dist_diff",
-    "distdiff_optgroup", "default_distdiff_options", )
+    "cli_dist_diff", "default_distdiff_options", )
 
 
 # glob patterns used to trigger a DistTextChange

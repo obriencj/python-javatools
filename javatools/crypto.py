@@ -55,7 +55,7 @@ def private_key_type(key_file):
     for key, ktype in keytypes:
         try:
             ktype.load_key(key_file)
-        except:
+        except (RSA.RSAError, DSA.DSAError, ValueError):
             continue
         else:
             return key
@@ -131,18 +131,19 @@ def ignore_missing_email_protection_eku_cb(ok, ctx):
     if ctx.get_error_depth() > 0:
         return ok
 
-    # There is also another cause of ERR_INVALID_PURPOSE: incompatible keyUsage.
-    # In this case, we do not want to ignore it; do not modify the default behavior.
+    # There is another cause of ERR_INVALID_PURPOSE: incompatible keyUsage.
+    # Do not modify the default behavior in this case.
     cert = ctx.get_current_cert()
     try:
         key_usage = cert.get_ext('keyUsage').get_value()
-        if 'digitalSignature' not in key_usage and 'nonRepudiation' not in key_usage:
+        if 'digitalSignature' not in key_usage \
+                and 'nonRepudiation' not in key_usage:
             return ok
     except LookupError:
         pass
 
     # Here, keyUsage is either absent, or contains the needed bit(s).
-    # So, ERR_INVALID_PURPOSE is caused by EKU not containing 'emailProtection'.
+    # So ERR_INVALID_PURPOSE is caused by EKU not containing 'emailProtection'.
     # Ignore this error.
     return 1
 

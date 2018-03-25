@@ -63,7 +63,7 @@ class MissingManifestError(Exception):
     pass
 
 
-def verify(certificate, jar_file, sf_name = None):
+def verify(certificate, jar_file, sf_name=None):
     """
     Verifies signature of a JAR file.
 
@@ -88,13 +88,13 @@ def verify(certificate, jar_file, sf_name = None):
     elif len(sf_files) > 1:
         if sf_name is None:
             msg = "Multiple .SF files in %s, but SF_NAME.SF not specified" \
-                    % jar_file
+                % jar_file
             raise VerificationError(msg)
         elif ('META-INF/' + sf_name) in sf_files:
             sf_filename = 'META-INF/' + sf_name
         else:
             msg = "No .SF file in %s named META-INF/%s (found %d .SF files)" \
-                    % (jar_file, sf_name, len(sf_files))
+                % (jar_file, sf_name, len(sf_files))
             raise VerificationError(msg)
     elif len(sf_files) == 1:
         if sf_name is None:
