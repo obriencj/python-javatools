@@ -194,13 +194,13 @@ class JarutilTest(TestCase):
 
 
     def test_overriden_extension_handling(self):
-        jar_data = get_data_fn("test_extensions/data-no-email-protection.jar")
+        jar_data = get_data_fn("test_extensions/no-email-protection.jar")
         cert = get_data_fn("test_extensions/ca.pem")
         self.verify_wrap(cert, jar_data,
                          "Signature by certificate without EmailProtection EKU extension failed")
-        jar_data = get_data_fn("test_extensions/no-eku.jar")
+        jar_data = get_data_fn("test_extensions/no-ku.jar")
         self.verify_wrap(cert, jar_data,
-                         "Signature by certificate without DigitalSignature KU extension failed")
+                         "Signature by certificate without any KU extension failed")
         jar_data = get_data_fn("test_extensions/wrong-ku.jar")
         with self.assertRaises(SignatureBlockFileVerificationError):
             verify(cert, jar_data)
