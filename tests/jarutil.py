@@ -139,10 +139,10 @@ class JarutilTest(TestCase):
                              "javatools-cert.pem")
 
     def test_cli_sign_and_verify(self):
-        src = get_data_fn("test_cli_sign_and_verify__cli-sign-and-verify.jar")
+        src = get_data_fn("test_jarutil/test_cli_sign_and_verify__cli-sign-and-verify.jar")
         key_alias = "SAMPLE3"
-        cert = get_data_fn("test_cli_sign_and_verify__javatools-cert.pem")
-        key = get_data_fn("test_cli_sign_and_verify__javatools.pem")
+        cert = get_data_fn("test_jarutil/test_cli_sign_and_verify__javatools-cert.pem")
+        key = get_data_fn("test_jarutil/test_cli_sign_and_verify__javatools.pem")
         with NamedTemporaryFile() as tmp_jar:
             copyfile(src, tmp_jar.name)
             cli_sign_jar([tmp_jar.name, cert, key, key_alias])
@@ -151,11 +151,11 @@ class JarutilTest(TestCase):
 
 
     def test_cli_sign_new_file_and_verify(self):
-        src = get_data_fn("test_cli_sign_new_file_and_verify__cli-sign-and-verify.jar")
+        src = get_data_fn("test_jarutil/test_cli_sign_new_file_and_verify__cli-sign-and-verify.jar")
         #dst = get_data_fn("tmp.jar")
         key_alias = "SAMPLE3"
-        cert = get_data_fn("test_cli_sign_new_file_and_verify__javatools-cert.pem")
-        key = get_data_fn("test_cli_sign_new_file_and_verify__javatools.pem")
+        cert = get_data_fn("test_jarutil/test_cli_sign_new_file_and_verify__javatools-cert.pem")
+        key = get_data_fn("test_jarutil/test_cli_sign_new_file_and_verify__javatools.pem")
         with NamedTemporaryFile() as tmp_jar, NamedTemporaryFile() as dst:
             copyfile(src, tmp_jar.name)
             cli_sign_jar([tmp_jar.name, cert, key, key_alias,
@@ -165,10 +165,10 @@ class JarutilTest(TestCase):
 
 
     def test_cli_sign_and_verify_ecdsa_pkcs8_sha512(self):
-        src = get_data_fn("test_cli_sign_and_verify_ecdsa_pkcs8_sha512__cli-sign-and-verify.jar")
+        src = get_data_fn("test_jarutil/test_cli_sign_and_verify_ecdsa_pkcs8_sha512__cli-sign-and-verify.jar")
         key_alias = "SAMPLE3"
-        cert = get_data_fn("test_cli_sign_and_verify_ecdsa_pkcs8_sha512__ec-cert.pem")
-        key = get_data_fn("test_cli_sign_and_verify_ecdsa_pkcs8_sha512__ec-key.pem")
+        cert = get_data_fn("test_jarutil/test_cli_sign_and_verify_ecdsa_pkcs8_sha512__ec-cert.pem")
+        key = get_data_fn("test_jarutil/test_cli_sign_and_verify_ecdsa_pkcs8_sha512__ec-key.pem")
         with NamedTemporaryFile() as tmp_jar:
             copyfile(src, tmp_jar.name)
             cli_sign_jar(['-d', 'SHA-512', tmp_jar.name, cert, key, key_alias])
@@ -177,12 +177,12 @@ class JarutilTest(TestCase):
 
 
     def test_sign_with_certchain_and_verify(self):
-        src = get_data_fn("test_sign_with_certchain_and_verify__certchain-data.jar")
+        src = get_data_fn("test_jarutil/test_sign_with_certchain_and_verify__certchain-data.jar")
         key_alias = "SIGNING"
-        signing_cert = get_data_fn("test_sign_with_certchain_and_verify__certchain-signing.pem")
-        key = get_data_fn("test_sign_with_certchain_and_verify__certchain-signing-key.pem")
-        intermediate_cert = get_data_fn("test_sign_with_certchain_and_verify__certchain-intermediate.pem")
-        root_cert = get_data_fn("test_sign_with_certchain_and_verify__certchain-root.pem")
+        signing_cert = get_data_fn("test_jarutil/test_sign_with_certchain_and_verify__certchain-signing.pem")
+        key = get_data_fn("test_jarutil/test_sign_with_certchain_and_verify__certchain-signing-key.pem")
+        intermediate_cert = get_data_fn("test_jarutil/test_sign_with_certchain_and_verify__certchain-intermediate.pem")
+        root_cert = get_data_fn("test_jarutil/test_sign_with_certchain_and_verify__certchain-root.pem")
         with NamedTemporaryFile() as tmp_jar:
             copyfile(src, tmp_jar.name)
             self.assertEqual(0, cli_sign_jar(
@@ -212,7 +212,7 @@ class JarutilTest(TestCase):
 
         tmp_dir = mkdtemp("-test_cli_create_jar")
         rmtree(tmp_dir)     # A better way to get name for non-existing dir?
-        copytree(get_data_fn("test_cli_create_jar__test_cli_create"), tmp_dir)
+        copytree(get_data_fn("test_jarutil/test_cli_create_jar__test_cli_create"), tmp_dir)
         os.chdir(tmp_dir)
         # There seems to be no way to add empty dir to Git repo:
         os.unlink(os.path.join("example_dir", "empty_dir", "unused"))
