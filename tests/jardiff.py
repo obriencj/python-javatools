@@ -45,19 +45,19 @@ class JardiffTest(TestCase):
 
     # Two identical JARs (in different files, just in case)
     def test_identical_jars(self):
-        self.cli_jardiff_wrap(0, "ec.jar", "ec-copied.jar",
+        self.cli_jardiff_wrap(0, "test_jardiff/ec.jar", "test_jardiff/ec-copied.jar",
             "Identical JARs reported as different")
 
     def test_sig_block_file_tampered(self):
-        self.cli_jardiff_wrap(1, "ec.jar", "ec-tampered.jar",
+        self.cli_jardiff_wrap(1, "test_jardiff/ec.jar", "test_jardiff/ec-tampered.jar",
             "Change in signature block file is not detected")
 
     def test_sig_block_file_removed(self):
-        self.cli_jardiff_wrap(1, "ec.jar", "ec-sig-block-removed.jar",
+        self.cli_jardiff_wrap(1, "test_jardiff/ec.jar", "test_jardiff/ec-sig-block-removed.jar",
             "Removal of signature block file is not detected")
 
     def test_sig_manifest_tampered(self):
-        self.cli_jardiff_wrap(1, "ec.jar", "ec-sig-mf-tampered.jar",
+        self.cli_jardiff_wrap(1, "test_jardiff/ec.jar", "test_jardiff/ec-sig-mf-tampered.jar",
             "Change in manifest signature file is not detected")
 
     def test_generic_file_change(self):
