@@ -50,99 +50,99 @@ class JarutilTest(TestCase):
             self.fail("%s: %s" % (error_prefix, error_message))
 
     def test_cli_verify_signature_by_javatools(self):
-        self.cli_verify_wrap("jarutil-signed.jar", "javatools-cert.pem")
+        self.cli_verify_wrap("test_jarutil/jarutil-signed.jar", "test_jarutil/javatools-cert.pem")
 
     def test_cli_verify_signature_by_jarsigner(self):
-        self.cli_verify_wrap("jarutil-signed-by-jarsigner.jar",
-                             "javatools-cert.pem")
+        self.cli_verify_wrap("test_jarutil/jarutil-signed-by-jarsigner.jar",
+                             "test_jarutil/javatools-cert.pem")
 
     # Tests that signature-related files are skipped when the signature is
     # verified. The JAR file is a normal signed JAR, plus junk files with
     # "signature-related" names.
     # The test does not guarantee that no other files are skipped.
     def test_signature_related_files_skip(self):
-        self.cli_verify_wrap("sig-related-junk-files-ok.jar",
-                             "javatools-cert.pem")
+        self.cli_verify_wrap("test_jarutil/sig-related-junk-files-ok.jar",
+                             "test_jarutil/javatools-cert.pem")
 
     def test_multiple_sf_files_no_cert_specified(self):
-        jar_data = get_data_fn("multiple-sf-files-some-junk.jar")
-        cert = get_data_fn("javatools-cert.pem")
+        jar_data = get_data_fn("test_jarutil/multiple-sf-files-some-junk.jar")
+        cert = get_data_fn("test_jarutil/javatools-cert.pem")
         with self.assertRaises(VerificationError):
             verify(cert, jar_data)
 
     def test_multiple_valid_sf_files_cert1(self):
-        jar_data = get_data_fn("multiple-sf-files-all-valid.jar")
-        cert = get_data_fn("javatools-cert.pem")
+        jar_data = get_data_fn("test_jarutil/multiple-sf-files-all-valid.jar")
+        cert = get_data_fn("test_jarutil/javatools-cert.pem")
         sf_file = "KEY1.SF"
         self.assertEquals(verify(cert, jar_data, sf_file), None)
 
     def test_multiple_valid_sf_files_cert2(self):
-        jar_data = get_data_fn("multiple-sf-files-all-valid.jar")
-        cert = get_data_fn("javatools-cert-2.pem")
+        jar_data = get_data_fn("test_jarutil/multiple-sf-files-all-valid.jar")
+        cert = get_data_fn("test_jarutil/javatools-cert-2.pem")
         sf_file = "KEY2.SF"
         self.assertEquals(verify(cert, jar_data, sf_file), None)
 
     def test_single_sf_file_wrong_cert_specified(self):
-        jar_data = get_data_fn("jarutil-signed.jar")
-        cert = get_data_fn("javatools-cert.pem")
+        jar_data = get_data_fn("test_jarutil/jarutil-signed.jar")
+        cert = get_data_fn("test_jarutil/javatools-cert.pem")
         sf_file = "DOES_NOT_EXIST.SF"
         with self.assertRaises(VerificationError):
             verify(cert, jar_data, sf_file)
 
     def test_single_sf_file_correct_cert_specified(self):
-        jar_data = get_data_fn("jarutil-signed.jar")
-        cert = get_data_fn("javatools-cert.pem")
+        jar_data = get_data_fn("test_jarutil/jarutil-signed.jar")
+        cert = get_data_fn("test_jarutil/javatools-cert.pem")
         sf_file = "UNUSED.SF"
         self.assertEquals(verify(cert, jar_data, sf_file), None)
 
     def test_ecdsa_pkcs8_verify(self):
-        self.cli_verify_wrap("ec.jar", "ec-cert.pem")
+        self.cli_verify_wrap("test_jarutil/ec.jar", "test_jarutil/ec-cert.pem")
 
     def test_missing_signature_block(self):
-        jar_data = get_data_fn("ec-must-fail.jar")
-        cert = get_data_fn("ec-cert.pem")
+        jar_data = get_data_fn("test_jarutil/ec-must-fail.jar")
+        cert = get_data_fn("test_jarutil/ec-cert.pem")
         with self.assertRaises(JarSignatureMissingError):
             verify(cert, jar_data)
 
     def test_tampered_signature_block(self):
-        jar_data = get_data_fn("ec-tampered.jar")
-        cert = get_data_fn("ec-cert.pem")
+        jar_data = get_data_fn("test_jarutil/ec-tampered.jar")
+        cert = get_data_fn("test_jarutil/ec-cert.pem")
         with self.assertRaises(SignatureBlockFileVerificationError):
             verify(cert, jar_data)
 
     def test_tampered_jar_entry(self):
-        jar_data = get_data_fn("tampered-entry.jar")
-        cert = get_data_fn("javatools-cert.pem")
+        jar_data = get_data_fn("test_jarutil/tampered-entry.jar")
+        cert = get_data_fn("test_jarutil/javatools-cert.pem")
         with self.assertRaises(JarChecksumError):
             verify(cert, jar_data)
 
     def test_tampered_manifest(self):
         # MANIFEST.MF does not verify against .SF in either way.
         # Was tampered manually.
-        jar_data = get_data_fn("tampered-manifest.jar")
-        cert = get_data_fn("javatools-cert.pem")
+        jar_data = get_data_fn("test_jarutil/tampered-manifest.jar")
+        cert = get_data_fn("test_jarutil/javatools-cert.pem")
         with self.assertRaises(ManifestChecksumError):
             verify(cert, jar_data)
 
     def test_several_mf_attributes(self):
         # First "x-Digest-Manifest" checksum is invalid, second is OK.
         # .SF is edited by hand, .RSA created with:
-        # openssl cms -sign -binary -noattr -in META-INF/UNUSED.SF -outform der -out META-INF/UNUSED.RSA -signer tests/data/javatools-cert.pem -inkey tests/data/javatools.pem -md sha256
-        self.cli_verify_wrap("several-manifest-attributes.jar",
-                             "javatools-cert.pem")
+        # openssl cms -sign -binary -noattr -in META-INF/UNUSED.SF -outform der -out META-INF/UNUSED.RSA -signer tests/data/test_jarutil/javatools-cert.pem -inkey tests/data/javatools.pem -md sha256
+        self.cli_verify_wrap("test_jarutil/several-manifest-attributes.jar",
+                             "test_jarutil/javatools-cert.pem")
 
     def test_main_mf_section_fails(self):
         # x-Digest-Manifest checksum is wrong,
         # but "x-Digest-Manifest-Main-Attributes is OK
         # .SF and .RSA created similarly as in test_several_mf_attributes()
-        self.cli_verify_wrap("wrong-digest-manifest.jar",
-                             "javatools-cert.pem")
+        self.cli_verify_wrap("test_jarutil/wrong-digest-manifest.jar",
+                             "test_jarutil/javatools-cert.pem")
 
     def test_cli_sign_and_verify(self):
-        src = get_data_fn("cli-sign-and-verify.jar")
+        src = get_data_fn("test_jarutil/test_cli_sign_and_verify__cli-sign-and-verify.jar")
         key_alias = "SAMPLE3"
-        cert = get_data_fn("javatools-cert.pem")
-        key = get_data_fn("javatools.pem")
+        cert = get_data_fn("test_jarutil/test_cli_sign_and_verify__javatools-cert.pem")
+        key = get_data_fn("test_jarutil/test_cli_sign_and_verify__javatools.pem")
         with NamedTemporaryFile() as tmp_jar:
             copyfile(src, tmp_jar.name)
             cli_sign_jar([tmp_jar.name, cert, key, key_alias])
@@ -151,11 +151,11 @@ class JarutilTest(TestCase):
 
 
     def test_cli_sign_new_file_and_verify(self):
-        src = get_data_fn("cli-sign-and-verify.jar")
+        src = get_data_fn("test_jarutil/test_cli_sign_new_file_and_verify__cli-sign-and-verify.jar")
         #dst = get_data_fn("tmp.jar")
         key_alias = "SAMPLE3"
-        cert = get_data_fn("javatools-cert.pem")
-        key = get_data_fn("javatools.pem")
+        cert = get_data_fn("test_jarutil/test_cli_sign_new_file_and_verify__javatools-cert.pem")
+        key = get_data_fn("test_jarutil/test_cli_sign_new_file_and_verify__javatools.pem")
         with NamedTemporaryFile() as tmp_jar, NamedTemporaryFile() as dst:
             copyfile(src, tmp_jar.name)
             cli_sign_jar([tmp_jar.name, cert, key, key_alias,
@@ -165,10 +165,10 @@ class JarutilTest(TestCase):
 
 
     def test_cli_sign_and_verify_ecdsa_pkcs8_sha512(self):
-        src = get_data_fn("cli-sign-and-verify.jar")
+        src = get_data_fn("test_jarutil/test_cli_sign_and_verify_ecdsa_pkcs8_sha512__cli-sign-and-verify.jar")
         key_alias = "SAMPLE3"
-        cert = get_data_fn("ec-cert.pem")
-        key = get_data_fn("ec-key.pem")
+        cert = get_data_fn("test_jarutil/test_cli_sign_and_verify_ecdsa_pkcs8_sha512__ec-cert.pem")
+        key = get_data_fn("test_jarutil/test_cli_sign_and_verify_ecdsa_pkcs8_sha512__ec-key.pem")
         with NamedTemporaryFile() as tmp_jar:
             copyfile(src, tmp_jar.name)
             cli_sign_jar(['-d', 'SHA-512', tmp_jar.name, cert, key, key_alias])
@@ -177,12 +177,12 @@ class JarutilTest(TestCase):
 
 
     def test_sign_with_certchain_and_verify(self):
-        src = get_data_fn("certchain-data.jar")
+        src = get_data_fn("test_jarutil/test_sign_with_certchain_and_verify__certchain-data.jar")
         key_alias = "SIGNING"
-        signing_cert = get_data_fn("certchain-signing.pem")
-        key = get_data_fn("certchain-signing-key.pem")
-        intermediate_cert = get_data_fn("certchain-intermediate.pem")
-        root_cert = get_data_fn("certchain-root.pem")
+        signing_cert = get_data_fn("test_jarutil/test_sign_with_certchain_and_verify__certchain-signing.pem")
+        key = get_data_fn("test_jarutil/test_sign_with_certchain_and_verify__certchain-signing-key.pem")
+        intermediate_cert = get_data_fn("test_jarutil/test_sign_with_certchain_and_verify__certchain-intermediate.pem")
+        root_cert = get_data_fn("test_jarutil/test_sign_with_certchain_and_verify__certchain-root.pem")
         with NamedTemporaryFile() as tmp_jar:
             copyfile(src, tmp_jar.name)
             self.assertEqual(0, cli_sign_jar(
@@ -212,7 +212,7 @@ class JarutilTest(TestCase):
 
         tmp_dir = mkdtemp("-test_cli_create_jar")
         rmtree(tmp_dir)     # A better way to get name for non-existing dir?
-        copytree(get_data_fn("test_cli_create"), tmp_dir)
+        copytree(get_data_fn("test_jarutil/test_cli_create_jar__test_cli_create"), tmp_dir)
         os.chdir(tmp_dir)
         # There seems to be no way to add empty dir to Git repo:
         os.unlink(os.path.join("example_dir", "empty_dir", "unused"))

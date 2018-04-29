@@ -43,7 +43,7 @@ class ManifestTest(TestCase):
             expected_result = f.read()
 
         # the invocation of the script
-        src_jar = get_data_fn("manifest-sample1.jar")
+        src_jar = get_data_fn("test_manifest/manifest-sample1.jar")
         with NamedTemporaryFile() as tmp_out:
             cmd = ["manifest", "c", src_jar, "-m", tmp_out.name]
             cmd.extend(args.split())
@@ -94,44 +94,44 @@ class ManifestTest(TestCase):
 
 
     def test_create_sha1(self):
-        self.manifest_cli_create("-d SHA1", "manifest.SHA1.mf")
+        self.manifest_cli_create("-d SHA1", "test_manifest/manifest.SHA1.mf")
 
 
     def test_create_sha512(self):
-        self.manifest_cli_create("-d SHA-512", "manifest.SHA-512.mf")
+        self.manifest_cli_create("-d SHA-512", "test_manifest/manifest.SHA-512.mf")
 
 
     def test_create_with_ignore(self):
         self.manifest_cli_create("-i example.txt -d MD5,SHA-512",
-                                 "manifest.ignores.mf")
+                                 "test_manifest/manifest.ignores.mf")
 
 
     def test_load(self):
-        self.manifest_load_store("manifest.SHA1.mf")
+        self.manifest_load_store("test_manifest/manifest.SHA1.mf")
 
 
     def test_load_sha512(self):
-        self.manifest_load_store("manifest.SHA-512.mf")
+        self.manifest_load_store("test_manifest/manifest.SHA-512.mf")
 
 
     def test_load_dos_newlines(self):
-        mf = self.manifest_load_store("manifest.dos-newlines.mf")
+        mf = self.manifest_load_store("test_manifest/manifest.dos-newlines.mf")
         self.assertEqual(mf.linesep, "\r\n")
 
 
     def test_cli_verify_ok(self):
-        jar_file = get_data_fn("cli-verify-ok.jar")
+        jar_file = get_data_fn("test_manifest/cli-verify-ok.jar")
         self.assertEqual(0, main(["argv0", "v", jar_file]))
 
 
     def test_cli_verify_nok(self):
-        jar_file = get_data_fn("cli-verify-nok.jar")
+        jar_file = get_data_fn("test_manifest/cli-verify-nok.jar")
         self.assertEqual(1, main(["argv0", "v", jar_file]))
 
 
     def test_verify_mf_checksums_no_whole_digest(self):
-        sf_file = "sf-no-whole-digest.sf"
-        mf_file = "sf-no-whole-digest.mf"
+        sf_file = "test_manifest/sf-no-whole-digest.sf"
+        mf_file = "test_manifest/sf-no-whole-digest.mf"
         sf = SignatureManifest()
         sf.parse_file(get_data_fn(sf_file))
         mf = Manifest()
@@ -157,9 +157,9 @@ class ManifestTest(TestCase):
 
 
     def test_multi_digests(self):
-        jar_file = "multi-digests.jar"
+        jar_file = "test_manifest/multi-digests.jar"
 
-        mf_ok_file = "one-valid-digest-of-several.mf"
+        mf_ok_file = "test_manifest/one-valid-digest-of-several.mf"
         mf = Manifest()
         mf.parse_file(get_data_fn(mf_ok_file))
         errors = mf.verify_jar_checksums(get_data_fn(jar_file))
@@ -169,7 +169,7 @@ class ManifestTest(TestCase):
             " in manifest %s: %s"
             % (jar_file, mf_ok_file, ",".join(errors)))
 
-        sf_ok_file = "one-valid-digest-of-several.sf"
+        sf_ok_file = "test_manifest/one-valid-digest-of-several.sf"
         sf = SignatureManifest()
         sf.parse_file(get_data_fn(sf_ok_file))
 
@@ -183,8 +183,8 @@ class ManifestTest(TestCase):
 
     def test_add_jar_entries(self):
         mf = Manifest()
-        mf.parse_file(get_data_fn("no-entries.mf"))
-        mf.add_jar_entries(get_data_fn("junk-entries.jar"), "SHA-512")
+        mf.parse_file(get_data_fn("test_manifest/no-entries.mf"))
+        mf.add_jar_entries(get_data_fn("test_manifest/junk-entries.jar"), "SHA-512")
         self.assertIsNotNone(mf.sub_sections.get("README.md", None),
                              "Expected entry not added to the manifest")
 
