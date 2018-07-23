@@ -32,8 +32,6 @@
 
 - [silly] output class files from classinfo data
 
-- [silly] implement jar signing capabilities
-
 - given the way ACC_SUPER works, it's probably not at all useful to do
   symbol-level dependency tracking. Instead it should likely just be
   class-based. I'll need to change distinfo/jarinfo/classinfo
