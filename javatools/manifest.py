@@ -1009,11 +1009,12 @@ def cli_query(args):
 def usage(error_msg=None):
     if error_msg is not None:
         print(error_msg)
-    print("Usage: manifest [cqv] [options]...")
+    print("Usage: manifest command [options]...")
+    print("Commands:")
     print("    c: create a manifest")
     print("    q: query manifest for values")
     print("    v: verify manifest checksums")
-    print("Give option \"-h\" for help on particular commands.")
+    print("Give option \"-h\" for help on a particular command.")
     return 1
 
 
