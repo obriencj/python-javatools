@@ -322,11 +322,12 @@ def cli_verify_jar_signature(argument_list):
 
 
 def usage():
-    print("Usage: jarutil [csv] [options] [argument]...")
+    print("Usage: jarutil command [options] [argument]...")
+    print("Commands:")
     print("   c: create JAR from paths")
     print("   s: sign JAR")
     print("   v: verify JAR signature")
-    print("Give option \"-h\" for help on particular commands.")
+    print("Give option \"-h\" for help on a particular command.")
     return 1
 
 
