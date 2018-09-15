@@ -1018,7 +1018,7 @@ def usage(error_msg=None):
     return 1
 
 
-def main(args):
+def main(args=sys.argv):
     """
     main entry point for the manifest CLI
     """
