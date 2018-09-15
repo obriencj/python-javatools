@@ -965,7 +965,7 @@ def cli_create(argument_list):
 
 def cli_verify(args):
     if len(args) != 1 or "-h" in args:
-        print "Usage: manifest v [--ignore=PATH] JAR_FILE"
+        print("Usage: manifest v [--ignore=PATH] JAR_FILE")
         return 2
 
     jarfn = args[0]
@@ -976,8 +976,8 @@ def cli_verify(args):
 
     errors = mf.verify_jar_checksums(jarfn)
     if len(errors) > 0:
-        print "Verify failed, no matching checksums for files: %s" \
-              % ", ".join(errors)
+        print("Verify failed, no matching checksums for files: %s" \
+              % ", ".join(errors))
         return 1
 
     else:
@@ -986,7 +986,7 @@ def cli_verify(args):
 
 def cli_query(args):
     if len(args) < 2 or "-h" in args:
-        print "Usage: manifest file.jar key_to_query..."
+        print("Usage: manifest file.jar key_to_query...")
         return 1
 
     zf = ZipFile(args[0])
@@ -998,17 +998,17 @@ def cli_query(args):
         if len(s) > 1:
             mfs = mf.sub_sections.get(s[0])
             if mfs:
-                print q, "=", mfs.get(s[1])
+                print(q, "=", mfs.get(s[1]))
             else:
-                print q, ": No such section"
+                print(q, ": No such section")
 
         else:
-            print q, "=", mf.get(s[0])
+            print(q, "=", mf.get(s[0]))
 
 
 def usage(error_msg=None):
     if error_msg is not None:
-        print error_msg
+        print(error_msg)
     print("Usage: manifest [cqv] [options]...")
     print("    c: create a manifest")
     print("    q: query manifest for values")
