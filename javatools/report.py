@@ -20,6 +20,7 @@ Classes for representing changes as formatted text.
 :license: LGPL
 """
 
+from __future__ import print_function
 
 import sys
 
@@ -294,7 +295,7 @@ class JSONReportFormat(ReportFormat):
 
         except TypeError:
             # XXX for debugging. Otherwise the wrapping try isn't necessary
-            print data
+            print(data)
             raise
 
 
