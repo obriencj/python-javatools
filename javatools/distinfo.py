@@ -198,19 +198,19 @@ def _collect_dist(pathn):
 
 
 def cli_dist_provides(options, info):
-    print "distribution provides:"
+    print("distribution provides:")
 
     for provided in sorted(info.get_provides(options.api_ignore)):
-        print " ", provided
-    print
+        print(" ", provided)
+    print()
 
 
 def cli_dist_requires(options, info):
-    print "distribution requires:"
+    print("distribution requires:")
 
     for required in sorted(info.get_requires(options.api_ignore)):
-        print " ", required
-    print
+        print(" ", required)
+    print()
 
 
 def cli_distinfo(options, info):

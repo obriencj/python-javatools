@@ -294,7 +294,7 @@ class JSONReportFormat(ReportFormat):
 
         except TypeError:
             # XXX for debugging. Otherwise the wrapping try isn't necessary
-            print data
+            print(data)
             raise
 
 

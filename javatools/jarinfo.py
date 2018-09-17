@@ -185,21 +185,21 @@ def cli_jar_manifest_info(options, jarinfo):
     mf = jarinfo.get_manifest()
 
     if not mf:
-        print "Manifest not present."
-        print
+        print("Manifest not present.")
+        print()
         return
 
-    print "Manifest main section:"
+    print("Manifest main section:")
     for k, v in sorted(mf.items()):
-        print "  %s: %s" % (k, v)
+        print("  %s: %s" % (k, v))
 
     for _name, sect in sorted(mf.sub_sections.items()):
-        print
-        print "Manifest sub-section:"
+        print()
+        print("Manifest sub-section:")
         for k, v in sorted(sect.items()):
-            print "  %s: %s" % (k, v)
+            print("  %s: %s" % (k, v))
 
-    print
+    print()
 
 
 def cli_jar_zip_info(options, jarinfo):
@@ -208,36 +208,36 @@ def cli_jar_zip_info(options, jarinfo):
     files, dirs, comp, uncomp = zip_entry_rollup(zipfile)
     prcnt = (float(comp) / float(uncomp)) * 100
 
-    print "Contains %i files, %i directories" % (files, dirs)
-    print "Uncompressed size is %i" % uncomp
-    print "Compressed size is %i (%0.1f%%)" % (comp, prcnt)
-    print
+    print("Contains %i files, %i directories" % (files, dirs))
+    print("Uncompressed size is %i" % uncomp)
+    print("Compressed size is %i (%0.1f%%)" % (comp, prcnt))
+    print()
 
 
 def cli_jar_classes(options, jarinfo):
     for entry in jarinfo.get_classes():
         ci = jarinfo.get_classinfo(entry)
-        print "Entry: ", entry
+        print("Entry: ", entry)
         cli_print_classinfo(options, ci)
-        print
+        print()
 
 
 def cli_jar_provides(options, jarinfo):
-    print "jar provides:"
+    print("jar provides:")
 
     for provided in sorted(jarinfo.get_provides().iterkeys()):
         if not fnmatches(provided, *options.api_ignore):
-            print " ", provided
-    print
+            print(" ", provided)
+    print()
 
 
 def cli_jar_requires(options, jarinfo):
-    print "jar requires:"
+    print("jar requires:")
 
     for required in sorted(jarinfo.get_requires().iterkeys()):
         if not fnmatches(required, *options.api_ignore):
-            print " ", required
-    print
+            print(" ", required)
+    print()
 
 
 def cli_jarinfo(options, info):
