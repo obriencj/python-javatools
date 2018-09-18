@@ -22,6 +22,8 @@ Classes for representing changes as formatted text.
 
 from __future__ import print_function
 
+from future.utils import with_metaclass
+
 import sys
 
 from abc import ABCMeta, abstractmethod
@@ -168,7 +170,7 @@ class Reporter(object):
         self._formats = None
 
 
-class ReportFormat(object):
+class ReportFormat(with_metaclass(ABCMeta, object)):
     """
     Base class of a report format provider. Override to describe a
     concrete format type

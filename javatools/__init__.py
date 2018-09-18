@@ -31,12 +31,14 @@ References
 """  # noqa
 
 
-from functools import partial
+import sys
 
 from .dirutils import fnmatches
 from .opcodes import disassemble
 from .pack import compile_struct, unpack, UnpackException
 
+if sys.version_info > (3,):
+    buffer = memoryview
 
 __all__ = (
     "JavaClassInfo", "JavaConstantPool", "JavaMemberInfo",
