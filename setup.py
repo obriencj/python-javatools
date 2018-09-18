@@ -67,10 +67,10 @@ setup(name = "javatools",
 
       provides = ["javatools", ],
 
-      install_requires = ["Cheetah",
+      install_requires = ["Cheetah3",
                           "M2Crypto >= 0.26.0", ],
 
-      setup_requires = ["Cheetah", ],
+      setup_requires = ["Cheetah3", ],
 
       platforms = ["python2 >= 2.6", ],
 
