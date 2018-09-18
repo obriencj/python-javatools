@@ -34,8 +34,12 @@ import sys
 from base64 import b64encode
 from collections import OrderedDict
 from cStringIO import StringIO
-from itertools import izip
-from os.path import isdir, join, sep, split, walk
+try:
+    from itertools import izip
+except ImportError:
+    from builtins import zip as izip
+from os.path import isdir, join, sep, split
+from os import walk
 from zipfile import ZipFile
 
 from .change import GenericChange, SuperChange

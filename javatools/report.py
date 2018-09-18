@@ -20,6 +20,7 @@ Classes for representing changes as formatted text.
 :license: LGPL
 """
 
+from future.utils import with_metaclass
 
 import sys
 
@@ -167,7 +168,7 @@ class Reporter(object):
         self._formats = None
 
 
-class ReportFormat(object):
+class ReportFormat(with_metaclass(ABCMeta, object)):
     """
     Base class of a report format provider. Override to describe a
     concrete format type

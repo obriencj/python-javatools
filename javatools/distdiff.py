@@ -27,7 +27,11 @@ be checked for deep differences.
 
 import sys
 
-from itertools import izip_longest
+try:
+    from itertools import izip_longest
+except ImportError:
+    from future.moves.itertools import zip_longest as izip_longest
+
 from multiprocessing import cpu_count
 from argparse import ArgumentParser
 from os.path import join
