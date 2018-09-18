@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#! /usr/bin/env python
 
 # This library is free software; you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as
@@ -68,7 +68,8 @@ setup(name = "javatools",
       provides = ["javatools", ],
 
       install_requires = ["Cheetah3",
-                          "M2Crypto >= 0.26.0", ],
+                          "M2Crypto >= 0.26.0",
+                          "future" ],
 
       setup_requires = ["Cheetah3", ],
 
