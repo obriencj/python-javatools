@@ -30,6 +30,9 @@ References
 :license: LGPL
 """  # noqa
 
+from future.utils import listitems
+
+import sys
 
 from functools import partial
 
@@ -37,6 +40,8 @@ from .dirutils import fnmatches
 from .opcodes import disassemble
 from .pack import compile_struct, unpack, UnpackException
 
+if sys.version_info > (3,):
+    buffer = memoryview
 
 __all__ = (
     "JavaClassInfo", "JavaConstantPool", "JavaMemberInfo",
@@ -1888,7 +1893,7 @@ class JavaAnnotation(dict):
             return False
 
         # for each of the key/val pairs, check equality
-        for key, lval in self.items():
+        for key, lval in listitems(self):
             rval = other[key]
             if not _annotation_val_eq(lval[0], lval[1], self.cpool,
                                       rval[0], rval[1], other.cpool):
