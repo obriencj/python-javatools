@@ -28,7 +28,7 @@ added fields or methods, deprecation changes, etc.
 import sys
 
 from abc import ABCMeta
-from future.utils import listvalues, with_metaclass
+from future.utils import with_metaclass
 from argparse import ArgumentParser, Action
 
 try:

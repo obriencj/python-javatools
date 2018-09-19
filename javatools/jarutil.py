@@ -83,7 +83,7 @@ def verify(certificate, jar_file, sf_name=None):
 
     # Step 0: get the "key alias", used also for naming of sig-related files.
     zip_file = ZipFile(jar_file)
-    sf_files = filter(file_matches_sigfile, zip_file.namelist())
+    sf_files = [f for f in zip_file.namelist() if file_matches_sigfile(f)]
 
     if len(sf_files) == 0:
         raise JarSignatureMissingError("No .SF file in %s" % jar_file)

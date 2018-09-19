@@ -34,6 +34,10 @@ or stream.
 from abc import ABCMeta, abstractmethod
 from struct import Struct
 
+import sys
+if sys.version_info > (3,):
+    buffer = memoryview
+
 
 __all__ = (
     "compile_struct", "unpack",
@@ -131,7 +135,7 @@ class Unpacker(object):
 
         (count,) = self.unpack_struct(_H)
         sfmt = compile_struct(fmt)
-        for _i in xrange(count):
+        for _i in range(count):
             yield self.unpack_struct(sfmt)
 
 
@@ -143,7 +147,7 @@ class Unpacker(object):
         """
 
         (count,) = self.unpack_struct(_H)
-        for _i in xrange(count):
+        for _i in range(count):
             yield self.unpack_struct(struct)
 
 
@@ -157,7 +161,7 @@ class Unpacker(object):
         """
 
         (count,) = self.unpack_struct(_H)
-        for _i in xrange(count):
+        for _i in range(count):
             obj = atype(*params, **kwds)
             obj.unpack(self)
             yield obj

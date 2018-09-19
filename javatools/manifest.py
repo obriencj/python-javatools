@@ -47,6 +47,8 @@ from .change import GenericChange, SuperChange
 from .change import Addition, Removal
 from .dirutils import fnmatches, makedirsp
 
+if sys.version_info > (3,):
+    buffer = memoryview
 
 __all__ = (
     "ManifestChange", "ManifestSectionChange",
@@ -356,7 +358,7 @@ class Manifest(ManifestSection):
         # the first section is the main one for the manifest. It's
         # also where we will check for our newline separator
         sections = parse_sections(data)
-        self.load(sections.next())
+        self.load(next(sections))
 
         # and all following sections are considered sub-sections
         for section in sections:
