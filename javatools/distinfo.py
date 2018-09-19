@@ -88,9 +88,9 @@ class DistInfo(object):
 
         for entry in self.get_jars():
             ji = self.get_jarinfo(entry)
-            for sym, data in ji.get_requires().iteritems():
+            for sym, data in ji.get_requires().items():
                 req.setdefault(sym, []).append((REQ_BY_JAR, entry, data))
-            for sym, data in ji.get_provides().iteritems():
+            for sym, data in ji.get_provides().items():
                 prov.setdefault(sym, []).append((PROV_BY_JAR, entry, data))
                 p.add(sym)
             ji.close()
@@ -104,7 +104,7 @@ class DistInfo(object):
             for sym in ci.get_provides(private=True):
                 p.add(sym)
 
-        req = dict((k, v) for k, v in req.iteritems() if k not in p)
+        req = dict((k, v) for k, v in req.items() if k not in p)
 
         self._requires = req
         self._provides = prov
@@ -120,7 +120,7 @@ class DistInfo(object):
 
         d = self._requires
         if ignored:
-            d = dict((k, v) for k, v in d.iteritems()
+            d = dict((k, v) for k, v in d.items()
                      if not fnmatches(k, *ignored))
         return d
 
@@ -136,7 +136,7 @@ class DistInfo(object):
 
         d = self._provides
         if ignored:
-            d = dict((k, v) for k, v in d.iteritems()
+            d = dict((k, v) for k, v in d.items()
                      if not fnmatches(k, *ignored))
         return d
 
