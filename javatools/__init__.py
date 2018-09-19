@@ -30,11 +30,9 @@ References
 :license: LGPL
 """  # noqa
 
-from future.utils import listitems
+from functools import partial
 
 import sys
-
-from functools import partial
 
 from .dirutils import fnmatches
 from .opcodes import disassemble
@@ -191,7 +189,7 @@ class JavaConstantPool(object):
         # but not data
         hackpass = False
 
-        for _i in xrange(0, count):
+        for _i in range(0, count):
 
             if hackpass:
                 # previous item was a long or double
@@ -253,7 +251,7 @@ class JavaConstantPool(object):
         constant pool entries.
         """
 
-        for i in xrange(1, len(self.consts)):
+        for i in range(1, len(self.consts)):
             t, _v = self.consts[i]
             if t:
                 yield (i, t, self.deref_const(i))
@@ -265,7 +263,7 @@ class JavaConstantPool(object):
         pool entries.
         """
 
-        for i in xrange(1, len(self.consts)):
+        for i in range(1, len(self.consts)):
             t, v = self.pretty_const(i)
             if t:
                 yield (i, t, v)
@@ -369,7 +367,7 @@ class JavaAttributes(dict):
         cval = self.cpool.deref_const
 
         (count,) = unpacker.unpack_struct(_H)
-        for _i in xrange(0, count):
+        for _i in range(0, count):
             (name, size) = unpacker.unpack_struct(_HI)
             self[cval(name)] = unpacker.read(size)
 
@@ -1210,7 +1208,7 @@ class JavaMemberInfo(object):
 
                     if for_params:
                         (param_count, ) = up.unpack_struct(_B)
-                        annos = (tuple(unp()) for i in xrange(param_count))
+                        annos = (tuple(unp()) for i in range(param_count))
                     else:
                         annos = unp()
                     annos = tuple(annos)
@@ -1850,7 +1848,7 @@ class JavaAnnotation(dict):
     def unpack(self, unpacker):
         self.type_ref, count = unpacker.unpack_struct(_HH)
 
-        for _i in xrange(0, count):
+        for _i in range(0, count):
             key_ref, = unpacker.unpack_struct(_H)
             val = _unpack_annotation_val(unpacker, self.cpool)
 
@@ -1893,7 +1891,7 @@ class JavaAnnotation(dict):
             return False
 
         # for each of the key/val pairs, check equality
-        for key, lval in listitems(self):
+        for key, lval in items(self):
             rval = other[key]
             if not _annotation_val_eq(lval[0], lval[1], self.cpool,
                                       rval[0], rval[1], other.cpool):
@@ -1934,7 +1932,7 @@ def _annotation_val_eq(left_tag, left_data, left_cpool,
         if len(left_data) != len(right_data):
             return False
 
-        for index in xrange(0, len(left_data)):
+        for index in range(0, len(left_data)):
             ld = left_data[index]
             rd = right_data[index]
             if not _annotation_val_eq(ld[0], ld[1], left_cpool,
@@ -1967,7 +1965,7 @@ def _unpack_annotation_val(unpacker, cpool):
     elif tag == '[':
         data = list()
         count, = unpacker.unpack_struct(_H)
-        for _i in xrange(0, count):
+        for _i in range(0, count):
             data.append(_unpack_annotation_val(unpacker, cpool))
 
     return (tag, data)
@@ -2098,7 +2096,7 @@ def _pretty_const_type_val(typecode, val):
 
     if typecode == CONST_Utf8:
         typestr = "Utf8"  # formerly Asciz, which was considered Java bug
-        if isinstance(val, unicode):
+        if not isinstance(val, str):	# Py2, val is 'unicode'
             val = repr(val)[2:-1]  # trim off the surrounding u"" (HACK)
         else:
             val = repr(val)[1:-1]  # trim off the surrounding "" (HACK)

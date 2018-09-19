@@ -98,8 +98,7 @@ def _gen_from_dircmp(dc, lpath, rpath):
     do the work of comparing the dircmp
     """
 
-    left_only = dc.left_only
-    left_only.sort()
+    left_only = sorted(dc.left_only)
 
     for f in left_only:
         fp = join(dc.left, f)
@@ -111,8 +110,7 @@ def _gen_from_dircmp(dc, lpath, rpath):
         else:
             yield (LEFT, relpath(fp, lpath))
 
-    right_only = dc.right_only
-    right_only.sort()
+    right_only = sorted(dc.right_only)
 
     for f in right_only:
         fp = join(dc.right, f)
@@ -124,20 +122,17 @@ def _gen_from_dircmp(dc, lpath, rpath):
         else:
             yield (RIGHT, relpath(fp, rpath))
 
-    diff_files = dc.diff_files
-    diff_files.sort()
+    diff_files = sorted(dc.diff_files)
 
     for f in diff_files:
         yield (DIFF, join(relpath(dc.right, rpath), f))
 
-    same_files = dc.same_files
-    same_files.sort()
+    same_files = sorted(dc.same_files)
 
     for f in same_files:
         yield (BOTH, join(relpath(dc.left, lpath), f))
 
-    subdirs = dc.subdirs.values()
-    subdirs.sort()
+    subdirs = sorted(dc.subdirs.values())
     for sub in subdirs:
         for event in _gen_from_dircmp(sub, lpath, rpath):
             yield event

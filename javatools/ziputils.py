@@ -34,6 +34,10 @@ from zlib import crc32
 
 from .dirutils import LEFT, RIGHT, DIFF, SAME, closing
 
+import sys
+if sys.version_info > (3,):
+    buffer = memoryview
+
 
 __all__ = (
     "compare", "compare_zips",
