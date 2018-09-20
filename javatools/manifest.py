@@ -236,6 +236,10 @@ class ManifestSection(OrderedDict):
         self[self.primary_key] = name
 
 
+    def __gt__(self, other_section):
+        # we need just some ordering, no matter which.
+        return self.get_data() > other_section.get_data()
+
     def __setitem__(self, k, v):
         # pylint: disable=W0221
         # we want the behavior of OrderedDict, but don't take the
