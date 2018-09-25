@@ -70,7 +70,6 @@ __all__ = (
 
 # the four bytes at the start of every class file
 JAVA_CLASS_MAGIC = (0xCA, 0xFE, 0xBA, 0xBE)
-JAVA_CLASS_MAGIC_STR = "\xca\xfe\xba\xbe"
 
 
 _BUFFERING = 2 ** 14
@@ -2327,9 +2326,10 @@ def is_class_file(filename):
     """
 
     with open(filename, "rb") as fd:
-        c = fd.read(4)
-
-    return c == JAVA_CLASS_MAGIC_STR
+        c = fd.read(len(JAVA_CLASS_MAGIC))
+        if isinstance(c, str):      # Python 2
+            c = map(ord, c)
+        return tuple(c) == JAVA_CLASS_MAGIC
 
 
 def unpack_class(data, magic=None):
