@@ -2361,7 +2361,7 @@ def unpack_classfile(filename):
     """
 
     with open(filename, "rb", _BUFFERING) as fd:
-        return unpack_class(fd)
+        return unpack_class(fd.read())
 
 
 #
