@@ -150,7 +150,7 @@ class JarInfo(object):
         """
 
         with self.open(entry) as cfd:
-            return unpack_class(cfd)
+            return unpack_class(cfd.read())
 
 
     def get_manifest(self):
