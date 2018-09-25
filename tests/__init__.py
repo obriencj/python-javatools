@@ -49,6 +49,11 @@ class Sample1Tests(TestCase):
         fn = get_class_fn("Sample1")
         self.assertTrue(jt.is_class_file(fn))
 
+    def test_is_class(self):
+        fn = get_class_fn("Sample1")
+        with open(fn, "rb") as f:
+            data = f.read()
+        self.assertTrue(jt.is_class(data))
 
     def test_classinfo(self):
         ci = load("Sample1")
