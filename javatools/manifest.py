@@ -60,6 +60,8 @@ __all__ = (
 
 _BUFFERING = 2 ** 14
 
+# https://docs.oracle.com/javase/8/docs/technotes/guides/jar/jar.html#Notes_on_Manifest_and_Signature_Files:
+MANIFEST_MAX_LINE = 72      # bytes, UTF-8 encoded
 
 SIG_FILE_PATTERN = "*.SF"
 SIG_BLOCK_PATTERNS = ("*.RSA", "*.DSA", "*.EC", "SIG-*", )
@@ -242,17 +244,22 @@ class ManifestSection(OrderedDict):
 
     def __setitem__(self, k, v):
         # pylint: disable=W0221
+        """
+        # :type k: str
+        # :type v: str
+        """
+
         # we want the behavior of OrderedDict, but don't take the
         # additional parameter
 
         # our keys should always be strings, as should our values. We
         # also have an upper limit on the length we can permit for
         # keys, per the JAR MANIFEST specification.
-        k = str(k)
-        if len(k) > 68:
+
+        if len(k.encode('utf-8')) > MANIFEST_MAX_LINE - 4:  # 4 for colon, space, CR, LF
             raise ManifestKeyException("key too long", k)
         else:
-            OrderedDict.__setitem__(self, k, str(v))
+            OrderedDict.__setitem__(self, k, v)
 
 
     def primary(self):
@@ -754,26 +761,23 @@ def write_key_val(key, val, linesep):
     :return str
     """
 
-    key = key or ""
     val = val or ""
 
-    if not (0 < len(key) < 69):
+    if not key or not 0 < len(key.encode('utf-8')) <= MANIFEST_MAX_LINE - 4:
         raise ManifestKeyException("bad key length", key)
 
     ret = ""
 
-    if len(key) + len(val) > 68:
+    if len(key.encode('utf-8')) + len(val.encode("utf-8")) > MANIFEST_MAX_LINE - 4:
         kvbuffer = StringIO(": ".join((key, val)))
-        # first grab 70 (which is 72 after the trailing newline)
-        ret += kvbuffer.read(70)
+    
+        ret += kvbuffer.read(MANIFEST_MAX_LINE - 2)     # 2 for CR, LF
+        part = kvbuffer.read(MANIFEST_MAX_LINE - 3)     # 3 for leading space, CR, LF
 
-        # now only 69 at a time, because we need a leading space and a
-        # trailing \n
-        part = kvbuffer.read(69)
         while part:
             entry = linesep + " " + part
             ret += entry
-            part = kvbuffer.read(69)
+            part = kvbuffer.read(MANIFEST_MAX_LINE - 3)
         kvbuffer.close()
 
     else:
