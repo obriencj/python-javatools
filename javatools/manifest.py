@@ -278,7 +278,7 @@ class ManifestSection(OrderedDict):
         """
 
         for k, v in self.items():
-            write_key_val(stream, k, v, linesep)
+            stream.write(write_key_val(k, v, linesep))
 
         stream.write(linesep)
 
@@ -744,12 +744,14 @@ def parse_sections(data):
         yield curr
 
 
-def write_key_val(stream, key, val, linesep=os.linesep):
+def write_key_val(key, val, linesep):
     """
     The MANIFEST specification limits the width of individual lines to
     72 bytes (including the terminating newlines). Any key and value
     pair that would be longer must be split up over multiple
     continuing lines
+    :param key, val, linesep: str
+    :return str
     """
 
     key = key or ""
@@ -758,27 +760,27 @@ def write_key_val(stream, key, val, linesep=os.linesep):
     if not (0 < len(key) < 69):
         raise ManifestKeyException("bad key length", key)
 
+    ret = ""
+
     if len(key) + len(val) > 68:
         kvbuffer = StringIO(": ".join((key, val)))
-
         # first grab 70 (which is 72 after the trailing newline)
-        stream.write(kvbuffer.read(70))
+        ret += kvbuffer.read(70)
 
         # now only 69 at a time, because we need a leading space and a
         # trailing \n
         part = kvbuffer.read(69)
         while part:
-            stream.write(linesep + " ")
-            stream.write(part)
+            entry = linesep + " " + part
+            ret += entry
             part = kvbuffer.read(69)
         kvbuffer.close()
 
     else:
-        stream.write(key)
-        stream.write(": ")
-        stream.write(val)
+        entry = ": ".join((key, val))
+        ret += entry
 
-    stream.write(linesep)
+    return ret + linesep
 
 
 def digest_chunks(chunks, algorithms=(hashlib.md5, hashlib.sha1)):
