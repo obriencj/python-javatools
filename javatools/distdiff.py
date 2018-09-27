@@ -191,13 +191,10 @@ class DistManifestChange(DistContentChange):
 
     def collect_impl(self):
         if self.is_change():
-            with self.open_left(mode="rt") as fd:
-                left_m = Manifest()
-                left_m.parse(fd)
-
-            with self.open_right(mode="rt") as fd:
-                right_m = Manifest()
-                right_m.parse(fd)
+            left_m = Manifest()
+            left_m.parse_file(self.left_fn())
+            right_m = Manifest()
+            right_m.parse_file(self.right_fn())
 
             yield ManifestChange(left_m, right_m)
 

@@ -51,3 +51,9 @@ class DistdiffTest(TestCase):
         left = get_data_fn(os.path.join("test_distdiff", "text1"))
         right = get_data_fn(os.path.join("test_distdiff", "text2"))
         self.assertEqual(1, main(["argv0", left, right]))
+
+    def test_different_manifests(self):
+        left = get_data_fn(os.path.join("test_distdiff", "mf1"))
+        right = get_data_fn(os.path.join("test_distdiff", "mf2"))
+        self.assertEqual(1, main(["argv0", left, right]))
+
