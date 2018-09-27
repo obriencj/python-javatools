@@ -46,3 +46,8 @@ class DistdiffTest(TestCase):
         self.assertEqual(1, main(["argv0", "--json-indent=4", left, right]))
         # HTML reporting options:
         self.assertEqual(1, main(["argv0", "--html-copy-data=foo", left, right]))
+
+    def test_changed_text(self):
+        left = get_data_fn(os.path.join("test_distdiff", "text1"))
+        right = get_data_fn(os.path.join("test_distdiff", "text2"))
+        self.assertEqual(1, main(["argv0", left, right]))

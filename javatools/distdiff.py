@@ -33,7 +33,7 @@ from argparse import ArgumentParser
 from os.path import join
 
 from . import unpack_classfile
-from .change import SuperChange, Addition, Removal
+from .change import GenericChange, SuperChange, Addition, Removal
 from .change import squash, yield_sorted_by_type
 from .classdiff import JavaClassChange, JavaClassReport
 from .classdiff import add_classdiff_optgroup, add_general_optgroup
@@ -146,11 +146,6 @@ class DistTextChange(DistContentChange):
 
 
     def check(self):
-        # We already know whether the file has changed or not, from
-        # when it was created by the DistChange
-        if not self.is_change():
-            return
-
         # if the file matches what we would consider a text file,
         # check if the only difference is in the trailing whitespace,
         # and if so, set lineending to true so we can optionally
@@ -172,6 +167,13 @@ class DistTextChange(DistContentChange):
     def is_ignored(self, options):
         return (DistContentChange.is_ignored(self, options) or
                 (self.lineending and options.ignore_trailing_whitespace))
+
+    def collect_impl(self):
+        with self.open_left(mode="rt") as lfd, self.open_right(mode="rt") as rfd:
+            left = lfd.read()
+            right = rfd.read()
+            if left != right:
+                yield GenericChange(left, right)
 
 
 class DistManifestChange(DistContentChange):
