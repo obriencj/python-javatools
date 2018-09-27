@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+
+Name: filename-which-is-longer-than-80-characters-and-does-not-fit-in-
+ java-manifest-line.txt
+MD5-Digest: JqsNuQ1y4orQuh4i7lEFEA==
+SHA-512-Digest: Y+Iuwvvuur8AXlj7+w7uYHxKpBcEWmigzGN2ewSONVkmjTXnLzZ9Oy
+ 29Xb3fEvxDl3YroUkmCzeVoDkXE73c1w==
+
