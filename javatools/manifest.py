@@ -279,25 +279,16 @@ class ManifestSection(OrderedDict):
             self[k] = "".join(vals)
 
 
-    def store(self, stream, linesep=os.linesep):
-        """
-        Serialize this section and write it to a stream
-        """
-
-        for k, v in self.items():
-            stream.write(write_key_val(k, v, linesep))
-
-        stream.write(linesep)
-
-
     def get_data(self, linesep=os.linesep):
         """
         Serialize the section and return it as a string
+        :return str
         """
 
-        stream = StringIO()
-        self.store(stream, linesep)
-        return stream.getvalue()
+        ret = ""
+        for k, v in self.items():
+            ret += write_key_val(k, v, linesep)
+        return ret + linesep
 
 
     def keys_with_suffix(self, suffix):
@@ -382,26 +373,21 @@ class Manifest(ManifestSection):
         Serialize the Manifest to a stream
         """
 
-        # either specified here, specified on the instance, or the OS
-        # default
         linesep = linesep or self.linesep or os.linesep
 
-        ManifestSection.store(self, stream, linesep)
+        stream.write(ManifestSection.get_data(self, linesep))
         for sect in sorted(self.sub_sections.values()):
-            sect.store(stream, linesep)
+            stream.write(sect.get_data(linesep))
 
 
     def get_main_section(self, linesep=None):
         """
-        Serialize just the main section of the manifest and return it as a
-        string
+        Serialize just the main section of the manifest
+        :return str
         """
 
         linesep = linesep or self.linesep or os.linesep
-
-        stream = StringIO()
-        ManifestSection.store(self, stream, linesep)
-        return stream.getvalue()
+        return ManifestSection.get_data(self, linesep)
 
 
     def get_data(self, linesep=None):
