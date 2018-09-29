@@ -773,16 +773,15 @@ def write_key_val(key, val, linesep):
     ret = ""
 
     if len(key.encode('utf-8')) + len(val.encode("utf-8")) > MANIFEST_MAX_LINE - 4:
-        kvbuffer = StringIO(": ".join((key, val)))
+        kvbuffer = ": ".join((key, val))
     
-        ret += kvbuffer.read(MANIFEST_MAX_LINE - 2)     # 2 for CR, LF
-        part = kvbuffer.read(MANIFEST_MAX_LINE - 3)     # 3 for leading space, CR, LF
+        ret += kvbuffer[0:MANIFEST_MAX_LINE - 2]        # 2 for CR, LF
+        kvbuffer = kvbuffer[MANIFEST_MAX_LINE - 2:]
 
-        while part:
-            entry = linesep + " " + part
-            ret += entry
-            part = kvbuffer.read(MANIFEST_MAX_LINE - 3)
-        kvbuffer.close()
+        while kvbuffer:
+            kvbuffer = linesep + " " + kvbuffer
+            ret += kvbuffer[:MANIFEST_MAX_LINE - 2]
+            kvbuffer = kvbuffer[MANIFEST_MAX_LINE - 2:]
 
     else:
         entry = ": ".join((key, val))
