@@ -33,7 +33,6 @@ import sys
 
 from base64 import b64encode
 from collections import OrderedDict
-from cStringIO import StringIO
 try:
     from itertools import izip
 except ImportError:
@@ -682,15 +681,12 @@ def parse_sections(data):
     if not data:
         return
 
-    if isinstance(data, (str, buffer)):
-        data = StringIO(data)
-
     # our current section
     curr = None
 
-    for lineno, line in enumerate(data):
+    for lineno, line in enumerate(data.splitlines()):
         # Clean up the line
-        cleanline = line.splitlines()[0].replace('\x00', '')
+        cleanline = line.replace('\x00', '')
 
         if not cleanline:
             # blank line means end of current section (if any)
