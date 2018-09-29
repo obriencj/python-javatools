@@ -345,13 +345,13 @@ class Manifest(ManifestSection):
         """
 
         with open(filename, "r", _BUFFERING) as stream:
-            self.parse(stream)
+            self.parse(stream.read())
 
 
     def parse(self, data):
         """
-        populate instance with values and sub-sections from data in a
-        stream, string, or buffer
+        populate instance with values and sub-sections
+        :type data: str
         """
 
         self.linesep = detect_linesep(data)
@@ -366,18 +366,6 @@ class Manifest(ManifestSection):
             next_section = ManifestSection(None)
             next_section.load(section)
             self.sub_sections[next_section.primary()] = next_section
-
-
-    def store(self, stream, linesep=None):
-        """
-        Serialize the Manifest to a stream
-        """
-
-        linesep = linesep or self.linesep or os.linesep
-
-        stream.write(ManifestSection.get_data(self, linesep))
-        for sect in sorted(self.sub_sections.values()):
-            stream.write(sect.get_data(linesep))
 
 
     def get_main_section(self, linesep=None):
@@ -397,9 +385,11 @@ class Manifest(ManifestSection):
 
         linesep = linesep or self.linesep or os.linesep
 
-        stream = StringIO()
-        self.store(stream, linesep)
-        return stream.getvalue()
+        ret = ManifestSection.get_data(self, linesep)
+        for sect in sorted(self.sub_sections.values()):
+            ret += sect.get_data(linesep)
+
+        return ret
 
 
     def verify_jar_checksums(self, jar_file, strict=True):
@@ -455,6 +445,15 @@ class Manifest(ManifestSection):
             for entry in jar.namelist():
                 if file_skips_verification(entry):
                     continue
+
+                # Note relevant for Py2: ZipFile returns names as Unicode
+                # objects if the corresponding bit in the zip file is set.
+                # See Lib/zipfile.py:_decodeFilename().
+                # Also, https://marcosc.com/2008/12/zip-files-and-encoding-i-hate-you/
+                # TODO: the below reveals the time-bomb, which was earlier masked by StringIO!
+                if not isinstance(entry, str):
+                    entry = str(entry)
+
                 section = self.create_section(entry)
                 section[key_digest] = b64_encoded_digest(jar.read(entry),
                                                          digest)
@@ -664,17 +663,7 @@ def b64_encoded_digest(data, algorithm):
 
 
 def detect_linesep(data):
-    if isinstance(data, (str, buffer)):
-        data = StringIO(data)
-
-    offset = data.tell()
-    line = data.readline()
-    data.seek(offset)
-
-    if line[-2:] == "\r\n":
-        return "\r\n"
-    else:
-        return line[-1]
+    return "\r\n" if "\r\n" in data else "\n"
 
 
 def parse_sections(data):
@@ -958,7 +947,7 @@ def cli_create(argument_list):
         makedirsp(split(args.manifest)[0])
         output = open(args.manifest, "w")
 
-    mf.store(output)
+    output.write(mf.get_data())
 
     if args.manifest:
         output.close()
