@@ -24,6 +24,7 @@ license: LGPL v.3
 from . import get_data_fn
 from javatools.manifest import main, Manifest, SignatureManifest
 
+from io import open
 from tempfile import NamedTemporaryFile
 from unittest import TestCase
 
@@ -39,7 +40,7 @@ class ManifestTest(TestCase):
         """
 
         # the result we expect to see from running the script
-        with open(get_data_fn(expected_result)) as f:
+        with open(get_data_fn(expected_result), newline='') as f:
             expected_result = f.read()
 
         # the invocation of the script
@@ -77,7 +78,7 @@ class ManifestTest(TestCase):
 
         # the expected result is identical to what we feed into the
         # manifest parser
-        with open(src_file) as f:
+        with open(src_file, newline='') as f:
             expected_result = f.read()
 
         # create a manifest and parse the chosen test data
