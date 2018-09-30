@@ -31,6 +31,7 @@ import hashlib
 import os
 import sys
 
+from io import open
 from base64 import b64encode
 from collections import OrderedDict
 try:
@@ -343,7 +344,7 @@ class Manifest(ManifestSection):
         Parse the given file, and attempt to detect the line separator.
         """
 
-        with open(filename, "r", _BUFFERING) as stream:
+        with open(filename, "r", _BUFFERING, newline='') as stream:
             self.parse(stream.read())
 
 
@@ -941,7 +942,7 @@ def cli_create(argument_list):
         # we'll output to the manifest file if specified, and we'll
         # even create parent directories for it, if necessary
         makedirsp(split(args.manifest)[0])
-        output = open(args.manifest, "w")
+        output = open(args.manifest, "w", newline='')
 
     output.write(mf.get_data())
 
