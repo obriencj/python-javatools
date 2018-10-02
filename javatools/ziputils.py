@@ -21,7 +21,7 @@ Utilities for discovering entry deltas in a pair of zip files.
 """
 
 
-from cStringIO import StringIO
+from io import BytesIO
 try:
     from itertools import izip_longest
 except ImportError:
@@ -195,7 +195,7 @@ def is_zipstream(data):
     """
 
     if isinstance(data, (str, buffer)):
-        data = StringIO(data)
+        data = BytesIO(data)
 
     if hasattr(data, "read"):
         tell = 0
