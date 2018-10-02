@@ -904,7 +904,7 @@ class JavaClassInfo(object):
                     # the event that this was a method or field on the
                     # array, we'll throw away that as well, and just
                     # emit the type contained in the array.
-                    t, _buff = _next_argsig(buffer(pv))
+                    t = _typeseq(pv)
                     if t[1] == "L":
                         pv = _pretty_type(t[1:])
                     else:
@@ -2160,33 +2160,31 @@ def pretty_generic(signature):
     return signature
 
 
-def _next_argsig(buff):
+def _next_argsig(s):
     """
-    given a buffer, find the next complete argument signature and
-    return it and a new buffer advanced past that point
+    given a string, find the next complete argument signature and
+    return it and a new string advanced past that point
     """
 
-    c = buff[0]
+    c = s[0]
 
     if c in "BCDFIJSVZ":
-        result = (c, buffer(buff, 1))
+        result = (c, s[1:])
 
     elif c == "[":
-        d, buff = _next_argsig(buffer(buff, 1))
-        result = (c + d, buff)
+        d, s = _next_argsig(s[1:])
+        result = (c + d, s[len(d)+1:])
 
     elif c == "L":
-        s = buff[:]
         i = s.find(';') + 1
-        result = (s[:i], buffer(buff, i))
+        result = (s[:i], s[i+1:])
 
     elif c == "(":
-        s = buff[:]
         i = s.find(')') + 1
-        result = (s[:i], buffer(buff, i))
+        result = (s[:i], s[i:])
 
     else:
-        raise Unimplemented("_next_argsig is %r in %r" % (c, str(buff)))
+        raise Unimplemented("_next_argsig is %r in %r" % (c, s))
 
     return result
 
@@ -2196,9 +2194,9 @@ def _typeseq_iter(s):
     iterate through all of the type signatures in a sequence
     """
 
-    buff = buffer(str(s))
-    while buff:
-        t, buff = _next_argsig(buff)
+    s = str(s)
+    while s:
+        t, s = _next_argsig(s)
         yield t
 
 
@@ -2215,7 +2213,7 @@ def _pretty_typeseq(type_s):
     iterator of pretty versions of _typeseq_iter
     """
 
-    return (_pretty_type(t) for t in _typeseq_iter(type_s))
+    return (_pretty_type(t) for t in _typeseq(type_s))
 
 
 def _pretty_type(s, offset=0):
@@ -2280,15 +2278,6 @@ def _pretty_class(s):
 
     # well that's easy.
     return s.replace("/", ".")
-
-
-def _clean_array_const(s):
-    """
-    de-array a constant type.
-    """
-
-    t, b = _next_argsig(buffer(s))
-    return (t, str(b))
 
 
 # -----
