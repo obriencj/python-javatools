@@ -192,11 +192,18 @@ class JarManifestChange(JarContentChange):
         if self.is_change():
             with self.open_left() as lfd:
                 lm = Manifest()
-                lm.parse(lfd.read())
+                # Zipfile returns binary content. Manifest is encoded in UTF-8. TODO: refactor
+                data = lfd.read()
+                if not isinstance(data, str):   # Py3
+                    data = data.decode('utf-8')
+                lm.parse(data)
 
             with self.open_right() as rfd:
                 rm = Manifest()
-                rm.parse(rfd.read())
+                data = rfd.read()
+                if not isinstance(data, str):   # Py3
+                    data = data.decode('utf-8')
+                rm.parse(data)
 
             yield ManifestChange(lm, rm)
 
@@ -212,11 +219,17 @@ class JarSignatureFileChange(JarContentChange):
         if self.is_change():
             with self.open_left() as lfd:
                 lm = Manifest()
-                lm.parse(lfd.read())
+                data = lfd.read()
+                if not isinstance(data, str):   # Py3
+                    data = data.decode('utf-8')
+                lm.parse(data)
 
             with self.open_right() as rfd:
                 rm = Manifest()
-                rm.parse(rfd.read())
+                data = rfd.read()
+                if not isinstance(data, str):   # Py3
+                    data = data.decode('utf-8')
+                rm.parse(data)
 
             yield SignatureManifestChange(lm, rm)
 
