@@ -351,7 +351,7 @@ def unpack(data):
         return StreamUnpacker(data)
 
     else:
-        raise TypeError("unpack requires a str, buffer, or instance"
+        raise TypeError("unpack requires bytes, buffer, or instance"
                         " supporting the read method")
 
 
