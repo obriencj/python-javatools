@@ -392,7 +392,7 @@ def _indent(stream, indent, *msgs):
     for x in range(0, indent):
         stream.write("  ")
     for x in msgs:
-        stream.write(x.encode("ascii", "backslashreplace"))
+        stream.write(x)
     stream.write("\n")
 
 
