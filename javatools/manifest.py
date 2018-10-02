@@ -511,7 +511,7 @@ class SignatureManifest(Manifest):
         # checksum.
         h_all = digest()
         h_all.update(manifest.get_main_section())
-        self[main_key] = b64encode(h_all.digest())
+        self[main_key] = b64encode_to_str(h_all.digest())
 
         for sub_section in manifest.sub_sections.values():
             sub_data = sub_section.get_data(linesep)
@@ -521,14 +521,14 @@ class SignatureManifest(Manifest):
             h_section = digest()
             h_section.update(sub_data)
             sf_sect = self.create_section(sub_section.primary())
-            sf_sect[sect_key] = b64encode(h_section.digest())
+            sf_sect[sect_key] = b64encode_to_str(h_section.digest())
 
             # push this data into this total as well.
             h_all.update(sub_data)
 
         # after traversing all the sub sections, we now have the
         # digest of the whole manifest.
-        self[all_key] = b64encode(h_all.digest())
+        self[all_key] = b64encode_to_str(h_all.digest())
 
 
     def verify_manifest_main_checksum(self, manifest):
@@ -656,10 +656,27 @@ class SignatureBlockFileChange(GenericChange):
         return "[binary data]"
 
 
+def b64encode_to_str(data):
+    """
+    Wrapper around b64_encode which takes and returns same-named types
+    on both Python 2 and Python 3 (while these names have different meaning).
+    :param data: bytes
+    :return: str
+    """
+    ret = b64encode(data)
+    if not isinstance(ret, str):  # Python3
+        ret = ret.decode('ascii')
+    return ret
+
+
 def b64_encoded_digest(data, algorithm):
+    """
+    :type data: bytes
+    :return: str
+    """
     h = algorithm()
     h.update(data)
-    return b64encode(h.digest())
+    return b64encode_to_str(h.digest())
 
 
 def detect_linesep(data):
@@ -770,7 +787,7 @@ def digest_chunks(chunks, algorithms=(hashlib.md5, hashlib.sha1)):
         for h in hashes:
             h.update(chunk)
 
-    return [b64encode(h.digest()) for h in hashes]
+    return [b64encode_to_str(h.digest()) for h in hashes]
 
 
 def file_chunk(filename, size=_BUFFERING):
