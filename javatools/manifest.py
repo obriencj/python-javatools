@@ -292,6 +292,16 @@ class ManifestSection(OrderedDict):
         return ret + linesep
 
 
+    def get_binary_data(self, linesep=os.linesep):
+        """
+        :return: bytes
+        """
+        data = self.get_data(linesep)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        return data
+
+
     def keys_with_suffix(self, suffix):
         """
         :return: list of keys ending with given :suffix:.
@@ -379,9 +389,20 @@ class Manifest(ManifestSection):
         return ManifestSection.get_data(self, linesep)
 
 
+    def get_binary_main_section(self):
+        """
+        :return: bytes
+        """
+        data = self.get_main_section()
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        return data
+
+
     def get_data(self, linesep=None):
         """
         Serialize the entire manifest and return it as a string
+        :return: str
         """
 
         linesep = linesep or self.linesep or os.linesep
@@ -391,6 +412,16 @@ class Manifest(ManifestSection):
             ret += sect.get_data(linesep)
 
         return ret
+
+
+    def get_binary_data(self):
+        """
+        :return: bytes
+        """
+        data = self.get_data()
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        return data
 
 
     def verify_jar_checksums(self, jar_file, strict=True):
@@ -511,11 +542,11 @@ class SignatureManifest(Manifest):
         # be re-using this digest to also calculate the total
         # checksum.
         h_all = digest()
-        h_all.update(manifest.get_main_section())
+        h_all.update(manifest.get_binary_main_section())
         self[main_key] = b64encode_to_str(h_all.digest())
 
         for sub_section in manifest.sub_sections.values():
-            sub_data = sub_section.get_data(linesep)
+            sub_data = sub_section.get_binary_data()
 
             # create the checksum of the section body and store it as a
             # sub-section of our own
@@ -546,7 +577,7 @@ class SignatureManifest(Manifest):
         # who shall check, what is being signed.
         for java_digest in self.keys_with_suffix("-Digest-Manifest"):
             whole_mf_digest = b64_encoded_digest(
-                manifest.get_data(),
+                manifest.get_binary_data(),
                 _get_digest(java_digest))
 
             # It is enough for at least one digest to be correct
@@ -565,7 +596,7 @@ class SignatureManifest(Manifest):
         keys = self.keys_with_suffix("-Digest-Manifest-Main-Attributes")
         for java_digest in keys:
             mf_main_attr_digest = b64_encoded_digest(
-                manifest.get_main_section(),
+                manifest.get_binary_main_section(),
                 _get_digest(java_digest))
 
             attr = java_digest + "-Digest-Manifest-Main-Attributes"
@@ -604,7 +635,7 @@ class SignatureManifest(Manifest):
 
             for java_digest in digests:
                 section_digest = b64_encoded_digest(
-                    s.get_data(manifest.linesep),
+                    s.get_binary_data(manifest.linesep),
                     _get_digest(java_digest))
 
                 if section_digest == sf_section.get(java_digest + "-Digest"):
@@ -636,7 +667,7 @@ class SignatureManifest(Manifest):
 
         openssl_digest = _get_digest(digest_algorithm, as_string=True)
         return create_signature_block(openssl_digest, certificate, private_key,
-                                      extra_certs, self.get_data())
+                                      extra_certs, self.get_binary_data())
 
 
 class SignatureManifestChange(ManifestChange):
