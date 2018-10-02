@@ -45,7 +45,7 @@ class ManifestTest(TestCase):
 
         # the invocation of the script
         src_jar = get_data_fn("test_manifest/manifest-sample1.jar")
-        with NamedTemporaryFile() as tmp_out:
+        with NamedTemporaryFile(mode="rt") as tmp_out:
             cmd = ["manifest", "c", src_jar, "-m", tmp_out.name]
             cmd.extend(args.split())
 
