@@ -229,7 +229,8 @@ class JarutilTest(TestCase):
             if "META-INF/MANIFEST.MF" not in entries:
                 self.fail("No META-INF/MANIFEST.MF in just created JAR\n"
                           "JAR content:\n%s" % ", ".join(entries))
-            mf.parse(jar_file.read("META-INF/MANIFEST.MF"))
+
+            mf.load_from_jar(jar_fn)
 
         rmtree(tmp_dir)
 
