@@ -61,6 +61,8 @@ __all__ = (
 
 _BUFFERING = 2 ** 14
 
+# https://docs.oracle.com/javase/8/docs/technotes/guides/jar/jar.html#Notes_on_Manifest_and_Signature_Files:
+MANIFEST_MAX_LINE = 72      # bytes, UTF-8 encoded
 
 SIG_FILE_PATTERN = "*.SF"
 SIG_BLOCK_PATTERNS = ("*.RSA", "*.DSA", "*.EC", "SIG-*", )
@@ -243,17 +245,22 @@ class ManifestSection(OrderedDict):
 
     def __setitem__(self, k, v):
         # pylint: disable=W0221
+        """
+        # :type k: str
+        # :type v: str
+        """
+
         # we want the behavior of OrderedDict, but don't take the
         # additional parameter
 
         # our keys should always be strings, as should our values. We
         # also have an upper limit on the length we can permit for
         # keys, per the JAR MANIFEST specification.
-        k = str(k)
-        if len(k) > 68:
+
+        if len(k.encode('utf-8')) > MANIFEST_MAX_LINE - 4:  # 4 for colon, space, CR, LF
             raise ManifestKeyException("key too long", k)
         else:
-            OrderedDict.__setitem__(self, k, str(v))
+            OrderedDict.__setitem__(self, k, v)
 
 
     def primary(self):
@@ -279,7 +286,7 @@ class ManifestSection(OrderedDict):
         """
 
         for k, v in self.items():
-            write_key_val(stream, k, v, linesep)
+            stream.write(write_key_val(k, v, linesep))
 
         stream.write(linesep)
 
@@ -520,7 +527,7 @@ class SignatureManifest(Manifest):
         # checksum.
         h_all = digest()
         h_all.update(manifest.get_main_section())
-        self[main_key] = b64encode(h_all.digest())
+        self[main_key] = b64encode_to_str(h_all.digest())
 
         for sub_section in manifest.sub_sections.values():
             sub_data = sub_section.get_data(linesep)
@@ -530,14 +537,14 @@ class SignatureManifest(Manifest):
             h_section = digest()
             h_section.update(sub_data)
             sf_sect = self.create_section(sub_section.primary())
-            sf_sect[sect_key] = b64encode(h_section.digest())
+            sf_sect[sect_key] = b64encode_to_str(h_section.digest())
 
             # push this data into this total as well.
             h_all.update(sub_data)
 
         # after traversing all the sub sections, we now have the
         # digest of the whole manifest.
-        self[all_key] = b64encode(h_all.digest())
+        self[all_key] = b64encode_to_str(h_all.digest())
 
 
     def verify_manifest_main_checksum(self, manifest):
@@ -665,10 +672,27 @@ class SignatureBlockFileChange(GenericChange):
         return "[binary data]"
 
 
+def b64encode_to_str(data):
+    """
+    Wrapper around b64_encode which takes and returns same-named types
+    on both Python 2 and Python 3 (while these names have different meaning).
+    :param data: bytes
+    :return: str
+    """
+    ret = b64encode(data)
+    if not isinstance(ret, str):  # Python3
+        ret = ret.decode('ascii')
+    return ret
+
+
 def b64_encoded_digest(data, algorithm):
+    """
+    :type data: bytes
+    :return: str
+    """
     h = algorithm()
     h.update(data)
-    return b64encode(h.digest())
+    return b64encode_to_str(h.digest())
 
 
 def detect_linesep(data):
@@ -745,41 +769,40 @@ def parse_sections(data):
         yield curr
 
 
-def write_key_val(stream, key, val, linesep=os.linesep):
+def write_key_val(key, val, linesep):
     """
     The MANIFEST specification limits the width of individual lines to
     72 bytes (including the terminating newlines). Any key and value
     pair that would be longer must be split up over multiple
     continuing lines
+    :param key, val, linesep: str
+    :return str
     """
 
-    key = key or ""
     val = val or ""
 
-    if not (0 < len(key) < 69):
+    if not key or not 0 < len(key.encode('utf-8')) <= MANIFEST_MAX_LINE - 4:
         raise ManifestKeyException("bad key length", key)
 
-    if len(key) + len(val) > 68:
+    ret = ""
+
+    if len(key.encode('utf-8')) + len(val.encode("utf-8")) > MANIFEST_MAX_LINE - 4:
         kvbuffer = StringIO(": ".join((key, val)))
+    
+        ret += kvbuffer.read(MANIFEST_MAX_LINE - 2)     # 2 for CR, LF
+        part = kvbuffer.read(MANIFEST_MAX_LINE - 3)     # 3 for leading space, CR, LF
 
-        # first grab 70 (which is 72 after the trailing newline)
-        stream.write(kvbuffer.read(70))
-
-        # now only 69 at a time, because we need a leading space and a
-        # trailing \n
-        part = kvbuffer.read(69)
         while part:
-            stream.write(linesep + " ")
-            stream.write(part)
-            part = kvbuffer.read(69)
+            entry = linesep + " " + part
+            ret += entry
+            part = kvbuffer.read(MANIFEST_MAX_LINE - 3)
         kvbuffer.close()
 
     else:
-        stream.write(key)
-        stream.write(": ")
-        stream.write(val)
+        entry = ": ".join((key, val))
+        ret += entry
 
-    stream.write(linesep)
+    return ret + linesep
 
 
 def digest_chunks(chunks, algorithms=(hashlib.md5, hashlib.sha1)):
@@ -794,7 +817,7 @@ def digest_chunks(chunks, algorithms=(hashlib.md5, hashlib.sha1)):
         for h in hashes:
             h.update(chunk)
 
-    return [b64encode(h.digest()) for h in hashes]
+    return [b64encode_to_str(h.digest()) for h in hashes]
 
 
 def file_chunk(filename, size=_BUFFERING):
