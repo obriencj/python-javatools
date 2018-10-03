@@ -22,13 +22,18 @@ license: LGPL v.3
 
 
 from abc import ABCMeta, abstractmethod
-from cStringIO import StringIO
 from unittest import TestCase
 
 from javatools.pack import *
 
 
-class UnpackerTests(object):
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
+
+
+class UnpackerTests(ABC):
     """
     Common tests for both unpacker types
     """

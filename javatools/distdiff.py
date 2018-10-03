@@ -27,9 +27,9 @@ be checked for deep differences.
 
 import sys
 
+from argparse import ArgumentParser
 from itertools import izip_longest
 from multiprocessing import cpu_count
-from argparse import ArgumentParser
 from os.path import join
 
 from . import unpack_classfile
@@ -42,6 +42,12 @@ from .dirutils import LEFT, RIGHT, SAME, DIFF
 from .manifest import Manifest, ManifestChange
 from .jardiff import JarChange, JarReport, add_jardiff_optgroup
 from .jarinfo import JAR_PATTERNS
+
+
+try:
+    xrange
+except NameError:
+    xrange = range
 
 
 __all__ = (

@@ -38,6 +38,17 @@ from .opcodes import disassemble
 from .pack import compile_struct, unpack, UnpackException
 
 
+try:
+    buffer
+except NameError:
+    buffer = memoryview
+
+try:
+    xrange
+except NameError:
+    xrange = range
+
+
 __all__ = (
     "JavaClassInfo", "JavaConstantPool", "JavaMemberInfo",
     "JavaCodeInfo", "JavaExceptionInfo", "JavaInnerClassInfo",

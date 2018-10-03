@@ -29,9 +29,16 @@ from __future__ import print_function
 import sys
 import javatools.opcodes as opcodes
 
-from json import dump
 from argparse import ArgumentParser
+from json import dump
+
 from . import platform_from_version, unpack_classfile
+
+
+try:
+    xrange
+except NameError:
+    xrange = range
 
 
 __all__ = (

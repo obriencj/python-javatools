@@ -46,7 +46,7 @@ class JarutilTest(TestCase):
     def verify_wrap(self, cert, jar, error_prefix):
         try:
             verify(cert, jar)
-        except VerificationError, error_message:
+        except VerificationError as error_message:
             self.fail("%s: %s" % (error_prefix, error_message))
 
     def test_cli_verify_signature_by_javatools(self):

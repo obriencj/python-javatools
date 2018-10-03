@@ -33,14 +33,23 @@ import sys
 
 from base64 import b64encode
 from collections import OrderedDict
-from cStringIO import StringIO
-from itertools import izip
 from os.path import isdir, join, sep, split, walk
 from zipfile import ZipFile
 
 from .change import GenericChange, SuperChange
 from .change import Addition, Removal
 from .dirutils import fnmatches, makedirsp
+
+
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
+
+try:
+    from itertools import izip
+except ImportError:
+    izip = zip
 
 
 __all__ = (

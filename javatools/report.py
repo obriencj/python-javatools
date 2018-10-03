@@ -27,13 +27,19 @@ from __future__ import print_function
 import sys
 
 from abc import ABCMeta, abstractmethod
-from Cheetah.DummyTransaction import DummyTransaction
+from argparse import Action
 from functools import partial
 from json import dump, JSONEncoder
-from argparse import Action
 from os.path import exists, join, relpath
+from Cheetah.DummyTransaction import DummyTransaction
 
 from .dirutils import copydir, makedirsp
+
+
+try:
+    xrange
+except NameError:
+    xrange = range
 
 
 _BUFFERING = 2 ** 16

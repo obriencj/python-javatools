@@ -28,7 +28,6 @@ added fields or methods, deprecation changes, etc.
 import sys
 
 from abc import ABCMeta
-from itertools import izip
 from argparse import ArgumentParser, Action
 
 from . import unpack_classfile
@@ -40,6 +39,17 @@ from .report import quick_report, Reporter
 from .report import JSONReportFormat, TextReportFormat
 from .report import add_general_report_optgroup
 from .report import add_json_report_optgroup, add_html_report_optgroup
+
+
+try:
+    from itertools import izip
+except ImportError:
+    izip = zip
+
+try:
+    xrange
+except NameError:
+    xrange = range
 
 
 __all__ = (

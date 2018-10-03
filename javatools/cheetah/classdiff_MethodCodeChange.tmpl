@@ -1,9 +1,14 @@
 #extends change_SuperChange
-#from itertools import izip_longest
 #from javatools.classdiff import merge_code
 #from javatools.opcodes import has_const_arg, get_opname_by_code
 #from javatools.cheetah import xml_entity_escape as escape
 
+<%
+try:
+  from itertools import izip_longest
+except ImportError:
+  from itertools import zip_longest as izip_longest
+%>
 
 
 #block details_changed
@@ -34,7 +39,7 @@ rdata = change.get_rdata()
 merged = merge_code(ldata, rdata)
 %>
 #for rel_line, (left, right) in sorted(merged.items())
-<% 
+<%
 first = True
 last = False
 

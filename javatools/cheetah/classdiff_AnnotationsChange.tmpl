@@ -1,7 +1,12 @@
 #extends subreport
 #from javatools.cheetah import xml_entity_escape as escape
-#from itertools import izip_longest
 
+<%
+try:
+  from itertools import izip_longest
+except ImportError:
+  from itertools import zip_longest as izip_longest
+%>
 
 
 #block details
@@ -32,7 +37,7 @@ $render_annotations($change.get_ldata())
 <th>Annotation</th>
 </tr>
 </thead>
-#for index in xrange(0, len(annos))
+#for index in range(0, len(annos))
 <tr>
 <td class="const-index"><%= index %></td>
 <td class="const-value"><%= annos[index].pretty_annotation() %></td>

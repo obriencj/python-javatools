@@ -31,6 +31,12 @@ from functools import partial
 from .pack import compile_struct
 
 
+try:
+    xrange
+except NameError:
+    xrange = range
+
+
 __all__ = (
     "get_opcode_by_name", "get_opname_by_code",
     "get_arg_format", "has_const_arg",

@@ -35,6 +35,12 @@ from abc import ABCMeta, abstractmethod
 from struct import Struct
 
 
+try:
+    xrange
+except NameError:
+    xrange = range
+
+
 __all__ = (
     "compile_struct", "unpack",
     "Unpacker", "UnpackException",
