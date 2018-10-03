@@ -21,6 +21,9 @@ Classes for representing changes as formatted text.
 """
 
 
+from __future__ import print_function
+
+
 import sys
 
 from abc import ABCMeta, abstractmethod
@@ -294,7 +297,7 @@ class JSONReportFormat(ReportFormat):
 
         except TypeError:
             # XXX for debugging. Otherwise the wrapping try isn't necessary
-            print data
+            print(data)
             raise
 
 
