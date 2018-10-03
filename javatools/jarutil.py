@@ -21,6 +21,10 @@ Java archives
 :license: LGPL
 """
 
+
+from __future__ import print_function
+
+
 import argparse
 import os
 import sys
@@ -85,22 +89,28 @@ def verify(certificate, jar_file, sf_name=None):
 
     if len(sf_files) == 0:
         raise JarSignatureMissingError("No .SF file in %s" % jar_file)
+
     elif len(sf_files) > 1:
         if sf_name is None:
             msg = "Multiple .SF files in %s, but SF_NAME.SF not specified" \
                 % jar_file
             raise VerificationError(msg)
+
         elif ('META-INF/' + sf_name) in sf_files:
             sf_filename = 'META-INF/' + sf_name
+
         else:
             msg = "No .SF file in %s named META-INF/%s (found %d .SF files)" \
                 % (jar_file, sf_name, len(sf_files))
             raise VerificationError(msg)
+
     elif len(sf_files) == 1:
         if sf_name is None:
             sf_filename = sf_files[0]
+
         elif sf_files[0] == 'META-INF/' + sf_name:
             sf_filename = sf_files[0]
+
         else:
             msg = "No .SF file in %s named META-INF/%s" % (jar_file, sf_name)
             raise VerificationError(msg)
@@ -129,6 +139,7 @@ def verify(certificate, jar_file, sf_name=None):
     sig_block_data = zip_file.read(sig_block_filename)
     try:
         verify_signature_block(certificate, sf_data, sig_block_data)
+
     except SignatureBlockVerificationError as message:
         message = "Signature block verification failed: %s" % message
         raise SignatureBlockFileVerificationError(message)
@@ -289,11 +300,11 @@ def cli_sign_jar(argument_list=None):
              args.extra_certs, args.digest, args.output)
 
     except CannotFindKeyTypeError:
-        print "Cannot determine private key type in %s" % args.key_file
+        print("Cannot determine private key type in %s" % args.key_file)
         return 1
 
     except MissingManifestError:
-        print "Manifest missing in jar file %s" % args.jar_file
+        print("Manifest missing in jar file %s" % args.jar_file)
         return 2
 
     return 0
@@ -307,27 +318,32 @@ def cli_verify_jar_signature(argument_list):
 
     usage_message = "jarutil v file.jar trusted_certificate.pem [SF_NAME.SF]"
     if len(argument_list) < 2 or len(argument_list) > 3:
-        print usage_message
+        print(usage_message)
         return 1
 
     jar_file, certificate, sf_name = (argument_list + [None])[:3]
     try:
         verify(certificate, jar_file, sf_name)
+
     except VerificationError as error_message:
-        print error_message
+        print(error_message)
         return 1
+
     else:
-        print "Jar verified."
+        print("Jar verified.")
         return 0
 
 
 def usage():
+    # TODO, use argparse/optionparser to do this
+
     print("Usage: jarutil command [options] [argument]...")
     print("Commands:")
     print("   c: create JAR from paths")
     print("   s: sign JAR")
     print("   v: verify JAR signature")
     print("Give option \"-h\" for help on a particular command.")
+
     return 1
 
 
