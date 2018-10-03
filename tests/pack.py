@@ -22,7 +22,7 @@ license: LGPL v.3
 
 
 from abc import ABCMeta, abstractmethod
-from cStringIO import StringIO
+from io import StringIO, BytesIO
 from unittest import TestCase
 
 from javatools.pack import *
@@ -47,7 +47,7 @@ class UnpackerTests(object):
 
 
     def test_type(self):
-        data = "\x05\x04\x03\x02\x01"
+        data = b"\x05\x04\x03\x02\x01"
         up = self.unpack(data)
         self.assertEqual(type(up), self.unpacker_type())
 
@@ -57,12 +57,12 @@ class UnpackerTests(object):
 
 
     def test_basics(self):
-        data = "\x05\x04\x03\x02\x01"
+        data = b"\x05\x04\x03\x02\x01"
 
         with self.unpack(data) as up:
 
             col = up.read(1)
-            self.assertEqual(col, "\x05")
+            self.assertEqual(col, b"\x05")
 
             col = up.unpack(">H")
             self.assertEqual(col, (0x0403,))
@@ -113,7 +113,13 @@ class BufferTest(UnpackerTests, TestCase):
 
 
     def unpack(self, data):
-        return unpack(data)
+        if isinstance(data, bytes):
+            return unpack(data)
+        elif isinstance(data, str): # Py3 here, as in Py2 str is bytes
+            return unpack(data.encode('utf-8'))
+        else:
+            raise TypeError("This test expects instance of 'bytes' or 'str', "
+                            "but {} received".format(type(data).__name__))
 
 
 class StreamTest(UnpackerTests, TestCase):
@@ -123,8 +129,13 @@ class StreamTest(UnpackerTests, TestCase):
 
 
     def unpack(self, data):
-        return unpack(StringIO(data))
-
+        if isinstance(data, bytes):
+            return unpack(BytesIO(data))
+        elif isinstance(data, str): # Py3 here, as in Py2 str is bytes
+            return unpack(BytesIO(data.encode('utf-8')))
+        else:
+            raise TypeError("This test expects instance of 'bytes' or 'str', "
+                            "but {} received".format(type(data).__name__))
 
 #
 # The end.
