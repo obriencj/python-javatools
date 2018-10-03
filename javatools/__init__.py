@@ -30,13 +30,16 @@ References
 :license: LGPL
 """  # noqa
 
-
 from functools import partial
+
+import sys
 
 from .dirutils import fnmatches
 from .opcodes import disassemble
 from .pack import compile_struct, unpack, UnpackException
 
+if sys.version_info > (3,):
+    buffer = memoryview
 
 __all__ = (
     "JavaClassInfo", "JavaConstantPool", "JavaMemberInfo",
@@ -63,7 +66,6 @@ __all__ = (
 
 # the four bytes at the start of every class file
 JAVA_CLASS_MAGIC = (0xCA, 0xFE, 0xBA, 0xBE)
-JAVA_CLASS_MAGIC_STR = "\xca\xfe\xba\xbe"
 
 
 _BUFFERING = 2 ** 14
@@ -186,7 +188,7 @@ class JavaConstantPool(object):
         # but not data
         hackpass = False
 
-        for _i in xrange(0, count):
+        for _i in range(0, count):
 
             if hackpass:
                 # previous item was a long or double
@@ -248,7 +250,7 @@ class JavaConstantPool(object):
         constant pool entries.
         """
 
-        for i in xrange(1, len(self.consts)):
+        for i in range(1, len(self.consts)):
             t, _v = self.consts[i]
             if t:
                 yield (i, t, self.deref_const(i))
@@ -260,7 +262,7 @@ class JavaConstantPool(object):
         pool entries.
         """
 
-        for i in xrange(1, len(self.consts)):
+        for i in range(1, len(self.consts)):
             t, v = self.pretty_const(i)
             if t:
                 yield (i, t, v)
@@ -364,7 +366,7 @@ class JavaAttributes(dict):
         cval = self.cpool.deref_const
 
         (count,) = unpacker.unpack_struct(_H)
-        for _i in xrange(0, count):
+        for _i in range(0, count):
             (name, size) = unpacker.unpack_struct(_HI)
             self[cval(name)] = unpacker.read(size)
 
@@ -904,7 +906,7 @@ class JavaClassInfo(object):
                     # the event that this was a method or field on the
                     # array, we'll throw away that as well, and just
                     # emit the type contained in the array.
-                    t, _buff = _next_argsig(buffer(pv))
+                    t = _typeseq(pv)
                     if t[1] == "L":
                         pv = _pretty_type(t[1:])
                     else:
@@ -1205,7 +1207,7 @@ class JavaMemberInfo(object):
 
                     if for_params:
                         (param_count, ) = up.unpack_struct(_B)
-                        annos = (tuple(unp()) for i in xrange(param_count))
+                        annos = (tuple(unp()) for i in range(param_count))
                     else:
                         annos = unp()
                     annos = tuple(annos)
@@ -1845,7 +1847,7 @@ class JavaAnnotation(dict):
     def unpack(self, unpacker):
         self.type_ref, count = unpacker.unpack_struct(_HH)
 
-        for _i in xrange(0, count):
+        for _i in range(0, count):
             key_ref, = unpacker.unpack_struct(_H)
             val = _unpack_annotation_val(unpacker, self.cpool)
 
@@ -1888,7 +1890,7 @@ class JavaAnnotation(dict):
             return False
 
         # for each of the key/val pairs, check equality
-        for key, lval in self.items():
+        for key, lval in items(self):
             rval = other[key]
             if not _annotation_val_eq(lval[0], lval[1], self.cpool,
                                       rval[0], rval[1], other.cpool):
@@ -1929,7 +1931,7 @@ def _annotation_val_eq(left_tag, left_data, left_cpool,
         if len(left_data) != len(right_data):
             return False
 
-        for index in xrange(0, len(left_data)):
+        for index in range(0, len(left_data)):
             ld = left_data[index]
             rd = right_data[index]
             if not _annotation_val_eq(ld[0], ld[1], left_cpool,
@@ -1962,7 +1964,7 @@ def _unpack_annotation_val(unpacker, cpool):
     elif tag == '[':
         data = list()
         count, = unpacker.unpack_struct(_H)
-        for _i in xrange(0, count):
+        for _i in range(0, count):
             data.append(_unpack_annotation_val(unpacker, cpool))
 
     return (tag, data)
@@ -2093,7 +2095,7 @@ def _pretty_const_type_val(typecode, val):
 
     if typecode == CONST_Utf8:
         typestr = "Utf8"  # formerly Asciz, which was considered Java bug
-        if isinstance(val, unicode):
+        if not isinstance(val, str):	# Py2, val is 'unicode'
             val = repr(val)[2:-1]  # trim off the surrounding u"" (HACK)
         else:
             val = repr(val)[1:-1]  # trim off the surrounding "" (HACK)
@@ -2160,33 +2162,31 @@ def pretty_generic(signature):
     return signature
 
 
-def _next_argsig(buff):
+def _next_argsig(s):
     """
-    given a buffer, find the next complete argument signature and
-    return it and a new buffer advanced past that point
+    given a string, find the next complete argument signature and
+    return it and a new string advanced past that point
     """
 
-    c = buff[0]
+    c = s[0]
 
     if c in "BCDFIJSVZ":
-        result = (c, buffer(buff, 1))
+        result = (c, s[1:])
 
     elif c == "[":
-        d, buff = _next_argsig(buffer(buff, 1))
-        result = (c + d, buff)
+        d, s = _next_argsig(s[1:])
+        result = (c + d, s[len(d)+1:])
 
     elif c == "L":
-        s = buff[:]
         i = s.find(';') + 1
-        result = (s[:i], buffer(buff, i))
+        result = (s[:i], s[i+1:])
 
     elif c == "(":
-        s = buff[:]
         i = s.find(')') + 1
-        result = (s[:i], buffer(buff, i))
+        result = (s[:i], s[i:])
 
     else:
-        raise Unimplemented("_next_argsig is %r in %r" % (c, str(buff)))
+        raise Unimplemented("_next_argsig is %r in %r" % (c, s))
 
     return result
 
@@ -2196,9 +2196,9 @@ def _typeseq_iter(s):
     iterate through all of the type signatures in a sequence
     """
 
-    buff = buffer(str(s))
-    while buff:
-        t, buff = _next_argsig(buff)
+    s = str(s)
+    while s:
+        t, s = _next_argsig(s)
         yield t
 
 
@@ -2215,7 +2215,7 @@ def _pretty_typeseq(type_s):
     iterator of pretty versions of _typeseq_iter
     """
 
-    return (_pretty_type(t) for t in _typeseq_iter(type_s))
+    return (_pretty_type(t) for t in _typeseq(type_s))
 
 
 def _pretty_type(s, offset=0):
@@ -2282,15 +2282,6 @@ def _pretty_class(s):
     return s.replace("/", ".")
 
 
-def _clean_array_const(s):
-    """
-    de-array a constant type.
-    """
-
-    t, b = _next_argsig(buffer(s))
-    return (t, str(b))
-
-
 # -----
 # Functions for dealing with buffers and files
 
@@ -2320,9 +2311,10 @@ def is_class_file(filename):
     """
 
     with open(filename, "rb") as fd:
-        c = fd.read(4)
-
-    return c == JAVA_CLASS_MAGIC_STR
+        c = fd.read(len(JAVA_CLASS_MAGIC))
+        if isinstance(c, str):      # Python 2
+            c = map(ord, c)
+        return tuple(c) == JAVA_CLASS_MAGIC
 
 
 def unpack_class(data, magic=None):
@@ -2360,7 +2352,7 @@ def unpack_classfile(filename):
     """
 
     with open(filename, "rb", _BUFFERING) as fd:
-        return unpack_class(fd)
+        return unpack_class(fd.read())
 
 
 #

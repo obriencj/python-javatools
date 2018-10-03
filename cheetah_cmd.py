@@ -26,10 +26,14 @@ from distutils.core import Command
 from distutils.util import newer
 from distutils.command.build_py import build_py
 from glob import glob
-from itertools import izip
 from os import makedirs
 from os.path import basename, exists, join, splitext
 
+# Python 2/3:
+try:
+    from itertools import izip			# Python 2
+except ImportError:
+    from builtins import zip as izip		# Python 3
 
 DEFAULT_CONFIG = "extras/cheetah.cfg"
 
