@@ -84,7 +84,7 @@ class Unpacker(object):
 
     def __exit__(self, exc_type, _exc_val, _exc_tb):
         self.close()
-        return (exc_type is None)
+        return exc_type is None
 
 
     @abstractmethod

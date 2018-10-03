@@ -207,7 +207,7 @@ class ClosingContext(object):
         if managed is not None and hasattr(managed, "close"):
             managed.close()
 
-        return (exc_type is None)
+        return exc_type is None
 
 
 def closing(managed):

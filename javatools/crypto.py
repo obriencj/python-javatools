@@ -84,7 +84,7 @@ def create_signature_block(openssl_digest, certificate, private_key,
     :param private_key:filename of private key used to sign (PEM format)
     :type private_key: str
     :param extra_certs: additional certificates to embed into the signature (PEM format)
-    :type param: array of filenames
+    :type extra_certs: array of filenames
     :param data: the content to be signed
     :type data: str
     :returns: content of the signature block file as produced by jarsigner
