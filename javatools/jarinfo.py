@@ -23,6 +23,9 @@ printing it out.
 
 from __future__ import print_function
 
+from __future__ import print_function
+
+
 import sys
 
 from json import dump

@@ -22,7 +22,9 @@ Let's pretend to be the javap tool shipped with many Java SDKs
 :license: LGPL
 """
 
+
 from __future__ import print_function
+
 
 import sys
 import javatools.opcodes as opcodes
@@ -68,7 +70,7 @@ def should_show(options, member):
 def print_field(options, field):
 
     if options.indent:
-        print("   "),
+        print("   ", end="")
 
     print("%s;" % field.pretty_descriptor())
 
@@ -92,7 +94,7 @@ def print_field(options, field):
 
 def print_method(options, method):
     if options.indent:
-        print("   "),
+        print("   ", end="")
 
     print("%s;" % method.pretty_descriptor())
 
@@ -119,8 +121,8 @@ def print_method(options, method):
             if not method.is_static():
                 argsc += 1
 
-            print("   Stack=%i, Locals=%i, Args_size=%i" % \
-                (code.max_stack, code.max_locals, argsc))
+            print("   Stack=%i, Locals=%i, Args_size=%i" %
+                  (code.max_stack, code.max_locals, argsc))
 
         for line in code.disassemble():
             opname = opcodes.get_opname_by_code(line[1])
@@ -137,8 +139,8 @@ def print_method(options, method):
             print("   from\tto\ttarget\ttype")
             for e in exps:
                 ctype = e.pretty_catch_type()
-                print("  % 4i\t% 4i\t% 4i\t%s" % \
-                    (e.start_pc, e.end_pc, e.handler_pc, ctype))
+                print("  % 4i\t% 4i\t% 4i\t%s" %
+                      (e.start_pc, e.end_pc, e.handler_pc, ctype))
 
     if options.verbose:
         if method.is_deprecated():
@@ -221,7 +223,7 @@ def cli_print_classinfo(options, info):
     if sourcefile:
         print("Compiled from \"%s\"" % sourcefile)
 
-    print(info.pretty_descriptor()),
+    print(info.pretty_descriptor(), end="")
 
     if options.verbose or options.show == SHOW_HEADER:
         print()
@@ -259,6 +261,7 @@ def cli_print_classinfo(options, info):
                 # comprising the second half of a long or double value
                 print("const #%i = %s\t%s;" % (i, t, v))
         print()
+
     if options.show == SHOW_HEADER:
         return
 
@@ -272,8 +275,8 @@ def cli_print_classinfo(options, info):
         if should_show(options, method):
             print_method(options, method)
 
-    print("}")
-    print()
+
+    print("}\n")
     return 0
 
 

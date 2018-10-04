@@ -24,6 +24,9 @@ from __future__ import print_function
 
 from future.utils import with_metaclass
 
+from __future__ import print_function
+
+
 import sys
 
 from abc import ABCMeta, abstractmethod

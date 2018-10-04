@@ -24,6 +24,9 @@ distribution of mixed class files and JARs.
 
 from __future__ import print_function
 
+from __future__ import print_function
+
+
 import sys
 
 from json import dump
