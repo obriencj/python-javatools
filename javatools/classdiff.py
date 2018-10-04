@@ -28,8 +28,13 @@ added fields or methods, deprecation changes, etc.
 import sys
 
 from abc import ABCMeta
-from itertools import izip
+from future.utils import with_metaclass
 from argparse import ArgumentParser, Action
+
+try:
+    from itertools import izip
+except ImportError:
+    from builtins import zip as izip
 
 from . import unpack_classfile
 from .change import GenericChange, SuperChange
@@ -199,7 +204,7 @@ class ClassSignatureChange(GenericChange):
         return c.pretty_signature()
 
 
-class AnnotationsChange(GenericChange):
+class AnnotationsChange(with_metaclass(ABCMeta, GenericChange)):
 
     __metaclass__ = ABCMeta
 
@@ -215,7 +220,7 @@ class AnnotationsChange(GenericChange):
         return [anno.pretty_annotation() for anno in annos]
 
 
-class InvisibleAnnotationsChange(AnnotationsChange):
+class InvisibleAnnotationsChange(with_metaclass(ABCMeta, AnnotationsChange)):
 
     __metaclass__ = ABCMeta
 
@@ -251,7 +256,7 @@ class ClassInfoChange(SuperChange):
                     ClassSignatureChange)
 
 
-class MemberSuperChange(SuperChange):
+class MemberSuperChange(with_metaclass(ABCMeta, SuperChange)):
     """
     basis for FieldChange and MethodChange
     """
@@ -265,7 +270,7 @@ class MemberSuperChange(SuperChange):
         return "%s: %s" % (self.label, self.ldata.pretty_descriptor())
 
 
-class MemberAdded(Addition):
+class MemberAdded(with_metaclass(ABCMeta, Addition)):
     """
     basis for FieldAdded and MethodAdded
     """
@@ -279,7 +284,7 @@ class MemberAdded(Addition):
         return "%s: %s" % (self.label, self.rdata.pretty_descriptor())
 
 
-class MemberRemoved(Removal):
+class MemberRemoved(with_metaclass(ABCMeta, Removal)):
     """
     basis for FieldChange and MethodChange
     """
@@ -293,7 +298,7 @@ class MemberRemoved(Removal):
         return "%s: %s" % (self.label, self.ldata.pretty_descriptor())
 
 
-class ClassMembersChange(SuperChange):
+class ClassMembersChange(with_metaclass(ABCMeta, SuperChange)):
     """
     basis for ClassFieldsChange and ClassMethodsChange
     """

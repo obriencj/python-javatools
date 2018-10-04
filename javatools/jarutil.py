@@ -85,7 +85,7 @@ def verify(certificate, jar_file, sf_name=None):
 
     # Step 0: get the "key alias", used also for naming of sig-related files.
     zip_file = ZipFile(jar_file)
-    sf_files = filter(file_matches_sigfile, zip_file.namelist())
+    sf_files = [f for f in zip_file.namelist() if file_matches_sigfile(f)]
 
     if len(sf_files) == 0:
         raise JarSignatureMissingError("No .SF file in %s" % jar_file)
@@ -147,10 +147,12 @@ def verify(certificate, jar_file, sf_name=None):
     # KEYALIAS.SF is correctly signed.
     # Step 2: Check that it contains correct checksum of the manifest.
     signature_manifest = SignatureManifest()
+    if not isinstance(sf_data, str):  # Py3, there sf_data is bytes
+        sf_data = sf_data.decode('utf-8')   # TODO: how to factor it nicely?
     signature_manifest.parse(sf_data)
 
     jar_manifest = Manifest()
-    jar_manifest.parse(zip_file.read("META-INF/MANIFEST.MF"))
+    jar_manifest.load_from_jar(jar_file)
 
     errors = signature_manifest.verify_manifest(jar_manifest)
     if len(errors) > 0:
@@ -182,13 +184,8 @@ def sign(jar_file, cert_file, key_file, key_alias,
     :return None
     """
 
-    jar = ZipFile(jar_file, "a")
-    if "META-INF/MANIFEST.MF" not in jar.namelist():
-        raise MissingManifestError(
-            "META-INF/MANIFEST.MF not found in %s" % jar_file)
-
     mf = Manifest()
-    mf.parse(jar.read("META-INF/MANIFEST.MF"))
+    mf.load_from_jar(jar_file)
     mf.add_jar_entries(jar_file, digest)
 
     # create a signature manifest, and make it match the line separator
@@ -212,7 +209,9 @@ def sign(jar_file, cert_file, key_file, key_alias,
         new_jar.writestr("META-INF/%s.SF" % key_alias, sf.get_data())
         new_jar.writestr("META-INF/%s.%s" % (key_alias, sig_block_extension),
                          sigdata)
+        jar = ZipFile(jar_file, "a")
         for entry in jar.namelist():
+            # TODO: In Py2, namelist() can be of type unicode
             if not entry.upper() == "META-INF/MANIFEST.MF":
                 new_jar.writestr(entry, jar.read(entry))
 

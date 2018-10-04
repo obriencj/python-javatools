@@ -230,6 +230,7 @@ def disassemble(bytecode):
     """
     Generator. Disassembles Java bytecode into a sequence of (offset,
     code, args) tuples
+    :type bytecode: bytes
     """
 
     offset = 0
@@ -238,7 +239,10 @@ def disassemble(bytecode):
     while offset < end:
         orig_offset = offset
 
-        code = ord(bytecode[offset])
+        code = bytecode[offset]
+        if not isinstance(code, int):   # Py3
+            code = ord(code)
+
         offset += 1
 
         args = tuple()

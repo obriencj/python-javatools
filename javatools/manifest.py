@@ -25,23 +25,30 @@ References
 :license: LGPL
 """
 
+from __future__ import print_function
 
 import argparse
 import hashlib
 import os
 import sys
 
+from io import open
 from base64 import b64encode
 from collections import OrderedDict
-from cStringIO import StringIO
-from itertools import izip
-from os.path import isdir, join, sep, split, walk
+try:
+    from itertools import izip
+except ImportError:
+    from builtins import zip as izip
+from os.path import isdir, join, sep, split
+from os import walk
 from zipfile import ZipFile
 
 from .change import GenericChange, SuperChange
 from .change import Addition, Removal
 from .dirutils import fnmatches, makedirsp
 
+if sys.version_info > (3,):
+    buffer = memoryview
 
 __all__ = (
     "ManifestChange", "ManifestSectionChange",
@@ -54,6 +61,8 @@ __all__ = (
 
 _BUFFERING = 2 ** 14
 
+# https://docs.oracle.com/javase/8/docs/technotes/guides/jar/jar.html#Notes_on_Manifest_and_Signature_Files:
+MANIFEST_MAX_LINE = 72      # bytes, UTF-8 encoded
 
 SIG_FILE_PATTERN = "*.SF"
 SIG_BLOCK_PATTERNS = ("*.RSA", "*.DSA", "*.EC", "SIG-*", )
@@ -230,19 +239,28 @@ class ManifestSection(OrderedDict):
         self[self.primary_key] = name
 
 
+    def __gt__(self, other_section):
+        # we need just some ordering, no matter which.
+        return self.get_data() > other_section.get_data()
+
     def __setitem__(self, k, v):
         # pylint: disable=W0221
+        """
+        # :type k: str
+        # :type v: str
+        """
+
         # we want the behavior of OrderedDict, but don't take the
         # additional parameter
 
         # our keys should always be strings, as should our values. We
         # also have an upper limit on the length we can permit for
         # keys, per the JAR MANIFEST specification.
-        k = str(k)
-        if len(k) > 68:
+
+        if len(k.encode('utf-8')) > MANIFEST_MAX_LINE - 4:  # 4 for colon, space, CR, LF
             raise ManifestKeyException("key too long", k)
         else:
-            OrderedDict.__setitem__(self, k, str(v))
+            OrderedDict.__setitem__(self, k, v)
 
 
     def primary(self):
@@ -262,25 +280,26 @@ class ManifestSection(OrderedDict):
             self[k] = "".join(vals)
 
 
-    def store(self, stream, linesep=os.linesep):
-        """
-        Serialize this section and write it to a stream
-        """
-
-        for k, v in self.items():
-            write_key_val(stream, k, v, linesep)
-
-        stream.write(linesep)
-
-
     def get_data(self, linesep=os.linesep):
         """
         Serialize the section and return it as a string
+        :return str
         """
 
-        stream = StringIO()
-        self.store(stream, linesep)
-        return stream.getvalue()
+        ret = ""
+        for k, v in self.items():
+            ret += write_key_val(k, v, linesep)
+        return ret + linesep
+
+
+    def get_binary_data(self, linesep=os.linesep):
+        """
+        :return: bytes
+        """
+        data = self.get_data(linesep)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        return data
 
 
     def keys_with_suffix(self, suffix):
@@ -336,14 +355,30 @@ class Manifest(ManifestSection):
         Parse the given file, and attempt to detect the line separator.
         """
 
-        with open(filename, "r", _BUFFERING) as stream:
-            self.parse(stream)
+        with open(filename, "r", _BUFFERING, newline='', encoding='utf-8') as stream:
+            data = stream.read()
+            if not isinstance(data, str):       # Py2
+                data = data.encode('utf-8')
+            self.parse(data)
+
+
+    def load_from_jar(self, jarfile):
+        # Can't be imported at top level:
+        from javatools.jarutil import MissingManifestError
+        with ZipFile(jarfile) as jar:
+            if "META-INF/MANIFEST.MF" not in jar.namelist():
+                raise MissingManifestError(
+                    "META-INF/MANIFEST.MF not found in %s" % jarfile)
+            data = jar.read("META-INF/MANIFEST.MF")
+            if not isinstance(data, str):       # Py3
+                data = data.decode('utf-8')
+            self.parse(data)
 
 
     def parse(self, data):
         """
-        populate instance with values and sub-sections from data in a
-        stream, string, or buffer
+        populate instance with values and sub-sections
+        :type data: str
         """
 
         self.linesep = detect_linesep(data)
@@ -351,7 +386,7 @@ class Manifest(ManifestSection):
         # the first section is the main one for the manifest. It's
         # also where we will check for our newline separator
         sections = parse_sections(data)
-        self.load(sections.next())
+        self.load(next(sections))
 
         # and all following sections are considered sub-sections
         for section in sections:
@@ -360,43 +395,49 @@ class Manifest(ManifestSection):
             self.sub_sections[next_section.primary()] = next_section
 
 
-    def store(self, stream, linesep=None):
-        """
-        Serialize the Manifest to a stream
-        """
-
-        # either specified here, specified on the instance, or the OS
-        # default
-        linesep = linesep or self.linesep or os.linesep
-
-        ManifestSection.store(self, stream, linesep)
-        for sect in sorted(self.sub_sections.values()):
-            sect.store(stream, linesep)
-
-
     def get_main_section(self, linesep=None):
         """
-        Serialize just the main section of the manifest and return it as a
-        string
+        Serialize just the main section of the manifest
+        :return str
         """
 
         linesep = linesep or self.linesep or os.linesep
+        return ManifestSection.get_data(self, linesep)
 
-        stream = StringIO()
-        ManifestSection.store(self, stream, linesep)
-        return stream.getvalue()
+
+    def get_binary_main_section(self):
+        """
+        :return: bytes
+        """
+        data = self.get_main_section()
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        return data
 
 
     def get_data(self, linesep=None):
         """
         Serialize the entire manifest and return it as a string
+        :return: str
         """
 
         linesep = linesep or self.linesep or os.linesep
 
-        stream = StringIO()
-        self.store(stream, linesep)
-        return stream.getvalue()
+        ret = ManifestSection.get_data(self, linesep)
+        for sect in sorted(self.sub_sections.values()):
+            ret += sect.get_data(linesep)
+
+        return ret
+
+
+    def get_binary_data(self):
+        """
+        :return: bytes
+        """
+        data = self.get_data()
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        return data
 
 
     def verify_jar_checksums(self, jar_file, strict=True):
@@ -452,6 +493,15 @@ class Manifest(ManifestSection):
             for entry in jar.namelist():
                 if file_skips_verification(entry):
                     continue
+
+                # Note relevant for Py2: ZipFile returns names as Unicode
+                # objects if the corresponding bit in the zip file is set.
+                # See Lib/zipfile.py:_decodeFilename().
+                # Also, https://marcosc.com/2008/12/zip-files-and-encoding-i-hate-you/
+                # TODO: the below reveals the time-bomb, which was earlier masked by StringIO!
+                if not isinstance(entry, str):
+                    entry = str(entry)
+
                 section = self.create_section(entry)
                 section[key_digest] = b64_encoded_digest(jar.read(entry),
                                                          digest)
@@ -508,25 +558,25 @@ class SignatureManifest(Manifest):
         # be re-using this digest to also calculate the total
         # checksum.
         h_all = digest()
-        h_all.update(manifest.get_main_section())
-        self[main_key] = b64encode(h_all.digest())
+        h_all.update(manifest.get_binary_main_section())
+        self[main_key] = b64encode_to_str(h_all.digest())
 
         for sub_section in manifest.sub_sections.values():
-            sub_data = sub_section.get_data(linesep)
+            sub_data = sub_section.get_binary_data()
 
             # create the checksum of the section body and store it as a
             # sub-section of our own
             h_section = digest()
             h_section.update(sub_data)
             sf_sect = self.create_section(sub_section.primary())
-            sf_sect[sect_key] = b64encode(h_section.digest())
+            sf_sect[sect_key] = b64encode_to_str(h_section.digest())
 
             # push this data into this total as well.
             h_all.update(sub_data)
 
         # after traversing all the sub sections, we now have the
         # digest of the whole manifest.
-        self[all_key] = b64encode(h_all.digest())
+        self[all_key] = b64encode_to_str(h_all.digest())
 
 
     def verify_manifest_main_checksum(self, manifest):
@@ -543,7 +593,7 @@ class SignatureManifest(Manifest):
         # who shall check, what is being signed.
         for java_digest in self.keys_with_suffix("-Digest-Manifest"):
             whole_mf_digest = b64_encoded_digest(
-                manifest.get_data(),
+                manifest.get_binary_data(),
                 _get_digest(java_digest))
 
             # It is enough for at least one digest to be correct
@@ -562,7 +612,7 @@ class SignatureManifest(Manifest):
         keys = self.keys_with_suffix("-Digest-Manifest-Main-Attributes")
         for java_digest in keys:
             mf_main_attr_digest = b64_encoded_digest(
-                manifest.get_main_section(),
+                manifest.get_binary_main_section(),
                 _get_digest(java_digest))
 
             attr = java_digest + "-Digest-Manifest-Main-Attributes"
@@ -601,7 +651,7 @@ class SignatureManifest(Manifest):
 
             for java_digest in digests:
                 section_digest = b64_encoded_digest(
-                    s.get_data(manifest.linesep),
+                    s.get_binary_data(manifest.linesep),
                     _get_digest(java_digest))
 
                 if section_digest == sf_section.get(java_digest + "-Digest"):
@@ -633,7 +683,7 @@ class SignatureManifest(Manifest):
 
         openssl_digest = _get_digest(digest_algorithm, as_string=True)
         return create_signature_block(openssl_digest, certificate, private_key,
-                                      extra_certs, self.get_data())
+                                      extra_certs, self.get_binary_data())
 
 
 class SignatureManifestChange(ManifestChange):
@@ -654,24 +704,31 @@ class SignatureBlockFileChange(GenericChange):
         return "[binary data]"
 
 
+def b64encode_to_str(data):
+    """
+    Wrapper around b64_encode which takes and returns same-named types
+    on both Python 2 and Python 3 (while these names have different meaning).
+    :param data: bytes
+    :return: str
+    """
+    ret = b64encode(data)
+    if not isinstance(ret, str):  # Python3
+        ret = ret.decode('ascii')
+    return ret
+
+
 def b64_encoded_digest(data, algorithm):
+    """
+    :type data: bytes
+    :return: str
+    """
     h = algorithm()
     h.update(data)
-    return b64encode(h.digest())
+    return b64encode_to_str(h.digest())
 
 
 def detect_linesep(data):
-    if isinstance(data, (str, buffer)):
-        data = StringIO(data)
-
-    offset = data.tell()
-    line = data.readline()
-    data.seek(offset)
-
-    if line[-2:] == "\r\n":
-        return "\r\n"
-    else:
-        return line[-1]
+    return "\r\n" if "\r\n" in data else "\n"
 
 
 def parse_sections(data):
@@ -690,15 +747,12 @@ def parse_sections(data):
     if not data:
         return
 
-    if isinstance(data, (str, buffer)):
-        data = StringIO(data)
-
     # our current section
     curr = None
 
-    for lineno, line in enumerate(data):
+    for lineno, line in enumerate(data.splitlines()):
         # Clean up the line
-        cleanline = line.splitlines()[0].replace('\x00', '')
+        cleanline = line.replace('\x00', '')
 
         if not cleanline:
             # blank line means end of current section (if any)
@@ -734,41 +788,39 @@ def parse_sections(data):
         yield curr
 
 
-def write_key_val(stream, key, val, linesep=os.linesep):
+def write_key_val(key, val, linesep):
     """
     The MANIFEST specification limits the width of individual lines to
     72 bytes (including the terminating newlines). Any key and value
     pair that would be longer must be split up over multiple
     continuing lines
+    :param key, val, linesep: str
+    :return str
     """
 
-    key = key or ""
     val = val or ""
 
-    if not (0 < len(key) < 69):
+    if not key or not 0 < len(key.encode('utf-8')) <= MANIFEST_MAX_LINE - 4:
         raise ManifestKeyException("bad key length", key)
 
-    if len(key) + len(val) > 68:
-        kvbuffer = StringIO(": ".join((key, val)))
+    ret = ""
 
-        # first grab 70 (which is 72 after the trailing newline)
-        stream.write(kvbuffer.read(70))
+    if len(key.encode('utf-8')) + len(val.encode("utf-8")) > MANIFEST_MAX_LINE - 4:
+        kvbuffer = ": ".join((key, val))
+    
+        ret += kvbuffer[0:MANIFEST_MAX_LINE - 2]        # 2 for CR, LF
+        kvbuffer = kvbuffer[MANIFEST_MAX_LINE - 2:]
 
-        # now only 69 at a time, because we need a leading space and a
-        # trailing \n
-        part = kvbuffer.read(69)
-        while part:
-            stream.write(linesep + " ")
-            stream.write(part)
-            part = kvbuffer.read(69)
-        kvbuffer.close()
+        while kvbuffer:
+            kvbuffer = linesep + " " + kvbuffer
+            ret += kvbuffer[:MANIFEST_MAX_LINE - 2]
+            kvbuffer = kvbuffer[MANIFEST_MAX_LINE - 2:]
 
     else:
-        stream.write(key)
-        stream.write(": ")
-        stream.write(val)
+        entry = ": ".join((key, val))
+        ret += entry
 
-    stream.write(linesep)
+    return ret + linesep
 
 
 def digest_chunks(chunks, algorithms=(hashlib.md5, hashlib.sha1)):
@@ -783,7 +835,7 @@ def digest_chunks(chunks, algorithms=(hashlib.md5, hashlib.sha1)):
         for h in hashes:
             h.update(chunk)
 
-    return [b64encode(h.digest()) for h in hashes]
+    return [b64encode_to_str(h.digest()) for h in hashes]
 
 
 def file_chunk(filename, size=_BUFFERING):
@@ -955,9 +1007,9 @@ def cli_create(argument_list):
         # we'll output to the manifest file if specified, and we'll
         # even create parent directories for it, if necessary
         makedirsp(split(args.manifest)[0])
-        output = open(args.manifest, "w")
+        output = open(args.manifest, "w", newline='')
 
-    mf.store(output)
+    output.write(mf.get_data())
 
     if args.manifest:
         output.close()
@@ -969,10 +1021,8 @@ def cli_verify(args):
         return 2
 
     jarfn = args[0]
-
-    with ZipFile(jarfn) as jar:
-        mf = Manifest()
-        mf.parse(jar.read("META-INF/MANIFEST.MF"))
+    mf = Manifest()
+    mf.load_from_jar(jarfn)
 
     errors = mf.verify_jar_checksums(jarfn)
     if len(errors) > 0:

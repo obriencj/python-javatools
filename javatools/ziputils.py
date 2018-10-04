@@ -21,14 +21,22 @@ Utilities for discovering entry deltas in a pair of zip files.
 """
 
 
-from cStringIO import StringIO
-from itertools import izip_longest
+from io import BytesIO
+try:
+    from itertools import izip_longest
+except ImportError:
+    from future.moves.itertools import zip_longest as izip_longest
+
 from os import walk
 from os.path import getsize, isdir, isfile, islink, join, relpath
 from zipfile import is_zipfile, ZipFile, ZipInfo, _EndRecData
 from zlib import crc32
 
 from .dirutils import LEFT, RIGHT, DIFF, SAME, closing
+
+import sys
+if sys.version_info > (3,):
+    buffer = memoryview
 
 
 __all__ = (
@@ -187,7 +195,7 @@ def is_zipstream(data):
     """
 
     if isinstance(data, (str, buffer)):
-        data = StringIO(data)
+        data = BytesIO(data)
 
     if hasattr(data, "read"):
         tell = 0

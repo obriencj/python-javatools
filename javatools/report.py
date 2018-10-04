@@ -20,6 +20,9 @@ Classes for representing changes as formatted text.
 :license: LGPL
 """
 
+from __future__ import print_function
+
+from future.utils import with_metaclass
 
 from __future__ import print_function
 
@@ -170,7 +173,7 @@ class Reporter(object):
         self._formats = None
 
 
-class ReportFormat(object):
+class ReportFormat(with_metaclass(ABCMeta, object)):
     """
     Base class of a report format provider. Override to describe a
     concrete format type
@@ -389,10 +392,10 @@ def _indent(stream, indent, *msgs):
     """ write a message to stream, with indentation. Also ensures that
     the output encoding of the messages is safe for writing. """
 
-    for x in xrange(0, indent):
+    for x in range(0, indent):
         stream.write("  ")
     for x in msgs:
-        stream.write(x.encode("ascii", "backslashreplace"))
+        stream.write(x)
     stream.write("\n")
 
 

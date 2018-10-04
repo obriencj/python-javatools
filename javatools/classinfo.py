@@ -254,7 +254,7 @@ def cli_print_classinfo(options, info):
         # generator skips them.
         cpool = info.cpool
 
-        for i in xrange(1, len(cpool.consts)):
+        for i in range(1, len(cpool.consts)):
             t, v = cpool.pretty_const(i)
             if t:
                 # skipping the None consts, which would be the entries
@@ -275,8 +275,8 @@ def cli_print_classinfo(options, info):
         if should_show(options, method):
             print_method(options, method)
 
-    print("}\n")
 
+    print("}\n")
     return 0
 
 
