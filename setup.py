@@ -67,12 +67,20 @@ setup(name = "javatools",
       description = "Tools for finding meaningful deltas in Java"
       " class files and JARs",
 
-      provides = ["javatools", ],
+      provides = [
+          "javatools",
+      ],
 
-      install_requires = ["Cheetah3",
-                          "M2Crypto >= 0.26.0", ],
+      install_requires = [
+          "Cheetah3",
+          "M2Crypto >= 0.26.0",
+          "six",
+      ],
 
-      setup_requires = ["Cheetah3", ],
+      setup_requires = [
+          "Cheetah3",
+          "six",
+      ],
 
       python_requires = (
           ">=2.7, "

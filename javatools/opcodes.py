@@ -27,14 +27,9 @@ References
 
 
 from functools import partial
+from six.moves import range
 
 from .pack import compile_struct
-
-
-try:
-    xrange
-except NameError:
-    xrange = range
 
 
 __all__ = (
@@ -82,7 +77,8 @@ __all__ = (
     "OP_multianewarray", "OP_new", "OP_newarray", "OP_nop", "OP_pop",
     "OP_pop2", "OP_putfield", "OP_putstatic", "OP_ret", "OP_return",
     "OP_saload", "OP_sastore", "OP_sipush", "OP_swap", "OP_tableswitch",
-    "OP_wide", )
+    "OP_wide",
+)
 
 
 # the op table itself
@@ -184,7 +180,7 @@ def _unpack_lookupswitch(bc, offset):
     (default, npairs), offset = _unpack(_struct_ii, bc, offset)
 
     switches = list()
-    for _index in xrange(npairs):
+    for _index in range(npairs):
         pair, offset = _unpack(_struct_ii, bc, offset)
         switches.append(pair)
 
@@ -203,7 +199,7 @@ def _unpack_tableswitch(bc, offset):
     (default, low, high), offset = _unpack(_struct_iii, bc, offset)
 
     joffs = list()
-    for _index in xrange((high - low) + 1):
+    for _index in range((high - low) + 1):
         j, offset = _unpack(_struct_i, bc, offset)
         joffs.append(j)
 

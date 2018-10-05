@@ -29,6 +29,7 @@ import sys
 
 from abc import ABCMeta
 from argparse import ArgumentParser, Action
+from six import add_metaclass
 
 from . import unpack_classfile
 from .change import GenericChange, SuperChange
@@ -39,17 +40,6 @@ from .report import quick_report, Reporter
 from .report import JSONReportFormat, TextReportFormat
 from .report import add_general_report_optgroup
 from .report import add_json_report_optgroup, add_html_report_optgroup
-
-
-try:
-    from itertools import izip
-except ImportError:
-    izip = zip
-
-try:
-    xrange
-except NameError:
-    xrange = range
 
 
 __all__ = (
@@ -209,9 +199,8 @@ class ClassSignatureChange(GenericChange):
         return c.pretty_signature()
 
 
+@add_metaclass(ABCMeta)
 class AnnotationsChange(GenericChange):
-
-    __metaclass__ = ABCMeta
 
     label = "Runtime annotations"
 
@@ -225,9 +214,8 @@ class AnnotationsChange(GenericChange):
         return [anno.pretty_annotation() for anno in annos]
 
 
+@add_metaclass(ABCMeta)
 class InvisibleAnnotationsChange(AnnotationsChange):
-
-    __metaclass__ = ABCMeta
 
     label = "Runtime Invisible annotations"
 
@@ -261,12 +249,11 @@ class ClassInfoChange(SuperChange):
                     ClassSignatureChange)
 
 
+@add_metaclass(ABCMeta)
 class MemberSuperChange(SuperChange):
     """
     basis for FieldChange and MethodChange
     """
-
-    __metaclass__ = ABCMeta
 
     label = "Member"
 
@@ -275,12 +262,11 @@ class MemberSuperChange(SuperChange):
         return "%s: %s" % (self.label, self.ldata.pretty_descriptor())
 
 
+@add_metaclass(ABCMeta)
 class MemberAdded(Addition):
     """
     basis for FieldAdded and MethodAdded
     """
-
-    __metaclass__ = ABCMeta
 
     label = "Member added"
 
@@ -289,12 +275,11 @@ class MemberAdded(Addition):
         return "%s: %s" % (self.label, self.rdata.pretty_descriptor())
 
 
+@add_metaclass(ABCMeta)
 class MemberRemoved(Removal):
     """
     basis for FieldChange and MethodChange
     """
-
-    __metaclass__ = ABCMeta
 
     label = "Member removed"
 
@@ -303,12 +288,11 @@ class MemberRemoved(Removal):
         return "%s: %s" % (self.label, self.ldata.pretty_descriptor())
 
 
+@add_metaclass(ABCMeta)
 class ClassMembersChange(SuperChange):
     """
     basis for ClassFieldsChange and ClassMethodsChange
     """
-
-    __metaclass__ = ABCMeta
 
     label = "Members"
 
@@ -451,7 +435,7 @@ class CodeConstantsChange(GenericChange):
             # code body change, can't determine constants
             return True, None
 
-        for l, r in izip(left.disassemble(), right.disassemble()):
+        for l, r in zip(left.disassemble(), right.disassemble()):
             if not ((l[0] == r[0]) and (l[1] == r[1])):
                 # code body change, can't determine constants
                 return True, None
@@ -505,7 +489,7 @@ class CodeBodyChange(GenericChange):
                    (len(left.code), len(right.code))
             return True, desc
 
-        for l, r in izip(left.disassemble(), right.disassemble()):
+        for l, r in zip(left.disassemble(), right.disassemble()):
             if not ((l[0] == r[0]) and (l[1] == r[1])):
                 return True, None
 
@@ -914,18 +898,18 @@ def pretty_merge_constants(left_cpool, right_cpool):
     rsize = len(right_cpool.consts)
 
     index = 1
-    for index in xrange(1, min(lsize, rsize)):
+    for index in range(1, min(lsize, rsize)):
         lt, lv = left_cpool.pretty_const(index)
         rt, rv = right_cpool.pretty_const(index)
         yield (index, lt, lv, rt, rv)
 
     if lsize > rsize:
-        for index in xrange(index, lsize):
+        for index in range(index, lsize):
             lt, lv = left_cpool.pretty_const(index)
             yield (index, lt, lv, None, None)
 
     elif rsize > lsize:
-        for index in xrange(index, rsize):
+        for index in range(index, rsize):
             rt, rv = right_cpool.pretty_const(index)
             yield (index, None, None, rt, rv)
 

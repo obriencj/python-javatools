@@ -34,22 +34,13 @@ import sys
 from base64 import b64encode
 from collections import OrderedDict
 from os.path import isdir, join, sep, split, walk
+from six import BytesIO
+from six.moves import zip
 from zipfile import ZipFile
 
 from .change import GenericChange, SuperChange
 from .change import Addition, Removal
 from .dirutils import fnmatches, makedirsp
-
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
-
-try:
-    from itertools import izip
-except ImportError:
-    izip = zip
 
 
 __all__ = (
@@ -287,7 +278,7 @@ class ManifestSection(OrderedDict):
         Serialize the section and return it as a string
         """
 
-        stream = StringIO()
+        stream = BytesIO()
         self.store(stream, linesep)
         return stream.getvalue()
 
@@ -391,7 +382,7 @@ class Manifest(ManifestSection):
 
         linesep = linesep or self.linesep or os.linesep
 
-        stream = StringIO()
+        stream = BytesIO()
         ManifestSection.store(self, stream, linesep)
         return stream.getvalue()
 
@@ -403,7 +394,7 @@ class Manifest(ManifestSection):
 
         linesep = linesep or self.linesep or os.linesep
 
-        stream = StringIO()
+        stream = BytesIO()
         self.store(stream, linesep)
         return stream.getvalue()
 
@@ -671,7 +662,7 @@ def b64_encoded_digest(data, algorithm):
 
 def detect_linesep(data):
     if isinstance(data, (str, buffer)):
-        data = StringIO(data)
+        data = BytesIO(data)
 
     offset = data.tell()
     line = data.readline()
@@ -700,7 +691,7 @@ def parse_sections(data):
         return
 
     if isinstance(data, (str, buffer)):
-        data = StringIO(data)
+        data = BytesIO(data)
 
     # our current section
     curr = None
@@ -758,7 +749,7 @@ def write_key_val(stream, key, val, linesep=os.linesep):
         raise ManifestKeyException("bad key length", key)
 
     if len(key) + len(val) > 68:
-        kvbuffer = StringIO(": ".join((key, val)))
+        kvbuffer = BytesIO(": ".join((key, val)))
 
         # first grab 70 (which is 72 after the trailing newline)
         stream.write(kvbuffer.read(70))
@@ -955,7 +946,7 @@ def cli_create(argument_list):
 
         sec = mf.create_section(name)
 
-        digests = izip(requested_digests, digest_chunks(chunks(), use_digests))
+        digests = zip(requested_digests, digest_chunks(chunks(), use_digests))
         for digest_name, digest_value in digests:
             sec[digest_name + "-Digest"] = digest_value
 

@@ -2,13 +2,7 @@
 #from javatools.classdiff import merge_code
 #from javatools.opcodes import has_const_arg, get_opname_by_code
 #from javatools.cheetah import xml_entity_escape as escape
-
-<%
-try:
-  from itertools import izip_longest
-except ImportError:
-  from itertools import zip_longest as izip_longest
-%>
+#from six.moves import zip_longest
 
 
 #block details_changed
@@ -56,7 +50,7 @@ if right is not None:
 rowspan = max(len(left_dis), len(right_dis))
 lastrow = (rowspan - min(len(left_dis), len(right_dis)))
 %>
-#for l_instruction, r_instruction in izip_longest(left_dis, right_dis)
+#for l_instruction, r_instruction in zip_longest(left_dis, right_dis)
 <tr>
 
 #if first

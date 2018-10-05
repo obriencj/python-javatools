@@ -27,8 +27,8 @@ from __future__ import print_function
 
 import sys
 
-from json import dump
 from argparse import ArgumentParser
+from json import dump
 
 from . import unpack_class
 from .classinfo import cli_print_classinfo, add_classinfo_optgroup
@@ -43,7 +43,8 @@ __all__ = (
     "cli_jar_classes", "cli_jar_manifest_info",
     "cli_jar_provides", "cli_jar_requires",
     "cli_jar_zip_info", "cli_jarinfo",
-    "cli_jarinfo_json", )
+    "cli_jarinfo_json",
+)
 
 
 # for reference by other modules
@@ -52,7 +53,8 @@ JAR_PATTERNS = (
     "*.jar",
     "*.rar",
     "*.sar",
-    "*.war", )
+    "*.war",
+)
 
 
 REQ_BY_CLASS = "class.requires"

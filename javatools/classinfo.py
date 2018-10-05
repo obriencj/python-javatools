@@ -31,14 +31,9 @@ import javatools.opcodes as opcodes
 
 from argparse import ArgumentParser
 from json import dump
+from six.moves import range
 
 from . import platform_from_version, unpack_classfile
-
-
-try:
-    xrange
-except NameError:
-    xrange = range
 
 
 __all__ = (
@@ -49,7 +44,8 @@ __all__ = (
     "cli_json_class", "cli_print_class",
     "cli_print_classinfo", "cli_simplify_classinfo",
     "cli_simplify_field", "cli_simplify_fields",
-    "cli_simplify_method", "cli_simplify_methods", )
+    "cli_simplify_method", "cli_simplify_methods",
+)
 
 
 SHOW_HEADER = 0

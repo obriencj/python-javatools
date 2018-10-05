@@ -28,18 +28,14 @@ import sys
 
 from abc import ABCMeta, abstractmethod
 from argparse import Action
+from Cheetah.DummyTransaction import DummyTransaction
 from functools import partial
 from json import dump, JSONEncoder
 from os.path import exists, join, relpath
-from Cheetah.DummyTransaction import DummyTransaction
+from six import add_metaclass
+from six.moves import range
 
 from .dirutils import copydir, makedirsp
-
-
-try:
-    xrange
-except NameError:
-    xrange = range
 
 
 _BUFFERING = 2 ** 16
@@ -176,14 +172,13 @@ class Reporter(object):
         self._formats = None
 
 
+@add_metaclass(ABCMeta)
 class ReportFormat(object):
     """
     Base class of a report format provider. Override to describe a
     concrete format type
     """
 
-
-    __metaclass__ = ABCMeta
     extension = ".report"
 
 
@@ -395,7 +390,7 @@ def _indent(stream, indent, *msgs):
     """ write a message to stream, with indentation. Also ensures that
     the output encoding of the messages is safe for writing. """
 
-    for x in xrange(0, indent):
+    for x in range(0, indent):
         stream.write("  ")
     for x in msgs:
         stream.write(x.encode("ascii", "backslashreplace"))

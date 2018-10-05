@@ -32,19 +32,16 @@ or stream.
 
 
 from abc import ABCMeta, abstractmethod
+from six import add_metaclass
+from six.moves import range
 from struct import Struct
-
-
-try:
-    xrange
-except NameError:
-    xrange = range
 
 
 __all__ = (
     "compile_struct", "unpack",
     "Unpacker", "UnpackException",
-    "StreamUnpacker", "BufferUnpacker", )
+    "StreamUnpacker", "BufferUnpacker",
+)
 
 
 # pylint: disable=C0103
@@ -68,14 +65,13 @@ def compile_struct(fmt, cache=None):
     return sfmt
 
 
+@add_metaclass(ABCMeta)
 class Unpacker(object):
     """
     Abstract base class for `StreamUnpacker` and `BufferUnpacker`. Use
     the `unpack` function to obtain the correct unpacker instance for
     your data.
     """
-
-    __metaclass__ = ABCMeta
 
 
     def __enter__(self):
@@ -137,7 +133,7 @@ class Unpacker(object):
 
         (count,) = self.unpack_struct(_H)
         sfmt = compile_struct(fmt)
-        for _i in xrange(count):
+        for _i in range(count):
             yield self.unpack_struct(sfmt)
 
 
@@ -149,7 +145,7 @@ class Unpacker(object):
         """
 
         (count,) = self.unpack_struct(_H)
-        for _i in xrange(count):
+        for _i in range(count):
             yield self.unpack_struct(struct)
 
 
@@ -163,7 +159,7 @@ class Unpacker(object):
         """
 
         (count,) = self.unpack_struct(_H)
-        for _i in xrange(count):
+        for _i in range(count):
             obj = atype(*params, **kwds)
             obj.unpack(self)
             yield obj
