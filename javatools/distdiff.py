@@ -27,10 +27,10 @@ be checked for deep differences.
 
 import sys
 
-from itertools import izip_longest
-from multiprocessing import cpu_count
 from argparse import ArgumentParser
+from multiprocessing import cpu_count
 from os.path import join
+from six.moves import range, zip_longest
 
 from . import unpack_classfile
 from .change import GenericChange, SuperChange, Addition, Removal
@@ -152,7 +152,7 @@ class DistTextChange(DistContentChange):
         # ignore the change later.
         with self.open_left(mode="rt") as lfd:
             with self.open_right(mode="rt") as rfd:
-                for li, ri in izip_longest(lfd, rfd, fillvalue=""):
+                for li, ri in zip_longest(lfd, rfd, fillvalue=""):
                     if li.rstrip() != ri.rstrip():
                         self.lineending = False
                         break
@@ -444,7 +444,7 @@ class DistReport(DistChange):
             # gracefully?
 
             # feed any sub-reports to the tasks queue
-            for index in xrange(0, len(changes)):
+            for index in range(0, len(changes)):
                 change = changes[index]
                 if isinstance(change, (DistJarReport, DistClassReport)):
                     changes[index] = None
@@ -458,7 +458,7 @@ class DistReport(DistChange):
             # start the number of helper processes, and make sure
             # there are that many stop sentinels at the end of the
             # tasks queue
-            for _i in xrange(0, process_count):
+            for _i in range(0, process_count):
                 tasks.put(None)
                 process = Process(target=func, args=(tasks, results, options))
                 process.daemon = False
@@ -470,7 +470,7 @@ class DistReport(DistChange):
                     change.check()
 
             # get all of the results and feed them back into our change
-            for _i in xrange(0, task_count):
+            for _i in range(0, task_count):
                 index, change = results.get()
                 changes[index] = change
 

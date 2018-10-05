@@ -21,10 +21,10 @@ Utilities for discovering entry deltas in a pair of zip files.
 """
 
 
-from cStringIO import StringIO
-from itertools import izip_longest
 from os import walk
 from os.path import getsize, isdir, isfile, islink, join, relpath
+from six import BytesIO
+from six.moves import zip_longest
 from zipfile import is_zipfile, ZipFile, ZipInfo, _EndRecData
 from zlib import crc32
 
@@ -109,7 +109,7 @@ def _deep_different(left, right, entry):
     left = chunk_zip_entry(left, entry)
     right = chunk_zip_entry(right, entry)
 
-    for ldata, rdata in izip_longest(left, right):
+    for ldata, rdata in zip_longest(left, right):
         if ldata != rdata:
             return True
     return False
@@ -187,7 +187,7 @@ def is_zipstream(data):
     """
 
     if isinstance(data, (str, buffer)):
-        data = StringIO(data)
+        data = BytesIO(data)
 
     if hasattr(data, "read"):
         tell = 0

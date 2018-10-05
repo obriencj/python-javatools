@@ -26,7 +26,6 @@ from distutils.core import Command
 from distutils.util import newer
 from distutils.command.build_py import build_py
 from glob import glob
-from itertools import izip
 from os import makedirs
 from os.path import basename, exists, join, splitext
 

@@ -1,7 +1,6 @@
 #extends subreport
 #from javatools.cheetah import xml_entity_escape as escape
-#from itertools import izip_longest
-
+#from six.moves import zip_longest
 
 
 #block details
@@ -17,11 +16,9 @@ $render_annotations($change.get_ldata())
 #end block
 
 
-
 #block description
 <div class="description">$change.label</div>
 #end block
-
 
 
 #def render_annotations(annos)
@@ -32,7 +29,7 @@ $render_annotations($change.get_ldata())
 <th>Annotation</th>
 </tr>
 </thead>
-#for index in xrange(0, len(annos))
+#for index in range(0, len(annos))
 <tr>
 <td class="const-index"><%= index %></td>
 <td class="const-value"><%= annos[index].pretty_annotation() %></td>
@@ -40,7 +37,6 @@ $render_annotations($change.get_ldata())
 #end for
 </table>
 #end def
-
 
 
 #def render_dual_annotations(left, right)
@@ -56,7 +52,7 @@ $render_annotations($change.get_ldata())
 </tr>
 </thead>
 <% index = 0 %>
-#for la, ra in izip_longest(left, right)
+#for la, ra in zip_longest(left, right)
 <tr>
 <td class="const-index"><%= index %></td>
 <td class="const-value">
@@ -74,7 +70,6 @@ $render_annotations($change.get_ldata())
 #end for
 </table>
 #end def
-
 
 
 ##

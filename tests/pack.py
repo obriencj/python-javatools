@@ -22,18 +22,17 @@ license: LGPL v.3
 
 
 from abc import ABCMeta, abstractmethod
-from cStringIO import StringIO
 from unittest import TestCase
+from six import add_metaclass, BytesIO
 
 from javatools.pack import *
 
 
+@add_metaclass(ABCMeta)
 class UnpackerTests(object):
     """
     Common tests for both unpacker types
     """
-
-    __metaclass__ = ABCMeta
 
 
     @abstractmethod
@@ -50,10 +49,6 @@ class UnpackerTests(object):
         data = "\x05\x04\x03\x02\x01"
         up = self.unpack(data)
         self.assertEqual(type(up), self.unpacker_type())
-
-
-    def test_nope(self):
-        self.assertRaises(TypeError, lambda: self.unpack(5))
 
 
     def test_basics(self):
@@ -123,7 +118,7 @@ class StreamTest(UnpackerTests, TestCase):
 
 
     def unpack(self, data):
-        return unpack(StringIO(data))
+        return unpack(BytesIO(data))
 
 
 #
