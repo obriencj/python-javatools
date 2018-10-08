@@ -33,7 +33,8 @@ import sys
 
 from base64 import b64encode
 from collections import OrderedDict
-from os.path import isdir, join, sep, split, walk
+from os.path import isdir, join, sep, split
+from os import walk
 from six import BytesIO
 from six.moves import zip
 from zipfile import ZipFile
@@ -42,6 +43,10 @@ from .change import GenericChange, SuperChange
 from .change import Addition, Removal
 from .dirutils import fnmatches, makedirsp
 
+try:
+    buffer
+except NameError:
+    buffer = memoryview
 
 __all__ = (
     "ManifestChange", "ManifestSectionChange",

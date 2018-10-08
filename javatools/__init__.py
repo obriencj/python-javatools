@@ -41,7 +41,7 @@ from .pack import compile_struct, unpack, UnpackException
 try:
     buffer
 except NameError:
-    bytes
+    buffer = memoryview
 
 
 __all__ = (
@@ -2100,7 +2100,7 @@ def _pretty_const_type_val(typecode, val):
 
     if typecode == CONST_Utf8:
         typestr = "Utf8"  # formerly Asciz, which was considered Java bug
-        if isinstance(val, unicode):
+        if not isinstance(val, str):
             val = repr(val)[2:-1]  # trim off the surrounding u"" (HACK)
         else:
             val = repr(val)[1:-1]  # trim off the surrounding "" (HACK)
