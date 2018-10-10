@@ -43,6 +43,10 @@ __all__ = (
     "StreamUnpacker", "BufferUnpacker",
 )
 
+try:
+    buffer
+except NameError:
+    buffer = memoryview
 
 # pylint: disable=C0103
 _struct_cache = dict()
