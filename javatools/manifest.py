@@ -505,34 +505,17 @@ class SignatureManifest(Manifest):
         main_key = java_algorithm + "-Digest-Manifest-Main-Attributes"
         sect_key = java_algorithm + "-Digest"
 
-        # determine a digest class to use based on the java-style
-        # algorithm name
         digest = _get_digest(java_algorithm)
-
-        # calculate the checksum for the main manifest section. We'll
-        # be re-using this digest to also calculate the total
-        # checksum.
-        h_all = digest()
-        h_all.update(manifest.get_main_section())
-        self[main_key] = b64encode(h_all.digest())
+        accum = manifest.get_main_section()
+        self[main_key] = b64_encoded_digest(accum, digest)
 
         for sub_section in manifest.sub_sections.values():
             sub_data = sub_section.get_data(linesep)
-
-            # create the checksum of the section body and store it as a
-            # sub-section of our own
-            h_section = digest()
-            h_section.update(sub_data)
             sf_sect = self.create_section(sub_section.primary())
-            sf_sect[sect_key] = b64encode(h_section.digest())
+            sf_sect[sect_key] = b64_encoded_digest(sub_data, digest)
+            accum += sub_data
 
-            # push this data into this total as well.
-            h_all.update(sub_data)
-
-        # after traversing all the sub sections, we now have the
-        # digest of the whole manifest.
-        self[all_key] = b64encode(h_all.digest())
-
+        self[all_key] = b64_encoded_digest(accum, digest)
 
     def verify_manifest_main_checksum(self, manifest):
         """
@@ -659,10 +642,28 @@ class SignatureBlockFileChange(GenericChange):
         return "[binary data]"
 
 
+def _b64encode_to_str(data):
+    """
+    Wrapper around b64encode which takes and returns same-named types
+    on both Python 2 and Python 3.
+    :type data: bytes
+    :return: str
+    """
+    ret = b64encode(data)
+    if not isinstance(ret, str):  # Python3
+        return ret.decode('ascii')
+    else:
+        return ret
+
+
 def b64_encoded_digest(data, algorithm):
+    """
+    :type data: bytes
+    :return: str
+    """
     h = algorithm()
     h.update(data)
-    return b64encode(h.digest())
+    return _b64encode_to_str(h.digest())
 
 
 def detect_linesep(data):
@@ -788,7 +789,7 @@ def digest_chunks(chunks, algorithms=(hashlib.md5, hashlib.sha1)):
         for h in hashes:
             h.update(chunk)
 
-    return [b64encode(h.digest()) for h in hashes]
+    return [_b64encode_to_str(h.digest()) for h in hashes]
 
 
 def file_chunk(filename, size=_BUFFERING):
