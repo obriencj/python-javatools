@@ -49,6 +49,11 @@ class Sample1Tests(TestCase):
         fn = get_class_fn("Sample1")
         self.assertTrue(jt.is_class_file(fn))
 
+    def test_is_class(self):
+        fn = get_class_fn("Sample1")
+        with open(fn, "rb") as f:
+            data = f.read()
+        self.assertTrue(jt.is_class(data))
 
     def test_classinfo(self):
         ci = load("Sample1")
@@ -944,10 +949,10 @@ class Sample3Test(TestCase):
         self.assertFalse(mi.is_deprecated())
 
         excs = mi.get_exceptions()
-        self.assertEquals(excs, ("java/lang/Exception",))
+        self.assertEqual(excs, ("java/lang/Exception",))
 
         excs = tuple(mi.pretty_exceptions())
-        self.assertEquals(excs, ("java.lang.Exception",))
+        self.assertEqual(excs, ("java.lang.Exception",))
 
 
     def test_method_get_data_default(self):
@@ -990,10 +995,10 @@ class Sample3Test(TestCase):
         self.assertFalse(mi.is_deprecated())
 
         excs = mi.get_exceptions()
-        self.assertEquals(excs, tuple())
+        self.assertEqual(excs, tuple())
 
         excs = tuple(mi.pretty_exceptions())
-        self.assertEquals(excs, tuple())
+        self.assertEqual(excs, tuple())
 
         code = mi.get_code()
         code_excs = code.exceptions
@@ -1049,10 +1054,10 @@ class Sample3Test(TestCase):
         self.assertFalse(mi.is_deprecated())
 
         excs = mi.get_exceptions()
-        self.assertEquals(excs, tuple())
+        self.assertEqual(excs, tuple())
 
         excs = tuple(mi.pretty_exceptions())
-        self.assertEquals(excs, tuple())
+        self.assertEqual(excs, tuple())
 
 
     def test_method_get_last_data(self):
@@ -1094,10 +1099,10 @@ class Sample3Test(TestCase):
         self.assertFalse(mi.is_deprecated())
 
         excs = mi.get_exceptions()
-        self.assertEquals(excs, ("java/lang/Exception",))
+        self.assertEqual(excs, ("java/lang/Exception",))
 
         excs = tuple(mi.pretty_exceptions())
-        self.assertEquals(excs, ("java.lang.Exception",))
+        self.assertEqual(excs, ("java.lang.Exception",))
 
 
     def test_method_set_last_data(self):
@@ -1140,10 +1145,10 @@ class Sample3Test(TestCase):
         self.assertFalse(mi.is_deprecated())
 
         excs = mi.get_exceptions()
-        self.assertEquals(excs, tuple())
+        self.assertEqual(excs, tuple())
 
         excs = tuple(mi.pretty_exceptions())
-        self.assertEquals(excs, tuple())
+        self.assertEqual(excs, tuple())
 
 
 #

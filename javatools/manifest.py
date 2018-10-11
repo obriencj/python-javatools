@@ -356,7 +356,7 @@ class Manifest(ManifestSection):
         # the first section is the main one for the manifest. It's
         # also where we will check for our newline separator
         sections = parse_sections(data)
-        self.load(sections.next())
+        self.load(next(sections))
 
         # and all following sections are considered sub-sections
         for section in sections:
