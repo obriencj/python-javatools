@@ -74,13 +74,13 @@ class JarutilTest(TestCase):
         jar_data = get_data_fn("test_jarutil/multiple-sf-files-all-valid.jar")
         cert = get_data_fn("test_jarutil/javatools-cert.pem")
         sf_file = "KEY1.SF"
-        self.assertEquals(verify(cert, jar_data, sf_file), None)
+        self.assertEqual(verify(cert, jar_data, sf_file), None)
 
     def test_multiple_valid_sf_files_cert2(self):
         jar_data = get_data_fn("test_jarutil/multiple-sf-files-all-valid.jar")
         cert = get_data_fn("test_jarutil/javatools-cert-2.pem")
         sf_file = "KEY2.SF"
-        self.assertEquals(verify(cert, jar_data, sf_file), None)
+        self.assertEqual(verify(cert, jar_data, sf_file), None)
 
     def test_single_sf_file_wrong_cert_specified(self):
         jar_data = get_data_fn("test_jarutil/jarutil-signed.jar")
@@ -93,7 +93,7 @@ class JarutilTest(TestCase):
         jar_data = get_data_fn("test_jarutil/jarutil-signed.jar")
         cert = get_data_fn("test_jarutil/javatools-cert.pem")
         sf_file = "UNUSED.SF"
-        self.assertEquals(verify(cert, jar_data, sf_file), None)
+        self.assertEqual(verify(cert, jar_data, sf_file), None)
 
     def test_ecdsa_pkcs8_verify(self):
         self.cli_verify_wrap("test_jarutil/ec.jar", "test_jarutil/ec-cert.pem")
