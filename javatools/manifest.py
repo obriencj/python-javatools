@@ -345,6 +345,19 @@ class Manifest(ManifestSection):
             self.parse(stream)
 
 
+    def load_from_jar(self, jarfile):
+        # Can't be imported at top level:
+        from javatools.jarutil import MissingManifestError
+        with ZipFile(jarfile) as jar:
+            if "META-INF/MANIFEST.MF" not in jar.namelist():
+                raise MissingManifestError(
+                    "META-INF/MANIFEST.MF not found in %s" % jarfile)
+            data = jar.read("META-INF/MANIFEST.MF")
+            if not isinstance(data, str):       # Py3
+                data = data.decode('utf-8')
+            self.parse(data)
+
+
     def parse(self, data):
         """
         populate instance with values and sub-sections from data in a
@@ -975,10 +988,8 @@ def cli_verify(args):
         return 2
 
     jarfn = args[0]
-
-    with ZipFile(jarfn) as jar:
-        mf = Manifest()
-        mf.parse(jar.read("META-INF/MANIFEST.MF"))
+    mf = Manifest()
+    mf.load_from_jar(jarfn)
 
     errors = mf.verify_jar_checksums(jarfn)
     if len(errors) > 0:
@@ -995,9 +1006,8 @@ def cli_query(args):
         print("Usage: manifest file.jar key_to_query...")
         return 1
 
-    zf = ZipFile(args[0])
     mf = Manifest()
-    mf.parse(zf.read("META-INF/MANIFEST.MF"))
+    mf.load_from_jar(args[0])
 
     for q in args[1:]:
         s = q.split(':', 1)
