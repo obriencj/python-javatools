@@ -344,7 +344,7 @@ def unpack(data):
     unpacker:`
     """
 
-    if isinstance(data, (str, buffer)):
+    if isinstance(data, (bytes, buffer)):
         return BufferUnpacker(data)
 
     elif hasattr(data, "read"):
