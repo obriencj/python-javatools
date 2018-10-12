@@ -85,7 +85,7 @@ class ManifestTest(TestCase):
         mf.parse_file(src_file)
         result = mf.get_data()
 
-        self.assertEquals(
+        self.assertEqual(
             result, expected_result,
             "Manifest load/store does not match with file %s. Received:\n%s"
             % (src_file, result))

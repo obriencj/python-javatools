@@ -157,23 +157,6 @@ class JarInfo(object):
             return unpack_class(cfd)
 
 
-    def get_manifest(self):
-
-        """ fetch the sections from the MANIFEST.MF file as a Manifest
-        instance, or None if no MANIFEST.MF entry present """
-
-        mf_entry = "META-INF/MANIFEST.MF"
-
-        zipfile = self.get_zipfile()
-        if not zipfile.getinfo(mf_entry):
-            return None
-
-        mf = Manifest()
-        with self.open(mf_entry) as data:
-            mf.parse(data.read())
-        return mf
-
-
     def get_zipfile(self):
         if self.zipfile is None:
             self.zipfile = zip_file(self.filename)

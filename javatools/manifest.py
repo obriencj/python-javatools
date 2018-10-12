@@ -338,19 +338,33 @@ class Manifest(ManifestSection):
 
     def parse_file(self, filename):
         """
-        Parse the given file, and attempt to detect the line separator.
+        Load self from the file, such as "MANIFEST.MF" or "SIGNATURE.SF".
+        :param filename: contains UTF-8 encoded manifest
         """
 
-        with open(filename, "r", _BUFFERING) as stream:
-            self.parse(stream)
+        with open(filename, "rb", _BUFFERING) as stream:
+            self.parse(stream.read())
+
+
+    def load_from_jar(self, jarfile):
+        # Can't be imported at top level:
+        from javatools.jarutil import MissingManifestError
+        with ZipFile(jarfile) as jar:
+            if "META-INF/MANIFEST.MF" not in jar.namelist():
+                raise MissingManifestError(
+                    "META-INF/MANIFEST.MF not found in %s" % jarfile)
+            data = jar.read("META-INF/MANIFEST.MF")
+            self.parse(data)
 
 
     def parse(self, data):
         """
-        populate instance with values and sub-sections from data in a
-        stream, string, or buffer
+        populate instance with values and sub-sections
+        :param data: UTF-8 encoded manifest
+        :type data: bytes
         """
 
+        data = data.decode('utf-8')
         self.linesep = detect_linesep(data)
 
         # the first section is the main one for the manifest. It's
@@ -667,17 +681,10 @@ def b64_encoded_digest(data, algorithm):
 
 
 def detect_linesep(data):
-    if isinstance(data, (str, buffer)):
-        data = BytesIO(data)
-
-    offset = data.tell()
-    line = data.readline()
-    data.seek(offset)
-
-    if line[-2:] == "\r\n":
-        return "\r\n"
-    else:
-        return line[-1]
+    """
+    :type data: unicode in Py2, str in Py3
+    """
+    return "\r\n" if "\r\n" in data else "\n"
 
 
 def parse_sections(data):
@@ -691,20 +698,18 @@ def parse_sections(data):
     present if the value is long enough to require line continuations
     in which case simply concatenate the vals together to get the full
     value.
+    :type data: unicode in Py2, str in Py3
     """
 
     if not data:
         return
 
-    if isinstance(data, (str, buffer)):
-        data = BytesIO(data)
-
     # our current section
     curr = None
 
-    for lineno, line in enumerate(data):
+    for lineno, line in enumerate(data.splitlines()):
         # Clean up the line
-        cleanline = line.splitlines()[0].replace('\x00', '')
+        cleanline = line.replace('\x00', '')
 
         if not cleanline:
             # blank line means end of current section (if any)
@@ -975,10 +980,8 @@ def cli_verify(args):
         return 2
 
     jarfn = args[0]
-
-    with ZipFile(jarfn) as jar:
-        mf = Manifest()
-        mf.parse(jar.read("META-INF/MANIFEST.MF"))
+    mf = Manifest()
+    mf.load_from_jar(jarfn)
 
     errors = mf.verify_jar_checksums(jarfn)
     if len(errors) > 0:
@@ -995,9 +998,8 @@ def cli_query(args):
         print("Usage: manifest file.jar key_to_query...")
         return 1
 
-    zf = ZipFile(args[0])
     mf = Manifest()
-    mf.parse(zf.read("META-INF/MANIFEST.MF"))
+    mf.load_from_jar(args[0])
 
     for q in args[1:]:
         s = q.split(':', 1)
