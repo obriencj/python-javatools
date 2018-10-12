@@ -387,13 +387,14 @@ def _indent_change(change, out, options, indent):
 
 def _indent(stream, indent, *msgs):
 
-    """ write a message to stream, with indentation. Also ensures that
+    """ write a message to a text stream, with indentation. Also ensures that
     the output encoding of the messages is safe for writing. """
 
     for x in range(0, indent):
         stream.write("  ")
     for x in msgs:
-        stream.write(x.encode("ascii", "backslashreplace"))
+        # Any nicer way? In Py2 x can be 'str' or 'unicode'.
+        stream.write(x.encode("ascii", "backslashreplace").decode("ascii"))
     stream.write("\n")
 
 
