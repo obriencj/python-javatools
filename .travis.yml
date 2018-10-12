@@ -5,8 +5,8 @@ script: python setup.py test
 
 python:
   - "2.7"
-  # - "3.5"
-  # - "3.6"
+  - "3.5"
+  - "3.6"
 
 # needs this for travis to support 3.7
 # matrix:
