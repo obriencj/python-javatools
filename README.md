@@ -24,9 +24,9 @@ heck, just fork it!
 
 ## Requirements
 
-* [Python] 2.6 or later (no support for Python 3)
+* [Python] 2.7, 3.5 or 3.6
 * [Setuptools]
-* [Cheetah] is used in the generation of HTML reports
+* [Cheetah3] is used in the generation of HTML reports
 * [M2Crypto] is used for cryptographic operations
 
 In addition, the following tools are used in building and testing the
