@@ -273,18 +273,19 @@ class ManifestSection(OrderedDict):
 
     def store(self, stream, linesep=os.linesep):
         """
-        Serialize this section and write it to a stream
+        Serialize this section and write it to a binary stream
         """
 
         for k, v in self.items():
             write_key_val(stream, k, v, linesep)
 
-        stream.write(linesep)
+        stream.write(linesep.encode('utf-8'))
 
 
     def get_data(self, linesep=os.linesep):
         """
-        Serialize the section and return it as a string
+        Serialize the section and return it as bytes
+        :return bytes
         """
 
         stream = BytesIO()
@@ -385,7 +386,7 @@ class Manifest(ManifestSection):
 
     def store(self, stream, linesep=None):
         """
-        Serialize the Manifest to a stream
+        Serialize the Manifest to a binary stream
         """
 
         # either specified here, specified on the instance, or the OS
@@ -399,8 +400,8 @@ class Manifest(ManifestSection):
 
     def get_main_section(self, linesep=None):
         """
-        Serialize just the main section of the manifest and return it as a
-        string
+        Serialize just the main section of the manifest and return it as bytes
+        :return bytes
         """
 
         linesep = linesep or self.linesep or os.linesep
@@ -412,7 +413,8 @@ class Manifest(ManifestSection):
 
     def get_data(self, linesep=None):
         """
-        Serialize the entire manifest and return it as a string
+        Serialize the entire manifest and return it as bytes
+        :return bytes
         """
 
         linesep = linesep or self.linesep or os.linesep
@@ -755,16 +757,19 @@ def write_key_val(stream, key, val, linesep=os.linesep):
     72 bytes (including the terminating newlines). Any key and value
     pair that would be longer must be split up over multiple
     continuing lines
+    :type key, val: str in Py3, str or unicode in Py2
+    :type stream: binary
     """
 
-    key = key or ""
-    val = val or ""
+    key = key.encode('utf-8') or ""
+    val = val.encode('utf-8') or ""
+    linesep = linesep.encode('utf-8')
 
     if not (0 < len(key) < 69):
         raise ManifestKeyException("bad key length", key)
 
     if len(key) + len(val) > 68:
-        kvbuffer = BytesIO(": ".join((key, val)))
+        kvbuffer = BytesIO(b": ".join((key, val)))
 
         # first grab 70 (which is 72 after the trailing newline)
         stream.write(kvbuffer.read(70))
@@ -773,14 +778,14 @@ def write_key_val(stream, key, val, linesep=os.linesep):
         # trailing \n
         part = kvbuffer.read(69)
         while part:
-            stream.write(linesep + " ")
+            stream.write(linesep + b" ")
             stream.write(part)
             part = kvbuffer.read(69)
         kvbuffer.close()
 
     else:
         stream.write(key)
-        stream.write(": ")
+        stream.write(b": ")
         stream.write(val)
 
     stream.write(linesep)
@@ -965,12 +970,13 @@ def cli_create(argument_list):
         for digest_name, digest_value in digests:
             sec[digest_name + "-Digest"] = digest_value
 
-    output = sys.stdout
     if args.manifest:
         # we'll output to the manifest file if specified, and we'll
         # even create parent directories for it, if necessary
         makedirsp(split(args.manifest)[0])
-        output = open(args.manifest, "w")
+        output = open(args.manifest, "wb")
+    else:
+        output = sys.stdout
 
     mf.store(output)
 
