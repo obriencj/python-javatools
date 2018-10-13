@@ -86,13 +86,14 @@ def create_signature_block(openssl_digest, certificate, private_key,
     :param extra_certs: additional certificates to embed into the signature (PEM format)
     :type extra_certs: array of filenames
     :param data: the content to be signed
-    :type data: str
+    :type data: bytes
     :returns: content of the signature block file as produced by jarsigner
-    :rtype: str
+    :rtype: bytes
     """  # noqa
 
     smime = SMIME.SMIME()
-    smime.load_key_bio(BIO.openfile(private_key), BIO.openfile(certificate))
+    with BIO.openfile(private_key) as k, BIO.openfile(certificate) as c:
+        smime.load_key_bio(k, c)
 
     if extra_certs is not None:
         # Could we use just X509.new_stack_from_der() instead?
