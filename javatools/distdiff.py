@@ -473,7 +473,7 @@ class DistReport(DistChange):
 
         except KeyboardInterrupt:
             # drain the tasks queue so it will exit gracefully
-            for change in iter(tasks.get, None):
+            for _change in iter(tasks.get, None):
                 pass
             raise
 

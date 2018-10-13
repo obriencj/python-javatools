@@ -166,7 +166,7 @@ def collect_compare_zips_into(left, right, added, removed, altered, same):
         elif event == SAME:
             group = same
         else:
-            assert(False)
+            assert False
 
         if group is not None:
             group.append(filename)

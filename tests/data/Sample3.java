@@ -3,6 +3,8 @@ public class Sample3 extends Object {
     private Object data = null;
     private static Object lastData = null;
 
+    public int[][] twoDimIntArray;
+
     private static synchronized void setLastData(Object data) {
 	lastData = data;
     }

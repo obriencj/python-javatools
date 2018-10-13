@@ -165,7 +165,7 @@ def _unpack(struct, bc, offset=0):
     unpacked data
     """
 
-    return (struct.unpack_from(bc, offset), offset + struct.size)
+    return struct.unpack_from(bc, offset), offset + struct.size
 
 
 def _unpack_lookupswitch(bc, offset):

@@ -33,7 +33,6 @@ from json import dump
 from . import unpack_class
 from .classinfo import cli_print_classinfo, add_classinfo_optgroup
 from .dirutils import fnmatches
-from .manifest import Manifest
 from .ziputils import open_zip_entry, zip_file, zip_entry_rollup
 
 
@@ -84,7 +83,7 @@ class JarInfo(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
-        return (exc_type is None)
+        return exc_type is None
 
 
     def open(self, entry, mode='r'):
@@ -169,7 +168,7 @@ class JarInfo(object):
             self.zipfile = None
 
 
-def cli_jar_manifest_info(options, jarinfo):
+def cli_jar_manifest_info(jarinfo):
     mf = jarinfo.get_manifest()
 
     if not mf:
@@ -190,7 +189,7 @@ def cli_jar_manifest_info(options, jarinfo):
     print()
 
 
-def cli_jar_zip_info(options, jarinfo):
+def cli_jar_zip_info(jarinfo):
     zipfile = jarinfo.get_zipfile()
 
     files, dirs, comp, uncomp = zip_entry_rollup(zipfile)
@@ -230,10 +229,10 @@ def cli_jar_requires(options, jarinfo):
 
 def cli_jarinfo(options, info):
     if options.zip:
-        cli_jar_zip_info(options, info)
+        cli_jar_zip_info(info)
 
     if options.manifest:
-        cli_jar_manifest_info(options, info)
+        cli_jar_manifest_info(info)
 
     if options.jar_provides:
         cli_jar_provides(options, info)

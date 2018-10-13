@@ -25,6 +25,7 @@ References
 :license: LGPL
 """
 
+from __future__ import print_function
 
 import argparse
 import hashlib
@@ -465,7 +466,7 @@ class Manifest(ManifestSection):
         """
         Add manifest sections for all but signature-related entries
         of :param jar_file.
-        :param digest The digest algorithm to use
+        :param digest_name The digest algorithm to use
         :return None
         TODO: join code with cli_create
         """
@@ -986,7 +987,7 @@ def cli_create(argument_list):
 
 def cli_verify(args):
     if len(args) != 1 or "-h" in args:
-        print("Usage: manifest v [--ignore=PATH] JAR_FILE")
+        print("Usage: manifest v [--ignore=PATH] file.jar")
         return 2
 
     jarfn = args[0]
@@ -995,7 +996,7 @@ def cli_verify(args):
 
     errors = mf.verify_jar_checksums(jarfn)
     if len(errors) > 0:
-        print("Verify failed, no matching checksums for files: %s" \
+        print("Verify failed, no matching checksums for files: %s"
               % ", ".join(errors))
         return 1
 
@@ -1005,7 +1006,7 @@ def cli_verify(args):
 
 def cli_query(args):
     if len(args) < 2 or "-h" in args:
-        print("Usage: manifest file.jar key_to_query...")
+        print("Usage: manifest q file.jar key_to_query...")
         return 1
 
     mf = Manifest()
@@ -1027,7 +1028,7 @@ def cli_query(args):
 def usage(error_msg=None):
     if error_msg is not None:
         print(error_msg)
-    print("Usage: manifest command [options]...")
+    print("Usage: manifest <command> [options] <argument>")
     print("Commands:")
     print("    c: create a manifest")
     print("    q: query manifest for values")

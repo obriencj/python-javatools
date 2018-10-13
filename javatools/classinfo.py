@@ -85,7 +85,7 @@ def print_field(options, field):
             print("  RuntimeVisibleAnnotations:")
             index = 0
             for anno in field.get_annotations():
-                print("  %i: %s" % index, anno.pretty_annotation())
+                print("  %i: %s" % (index, anno.pretty_annotation()))
 
         cv = field.get_constantvalue()
         if cv is not None:
@@ -288,7 +288,7 @@ def cli_print_class(options, classfile):
     return cli_print_classinfo(options, info)
 
 
-def cli_simplify_field(options, field, data=None):
+def cli_simplify_field(field, data=None):
     if data is None:
         data = dict()
 
@@ -308,7 +308,7 @@ def cli_simplify_field(options, field, data=None):
     return data
 
 
-def cli_simplify_method(options, method, data=None):
+def cli_simplify_method(method, data=None):
     if data is None:
         data = dict()
 

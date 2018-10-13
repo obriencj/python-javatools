@@ -280,7 +280,7 @@ class JavaConstantPool(object):
 
         t, v = self.consts[index]
         if not t:
-            return (None, None)
+            return None, None
         else:
             return _pretty_const_type_val(t, v)
 
@@ -295,7 +295,6 @@ class JavaConstantPool(object):
         """
 
         t, v = self.consts[index]
-        result = ""
 
         if t == CONST_String:
             result = self.deref_const(v)
@@ -893,7 +892,6 @@ class JavaClassInfo(object):
 
         # loop through the constant pool for API types
         for i, t, _v in cpool.constants():
-            pv = None
 
             if t in (CONST_Class, CONST_Fieldref,
                      CONST_Methodref, CONST_InterfaceMethodref):
@@ -1211,7 +1209,7 @@ class JavaMemberInfo(object):
 
                     if for_params:
                         (param_count, ) = up.unpack_struct(_B)
-                        annos = (tuple(unp()) for i in range(param_count))
+                        annos = (tuple(unp()) for _i in range(param_count))
                     else:
                         annos = unp()
                     annos = tuple(annos)
@@ -1890,7 +1888,7 @@ class JavaAnnotation(dict):
             return False
 
         # if we have differing sets of keys, not equal
-        if (self.keys() != other.keys()):
+        if self.keys() != other.keys():
             return False
 
         # for each of the key/val pairs, check equality
@@ -1926,10 +1924,10 @@ def _annotation_val_eq(left_tag, left_data, left_cpool,
                 (lconst(left_data[1]) == rconst(right_data[1])))
 
     elif left_tag == 'c':
-        return (lconst(left_data) == rconst(right_data))
+        return lconst(left_data) == rconst(right_data)
 
     elif left_tag == '@':
-        return (left_data == right_data)
+        return left_data == right_data
 
     elif left_tag == '[':
         if len(left_data) != len(right_data):
@@ -1971,7 +1969,10 @@ def _unpack_annotation_val(unpacker, cpool):
         for _i in range(0, count):
             data.append(_unpack_annotation_val(unpacker, cpool))
 
-    return (tag, data)
+    else:
+        raise Unimplemented("Unknown tag {}".format(tag))
+
+    return tag, data
 
 
 def _pretty_annotation_val(val, cpool):
@@ -2088,7 +2089,7 @@ def _unpack_const_item(unpacker):
     else:
         raise Unimplemented("unknown constant type %r" % typecode)
 
-    return (typecode, val)
+    return typecode, val
 
 
 def _pretty_const_type_val(typecode, val):

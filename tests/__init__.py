@@ -871,6 +871,10 @@ class Sample3Test(TestCase):
 
         self.assertEqual(fi.deref_constantvalue(), None)
 
+        fi = ci.get_field_by_name("twoDimIntArray")
+        self.assertEqual(fi.pretty_type(),
+                         "int[][]")
+
 
     def test_field_recent_name(self):
         ci = load("Sample3")
