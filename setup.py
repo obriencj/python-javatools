@@ -37,6 +37,7 @@ setup(name = "javatools",
 
       package_data = {
           "javatools.cheetah": [
+              "data/*.tmpl",
               "data/*.css",
               "data/*.js",
               "data/*.png",
