@@ -24,13 +24,14 @@ license: LGPL v.3
 
 
 from setuptools import setup
-from cheetah_cmd import cheetah_build_py_cmd
+from extras.cheetah_cmd import cheetah_build_py_cmd
 
 
 setup(name = "javatools",
       version = "1.5.0",
 
       packages = [
+          "extras",
           "javatools",
           "javatools.cheetah",
       ],
