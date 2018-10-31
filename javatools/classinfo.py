@@ -412,51 +412,52 @@ def add_classinfo_optgroup(parser):
     g = parser.add_argument_group("Class Info Options")
 
     g.add_argument("--class-provides", dest="class_provides",
-                 action="store_true", default=False,
-                 help="API provides information at the class level")
+                   action="store_true", default=False,
+                   help="API provides information at the class level")
 
     g.add_argument("--class-requires", dest="class_requires",
-                 action="store_true", default=False,
-                 help="API requires information at the class level")
+                   action="store_true", default=False,
+                   help="API requires information at the class level")
 
     g.add_argument("--api-ignore", dest="api_ignore",
-                 action="append", default=list(),
-                 help="globs of packages to not print in provides"
-                 " or requires modes")
+                   action="append", default=list(),
+                   help="globs of packages to not print in provides"
+                   " or requires modes")
 
     g.add_argument("--header", dest="show",
-                 action="store_const", default=SHOW_PUBLIC, const=SHOW_HEADER,
-                 help="show just the class header, no members")
+                   action="store_const", default=SHOW_PUBLIC,
+                   const=SHOW_HEADER,
+                   help="show just the class header, no members")
 
     g.add_argument("--public", dest="show",
-                 action="store_const", const=SHOW_PUBLIC,
-                 help="show only public members")
+                   action="store_const", const=SHOW_PUBLIC,
+                   help="show only public members")
 
     g.add_argument("--package", dest="show",
-                 action="store_const", const=SHOW_PACKAGE,
-                 help="show public and protected members")
+                   action="store_const", const=SHOW_PACKAGE,
+                   help="show public and protected members")
 
     g.add_argument("--private", dest="show",
-                 action="store_const", const=SHOW_PRIVATE,
-                 help="show all members")
+                   action="store_const", const=SHOW_PRIVATE,
+                   help="show all members")
 
     g.add_argument("-l", dest="lines", action="store_true",
-                 help="show the line number table")
+                   help="show the line number table")
 
     g.add_argument("-o", dest="locals", action="store_true",
-                 help="show the local variable tables")
+                   help="show the local variable tables")
 
     g.add_argument("-c", dest="disassemble", action="store_true",
-                 help="disassemble method code")
+                   help="disassemble method code")
 
     g.add_argument("-s", dest="sigs", action="store_true",
-                 help="show internal type signatures")
+                   help="show internal type signatures")
 
     g.add_argument("-p", dest="constpool", action="store_true",
-                 help="show the constants pool")
+                   help="show the constants pool")
 
     g.add_argument("--verbose", dest="verbose", action="store_true",
-                 help="sets -locsp options and shows stack bounds")
+                   help="sets -locsp options and shows stack bounds")
 
 
 def create_optparser(progname):
@@ -464,7 +465,7 @@ def create_optparser(progname):
     parser.add_argument("classfile", nargs="+",
                         help="Java class file(s) to inspect")
     parser.add_argument("--json", action="store_true", default=False,
-                      help="output JSON")
+                        help="output JSON")
 
     add_classinfo_optgroup(parser)
 

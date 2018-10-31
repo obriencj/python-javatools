@@ -985,27 +985,31 @@ def add_classdiff_optgroup(parser):
 
     g = parser.add_argument_group("Class Checking Options")
 
-    g.add_argument("--ignore-version-up", action="store_true", default=False)
+    g.add_argument("--ignore-version-up", action="store_true",
+                   default=False)
     g.add_argument("--ignore-version-down", action="store_true", default=False)
     g.add_argument("--ignore-platform-up", action="store_true", default=False)
-    g.add_argument("--ignore-platform-down", action="store_true", default=False)
-    g.add_argument("--ignore-absolute-lines", action="store_true", default=False)
-    g.add_argument("--ignore-relative-lines", action="store_true", default=False)
+    g.add_argument("--ignore-platform-down", action="store_true",
+                   default=False)
+    g.add_argument("--ignore-absolute-lines", action="store_true",
+                   default=False)
+    g.add_argument("--ignore-relative-lines", action="store_true",
+                   default=False)
     g.add_argument("--ignore-deprecated", action="store_true", default=False)
     g.add_argument("--ignore-added", action="store_true", default=False)
     g.add_argument("--ignore-pool", action="store_true", default=False)
 
     g.add_argument("--ignore-lines", nargs=0,
-                 help="ignore relative and absolute line-number changes",
-                 action=_opt_cb_ign_lines)
+                   help="ignore relative and absolute line-number changes",
+                   action=_opt_cb_ign_lines)
 
     g.add_argument("--ignore-platform", nargs=0,
-                 help="ignore platform changes",
-                 action=_opt_cb_ign_platform)
+                   help="ignore platform changes",
+                   action=_opt_cb_ign_platform)
 
     g.add_argument("--ignore-version", nargs=0,
-                 help="ignore version changes",
-                 action=_opt_cb_ign_version)
+                   help="ignore version changes",
+                   action=_opt_cb_ign_version)
 
 
 class _opt_cb_ignore(Action):
@@ -1084,20 +1088,20 @@ def add_general_optgroup(parser):
     g = parser.add_argument_group("General Options")
 
     g.add_argument("-q", "--quiet", dest="silent",
-                 action="store_true", default=False)
+                   action="store_true", default=False)
 
     g.add_argument("-v", "--verbose", nargs=0, action=_opt_cb_verbose)
 
     g.add_argument("-o", "--output", dest="output", default=None)
 
     g.add_argument("-j", "--json", dest="json",
-                 action="store_true", default=False)
+                   action="store_true", default=False)
 
     g.add_argument("--show-ignored", action="store_true", default=False)
     g.add_argument("--show-unchanged", action="store_true", default=False)
 
     g.add_argument("--ignore", action=_opt_cb_ignore,
-                 help="comma-separated list of ignores")
+                   help="comma-separated list of ignores")
 
 
 def create_optparser(progname=None):

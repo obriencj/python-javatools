@@ -259,12 +259,12 @@ def add_distinfo_optgroup(parser):
     g = parser.add_argument_group("Distribution Info Options")
 
     g.add_argument("--dist-provides", dest="dist_provides",
-                 action="store_true", default=False,
-                 help="API provides information at the distribution level")
+                   action="store_true", default=False,
+                   help="API provides information at the distribution level")
 
     g.add_argument("--dist-requires", dest="dist_requires",
-                 action="store_true", default=False,
-                 help="API requires information at the distribution level")
+                   action="store_true", default=False,
+                   help="API requires information at the distribution level")
 
 
 def create_optparser(progname):
@@ -274,7 +274,7 @@ def create_optparser(progname):
     parser = ArgumentParser(prog=progname)
     parser.add_argument("dist", help="distribution to inspect")
     parser.add_argument("--json", dest="json", action="store_true",
-                      help="output in JSON mode")
+                        help="output in JSON mode")
 
     add_distinfo_optgroup(parser)
     add_jarinfo_optgroup(parser)

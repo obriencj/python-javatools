@@ -277,7 +277,8 @@ def cli_sign_jar(argument_list=None):
     parser.add_argument("key_alias", type=str,
                         help="JAR \"key alias\" to use")
 
-    parser.add_argument("-d", "--digest", action="store", default="SHA-256",  # TODO: factor to a constant
+    parser.add_argument("-d", "--digest", action="store", default="SHA-256",
+                        # TODO: factor to a constant
                         help="Digest algorithm used for signing")
 
     parser.add_argument("-c", "--chain", action="append",
