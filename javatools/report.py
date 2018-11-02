@@ -269,7 +269,7 @@ def add_general_report_optgroup(parser):
     g.add_argument("--report-dir", action="store", default=None)
 
     g.add_argument("--report", action=_opt_cb_report,
-                 help="comma-separated list of report formats")
+                   help="comma-separated list of report formats")
 
 
 class JSONReportFormat(ReportFormat):
@@ -614,14 +614,14 @@ def add_html_report_optgroup(parser):
     g = parser.add_argument_group("HTML Report Options")
 
     g.add_argument("--html-stylesheet", action="append",
-                 dest="html_stylesheets", default=list())
+                   dest="html_stylesheets", default=list())
 
     g.add_argument("--html-javascript", action="append",
-                 dest="html_javascripts", default=list())
+                   dest="html_javascripts", default=list())
 
     g.add_argument("--html-copy-data", action="store", default=None,
-                 help="Copy default resources to the given directory and"
-                 " enable them in the template")
+                   help="Copy default resources to the given directory and"
+                   " enable them in the template")
 
 
 def quick_report(report_type, change, options):

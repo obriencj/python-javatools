@@ -109,7 +109,7 @@ class cheetah_build_py_cmd(build_py):
         comp.addModuleHeader("pylint: disable=C,W,R,F")
 
         outfd = join(self.build_lib, *package.split("."))
-        outfn = join(outfd, template+".py")
+        outfn = join(outfd, template + ".py")
 
         if not exists(outfd):
             makedirs(outfd)
@@ -128,7 +128,7 @@ class cheetah_build_py_cmd(build_py):
             templates = self.find_package_templates(package, package_dir)
             for _, template, _ in templates:
                 outfd = join(self.build_lib, *package.split("."))
-                outfn = join(outfd, template+".py")
+                outfn = join(outfd, template + ".py")
 
                 built.append(outfn)
 

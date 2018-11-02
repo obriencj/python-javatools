@@ -295,21 +295,21 @@ def add_jarinfo_optgroup(parser):
     g = parser.add_argument_group("JAR Info Options")
 
     g.add_argument("--zip", action="store_true", default=False,
-                 help="print zip information")
+                   help="print zip information")
 
     g.add_argument("--manifest", action="store_true", default=False,
-                 help="print manifest information")
+                   help="print manifest information")
 
     g.add_argument("--jar-classes", action="store_true", default=False,
-                 help="print information about contained classes")
+                   help="print information about contained classes")
 
     g.add_argument("--jar-provides", dest="jar_provides",
-                 action="store_true", default=False,
-                 help="API provides information at the JAR level")
+                   action="store_true", default=False,
+                   help="API provides information at the JAR level")
 
     g.add_argument("--jar-requires", dest="jar_requires",
-                 action="store_true", default=False,
-                 help="API requires information at the JAR level")
+                   action="store_true", default=False,
+                   help="API requires information at the JAR level")
 
 
 def create_optparser(progname):
@@ -318,7 +318,7 @@ def create_optparser(progname):
     parser.add_argument("jarfiles", nargs="+",
                         help="JAR files to inspect")
     parser.add_argument("--json", dest="json", action="store_true",
-                      help="output in JSON mode")
+                        help="output in JSON mode")
     add_jarinfo_optgroup(parser)
     add_classinfo_optgroup(parser)
 

@@ -561,20 +561,20 @@ def add_jardiff_optgroup(parser):
     og.add_argument("--ignore-jar-entry", action="append", default=[])
 
     og.add_argument("--ignore-jar-signature",
-                  action="store_true", default=False,
-                  help="Ignore JAR signing changes")
+                    action="store_true", default=False,
+                    help="Ignore JAR signing changes")
 
     og.add_argument("--ignore-manifest",
-                  action="store_true", default=False,
-                  help="Ignore changes to manifests")
+                    action="store_true", default=False,
+                    help="Ignore changes to manifests")
 
     og.add_argument("--ignore-manifest-subsections",
-                  action="store_true", default=False,
-                  help="Ignore changes to manifest subsections")
+                    action="store_true", default=False,
+                    help="Ignore changes to manifest subsections")
 
     og.add_argument("--ignore-manifest-key",
-                  action="append", default=[],
-                  help="case-insensitive manifest keys to ignore")
+                    action="append", default=[],
+                    help="case-insensitive manifest keys to ignore")
 
 
 def create_optparser(progname=None):

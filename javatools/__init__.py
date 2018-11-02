@@ -2100,7 +2100,7 @@ def _pretty_const_type_val(typecode, val):
 
     if typecode == CONST_Utf8:
         typestr = "Utf8"  # formerly Asciz, which was considered Java bug
-        if not isinstance(val, str):	# Py2, val is 'unicode'
+        if not isinstance(val, str):  # Py2, val is 'unicode'
             val = repr(val)[2:-1]  # trim off the surrounding u"" (HACK)
         else:
             val = repr(val)[1:-1]  # trim off the surrounding "" (HACK)
@@ -2180,11 +2180,11 @@ def _next_argsig(s):
 
     elif c == "[":
         d, s = _next_argsig(s[1:])
-        result = (c + d, s[len(d)+1:])
+        result = (c + d, s[len(d) + 1:])
 
     elif c == "L":
         i = s.find(';') + 1
-        result = (s[:i], s[i+1:])
+        result = (s[:i], s[i + 1:])
 
     elif c == "(":
         i = s.find(')') + 1

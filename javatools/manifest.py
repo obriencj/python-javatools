@@ -106,7 +106,8 @@ def _get_digest(java_name, as_string=False):
             else JAVA_TO_OPENSSL_DIGESTS[java_name]
     except KeyError:
         raise UnsupportedDigest("Unsupported digest %s. Supported: %s" %
-                                (java_name, ", ".join(sorted(JAVA_TO_OPENSSL_DIGESTS.keys()))))
+                                (java_name, ", ".join(sorted(
+                                 JAVA_TO_OPENSSL_DIGESTS.keys()))))
 
 
 # Note 1: Java supports also MD2, but hashlib does not
