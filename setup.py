@@ -24,7 +24,13 @@ license: LGPL v.3
 
 
 from setuptools import setup
-from javatools.cheetah.setuptools import cheetah_build_py_cmd
+
+
+def delayed_cheetah_build_py_cmd(*args, **kwds):
+    # only import cheetah_build_py_cmd immediately before
+    # instantiating it.
+    from javatools.cheetah.setuptools import cheetah_build_py_cmd
+    return cheetah_build_py_cmd(*args, **kwds)
 
 
 setup(name = "javatools",
@@ -102,7 +108,7 @@ setup(name = "javatools",
       ],
 
       # extras stuff
-      cmdclass = {'build_py': cheetah_build_py_cmd, })
+      cmdclass = {'build_py': delayed_cheetah_build_py_cmd, })
 
 
 #
