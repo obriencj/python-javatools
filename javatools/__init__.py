@@ -244,6 +244,10 @@ class JavaConstantPool(object):
                    CONST_ModuleId):
             return tuple(self.deref_const(i) for i in v)
 
+        elif t == CONST_InvokeDynamic:
+            # TODO: v[0] needs to come from the bootstrap methods table
+            return (v[0], self.deref_const(v[1]))
+
         else:
             raise Unimplemented("Unknown constant pool type %r" % t)
 
@@ -1383,7 +1387,9 @@ class JavaMemberInfo(object):
         if not self.is_method:
             return tuple()
 
-        tp = _typeseq(self.get_descriptor())
+        desc = self.get_descriptor()
+
+        tp = _typeseq(desc)
         tp = _typeseq(tp[0][1:-1])
 
         return tp
@@ -1678,7 +1684,7 @@ class JavaCodeInfo(object):
 
         lnt = self.get_linenumbertable()
         if not lnt:
-            yield (None, None, self.disassemble())
+            yield (1, 1, self.disassemble())
             return
 
         lnt_offset = lnt[0][1]
@@ -2083,9 +2089,6 @@ def _unpack_const_item(unpacker):
     elif typecode == CONST_MethodType:
         val = unpacker.unpack_struct(_H)
 
-    elif typecode == CONST_InvokeDynamic:
-        val = unpacker.unpack_struct(_HH)
-
     else:
         raise Unimplemented("unknown constant type %r" % typecode)
 
@@ -2180,11 +2183,11 @@ def _next_argsig(s):
 
     elif c == "[":
         d, s = _next_argsig(s[1:])
-        result = (c + d, s[len(d) + 1:])
+        result = (c + d, s)
 
     elif c == "L":
         i = s.find(';') + 1
-        result = (s[:i], s[i + 1:])
+        result = (s[:i], s[i:])
 
     elif c == "(":
         i = s.find(')') + 1
@@ -2201,10 +2204,15 @@ def _typeseq_iter(s):
     iterate through all of the type signatures in a sequence
     """
 
-    s = str(s)
-    while s:
-        t, s = _next_argsig(s)
-        yield t
+    original = s
+    try:
+        s = str(s)
+        while s:
+            t, s = _next_argsig(s)
+            yield t
+
+    except Unimplemented as uimp:
+        raise Unimplemented("Unknown type signature in %r" % original)
 
 
 def _typeseq(type_s):
