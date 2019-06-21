@@ -36,6 +36,9 @@ def _iter_templates():
     from Cheetah.Template import Template
 
     for _, name, _ in iter_modules(__path__):
+        if name == "setuptools":
+            continue
+
         __import__("javatools.cheetah." + name)
         found = getattr(getattr(javatools.cheetah, name), name)
         if issubclass(found, Template):
