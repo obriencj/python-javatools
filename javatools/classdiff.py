@@ -445,12 +445,8 @@ class CodeConstantsChange(GenericChange):
 
             if has_const_arg(l[1]):
                 largs, rargs = list(largs), list(rargs)
-                try:
-                    largs[0] = left.cpool.deref_const(largs[0])
-                    rargs[0] = right.cpool.deref_const(rargs[0])
-                except:
-                    print(" === args === ", largs[0], rargs[0])
-                    raise
+                largs[0] = left.cpool.deref_const(largs[0])
+                rargs[0] = right.cpool.deref_const(rargs[0])
 
             if largs != rargs:
                 offsets.append(l[0])
