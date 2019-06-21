@@ -34,7 +34,7 @@ def delayed_cheetah_build_py_cmd(*args, **kwds):
 
 
 setup(name = "javatools",
-      version = "1.5.0",
+      version = "1.4.0",
 
       packages = [
           "javatools",
