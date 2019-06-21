@@ -169,7 +169,9 @@ class DistTextChange(DistContentChange):
                 (self.lineending and options.ignore_trailing_whitespace))
 
     def collect_impl(self):
-        with self.open_left(mode="rt") as lfd, self.open_right(mode="rt") as rfd:
+        with self.open_left(mode="rt") as lfd, \
+             self.open_right(mode="rt") as rfd:
+
             left = lfd.read()
             right = rfd.read()
             if left != right:

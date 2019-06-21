@@ -38,6 +38,12 @@ __all__ = (
     "LEFT", "RIGHT", "DIFF", "SAME", )
 
 
+try:
+    buffer
+except NameError:
+    buffer = memoryview
+
+
 _CHUNKSIZE = 2 ** 14
 
 
@@ -47,9 +53,8 @@ def compare(left, right):
     and right, which are filenames for a pair of zip files
     """
 
-    with open_zip(left) as l:
-        with open_zip(right) as r:
-            return compare_zips(l, r)
+    with open_zip(left) as lz, open_zip(right) as rz:
+        return compare_zips(lz, rz)
 
 
 def compare_zips(left, right):
@@ -88,10 +93,10 @@ def _different(left, right, f):
     instances
     """
 
-    l = left.getinfo(f)
-    r = right.getinfo(f)
+    li = left.getinfo(f)
+    ri = right.getinfo(f)
 
-    if (l.file_size == r.file_size) and (l.CRC == r.CRC):
+    if (li.file_size == ri.file_size) and (li.CRC == ri.CRC):
         # ok, they seem passibly similar, let's deep check them.
         return _deep_different(left, right, f)
 
@@ -133,11 +138,10 @@ def collect_compare_into(left, right, added, removed, altered, same):
     same
     """
 
-    with open_zip(left) as l:
-        with open_zip(right) as r:
-            return collect_compare_zips_into(l, r,
-                                             added, removed,
-                                             altered, same)
+    with open_zip(left) as lz, open_zip(right) as rz:
+        return collect_compare_zips_into(lz, rz,
+                                         added, removed,
+                                         altered, same)
 
 
 def collect_compare_zips(left, right):

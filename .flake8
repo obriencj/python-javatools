@@ -1,7 +1,11 @@
 [flake8]
 
+# E126 complains about line continuation indentation
 # E251 complains about unexpected spaces around keyword/parameter equals
 # E303 complains about more than one blank lines between methods in a class
+# W504 complains about line break after binary operator
 
-ignore = E303
+ignore = E126,E303,W504
 exclude = setup.py,build,dist,tests,extras,.git
+
+# The end.
