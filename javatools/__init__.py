@@ -2211,7 +2211,7 @@ def _typeseq_iter(s):
             t, s = _next_argsig(s)
             yield t
 
-    except Unimplemented as uimp:
+    except Unimplemented:
         raise Unimplemented("Unknown type signature in %r" % original)
 
 
