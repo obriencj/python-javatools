@@ -445,8 +445,12 @@ class CodeConstantsChange(GenericChange):
 
             if has_const_arg(l[1]):
                 largs, rargs = list(largs), list(rargs)
-                largs[0] = left.cpool.deref_const(largs[0])
-                rargs[0] = right.cpool.deref_const(rargs[0])
+                try:
+                    largs[0] = left.cpool.deref_const(largs[0])
+                    rargs[0] = right.cpool.deref_const(rargs[0])
+                except:
+                    print(" === args === ", largs[0], rargs[0])
+                    raise
 
             if largs != rargs:
                 offsets.append(l[0])
@@ -926,10 +930,12 @@ def merge_code(left_code, right_code):
 
     code_lines = (left_code and left_code.iter_code_by_lines()) or tuple()
     for abs_line, rel_line, dis in code_lines:
+        assert(rel_line is not None)
         data[rel_line] = [(abs_line, dis), None]
 
     code_lines = (right_code and right_code.iter_code_by_lines()) or tuple()
     for abs_line, rel_line, dis in code_lines:
+        assert(rel_line is not None)
         found = data.get(rel_line, None)
         if found is None:
             found = [None, (abs_line, dis)]
@@ -1030,10 +1036,7 @@ class _opt_cb_ignore(Action):
         ign = (i for i in ign if i)
         for i in ign:
             ignore.append(i)
-            iopt_str = "--ignore-" + i.replace("_", "-")
-            iopt = parser.get_option(iopt_str)
-            if iopt:
-                iopt.process(iopt_str, values, options, parser)
+            setattr(options, "ignore_" + i.replace("-", "_"), True)
 
 
 class _opt_cb_ign_lines(Action):
