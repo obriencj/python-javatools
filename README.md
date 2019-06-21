@@ -1,6 +1,9 @@
 
 # Overview of python-javatools
 
+[![Build Status](https://travis-ci.org/obriencj/python-javatools.svg?branch=master)](https://travis-ci.org/obriencj/python-javatools)
+
+
 A [python] module for unpacking and inspecting [Java] Class files,
 JARs, and collections of either.
 
@@ -24,7 +27,7 @@ heck, just fork it!
 
 ## Requirements
 
-* [Python] 2.7, 3.5, 3.6
+* [Python] 2.7, 3.5, 3.6, 3.7
 * [Setuptools]
 * [Six]
 * [Cheetah3] is used in the generation of HTML reports
@@ -115,14 +118,17 @@ If you'd prefer to build an RPM, see the wiki entry for
 [jvms-4]: http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
 [jars]: http://docs.oracle.com/javase/1.5.0/docs/guide/jar/index.html
 
+
 ## Contact
 
-Christopher O'Brien <obriencj@gmail.com>
+Author: Christopher O'Brien <obriencj@gmail.com>
 
 If you're interested in my other projects, feel free to visit
 [my blog].
 
 [my blog]: http://obriencj.preoccupied.net/
+
+Original Git Repository: <https://github.com/obriencj/python-javatools>
 
 
 ## License
