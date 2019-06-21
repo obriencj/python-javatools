@@ -214,7 +214,7 @@ class ReportFormat(object):
             makedirsp(basedir)
 
             fn = join(basedir, entry + self.extension)
-            with open(fn, "wb", _BUFFERING) as out:
+            with open(fn, "wt", _BUFFERING) as out:
                 self.run_impl(change, entry, out)
             return fn
 
