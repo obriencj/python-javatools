@@ -51,9 +51,7 @@ for sq in changemap.pop(javatools.change.SquashedChange, ()):
     oc = sq.origclass
     if oc is javatools.jardiff.JarClassReport:
         oc = javatools.jardiff.JarClassChange
-    sqm = changemap.get(oc, None)
-    if sqm is None:
-	changemap[oc] = sqm = list()
+    sqm = changemap.setdefault(oc, [])
     sqm.append(sq)
 %>
 

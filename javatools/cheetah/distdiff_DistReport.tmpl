@@ -1,4 +1,4 @@
-#extends report
+#extends javatools.cheetah.report
 
 
 ## render a collection of changes that are all of the same type
@@ -53,9 +53,7 @@ for sq in changemap.pop(javatools.change.SquashedChange, ()):
         oc = javatools.distdiff.DistJarChange
     elif oc is javatools.distdiff.DistClassReport:
         oc = javatools.distdiff.DistClassChange
-    sqm = changemap.get(oc, None)
-    if sqm is None:
-	changemap[oc] = sqm = list()
+    sqm = changemap.setdefault(oc, [])
     sqm.append(sq)
 %>
 
