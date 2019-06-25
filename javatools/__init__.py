@@ -646,7 +646,7 @@ class JavaClassInfo(object):
         get the parent class that this extends
         """
 
-        return self.deref_const(self.super_ref)
+        return self.deref_const(self.super_ref) if self.super_ref else ""
 
 
     def get_interfaces(self):
