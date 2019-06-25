@@ -58,6 +58,7 @@ __all__ = (
     "CONST_InterfaceMethodref", "CONST_NameAndType",
     "CONST_ModuleId", "CONST_MethodHandle",
     "CONST_MethodType", "CONST_InvokeDynamic",
+    "CONST_Module", "CONST_Package",
     "ACC_PUBLIC", "ACC_PRIVATE", "ACC_PROTECTED",
     "ACC_STATIC", "ACC_FINAL", "ACC_SYNCHRONIZED",
     "ACC_SUPER", "ACC_VOLATILE", "ACC_BRIDGE",
@@ -92,6 +93,8 @@ CONST_ModuleId = 13  # Removed? Maybe OpenJDK only?
 CONST_MethodHandle = 15  # TODO
 CONST_MethodType = 16  # TODO
 CONST_InvokeDynamic = 18  # TODO
+CONST_Module = 19
+CONST_Package = 20
 
 
 # class and member flags
@@ -241,7 +244,7 @@ class JavaConstantPool(object):
 
         elif t in (CONST_Fieldref, CONST_Methodref,
                    CONST_InterfaceMethodref, CONST_NameAndType,
-                   CONST_ModuleId):
+                   CONST_ModuleId, CONST_Module, CONST_Package):
             return tuple(self.deref_const(i) for i in v)
 
         elif t == CONST_InvokeDynamic:
@@ -339,6 +342,16 @@ class JavaConstantPool(object):
         elif t == CONST_ModuleId:
             a, b = (self.deref_const(i) for i in v)
             result = "%s@%s" % (a, b)
+
+        elif t == CONST_InvokeDynamic:
+            # TODO: v[0] needs to come from the bootstrap methods table
+            result = "InvokeDynamic %r %r" % (v[0], self.deref_const(v[1]))
+
+        elif t == CONST_Module:
+            result = "Module %s" % self.deref_cons(v[0])
+
+        elif t == CONST_Package:
+            result = "Package %s" % self.deref_cons(v[0])
 
         elif not t:
             # the skipped-type, meaning the prior index was a
@@ -2075,7 +2088,8 @@ def _unpack_const_item(unpacker):
     elif typecode == CONST_Double:
         (val,) = unpacker.unpack(">d")
 
-    elif typecode in (CONST_Class, CONST_String, CONST_MethodType):
+    elif typecode in (CONST_Class, CONST_String, CONST_MethodType,
+                      CONST_Module, CONST_Package):
         (val,) = unpacker.unpack_struct(_H)
 
     elif typecode in (CONST_Fieldref, CONST_Methodref,
@@ -2148,6 +2162,10 @@ def _pretty_const_type_val(typecode, val):
     elif typecode == CONST_InvokeDynamic:
         typestr = "InvokeDynamic"
         val = repr(val)
+    elif typecode == CONST_Module:
+        typestr = "Module"
+    elif typecode == CONST_Package:
+        typestr = "Package"
     else:
         raise Unimplemented("unknown constant type %r" % typecode)
 
