@@ -26,6 +26,13 @@ license: LGPL v.3
 from setuptools import setup
 
 
+PYTHON_SUPPORTED_VERSIONS = (
+    ">=2.7",
+    "!=3.0.*", "!=3.1.*", "!=3.2.*", "!=3.3.*", "!=3.4.*",
+    "<4",
+)
+
+
 def delayed_cheetah_build_py_cmd(*args, **kwds):
     # only import cheetah_build_py_cmd immediately before
     # instantiating it.
@@ -89,11 +96,7 @@ setup(name = "javatools",
           "six",
       ],
 
-      python_requires = (
-          ">=2.7, "
-          "!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, "
-          "<4"
-      ),
+      python_requires = ", ".join(PYTHON_SUPPORTED_VERSIONS),
 
       classifiers = [
           "Development Status :: 5 - Production/Stable",
