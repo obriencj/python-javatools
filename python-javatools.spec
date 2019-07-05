@@ -1,7 +1,7 @@
 Summary: Tools for inspecting and comparing binary Java class files
 Name: python-javatools
-Version: 1.4.1
-Release: 0
+Version: 1.4.0
+Release: 1
 License: LGPL
 Group: Application/System
 URL: https://github.com/obriencj/python-javatools/
@@ -13,7 +13,7 @@ BuildArch: noarch
 # module already, and we do not want to Obsolete it by accident
 #Obsoletes: python-javaclass
 
-Requires: python2 >= 2.6
+Requires: python2 >= 2.7
 Requires: python-cheetah
 Requires: M2Crypto
 
@@ -54,8 +54,8 @@ rm -rf %{buildroot}
 
 %changelog
 
-* Thu Jan 21 2014 Christopher O'Brien <obriencj@gmail.com> - 1.4.0-0
-- bump to 1.4.0
+* Thu Jan 21 2014 Christopher O'Brien <obriencj@gmail.com> - 1.4.0-1
+- version 1.4.0
 - added ChangeLog as its own file
 - move to setuptools
 
