@@ -34,6 +34,7 @@ from . import unpack_class
 from .classinfo import cli_print_classinfo, add_classinfo_optgroup
 from .dirutils import fnmatches
 from .ziputils import open_zip_entry, zip_file, zip_entry_rollup
+from .manifest import Manifest
 
 
 __all__ = (
@@ -160,6 +161,12 @@ class JarInfo(object):
         if self.zipfile is None:
             self.zipfile = zip_file(self.filename)
         return self.zipfile
+
+
+    def get_manifest(self):
+        mf = Manifest()
+        mf.load_from_jar(self.filename)
+        return mf
 
 
     def close(self):

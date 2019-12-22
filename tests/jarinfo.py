@@ -37,3 +37,7 @@ class JarinfoTest(TestCase):
     # Test that a classinfo-specific option is accepted.
     def test_jarinfo_options(self):
         self.assertEqual(0, main(["argv0", "--jar-classes", self.jar]))
+
+    def test_jarinfo_manifest(self):
+        """ Manifest CLI option is accepted """
+        self.assertEqual(0, main(["argv0", "--manifest", self.jar]))
