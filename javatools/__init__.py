@@ -90,9 +90,9 @@ CONST_Methodref = 10
 CONST_InterfaceMethodref = 11
 CONST_NameAndType = 12
 CONST_ModuleId = 13  # Removed? Maybe OpenJDK only?
-CONST_MethodHandle = 15  # TODO
-CONST_MethodType = 16  # TODO
-CONST_InvokeDynamic = 18  # TODO
+CONST_MethodHandle = 15
+CONST_MethodType = 16
+CONST_InvokeDynamic = 18
 CONST_Module = 19
 CONST_Package = 20
 
@@ -250,6 +250,16 @@ class JavaConstantPool(object):
         elif t == CONST_InvokeDynamic:
             # TODO: v[0] needs to come from the bootstrap methods table
             return (v[0], self.deref_const(v[1]))
+
+        elif t == CONST_MethodHandle:
+            return (v[0], self.deref_const(v[1]))
+
+        elif t == CONST_MethodType:
+            return self.deref_const(v[0])
+
+        elif t == CONST_InvokeDynamic:
+            #TODO: v[0] is an index to an element in the bootstrap_methods array of the bootstrap method table
+            return self.deref_const(v[1])
 
         else:
             raise Unimplemented("Unknown constant pool type %r" % t)
