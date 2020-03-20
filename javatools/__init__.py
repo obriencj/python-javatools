@@ -2085,7 +2085,8 @@ def _unpack_const_item(unpacker):
             val = val.decode("utf8")
         except UnicodeDecodeError:
             # easiest hack to handle java's modified utf-8 encoding
-            val = val.replace(b"\xC0\x80", b"\x00").decode("utf8")
+            # also we want at least some data, thus we ignore unknown characters
+            val = val.replace(b"\xC0\x80", b"\x00").decode("utf8", errors="ignore")
 
     elif typecode == CONST_Integer:
         (val,) = unpacker.unpack(">i")
