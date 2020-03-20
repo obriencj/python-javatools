@@ -92,6 +92,7 @@ CONST_NameAndType = 12
 CONST_ModuleId = 13  # Removed? Maybe OpenJDK only?
 CONST_MethodHandle = 15
 CONST_MethodType = 16
+CONST_Dynamic = 17 # TODO not implemented
 CONST_InvokeDynamic = 18
 CONST_Module = 19
 CONST_Package = 20
