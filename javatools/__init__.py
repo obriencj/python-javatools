@@ -2245,6 +2245,14 @@ def _next_argsig(s):
         i = s.find(')') + 1
         result = (s[:i], s[i:])
 
+    # Some files may be corrupted and contain bad argument signature (c = '.').
+    # We do not want to fail on them rather skip this argument signature,
+    # continue and finish successfully.
+    # Example:
+    # s = '[Lcom.sun.glass.ui.EventLoop$State;.clone():java.lang.Object'
+    elif c == ".":
+        result = (s[1:], "")
+
     else:
         raise Unimplemented("_next_argsig is %r in %r" % (c, s))
 
