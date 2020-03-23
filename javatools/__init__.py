@@ -49,6 +49,7 @@ __all__ = (
     "JavaCodeInfo", "JavaExceptionInfo", "JavaInnerClassInfo",
     "JavaAnnotation",
     "NoPoolException", "Unimplemented", "ClassUnpackException",
+    "UnknownConstantPoolTag", "UnpackException",
     "platform_from_version",
     "is_class", "is_class_file",
     "unpack_class", "unpack_classfile",
