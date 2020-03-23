@@ -294,7 +294,7 @@ class JavaConstantPool(object):
             return (v[0], self.deref_const(v[1]))
 
         else:
-            raise Unimplemented("Unknown constant pool type %r" % t)
+            raise UnknownConstantPoolTagException("Unknown constant pool type %r" % t)
 
 
     def constants(self):
@@ -408,7 +408,7 @@ class JavaConstantPool(object):
             result = ""
 
         else:
-            raise Unimplemented("No pretty for const type %r" % t)
+            raise UnknownConstantPoolTagException("No pretty for const type %r" % t)
 
         return result
 
@@ -2217,7 +2217,7 @@ def _pretty_const_type_val(typecode, val):
     elif typecode == CONST_Package:
         typestr = "Package"
     else:
-        raise Unimplemented("unknown constant type %r" % typecode)
+        raise UnknownConstantPoolTagException("unknown constant type %r" % typecode)
 
     return typestr, val
 
