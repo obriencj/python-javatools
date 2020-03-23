@@ -2128,7 +2128,7 @@ def _unpack_const_item(unpacker):
 
     elif typecode in (CONST_Fieldref, CONST_Methodref,
                       CONST_InterfaceMethodref, CONST_NameAndType,
-                      CONST_ModuleId, CONST_InvokeDynamic):
+                      CONST_ModuleId, CONST_InvokeDynamic, CONST_Dynamic):
         val = unpacker.unpack_struct(_HH)
 
     elif typecode == CONST_MethodHandle:
