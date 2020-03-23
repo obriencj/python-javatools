@@ -389,6 +389,13 @@ class JavaConstantPool(object):
             # TODO: v[0] needs to come from the bootstrap methods table
             result = "InvokeDynamic %r %r" % (v[0], self.deref_const(v[1]))
 
+        elif t == CONST_Dynamic:
+            # TODO: v[0] needs to come from the bootstrap methods table
+            result = "Dynamic %r %r" % (v[0], self.deref_const(v[1]))
+
+        elif t == CONST_MethodType:
+            result = "MethodType %r %r" % (v[0], self.deref_const(v[1]))
+
         elif t == CONST_Module:
             result = "Module %s" % self.deref_cons(v[0])
 
