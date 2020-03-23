@@ -236,23 +236,52 @@ class JavaConstantPool(object):
 
         t, v = self.consts[index]
 
+        # CONSTANT_info {
+        #     u1 tag;
+        #     u4 bytes; (the value of the constant)
+        # }
+        # NOTE: Long and Double has high_bytes and low_bytes.
+        # NOTE: Utf8 has two fields length and bytes
         if t in (CONST_Utf8, CONST_Integer, CONST_Float,
                  CONST_Long, CONST_Double):
             return v
 
+        # CONSTANT_info {
+        #     u1 tag;
+        #     u2 index; (valid index into the constant_pool)
+        # }
+        # NOTE: each constant can have a little bit different field name
         elif t in (CONST_Class, CONST_String, CONST_MethodType, CONST_Module, CONST_Package):
             return self.deref_const(v)
 
+        # CONSTANT_info {
+        #     u1 tag;
+        #     u2 index; (valid index into the constant_pool)
+        #     u2 additional_index; (valid index into the constant_pool)
+        # }
+        # NOTE: each constant can have a little bit different field name
         elif t in (CONST_Fieldref, CONST_Methodref,
                    CONST_InterfaceMethodref, CONST_NameAndType,
                    CONST_ModuleId):
             return tuple(self.deref_const(i) for i in v)
 
+        # CONSTANT_info {
+        #     u1 tag;
+        #     u2 bootstrap_method_attr_index; (must be a valid index into the bootstrap_methods array
+        #                                      of the bootstrap method table of this class file)
+        #     u2 name_and_type_index; (valid index into the constant_pool)
+        # }
         elif t in (CONST_InvokeDynamic, CONST_Dynamic):
             # TODO: v[0] needs to come from the bootstrap methods table
             return (v[0], self.deref_const(v[1]))
 
+        # CONSTANT_info {
+        #     u1 tag;
+        #     u1 reference_kind; (must be in the range 1 to 9)
+        #     u2 reference_index; (valid index into the constant_pool)
+        # }
         elif t == CONST_MethodHandle:
+            # TODO: v[0] treat index according to its kind
             return (v[0], self.deref_const(v[1]))
 
         else:
