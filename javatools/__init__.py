@@ -240,12 +240,12 @@ class JavaConstantPool(object):
                  CONST_Long, CONST_Double):
             return v
 
-        elif t in (CONST_Class, CONST_String, CONST_MethodType):
+        elif t in (CONST_Class, CONST_String, CONST_MethodType, CONST_Module, CONST_Package):
             return self.deref_const(v)
 
         elif t in (CONST_Fieldref, CONST_Methodref,
                    CONST_InterfaceMethodref, CONST_NameAndType,
-                   CONST_ModuleId, CONST_Module, CONST_Package):
+                   CONST_ModuleId):
             return tuple(self.deref_const(i) for i in v)
 
         elif t == CONST_InvokeDynamic:
