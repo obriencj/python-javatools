@@ -49,7 +49,7 @@ __all__ = (
     "JavaCodeInfo", "JavaExceptionInfo", "JavaInnerClassInfo",
     "JavaAnnotation",
     "NoPoolException", "Unimplemented", "ClassUnpackException",
-    "UnknownConstantPoolTag", "UnpackException",
+    "UnknownConstantPoolTagException", "UnpackException",
     "platform_from_version",
     "is_class", "is_class_file",
     "unpack_class", "unpack_classfile",
@@ -161,7 +161,7 @@ class ClassUnpackException(Exception):
     pass
 
 
-class UnknownConstantPoolTag(Exception):
+class UnknownConstantPoolTagException(Exception):
     """
     raised when a constant pool tag is unknown and probably corrupted
     """
@@ -2147,7 +2147,7 @@ def _unpack_const_item(unpacker):
         val = unpacker.unpack_struct(_H)
 
     else:
-        raise UnknownConstantPoolTag("unknown constant type %r" % typecode)
+        raise UnknownConstantPoolTagException("unknown constant type %r" % typecode)
 
     return typecode, val
 
