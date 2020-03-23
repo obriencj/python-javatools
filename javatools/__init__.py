@@ -160,6 +160,14 @@ class ClassUnpackException(Exception):
     pass
 
 
+class UnknownConstantPoolTag(Exception):
+    """
+    raised when a constant pool tag is unknown and probably corrupted
+    """
+
+    pass
+
+
 class JavaConstantPool(object):
     """
     A constants pool
@@ -2138,7 +2146,7 @@ def _unpack_const_item(unpacker):
         val = unpacker.unpack_struct(_H)
 
     else:
-        raise Unimplemented("unknown constant type %r" % typecode)
+        raise UnknownConstantPoolTag("unknown constant type %r" % typecode)
 
     return typecode, val
 
