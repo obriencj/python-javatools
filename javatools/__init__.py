@@ -92,7 +92,7 @@ CONST_NameAndType = 12
 CONST_ModuleId = 13  # Removed? Maybe OpenJDK only?
 CONST_MethodHandle = 15
 CONST_MethodType = 16
-CONST_Dynamic = 17 # TODO not implemented
+CONST_Dynamic = 17
 CONST_InvokeDynamic = 18
 CONST_Module = 19
 CONST_Package = 20
@@ -248,7 +248,7 @@ class JavaConstantPool(object):
                    CONST_ModuleId):
             return tuple(self.deref_const(i) for i in v)
 
-        elif t == CONST_InvokeDynamic:
+        elif t in (CONST_InvokeDynamic, CONST_Dynamic):
             # TODO: v[0] needs to come from the bootstrap methods table
             return (v[0], self.deref_const(v[1]))
 
