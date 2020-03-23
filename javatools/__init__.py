@@ -255,13 +255,6 @@ class JavaConstantPool(object):
         elif t == CONST_MethodHandle:
             return (v[0], self.deref_const(v[1]))
 
-        elif t == CONST_MethodType:
-            return self.deref_const(v[0])
-
-        elif t == CONST_InvokeDynamic:
-            #TODO: v[0] is an index to an element in the bootstrap_methods array of the bootstrap method table
-            return self.deref_const(v[1])
-
         else:
             raise Unimplemented("Unknown constant pool type %r" % t)
 
