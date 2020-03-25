@@ -49,6 +49,7 @@ __all__ = (
     "JavaCodeInfo", "JavaExceptionInfo", "JavaInnerClassInfo",
     "JavaAnnotation",
     "NoPoolException", "Unimplemented", "ClassUnpackException",
+    "UnknownConstantPoolTagException", "UnpackException",
     "platform_from_version",
     "is_class", "is_class_file",
     "unpack_class", "unpack_classfile",
@@ -90,9 +91,10 @@ CONST_Methodref = 10
 CONST_InterfaceMethodref = 11
 CONST_NameAndType = 12
 CONST_ModuleId = 13  # Removed? Maybe OpenJDK only?
-CONST_MethodHandle = 15  # TODO
-CONST_MethodType = 16  # TODO
-CONST_InvokeDynamic = 18  # TODO
+CONST_MethodHandle = 15
+CONST_MethodType = 16
+CONST_Dynamic = 17
+CONST_InvokeDynamic = 18
 CONST_Module = 19
 CONST_Package = 20
 
@@ -154,6 +156,14 @@ class Unimplemented(Exception):
 class ClassUnpackException(Exception):
     """
     raised when a class couldn't be unpacked
+    """
+
+    pass
+
+
+class UnknownConstantPoolTagException(Exception):
+    """
+    raised when a constant pool tag is unknown and probably corrupted
     """
 
     pass
@@ -235,24 +245,60 @@ class JavaConstantPool(object):
 
         t, v = self.consts[index]
 
+        # CONSTANT_info {
+        #     u1 tag;
+        #     u4 bytes; (the value of the constant)
+        # }
+        # NOTE: Long and Double has high_bytes and low_bytes.
+        # NOTE: Utf8 has two fields length and bytes
         if t in (CONST_Utf8, CONST_Integer, CONST_Float,
                  CONST_Long, CONST_Double):
             return v
 
-        elif t in (CONST_Class, CONST_String, CONST_MethodType):
+        # CONSTANT_info {
+        #     u1 tag;
+        #     u2 index; (valid index into the constant_pool)
+        # }
+        # NOTE: each constant can have a little bit different field name
+        elif t in (CONST_Class, CONST_String, CONST_MethodType,
+                   CONST_Module, CONST_Package):
             return self.deref_const(v)
 
+        # CONSTANT_info {
+        #     u1 tag;
+        #     u2 index; (valid index into the constant_pool)
+        #     u2 additional_index; (valid index into the constant_pool)
+        # }
+        # NOTE: each constant can have a little bit different field name
         elif t in (CONST_Fieldref, CONST_Methodref,
                    CONST_InterfaceMethodref, CONST_NameAndType,
-                   CONST_ModuleId, CONST_Module, CONST_Package):
+                   CONST_ModuleId):
             return tuple(self.deref_const(i) for i in v)
 
-        elif t == CONST_InvokeDynamic:
+        # CONSTANT_info {
+        #     u1 tag;
+        #     u2 bootstrap_method_attr_index; (must be a valid index into the
+        #                                      bootstrap_methods array
+        #                                      of the bootstrap method table of
+        #                                      this class file)
+        #     u2 name_and_type_index; (valid index into the constant_pool)
+        # }
+        elif t in (CONST_InvokeDynamic, CONST_Dynamic):
             # TODO: v[0] needs to come from the bootstrap methods table
             return (v[0], self.deref_const(v[1]))
 
+        # CONSTANT_info {
+        #     u1 tag;
+        #     u1 reference_kind; (must be in the range 1 to 9)
+        #     u2 reference_index; (valid index into the constant_pool)
+        # }
+        elif t == CONST_MethodHandle:
+            # TODO: v[0] treat index according to its kind
+            return (v[0], self.deref_const(v[1]))
+
         else:
-            raise Unimplemented("Unknown constant pool type %r" % t)
+            raise UnknownConstantPoolTagException(
+                "Unknown constant pool type %r" % t)
 
 
     def constants(self):
@@ -347,6 +393,13 @@ class JavaConstantPool(object):
             # TODO: v[0] needs to come from the bootstrap methods table
             result = "InvokeDynamic %r %r" % (v[0], self.deref_const(v[1]))
 
+        elif t == CONST_Dynamic:
+            # TODO: v[0] needs to come from the bootstrap methods table
+            result = "Dynamic %r %r" % (v[0], self.deref_const(v[1]))
+
+        elif t == CONST_MethodType:
+            result = "MethodType %r %r" % (v[0], self.deref_const(v[1]))
+
         elif t == CONST_Module:
             result = "Module %s" % self.deref_cons(v[0])
 
@@ -359,7 +412,8 @@ class JavaConstantPool(object):
             result = ""
 
         else:
-            raise Unimplemented("No pretty for const type %r" % t)
+            raise UnknownConstantPoolTagException(
+                "No pretty for const type %r" % t)
 
         return result
 
@@ -2074,7 +2128,10 @@ def _unpack_const_item(unpacker):
             val = val.decode("utf8")
         except UnicodeDecodeError:
             # easiest hack to handle java's modified utf-8 encoding
-            val = val.replace(b"\xC0\x80", b"\x00").decode("utf8")
+            # also we want at least some data, thus we ignore
+            # unknown characters
+            val = val.replace(b"\xC0\x80", b"\x00") \
+                     .decode("utf8", errors="ignore")
 
     elif typecode == CONST_Integer:
         (val,) = unpacker.unpack(">i")
@@ -2094,7 +2151,7 @@ def _unpack_const_item(unpacker):
 
     elif typecode in (CONST_Fieldref, CONST_Methodref,
                       CONST_InterfaceMethodref, CONST_NameAndType,
-                      CONST_ModuleId, CONST_InvokeDynamic):
+                      CONST_ModuleId, CONST_InvokeDynamic, CONST_Dynamic):
         val = unpacker.unpack_struct(_HH)
 
     elif typecode == CONST_MethodHandle:
@@ -2104,7 +2161,8 @@ def _unpack_const_item(unpacker):
         val = unpacker.unpack_struct(_H)
 
     else:
-        raise Unimplemented("unknown constant type %r" % typecode)
+        raise UnknownConstantPoolTagException(
+            "unknown constant type %r" % typecode)
 
     return typecode, val
 
@@ -2167,7 +2225,8 @@ def _pretty_const_type_val(typecode, val):
     elif typecode == CONST_Package:
         typestr = "Package"
     else:
-        raise Unimplemented("unknown constant type %r" % typecode)
+        raise UnknownConstantPoolTagException(
+            "unknown constant type %r" % typecode)
 
     return typestr, val
 
@@ -2210,6 +2269,14 @@ def _next_argsig(s):
     elif c == "(":
         i = s.find(')') + 1
         result = (s[:i], s[i:])
+
+    # Some files may be corrupted and contain bad argument signature (c = '.').
+    # We do not want to fail on them rather skip this argument signature,
+    # continue and finish successfully.
+    # Example:
+    # s = '[Lcom.sun.glass.ui.EventLoop$State;.clone():java.lang.Object'
+    elif c == ".":
+        result = (s[1:], "")
 
     else:
         raise Unimplemented("_next_argsig is %r in %r" % (c, s))

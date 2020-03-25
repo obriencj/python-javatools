@@ -371,7 +371,8 @@ class Manifest(ManifestSection):
         :type data: bytes
         """
 
-        data = data.decode('utf-8')
+        # we want at least some data, thus we ignore unknown characters
+        data = data.decode('utf-8', errors="ignore")
         self.linesep = detect_linesep(data)
 
         # the first section is the main one for the manifest. It's
