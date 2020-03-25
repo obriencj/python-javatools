@@ -260,7 +260,8 @@ class JavaConstantPool(object):
         #     u2 index; (valid index into the constant_pool)
         # }
         # NOTE: each constant can have a little bit different field name
-        elif t in (CONST_Class, CONST_String, CONST_MethodType, CONST_Module, CONST_Package):
+        elif t in (CONST_Class, CONST_String, CONST_MethodType,
+                   CONST_Module, CONST_Package):
             return self.deref_const(v)
 
         # CONSTANT_info {
@@ -276,8 +277,10 @@ class JavaConstantPool(object):
 
         # CONSTANT_info {
         #     u1 tag;
-        #     u2 bootstrap_method_attr_index; (must be a valid index into the bootstrap_methods array
-        #                                      of the bootstrap method table of this class file)
+        #     u2 bootstrap_method_attr_index; (must be a valid index into the
+        #                                      bootstrap_methods array
+        #                                      of the bootstrap method table of
+        #                                      this class file)
         #     u2 name_and_type_index; (valid index into the constant_pool)
         # }
         elif t in (CONST_InvokeDynamic, CONST_Dynamic):
@@ -294,7 +297,8 @@ class JavaConstantPool(object):
             return (v[0], self.deref_const(v[1]))
 
         else:
-            raise UnknownConstantPoolTagException("Unknown constant pool type %r" % t)
+            raise UnknownConstantPoolTagException(
+                "Unknown constant pool type %r" % t)
 
 
     def constants(self):
@@ -408,7 +412,8 @@ class JavaConstantPool(object):
             result = ""
 
         else:
-            raise UnknownConstantPoolTagException("No pretty for const type %r" % t)
+            raise UnknownConstantPoolTagException(
+                "No pretty for const type %r" % t)
 
         return result
 
@@ -2123,8 +2128,10 @@ def _unpack_const_item(unpacker):
             val = val.decode("utf8")
         except UnicodeDecodeError:
             # easiest hack to handle java's modified utf-8 encoding
-            # also we want at least some data, thus we ignore unknown characters
-            val = val.replace(b"\xC0\x80", b"\x00").decode("utf8", errors="ignore")
+            # also we want at least some data, thus we ignore
+            # unknown characters
+            val = val.replace(b"\xC0\x80", b"\x00") \
+                     .decode("utf8", errors="ignore")
 
     elif typecode == CONST_Integer:
         (val,) = unpacker.unpack(">i")
@@ -2154,7 +2161,8 @@ def _unpack_const_item(unpacker):
         val = unpacker.unpack_struct(_H)
 
     else:
-        raise UnknownConstantPoolTagException("unknown constant type %r" % typecode)
+        raise UnknownConstantPoolTagException(
+            "unknown constant type %r" % typecode)
 
     return typecode, val
 
@@ -2217,7 +2225,8 @@ def _pretty_const_type_val(typecode, val):
     elif typecode == CONST_Package:
         typestr = "Package"
     else:
-        raise UnknownConstantPoolTagException("unknown constant type %r" % typecode)
+        raise UnknownConstantPoolTagException(
+            "unknown constant type %r" % typecode)
 
     return typestr, val
 
