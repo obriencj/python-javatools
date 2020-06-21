@@ -5,7 +5,7 @@
 
 
 A [python] module for unpacking and inspecting [Java] Class files,
-JARs, and collections of either.
+JARs, and collections of either. Supporting features up to JDK 8.
 
 [python]: http://python.org
 [java]: http://www.oracle.com/technetwork/java/index.html
@@ -40,7 +40,8 @@ project.
 * [Flake8]
 
 All of these packages are available in most linux distributions
-(eg. Fedora), and for OSX via [MacPorts].
+(eg. Fedora), and for OSX via [MacPorts], or available directly from
+pip.
 
 [six]: https://pypi.org/project/six/
 [cheetah3]: http://www.cheetahtemplate.org
