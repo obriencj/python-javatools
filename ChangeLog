@@ -1,4 +1,11 @@
-Tue Oct 16 2018 Christopher O'Brien <obriencj@gmail.com> - 1.5.0-0
+
+Sun Jun 21 2020 Christopher O'Brien <obriencj@gmail.com> - 1.5.0-0
+	UnknownConstantPoolTagException
+
+	Updates to MethodHandle, MethodType, Dynamic, InvokeDynamic
+	(thanks Matus Jasnicky)
+
+Sun Oct 05 2019 Christopher O'Brien <obriencj@gmail.com> - 1.4.0-0
 	Python 3 support (thanks Konstantin Shemyak)
 
 	Moved to Cheetah3
@@ -7,7 +14,6 @@ Tue Oct 16 2018 Christopher O'Brien <obriencj@gmail.com> - 1.5.0-0
 
 	switch from optparse to argpase
 
-Mon Apr 10 2017 Christopher O'Brien <obriencj@gmail.com> - 1.4.0-0
 	Python 2.7+
 
 	Support for signing and verifying JAR signatures (adds
