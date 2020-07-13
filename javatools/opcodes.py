@@ -211,7 +211,7 @@ def _unpack_wide(bc, offset):
     unpacker for wide ops
     """
 
-    code = ord(bc[offset])
+    code = ord(bc[offset:offset+1])
 
     if code == OP_iinc:
         return _unpack(_struct_BHh, bc, offset)
