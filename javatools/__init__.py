@@ -2293,18 +2293,19 @@ def _typeseq_iter(s):
     try:
         s = str(s)
         while s:
+            old_s = s
             t, s = _next_argsig(s)
 
-            # If `original == s` then it is possible that argument signature
+            # If `old_s == s` then it is possible that argument signature
             # is corrupted which may lead to an infinite loop.
             # In this case, raise an exception.
             # Example:
-            # original = "LFR1Xdn"
-            # t, s = _next_argsig("LFR1Xdn"); original == s
-            if original == s and t == "":
+            # old_s = "LFR1Xdn"
+            # t, s = _next_argsig("LFR1Xdn"); old_s == s
+            if old_s == s and t == "":
                 raise Unimplemented(
                     "Infinite loop detected: %r, %r = _next_argsig(%r)" %
-                    (t, s, original)
+                    (t, s, old_s)
                 )
 
             yield t
