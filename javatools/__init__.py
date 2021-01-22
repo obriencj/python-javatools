@@ -34,6 +34,7 @@ References
 from functools import partial
 from six.moves import range
 
+import mutf8
 from .dirutils import fnmatches
 from .opcodes import disassemble
 from .pack import compile_struct, unpack, UnpackException
@@ -2123,15 +2124,7 @@ def _unpack_const_item(unpacker):
 
     if typecode == CONST_Utf8:
         (slen,) = unpacker.unpack_struct(_H)
-        val = unpacker.read(slen)
-        try:
-            val = val.decode("utf8")
-        except UnicodeDecodeError:
-            # easiest hack to handle java's modified utf-8 encoding
-            # also we want at least some data, thus we ignore
-            # unknown characters
-            val = val.replace(b"\xC0\x80", b"\x00") \
-                     .decode("utf8", errors="ignore")
+        val = mutf8.decode_modified_utf8(unpacker.read(slen))
 
     elif typecode == CONST_Integer:
         (val,) = unpacker.unpack(">i")

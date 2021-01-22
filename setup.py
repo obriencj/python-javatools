@@ -89,6 +89,7 @@ setup(name = "javatools",
           "Cheetah3",
           "M2Crypto >= 0.26.0",
           "six",
+          "mutf8"
       ],
 
       setup_requires = [
