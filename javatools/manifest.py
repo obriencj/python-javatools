@@ -854,7 +854,7 @@ def directory_generator(dirname, trim=0):
 
     for dirpath, dirnames, filenames in walk(dirname):
         for fname in filenames:
-            yield fname[trim:], file_chunk(join(dirpath, fname))
+            yield join(dirpath, fname[trim:]), file_chunk(join(dirpath, fname))
 
 def multi_path_generator(pathnames):
     """
