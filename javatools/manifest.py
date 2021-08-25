@@ -278,6 +278,9 @@ class ManifestSection(OrderedDict):
         Serialize this section and write it to a binary stream
         """
 
+        if hasattr(stream, 'buffer'):
+            stream = stream.buffer
+
         for k, v in self.items():
             write_key_val(stream, k, v, linesep)
 
@@ -764,6 +767,9 @@ def write_key_val(stream, key, val, linesep=os.linesep):
     :type stream: binary
     """
 
+    if hasattr(stream, 'buffer'):
+        stream = stream.buffer
+
     key = key.encode('utf-8') or ""
     val = val.encode('utf-8') or ""
     linesep = linesep.encode('utf-8')
@@ -846,17 +852,9 @@ def directory_generator(dirname, trim=0):
     contents of the filename.
     """
 
-    def gather(collect, dirname, fnames):
-        for fname in fnames:
-            df = join(dirname, fname)
-            if not isdir(df):
-                collect.append(df)
-
-    collect = list()
-    walk(dirname, gather, collect)
-    for fname in collect:
-        yield fname[trim:], file_chunk(fname)
-
+    for dirpath, dirnames, filenames in walk(dirname):
+        for fname in filenames:
+            yield join(dirpath, fname[trim:]), file_chunk(join(dirpath, fname))
 
 def multi_path_generator(pathnames):
     """
@@ -931,9 +929,9 @@ def cli_create(argument_list):
     """
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("content", help="file or directory")
+    parser.add_argument("content", nargs='+', help="file or directory")
     # TODO: shouldn't we always process directories recursively?
-    parser.add_argument("-r", "--recursive",
+    parser.add_argument("-r", "--recursive", action='store_true',
                         help="process directories recursively")
     parser.add_argument("-i", "--ignore", nargs="+", action="append",
                         help="patterns to ignore "
@@ -1058,6 +1056,5 @@ def main(args=sys.argv):
         return cli_verify(rest)
     else:
         return usage("Unknown command: %s" % command)
-
 #
 # The end.
