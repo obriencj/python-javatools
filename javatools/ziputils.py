@@ -219,7 +219,7 @@ def file_crc32(filename, chunksize=_CHUNKSIZE):
 
     check = 0
     with open(filename, 'rb') as fd:
-        for data in iter(lambda: fd.read(chunksize), ""):
+        for data in iter(lambda: fd.read(chunksize), b""):
             check = crc32(data, check)
     return check
 
