@@ -979,7 +979,7 @@ class JavaClassInfo(object):
                     # the event that this was a method or field on the
                     # array, we'll throw away that as well, and just
                     # emit the type contained in the array.
-                    t = _typeseq(pv)
+                    t = _typeseq(pv)[0]
                     if t[1] == "L":
                         pv = _pretty_type(t[1:])
                     else:
