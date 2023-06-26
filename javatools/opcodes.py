@@ -118,8 +118,8 @@ def __op(name, val, fmt=None, const=False, consume=0, produce=0):
 
     operand = (name, val, fmt, consume, produce, const)
 
-    assert(name not in __OPTABLE)
-    assert(val not in __OPTABLE)
+    assert name not in __OPTABLE
+    assert val not in __OPTABLE
 
     __OPTABLE[name] = operand
     __OPTABLE[val] = operand
@@ -211,7 +211,7 @@ def _unpack_wide(bc, offset):
     unpacker for wide ops
     """
 
-    code = ord(bc[offset:offset+1])
+    code = ord(bc[offset:offset + 1])
 
     if code == OP_iinc:
         return _unpack(_struct_BHh, bc, offset)

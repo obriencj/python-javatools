@@ -394,9 +394,9 @@ def cli(options):
 
     # just a tiny hack to mimic some indenting sun's javap will do if
     # the output is terse
-    options.indent = not(options.lines or
-                         options.disassemble or
-                         options.sigs)
+    options.indent = not (options.lines or
+                          options.disassemble or
+                          options.sigs)
 
     style = cli_print_class
     if options.json:

@@ -325,8 +325,8 @@ class JarContentsChange(SuperChange):
         right = self.rzip
 
         # this is our guarantee from invokation order
-        assert(left is not None)
-        assert(right is not None)
+        assert left is not None
+        assert right is not None
 
         for event, entry in compare_zips(left, right):
             if event == SAME:

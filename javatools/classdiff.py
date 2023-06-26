@@ -926,12 +926,14 @@ def merge_code(left_code, right_code):
 
     code_lines = (left_code and left_code.iter_code_by_lines()) or tuple()
     for abs_line, rel_line, dis in code_lines:
-        assert(rel_line is not None)
+        assert rel_line is not None
+
         data[rel_line] = [(abs_line, dis), None]
 
     code_lines = (right_code and right_code.iter_code_by_lines()) or tuple()
     for abs_line, rel_line, dis in code_lines:
-        assert(rel_line is not None)
+        assert rel_line is not None
+
         found = data.get(rel_line, None)
         if found is None:
             found = [None, (abs_line, dis)]

@@ -107,7 +107,7 @@ def _gen_from_dircmp(dc, lpath, rpath):
             for r, _ds, fs in walk(fp):
                 r = relpath(r, lpath)
                 for f in fs:
-                    yield(LEFT, join(r, f))
+                    yield (LEFT, join(r, f))
         else:
             yield (LEFT, relpath(fp, lpath))
 
@@ -120,7 +120,7 @@ def _gen_from_dircmp(dc, lpath, rpath):
             for r, _ds, fs in walk(fp):
                 r = relpath(r, rpath)
                 for f in fs:
-                    yield(RIGHT, join(r, f))
+                    yield (RIGHT, join(r, f))
         else:
             yield (RIGHT, relpath(fp, rpath))
 

@@ -284,9 +284,9 @@ def cli(options):
         options.sigs = True
         options.constpool = True
 
-    options.indent = not(options.lines or
-                         options.disassemble or
-                         options.sigs)
+    options.indent = not (options.lines or
+                          options.disassemble or
+                          options.sigs)
 
     for fn in options.jarfiles:
         with JarInfo(filename=fn) as ji:
