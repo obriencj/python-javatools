@@ -856,6 +856,7 @@ def directory_generator(dirname, trim=0):
         for fname in filenames:
             yield join(dirpath, fname[trim:]), file_chunk(join(dirpath, fname))
 
+
 def multi_path_generator(pathnames):
     """
     yields (name,chunkgen) for all of the files found under the list
@@ -929,7 +930,7 @@ def cli_create(argument_list):
     """
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("content", nargs='+', help="file or directory")
+    parser.add_argument("content", help="file or directory")
     # TODO: shouldn't we always process directories recursively?
     parser.add_argument("-r", "--recursive", action='store_true',
                         help="process directories recursively")
