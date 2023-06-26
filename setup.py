@@ -23,7 +23,7 @@ license: LGPL v.3
 """
 
 
-from setuptools import setup
+from setuptools import setup as _setup
 
 
 PYTHON_SUPPORTED_VERSIONS = (
@@ -40,78 +40,12 @@ def delayed_cheetah_build_py_cmd(*args, **kwds):
     return cheetah_build_py_cmd(*args, **kwds)
 
 
-setup(name = "javatools",
-      version = "1.5.1",
+def setup():
+    return _setup(cmdclass={'build_py': delayed_cheetah_build_py_cmd, })
 
-      packages = [
-          "javatools",
-          "javatools.cheetah",
-      ],
 
-      package_data = {
-          "javatools.cheetah": [
-              "*.tmpl",
-              "data/*.css",
-              "data/*.js",
-              "data/*.png",
-          ],
-      },
-
-      entry_points = {
-          "console_scripts": [
-              'classdiff=javatools.classdiff:main',
-              'classinfo=javatools.classinfo:main',
-              'distdiff=javatools.distdiff:main',
-              'distinfo=javatools.distinfo:main',
-              'jardiff=javatools.jardiff:main',
-              'jarinfo=javatools.jarinfo:main',
-              'jarutil=javatools.jarutil:main',
-              'manifest=javatools.manifest:main',
-          ],
-      },
-
-      test_suite = "tests",
-
-      # PyPI information
-      author = "Christopher O'Brien",
-      author_email = "obriencj@gmail.com",
-      url = "https://github.com/obriencj/python-javatools",
-      license = "GNU Lesser General Public License v.3",
-
-      description = "Tools for finding meaningful deltas in Java"
-      " class files and JARs",
-
-      provides = [
-          "javatools",
-      ],
-
-      install_requires = [
-          "Cheetah3",
-          "M2Crypto >= 0.26.0",
-          "six",
-      ],
-
-      setup_requires = [
-          "Cheetah3",
-          "six",
-      ],
-
-      python_requires = ", ".join(PYTHON_SUPPORTED_VERSIONS),
-
-      classifiers = [
-          "Development Status :: 5 - Production/Stable",
-          "Environment :: Console",
-          "Intended Audience :: Developers",
-          "Intended Audience :: Information Technology",
-          "Programming Language :: Python :: 2.7",
-          "Programming Language :: Python :: 3.5",
-          "Programming Language :: Python :: 3.6",
-          # "Programming Language :: Python :: 3.7",
-          "Topic :: Software Development :: Disassemblers",
-      ],
-
-      # extras stuff
-      cmdclass = {'build_py': delayed_cheetah_build_py_cmd, })
+if __name__ == '__main__':
+    setup()
 
 
 #
