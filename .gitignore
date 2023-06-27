@@ -6,8 +6,9 @@
 *.tar
 *~
 .#*
-.coverage
+.coverage*
 .eggs
+.tox
 MANIFEST
 build
 dist
