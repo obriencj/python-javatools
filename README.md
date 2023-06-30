@@ -1,9 +1,6 @@
 
 # Overview of python-javatools
 
-[![Build Status](https://travis-ci.org/obriencj/python-javatools.svg?branch=master)](https://travis-ci.org/obriencj/python-javatools)
-
-
 A [python] module for unpacking and inspecting [Java] Class files,
 JARs, and collections of either. Supporting features up to JDK 8.
 
@@ -27,21 +24,30 @@ heck, just fork it!
 
 ## Requirements
 
-* [Python] 2.7, 3.5, 3.6, 3.7
+* [Python] 2.7, 3.7, 3.8, 3.9, 3.10, 3.11
 * [Setuptools]
 * [Six]
 * [Cheetah3] is used in the generation of HTML reports
-* [M2Crypto] is used for cryptographic operations
+* [M2Crypto] (optional) is used for cryptographic operations
 
 In addition, the following tools are used in building and testing the
 project.
 
+* [Tox]
 * [GNU Make]
 * [Flake8]
 
 All of these packages are available in most linux distributions
-(eg. Fedora), and for OSX via [MacPorts], or available directly from
-pip.
+(eg. Fedora), and for OSX via [MacPorts] and [HomeBrew], or available
+directly from pip.
+
+M2Crypto can be difficult on some platforms, and so is set as an
+optional dependency. If an execution path attempts to perform an
+action which requires M2Crypto (primarily Jar signing and Jar
+signature verification), then a `CryptoDisabled` exception will be
+raised, or a message will be printed to stdout explaining that the
+feature is unavailable. See the [M2Crypto Install Guide] for
+workarounds in your environment.
 
 [six]: https://pypi.org/project/six/
 [cheetah3]: http://www.cheetahtemplate.org
@@ -51,9 +57,13 @@ pip.
 [setuptools]: https://pypi.org/project/setuptools/
 [gnu make]: http://www.gnu.org/software/make/
 [flake8]: https://pypi.org/project/flake8/
+[tox]: https://pypi.org/project/tox
 
-[fedora]: http://fedoraproject.org/
+[fedora]: http://fedoraproject.org
 [macports]: http://www.macports.org
+[homebrew]: https://brew.sh/
+
+[M2Crypto Install Guide]: https://gitlab.com/m2crypto/m2crypto/-/blob/master/INSTALL.rst
 
 
 ## Building
@@ -65,7 +75,7 @@ project:
 
 to install, run:
 
-```sudo python setup.py install```
+```python -m pip install . --user```
 
 
 ### Testing
@@ -74,6 +84,8 @@ Tests are written as `unittest` test cases. If you'd like to run the tests,
 simply invoke:
 
 ```python setup.py test```
+
+or invoke tests across a wider range of platforms via ``tox``
 
 
 ### RPM
