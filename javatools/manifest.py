@@ -543,6 +543,7 @@ class SignatureManifest(Manifest):
 
         self[all_key] = b64_encoded_digest(accum, digest)
 
+
     def verify_manifest_main_checksum(self, manifest):
         """
         Verify the checksum over the manifest main section.
