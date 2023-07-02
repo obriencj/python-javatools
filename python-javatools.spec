@@ -1,17 +1,13 @@
 Summary: Tools for inspecting and comparing binary Java class files
 Name: python-javatools
-Version: 1.5.0
-Release: 1
+Version: 1.6.0
+Release: 0
 License: LGPL
 Group: Application/System
 URL: https://github.com/obriencj/python-javatools/
 Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: noarch
-
-# Don't believe we can do this, as there really was a "javaclass"
-# module already, and we do not want to Obsolete it by accident
-#Obsoletes: python-javaclass
 
 Requires: python2 >= 2.7
 Requires: python-cheetah
@@ -53,6 +49,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+
+* Sun Jul 2 2023 Christopher O'Brien <obriencj@gmail.com> - 1.6.0-0
+- version 1.6.0
 
 * Sun Jun 21 2020 Christopher O'Brien <obriencj@gmail.com> - 1.5.0-1
 - version 1.5.0

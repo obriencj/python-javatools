@@ -21,7 +21,23 @@ Cryptography-related functions for handling JAR signature block files.
 """
 
 
-from M2Crypto import SMIME, X509, BIO, RSA, DSA, EC, m2
+from functools import wraps
+
+
+try:
+    from M2Crypto import SMIME, X509, BIO, RSA, DSA, EC, m2
+except ImportError:
+    __ENABLED = False
+else:
+    __ENABLED = True
+
+
+class CryptoDisabled(Exception):
+    """
+    cryptography is disabled due to lack of M2Crypto
+    """
+
+    pass
 
 
 class CannotFindKeyTypeError(Exception):
@@ -40,6 +56,21 @@ class SignatureBlockVerificationError(Exception):
     pass
 
 
+def crypto_enabled():
+    return __ENABLED
+
+
+def requires_crypto(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwds):
+        if not crypto_enabled():
+            raise CryptoDisabled("javatools API %s requires M2Crypto" %
+                                 fn.__name__)
+        return fn(*args, **kwds)
+    return wrapper
+
+
+@requires_crypto
 def private_key_type(key_file):
     """
     Determines type of the private key: RSA, DSA, EC.
@@ -63,6 +94,7 @@ def private_key_type(key_file):
         raise CannotFindKeyTypeError()
 
 
+@requires_crypto
 def create_signature_block(openssl_digest, certificate, private_key,
                            extra_certs, data):
 
@@ -112,6 +144,7 @@ def create_signature_block(openssl_digest, certificate, private_key,
     return tmp.read()
 
 
+@requires_crypto
 def ignore_missing_email_protection_eku_cb(ok, ctx):
     """
     For verifying PKCS7 signature, m2Crypto uses OpenSSL's PKCS7_verify().
@@ -149,6 +182,7 @@ def ignore_missing_email_protection_eku_cb(ok, ctx):
     return 1
 
 
+@requires_crypto
 def verify_signature_block(certificate_file, content, signature):
     """
     Verifies the 'signature' over the 'content', trusting the

@@ -33,9 +33,11 @@ from shutil import copyfile
 from tempfile import NamedTemporaryFile
 from zipfile import ZipFile, ZIP_DEFLATED
 
+from .crypto import (
+    CryptoDisabled, CannotFindKeyTypeError, SignatureBlockVerificationError,
+    private_key_type, verify_signature_block,
+)
 from .manifest import file_matches_sigfile, Manifest, SignatureManifest
-from .crypto import private_key_type, CannotFindKeyTypeError
-from .crypto import verify_signature_block, SignatureBlockVerificationError
 
 
 __all__ = (
@@ -297,6 +299,10 @@ def cli_sign_jar(argument_list=None):
         sign(args.jar_file, args.cert_file, args.key_file, args.key_alias,
              args.extra_certs, args.digest, args.output)
 
+    except CryptoDisabled:
+        print("Signing jars requires M2Crypto")
+        return -1
+
     except CannotFindKeyTypeError:
         print("Cannot determine private key type in %s" % args.key_file)
         return 1
@@ -322,6 +328,10 @@ def cli_verify_jar_signature(argument_list):
     jar_file, certificate, sf_name = (argument_list + [None])[:3]
     try:
         verify(certificate, jar_file, sf_name)
+
+    except CryptoDisabled:
+        print("Verification of jar signatures requires M2Crypto")
+        return -1
 
     except VerificationError as error_message:
         print(error_message)
