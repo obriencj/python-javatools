@@ -24,7 +24,7 @@ jobs:
     - name: Set up Python ${{ matrix.python-version }}
       if: ${{ matrix.python-version == '2.7' }}
       run: |
-        apt-get install -y python2
+        sudo apt-get install -y python2
 
     - name: Set up Python ${{ matrix.python-version }}
       if: ${{ matrix.python-version != '2.7' }}
@@ -35,7 +35,7 @@ jobs:
     - name: Install system packages
       if: ${{ matrix.python-version != '2.7' }}
       run: |
-        apt-get install -y libssl-dev openssl swig
+        sudo apt-get install -y libssl-dev openssl swig
 
     - name: Install python dependencies
       run: |
