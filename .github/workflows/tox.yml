@@ -7,7 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ${{ ((matrix.python-version == '2.7') && 'python:2.7') || null }}
 
     strategy:
       fail-fast: false
@@ -23,6 +22,11 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Set up Python ${{ matrix.python-version }}
+      if: ${{ matrix.python-version == '2.7' }}
+      run: |
+        apt-get install -y python2
+
+    - name: Set up Python ${{ matrix.python-version }}
       if: ${{ matrix.python-version != '2.7' }}
       uses: actions/setup-python@v4
       with:
@@ -31,12 +35,7 @@ jobs:
     - name: Install system packages
       if: ${{ matrix.python-version != '2.7' }}
       run: |
-        sudo apt-get install libssl-dev openssl swig
-
-    - name: Install system packages
-      if: ${{ matrix.python-version == '2.7' }}
-      run: |
-        apt-get install libssl-dev openssl swig
+        apt-get install -y libssl-dev openssl swig
 
     - name: Install python dependencies
       run: |
