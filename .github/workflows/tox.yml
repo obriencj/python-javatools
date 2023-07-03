@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ${{ ((matrix.python-version == '2.7') && 'python:2.7.18-buster') || null }}
+    container: ${{ ((matrix.python-version == '2.7') && 'python:2.7') || null }}
 
     strategy:
       fail-fast: false
@@ -29,6 +29,12 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install system packages
+      if: ${{ matrix.python-version != '2.7' }}
+      run: |
+        sudo apt-get install libssl-dev openssl swig
+
+    - name: Install system packages
+      if: ${{ matrix.python-version == '2.7' }}
       run: |
         apt-get install libssl-dev openssl swig
 
