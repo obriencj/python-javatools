@@ -30,7 +30,7 @@ jobs:
 
     - name: Install system packages
       run: |
-        sudo apt-get install libssl-dev openssl swig
+        apt-get install libssl-dev openssl swig
 
     - name: Install python dependencies
       run: |
