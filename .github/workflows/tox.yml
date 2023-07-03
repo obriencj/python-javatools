@@ -1,5 +1,4 @@
 name: Tox
-
 on:
   - push
   - pull_request
@@ -7,7 +6,8 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04  # because of python 2.7
+    runs-on: ubuntu-latest
+    container: ${{ ((matrix.python == '2.7') && 'python:2.7') || null }}
 
     strategy:
       fail-fast: false
