@@ -1,8 +1,30 @@
 Sun Jul 02 2023 Christopher O'Brien <obriencj@gmail.com> - 1.6.0
-	M2Crypto becomes an optional dependency. The crypto module adds a
-	new `crypto_enabled` function to check this, and a
+	PR#113 Improves fail-proof ness (thanks Matus Jasnicky)
+
+	PR#114 Raise an exception if an infinite loop occurs (thanks Matus
+	Jasnicky)
+
+	PR#116 Fixes unpack_wide function to accomodate changes in Python3
+	(thanks Josh Grunzweig)
+
+	PR#117 Improve detection of infinite loop from _typeseq_iter
+	(thanks Matus Jasnicky)
+
+	PR#124 Manifest.py has multiple bugs when using the cli function
+	and is not usable (thanks Connor E. Basile)
+
+	PR#125 Get the first element of tuple before interacting with it
+	in the get_requires method (thanks Daniel García Frías)
+
+	PR#126 Fixes invalid sentinel for file iteration (thanks Sergey
+	Ilinykh))
+
+	PR#127 M2Crypto becomes an optional dependency. The crypto module
+	adds a new `crypto_enabled` function to check this, and a
 	`CryptoDisabled` exception for API calls which are invoked when
 	M2Crypto isn't available.
+
+	Change Cheetah3 pip dependency for CT3
 
 	moves to tox for unittesting, flake8, and bandit integration
 
