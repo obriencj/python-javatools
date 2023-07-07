@@ -1,7 +1,30 @@
+# Github Action definition for running tox across the supported python
+# versions. Intended to be triggered on push to master and on filing
+# of a pull_request, when those pushes hit something that impacts the
+# running of the tests.
+
+
 name: Tox
+
+
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - master
+    ignore-paths:
+      - 'docs/**'
+    paths:
+      - '*.py'
+      - '*.tmpl'
+      - 'tests/**'
+
+  pull_request:
+    ignore-paths:
+      - 'docs/**'
+    paths:
+      - '*.py'
+      - '*.tmpl'
+      - 'tests/**'
 
 
 jobs:
@@ -19,7 +42,8 @@ jobs:
           - '3.10'
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
 
     - name: Set up Python ${{ matrix.python-version }}
       if: ${{ matrix.python-version != '2.7' }}
