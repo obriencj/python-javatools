@@ -1,7 +1,7 @@
 %global srcproj javatools
 %global srcname python-%{srcproj}
 %global srcver 1.6.0
-%global srcrel 0
+%global srcrel 1
 
 
 # There's two distinct eras of RPM packaging for python, with
