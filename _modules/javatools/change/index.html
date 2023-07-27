@@ -1,33 +1,22 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="English">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>javatools.change &#8212; python-javatools 1.6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/classic.css" />
     
-    <title>javatools.change &mdash; javatools 1.4.0 documentation</title>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     
-    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '1.4.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="top" title="javatools 1.4.0 documentation" href="../../../" />
-    <link rel="up" title="javatools" href="../" /> 
-  </head>
-  <body>
-    <div class="related">
+    <link rel="index" title="Index" href="../../../genindex/" />
+    <link rel="search" title="Search" href="../../../search/" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -36,34 +25,32 @@
         <li class="right" >
           <a href="../../../py-modindex/" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="../../../np-modindex/" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../../">javatools 1.4.0 documentation</a> &raquo;</li>
-          <li><a href="../../" >Module code</a> &raquo;</li>
-          <li><a href="../" accesskey="U">javatools</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../../">python-javatools 1.6.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../" accesskey="U">javatools</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">javatools.change</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <h1>Source code for javatools.change</h1><div class="highlight"><pre>
-<span class="c"># This library is free software; you can redistribute it and/or modify</span>
-<span class="c"># it under the terms of the GNU Lesser General Public License as</span>
-<span class="c"># published by the Free Software Foundation; either version 3 of the</span>
-<span class="c"># License, or (at your option) any later version.</span>
-<span class="c">#</span>
-<span class="c"># This library is distributed in the hope that it will be useful, but</span>
-<span class="c"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
-<span class="c"># Lesser General Public License for more details.</span>
-<span class="c">#</span>
-<span class="c"># You should have received a copy of the GNU Lesser General Public</span>
-<span class="c"># License along with this library; if not, see</span>
-<span class="c"># &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span></span><span class="c1"># This library is free software; you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Lesser General Public License as</span>
+<span class="c1"># published by the Free Software Foundation; either version 3 of the</span>
+<span class="c1"># License, or (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This library is distributed in the hope that it will be useful, but</span>
+<span class="c1"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1"># Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1"># License along with this library; if not, see</span>
+<span class="c1"># &lt;http://www.gnu.org/licenses/&gt;.</span>
 
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -79,60 +66,59 @@
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s">&quot;squash&quot;</span><span class="p">,</span>
-    <span class="s">&quot;collect_by_typename&quot;</span><span class="p">,</span> <span class="s">&quot;collect_by_type&quot;</span><span class="p">,</span>
-    <span class="s">&quot;iterate_by_type&quot;</span><span class="p">,</span> <span class="s">&quot;yield_sorted_by_type&quot;</span><span class="p">,</span>
-    <span class="s">&quot;Change&quot;</span><span class="p">,</span> <span class="s">&quot;Addition&quot;</span><span class="p">,</span> <span class="s">&quot;Removal&quot;</span><span class="p">,</span>
-    <span class="s">&quot;GenericChange&quot;</span><span class="p">,</span> <span class="s">&quot;SuperChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;SquashedChange&quot;</span><span class="p">,</span> <span class="s">&quot;SquashedAddition&quot;</span><span class="p">,</span> <span class="s">&quot;SquashedRemoval&quot;</span><span class="p">,</span>
-<span class="p">)</span>
+    <span class="s2">&quot;squash&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;collect_by_typename&quot;</span><span class="p">,</span> <span class="s2">&quot;collect_by_type&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;iterate_by_type&quot;</span><span class="p">,</span> <span class="s2">&quot;yield_sorted_by_type&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Change&quot;</span><span class="p">,</span> <span class="s2">&quot;Addition&quot;</span><span class="p">,</span> <span class="s2">&quot;Removal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GenericChange&quot;</span><span class="p">,</span> <span class="s2">&quot;SuperChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SquashedChange&quot;</span><span class="p">,</span> <span class="s2">&quot;SquashedAddition&quot;</span><span class="p">,</span> <span class="s2">&quot;SquashedRemoval&quot;</span><span class="p">,</span> <span class="p">)</span>
 
 
-<div class="viewcode-block" id="collect_by_typename"><a class="viewcode-back" href="../../../change/#javatools.change.collect_by_typename">[docs]</a><span class="k">def</span> <span class="nf">collect_by_typename</span><span class="p">(</span><span class="n">obj_sequence</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="collect_by_typename"><a class="viewcode-back" href="../../../change/#javatools.change.collect_by_typename">[docs]</a><span class="k">def</span> <span class="nf">collect_by_typename</span><span class="p">(</span><span class="n">obj_sequence</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    collects objects from obj_sequence and stores them into buckets by</span>
 <span class="sd">    type name. cache is an optional dict into which we collect the</span>
 <span class="sd">    results.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">obj_sequence</span><span class="p">:</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
 
-        <span class="n">bucket</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">bucket</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">cache</span>
+    <span class="k">return</span> <span class="n">cache</span></div>
 
-</div>
-<div class="viewcode-block" id="collect_by_type"><a class="viewcode-back" href="../../../change/#javatools.change.collect_by_type">[docs]</a><span class="k">def</span> <span class="nf">collect_by_type</span><span class="p">(</span><span class="n">obj_sequence</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="collect_by_type"><a class="viewcode-back" href="../../../change/#javatools.change.collect_by_type">[docs]</a><span class="k">def</span> <span class="nf">collect_by_type</span><span class="p">(</span><span class="n">obj_sequence</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    collects objects from obj_sequence and stores them into buckets by</span>
 <span class="sd">    type. cache is an optional dict into which we collect the results.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">obj_sequence</span><span class="p">:</span>
         <span class="n">key</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
 
-        <span class="n">bucket</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">bucket</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">cache</span>
+    <span class="k">return</span> <span class="n">cache</span></div>
 
-</div>
+
 <div class="viewcode-block" id="iterate_by_type"><a class="viewcode-back" href="../../../change/#javatools.change.iterate_by_type">[docs]</a><span class="k">def</span> <span class="nf">iterate_by_type</span><span class="p">(</span><span class="n">objs</span><span class="p">,</span> <span class="n">typelist</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    collects a sequence of objs into buckets by type, then re-emits</span>
 <span class="sd">    objs from the buckets, sorting through the buckets in the order</span>
 <span class="sd">    specified by typelist. Any objects of a type not specified in</span>
@@ -148,11 +134,11 @@
 
     <span class="k">for</span> <span class="n">tl</span> <span class="ow">in</span> <span class="n">cache</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">tl</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">val</span>
+            <span class="k">yield</span> <span class="n">val</span></div>
 
-</div>
+
 <div class="viewcode-block" id="yield_sorted_by_type"><a class="viewcode-back" href="../../../change/#javatools.change.yield_sorted_by_type">[docs]</a><span class="k">def</span> <span class="nf">yield_sorted_by_type</span><span class="p">(</span><span class="o">*</span><span class="n">typelist</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    a useful decorator for the collect_impl method of SuperChange</span>
 <span class="sd">    subclasses. Caches the yielded changes, and re-emits them</span>
 <span class="sd">    collected by their type. The order of the types can be specified</span>
@@ -169,221 +155,221 @@
             <span class="k">return</span> <span class="n">iterate_by_type</span><span class="p">(</span><span class="n">fun</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">),</span> <span class="n">typelist</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">decorated</span>
 
-    <span class="k">return</span> <span class="n">decorate</span>
+    <span class="k">return</span> <span class="n">decorate</span></div>
 
-</div>
+
 <div class="viewcode-block" id="Change"><a class="viewcode-back" href="../../../change/#javatools.change.Change">[docs]</a><span class="k">class</span> <span class="nc">Change</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for representing a specific change between two objects</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Change&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Change&quot;</span>
 
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldata</span><span class="p">,</span> <span class="n">rdata</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldata</span><span class="p">,</span> <span class="n">rdata</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span> <span class="o">=</span> <span class="n">ldata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span> <span class="o">=</span> <span class="n">rdata</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="Change.clear"><a class="viewcode-back" href="../../../change/#javatools.change.Change.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-</div>
+
 <div class="viewcode-block" id="Change.check"><a class="viewcode-back" href="../../../change/#javatools.change.Change.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">pass</span>
+        <span class="k">pass</span></div>
 
-</div>
+
 <div class="viewcode-block" id="Change.get_ldata"><a class="viewcode-back" href="../../../change/#javatools.change.Change.get_ldata">[docs]</a>    <span class="k">def</span> <span class="nf">get_ldata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span></div>
 
-</div>
+
 <div class="viewcode-block" id="Change.get_rdata"><a class="viewcode-back" href="../../../change/#javatools.change.Change.get_rdata">[docs]</a>    <span class="k">def</span> <span class="nf">get_rdata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span></div>
 
-</div>
+
 <div class="viewcode-block" id="Change.is_change"><a class="viewcode-back" href="../../../change/#javatools.change.Change.is_change">[docs]</a>    <span class="k">def</span> <span class="nf">is_change</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">changed</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">changed</span></div>
 
-</div>
+
 <div class="viewcode-block" id="Change.is_ignored"><a class="viewcode-back" href="../../../change/#javatools.change.Change.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        is this change ignorable, given parameters on the options</span>
 <span class="sd">        object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
-</div>
+
 <div class="viewcode-block" id="Change.get_description"><a class="viewcode-back" href="../../../change/#javatools.change.Change.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="ow">or</span> \
-               <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">+</span> <span class="p">(</span><span class="s">&quot; unchanged&quot;</span><span class="p">,</span> <span class="s">&quot; changed&quot;</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">()])</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot; changed&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot; unchanged&quot;</span><span class="p">))</span></div>
 
-</div>
-<div class="viewcode-block" id="Change.collect"><a class="viewcode-back" href="../../../change/#javatools.change.Change.collect">[docs]</a>    <span class="k">def</span> <span class="nf">collect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">()</span>
 
-</div>
-<div class="viewcode-block" id="Change.simplify"><a class="viewcode-back" href="../../../change/#javatools.change.Change.simplify">[docs]</a>    <span class="k">def</span> <span class="nf">simplify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Change.collect"><a class="viewcode-back" href="../../../change/#javatools.change.Change.collect">[docs]</a>    <span class="k">def</span> <span class="nf">collect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Change.simplify"><a class="viewcode-back" href="../../../change/#javatools.change.Change.simplify">[docs]</a>    <span class="k">def</span> <span class="nf">simplify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        returns a dict describing a simple snapshot of this change, and</span>
 <span class="sd">        its children if any.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">simple</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s">&quot;class&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
-            <span class="s">&quot;is_change&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">(),</span>
-            <span class="s">&quot;description&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_description</span><span class="p">(),</span>
-            <span class="s">&quot;label&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
-            <span class="p">}</span>
+            <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="s2">&quot;is_change&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">(),</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_description</span><span class="p">(),</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+        <span class="p">}</span>
 
         <span class="k">if</span> <span class="n">options</span><span class="p">:</span>
-            <span class="n">simple</span><span class="p">[</span><span class="s">&quot;is_ignored&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_ignored</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+            <span class="n">simple</span><span class="p">[</span><span class="s2">&quot;is_ignored&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_ignored</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Addition</span><span class="p">):</span>
-            <span class="n">simple</span><span class="p">[</span><span class="s">&quot;is_addition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">simple</span><span class="p">[</span><span class="s2">&quot;is_addition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Removal</span><span class="p">):</span>
-            <span class="n">simple</span><span class="p">[</span><span class="s">&quot;is_removal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">simple</span><span class="p">[</span><span class="s2">&quot;is_removal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="p">:</span>
-            <span class="n">simple</span><span class="p">[</span><span class="s">&quot;entry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span>
+            <span class="n">simple</span><span class="p">[</span><span class="s2">&quot;entry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span>
 
-        <span class="k">return</span> <span class="n">simple</span>
+        <span class="k">return</span> <span class="n">simple</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="Removal"><a class="viewcode-back" href="../../../change/#javatools.change.Removal">[docs]</a><span class="k">class</span> <span class="nc">Removal</span><span class="p">(</span><span class="n">Change</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A type of change indicating that something was removed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Removal&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Removal&quot;</span>
 
 
 <div class="viewcode-block" id="Removal.is_change"><a class="viewcode-back" href="../../../change/#javatools.change.Removal.is_change">[docs]</a>    <span class="k">def</span> <span class="nf">is_change</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="Addition"><a class="viewcode-back" href="../../../change/#javatools.change.Addition">[docs]</a><span class="k">class</span> <span class="nc">Addition</span><span class="p">(</span><span class="n">Change</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A type of change indicating that something was added</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Addition&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Addition&quot;</span>
 
 
 <div class="viewcode-block" id="Addition.is_change"><a class="viewcode-back" href="../../../change/#javatools.change.Addition.is_change">[docs]</a>    <span class="k">def</span> <span class="nf">is_change</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="GenericChange"><a class="viewcode-back" href="../../../change/#javatools.change.GenericChange">[docs]</a><span class="k">class</span> <span class="nc">GenericChange</span><span class="p">(</span><span class="n">Change</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A generalized test for a single change on two objects: a left and</span>
 <span class="sd">    a right. Subclasses should override the label and the check_impl</span>
 <span class="sd">    method at a minimum.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Generic Change&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Generic Change&quot;</span>
 
 
 <div class="viewcode-block" id="GenericChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.change.GenericChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">side_data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the data to be used in fn_differ from side_data. By default,</span>
 <span class="sd">        this method is the identity</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="n">side_data</span>
+        <span class="k">return</span> <span class="n">side_data</span></div>
 
-</div>
+
 <div class="viewcode-block" id="GenericChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.change.GenericChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">side_data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        override to provide a way to show the pretty version of the left</span>
 <span class="sd">        or right data. Defaults to fn_data</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_data</span><span class="p">(</span><span class="n">side_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_data</span><span class="p">(</span><span class="n">side_data</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="GenericChange.fn_pretty_desc"><a class="viewcode-back" href="../../../change/#javatools.change.GenericChange.fn_pretty_desc">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">side_data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        override to provide a way to describe the data left or right</span>
 <span class="sd">        data. Defaults to fn_pretty</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_pretty</span><span class="p">(</span><span class="n">side_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_pretty</span><span class="p">(</span><span class="n">side_data</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="GenericChange.fn_differ"><a class="viewcode-back" href="../../../change/#javatools.change.GenericChange.fn_differ">[docs]</a>    <span class="k">def</span> <span class="nf">fn_differ</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left_data</span><span class="p">,</span> <span class="n">right_data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        override to provide the check for whether get_ldata() and</span>
 <span class="sd">        get_rdata() differ. defaults to an inequality (!=) check</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="n">left_data</span> <span class="o">!=</span> <span class="n">right_data</span>
+        <span class="k">return</span> <span class="n">left_data</span> <span class="o">!=</span> <span class="n">right_data</span></div>
 
-</div>
+
 <div class="viewcode-block" id="GenericChange.get_ldata"><a class="viewcode-back" href="../../../change/#javatools.change.GenericChange.get_ldata">[docs]</a>    <span class="k">def</span> <span class="nf">get_ldata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        returns fn_data of ldata</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="GenericChange.get_rdata"><a class="viewcode-back" href="../../../change/#javatools.change.GenericChange.get_rdata">[docs]</a>    <span class="k">def</span> <span class="nf">get_rdata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        returns fn_data of rdata</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="GenericChange.pretty_ldata"><a class="viewcode-back" href="../../../change/#javatools.change.GenericChange.pretty_ldata">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_ldata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        returns fn_pretty of ldata (NOT the fn_pretty of get_ldata)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="GenericChange.pretty_rdata"><a class="viewcode-back" href="../../../change/#javatools.change.GenericChange.pretty_rdata">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_rdata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        returns fn_pretty of rdata (NOT the fn_pretty of get_rdata)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="GenericChange.pretty_ldata_desc"><a class="viewcode-back" href="../../../change/#javatools.change.GenericChange.pretty_ldata_desc">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_ldata_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        returns fn_pretty_desc of ldata (NOT the fn_pretty_desc of</span>
 <span class="sd">        get_ldata)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_pretty_desc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_pretty_desc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="GenericChange.pretty_rdata_desc"><a class="viewcode-back" href="../../../change/#javatools.change.GenericChange.pretty_rdata_desc">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_rdata_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        returns fn_pretty_desc of rdata (NOT the fn_pretty_desc of</span>
 <span class="sd">        get_rdata)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_pretty_desc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_pretty_desc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="GenericChange.check_impl"><a class="viewcode-back" href="../../../change/#javatools.change.GenericChange.check_impl">[docs]</a>    <span class="k">def</span> <span class="nf">check_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        returns a tuple of (is_change,description) which are then stored</span>
 <span class="sd">        in self.changed and self.description</span>
 
@@ -398,46 +384,46 @@
 
             <span class="n">left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pretty_ldata_desc</span><span class="p">()</span>
             <span class="n">right</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pretty_rdata_desc</span><span class="p">()</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> changed: </span><span class="si">%s</span><span class="s"> to </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> changed: </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="bp">True</span><span class="p">,</span> <span class="n">msg</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">msg</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">None</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span></div>
 
-</div>
+
 <div class="viewcode-block" id="GenericChange.check"><a class="viewcode-back" href="../../../change/#javatools.change.GenericChange.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        if necessary, override check_impl to change the behaviour of</span>
 <span class="sd">        subclasses of GenericChange.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_impl</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_impl</span><span class="p">()</span></div>
 
-</div>
-<div class="viewcode-block" id="GenericChange.simplify"><a class="viewcode-back" href="../../../change/#javatools.change.GenericChange.simplify">[docs]</a>    <span class="k">def</span> <span class="nf">simplify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GenericChange.simplify"><a class="viewcode-back" href="../../../change/#javatools.change.GenericChange.simplify">[docs]</a>    <span class="k">def</span> <span class="nf">simplify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        provide a simple representation of this change as a dictionary</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c"># TODO: we might want to get rid of this method and just move</span>
-        <span class="c"># it into the JSONEncoder in report.py</span>
+        <span class="c1"># TODO: we might want to get rid of this method and just move</span>
+        <span class="c1"># it into the JSONEncoder in report.py</span>
 
         <span class="n">simple</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
 
         <span class="n">ld</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pretty_ldata</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">ld</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">simple</span><span class="p">[</span><span class="s">&quot;old_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ld</span>
+        <span class="k">if</span> <span class="n">ld</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">simple</span><span class="p">[</span><span class="s2">&quot;old_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ld</span>
 
         <span class="n">rd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pretty_rdata</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">rd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">simple</span><span class="p">[</span><span class="s">&quot;new_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rd</span>
+        <span class="k">if</span> <span class="n">rd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">simple</span><span class="p">[</span><span class="s2">&quot;new_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rd</span>
 
-        <span class="k">return</span> <span class="n">simple</span>
+        <span class="k">return</span> <span class="n">simple</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="SuperChange"><a class="viewcode-back" href="../../../change/#javatools.change.SuperChange">[docs]</a><span class="k">class</span> <span class="nc">SuperChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A collection of changes.</span>
 
 <span class="sd">    For simplest use, override the change_types class field with a</span>
@@ -450,28 +436,28 @@
 <span class="sd">    An instance of SuperChange is considered unchanged if all of its</span>
 <span class="sd">    sub-changes are also unchanged (or if there were no sub-changes).</span>
 
-<span class="sd">    An instance of Superchange is considered ignored if it was a</span>
+<span class="sd">    An instance of SuperChange is considered ignored if it was a</span>
 <span class="sd">    change and all of its changed children were also ignored.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Super Change&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Super Change&quot;</span>
 
 
-    <span class="c"># override with change classes</span>
+    <span class="c1"># override with change classes</span>
     <span class="n">change_types</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
 
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldata</span><span class="p">,</span> <span class="n">rdata</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ldata</span><span class="p">,</span> <span class="n">rdata</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldata</span><span class="p">,</span> <span class="n">rdata</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ldata</span><span class="p">,</span> <span class="n">rdata</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">changes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="SuperChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.change.SuperChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
-</div>
+
 <div class="viewcode-block" id="SuperChange.clear"><a class="viewcode-back" href="../../../change/#javatools.change.SuperChange.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        clears all child changes and drops the reference to them</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -479,12 +465,12 @@
 
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">changes</span><span class="p">:</span>
             <span class="n">c</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">changes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="SuperChange.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.change.SuperChange.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        instanciates each of the entries in in the overriden change_types</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        instantiates each of the entries in in the overriden change_types</span>
 <span class="sd">        field with the left and right data</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -492,11 +478,11 @@
         <span class="n">rdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rdata</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">change_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_types</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">change_type</span><span class="p">(</span><span class="n">ldata</span><span class="p">,</span> <span class="n">rdata</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">change_type</span><span class="p">(</span><span class="n">ldata</span><span class="p">,</span> <span class="n">rdata</span><span class="p">)</span></div>
 
-</div>
-<div class="viewcode-block" id="SuperChange.collect"><a class="viewcode-back" href="../../../change/#javatools.change.SuperChange.collect">[docs]</a>    <span class="k">def</span> <span class="nf">collect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SuperChange.collect"><a class="viewcode-back" href="../../../change/#javatools.change.SuperChange.collect">[docs]</a>    <span class="k">def</span> <span class="nf">collect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        calls collect_impl and stores the results as the child changes of</span>
 <span class="sd">        this super-change. Returns a tuple of the data generated from</span>
 <span class="sd">        collect_impl. Caches the result rather than re-computing each</span>
@@ -505,45 +491,45 @@
 
         <span class="k">if</span> <span class="n">force</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">changes</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">changes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">collect_impl</span><span class="p">())</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">changes</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">changes</span></div>
 
-</div>
+
 <div class="viewcode-block" id="SuperChange.check_impl"><a class="viewcode-back" href="../../../change/#javatools.change.SuperChange.check_impl">[docs]</a>    <span class="k">def</span> <span class="nf">check_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        sets self.changes to the result of self.changes_impl, then if any</span>
 <span class="sd">        member of those checks shows as a change, will return</span>
 <span class="sd">        True,None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">c</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">collect</span><span class="p">():</span>
             <span class="n">change</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">c</span> <span class="ow">or</span> <span class="n">change</span><span class="o">.</span><span class="n">is_change</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">c</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="n">c</span><span class="p">,</span> <span class="kc">None</span></div>
 
-</div>
+
 <div class="viewcode-block" id="SuperChange.is_ignored"><a class="viewcode-back" href="../../../change/#javatools.change.SuperChange.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If we have changed children and all the children which are changes</span>
 <span class="sd">        are ignored, then we are ignored. Otherwise, we are not</span>
 <span class="sd">        ignored</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
-            <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
         <span class="n">changes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">changes</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">changes</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">change</span><span class="o">.</span><span class="n">is_change</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">change</span><span class="o">.</span><span class="n">is_ignored</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">False</span>
-        <span class="k">return</span> <span class="bp">True</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
-</div>
-<div class="viewcode-block" id="SuperChange.simplify"><a class="viewcode-back" href="../../../change/#javatools.change.SuperChange.simplify">[docs]</a>    <span class="k">def</span> <span class="nf">simplify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SuperChange.simplify"><a class="viewcode-back" href="../../../change/#javatools.change.SuperChange.simplify">[docs]</a>    <span class="k">def</span> <span class="nf">simplify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        generate a simple dict representing this change data, and</span>
 <span class="sd">        collecting all of the sub-change instances (which are NOT</span>
 <span class="sd">        immediately simplified themselves)</span>
@@ -551,15 +537,15 @@
 
         <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
 
-        <span class="n">show_ignored</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="n">show_unchanged</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">show_ignored</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">show_unchanged</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="n">options</span><span class="p">:</span>
-            <span class="n">show_ignored</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;show_ignored&quot;</span><span class="p">,</span> <span class="n">show_ignored</span><span class="p">)</span>
-            <span class="n">show_unchanged</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;show_unchanged&quot;</span><span class="p">,</span> <span class="n">show_unchanged</span><span class="p">)</span>
+            <span class="n">show_ignored</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s2">&quot;show_ignored&quot;</span><span class="p">,</span> <span class="n">show_ignored</span><span class="p">)</span>
+            <span class="n">show_unchanged</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s2">&quot;show_unchanged&quot;</span><span class="p">,</span> <span class="n">show_unchanged</span><span class="p">)</span>
 
-        <span class="c"># build a list of sub-changes honoring show-ignored and</span>
-        <span class="c"># show-unchanged</span>
+        <span class="c1"># build a list of sub-changes honoring show-ignored and</span>
+        <span class="c1"># show-unchanged</span>
 
         <span class="n">subs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">collect</span><span class="p">():</span>
@@ -569,12 +555,12 @@
             <span class="k">elif</span> <span class="n">show_unchanged</span><span class="p">:</span>
                 <span class="n">subs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
-        <span class="n">data</span><span class="p">[</span><span class="s">&quot;children&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subs</span>
-        <span class="k">return</span> <span class="n">data</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;children&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subs</span>
+        <span class="k">return</span> <span class="n">data</span></div>
 
-</div>
+
 <div class="viewcode-block" id="SuperChange.squash_children"><a class="viewcode-back" href="../../../change/#javatools.change.SuperChange.squash_children">[docs]</a>    <span class="k">def</span> <span class="nf">squash_children</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        reduces the memory footprint of this super-change by converting</span>
 <span class="sd">        all child changes into squashed changes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -583,74 +569,72 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">changes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">squash</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">oldsubs</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">oldsubs</span><span class="p">:</span>
-            <span class="n">change</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="n">change</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="SquashedChange"><a class="viewcode-back" href="../../../change/#javatools.change.SquashedChange">[docs]</a><span class="k">class</span> <span class="nc">SquashedChange</span><span class="p">(</span><span class="n">Change</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For when you want to keep just the overall data from a change,</span>
 <span class="sd">    including whether it was ignored, but want to discard the more</span>
 <span class="sd">    in-depth information.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;SquashedChange&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;SquashedChange&quot;</span>
 
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">is_ignored</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SquashedChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">is_ignored</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SquashedChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">change</span><span class="o">.</span><span class="n">label</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">change</span><span class="o">.</span><span class="n">get_description</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">changed</span> <span class="o">=</span> <span class="n">change</span><span class="o">.</span><span class="n">is_change</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ignored</span> <span class="o">=</span> <span class="n">is_ignored</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">origclass</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">change</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="s">&quot;entry&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="s2">&quot;entry&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="SquashedChange.is_ignored"><a class="viewcode-back" href="../../../change/#javatools.change.SquashedChange.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignored</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignored</span></div>
 
-</div>
+
 <div class="viewcode-block" id="SquashedChange.is_change"><a class="viewcode-back" href="../../../change/#javatools.change.SquashedChange.is_change">[docs]</a>    <span class="k">def</span> <span class="nf">is_change</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">changed</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">changed</span></div>
 
-</div>
-<div class="viewcode-block" id="SquashedChange.simplify"><a class="viewcode-back" href="../../../change/#javatools.change.SquashedChange.simplify">[docs]</a>    <span class="k">def</span> <span class="nf">simplify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SquashedChange.simplify"><a class="viewcode-back" href="../../../change/#javatools.change.SquashedChange.simplify">[docs]</a>    <span class="k">def</span> <span class="nf">simplify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">simple</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SquashedChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
-        <span class="n">simple</span><span class="p">[</span><span class="s">&quot;original_class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">origclass</span><span class="o">.</span><span class="n">__name__</span>
-        <span class="k">return</span> <span class="n">simple</span>
+        <span class="n">simple</span><span class="p">[</span><span class="s2">&quot;original_class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">origclass</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">return</span> <span class="n">simple</span></div>
 
-</div>
+
 <div class="viewcode-block" id="SquashedChange.clear"><a class="viewcode-back" href="../../../change/#javatools.change.SquashedChange.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">pass</span>
+        <span class="k">pass</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="SquashedRemoval"><a class="viewcode-back" href="../../../change/#javatools.change.SquashedRemoval">[docs]</a><span class="k">class</span> <span class="nc">SquashedRemoval</span><span class="p">(</span><span class="n">SquashedChange</span><span class="p">,</span> <span class="n">Removal</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Squashed change indicating something was removed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;SquashedRemoval&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;SquashedRemoval&quot;</span></div>
 
-</div>
+
 <div class="viewcode-block" id="SquashedAddition"><a class="viewcode-back" href="../../../change/#javatools.change.SquashedAddition">[docs]</a><span class="k">class</span> <span class="nc">SquashedAddition</span><span class="p">(</span><span class="n">SquashedChange</span><span class="p">,</span> <span class="n">Addition</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Squashed change indicating something was added</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;SquashedAddition&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;SquashedAddition&quot;</span></div>
 
-</div>
-<div class="viewcode-block" id="squash"><a class="viewcode-back" href="../../../change/#javatools.change.squash">[docs]</a><span class="k">def</span> <span class="nf">squash</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">is_ignored</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="squash"><a class="viewcode-back" href="../../../change/#javatools.change.squash">[docs]</a><span class="k">def</span> <span class="nf">squash</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">is_ignored</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    squashes the in-depth information of a change to a simplified (and</span>
 <span class="sd">    less memory-intensive) form</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="p">:</span>
         <span class="n">is_ignored</span> <span class="o">=</span> <span class="n">change</span><span class="o">.</span><span class="n">is_ignored</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
-
-    <span class="n">result</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">Removal</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">SquashedRemoval</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">is_ignored</span><span class="p">)</span>
@@ -659,36 +643,34 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">SquashedChange</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">is_ignored</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">result</span></div>
 
 
-<span class="c">#</span>
-<span class="c"># The end.</span></div>
+<span class="c1">#</span>
+<span class="c1"># The end.</span>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search/" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -697,18 +679,16 @@
         <li class="right" >
           <a href="../../../py-modindex/" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="../../../np-modindex/" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../../">javatools 1.4.0 documentation</a> &raquo;</li>
-          <li><a href="../../" >Module code</a> &raquo;</li>
-          <li><a href="../" >javatools</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../../">python-javatools 1.6.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../" >javatools</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">javatools.change</a></li> 
       </ul>
     </div>
 
-    <div class="footer">
-        &copy; Copyright 2014, Christopher O&#39;Brien.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2023, Christopher O&#39;Brien.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");

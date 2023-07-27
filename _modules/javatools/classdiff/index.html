@@ -1,33 +1,22 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="English">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>javatools.classdiff &#8212; python-javatools 1.6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/classic.css" />
     
-    <title>javatools.classdiff &mdash; javatools 1.4.0 documentation</title>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     
-    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '1.4.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="top" title="javatools 1.4.0 documentation" href="../../../" />
-    <link rel="up" title="javatools" href="../" /> 
-  </head>
-  <body>
-    <div class="related">
+    <link rel="index" title="Index" href="../../../genindex/" />
+    <link rel="search" title="Search" href="../../../search/" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -36,34 +25,32 @@
         <li class="right" >
           <a href="../../../py-modindex/" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="../../../np-modindex/" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../../">javatools 1.4.0 documentation</a> &raquo;</li>
-          <li><a href="../../" >Module code</a> &raquo;</li>
-          <li><a href="../" accesskey="U">javatools</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../../">python-javatools 1.6.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../" accesskey="U">javatools</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">javatools.classdiff</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <h1>Source code for javatools.classdiff</h1><div class="highlight"><pre>
-<span class="c"># This library is free software; you can redistribute it and/or modify</span>
-<span class="c"># it under the terms of the GNU Lesser General Public License as</span>
-<span class="c"># published by the Free Software Foundation; either version 3 of the</span>
-<span class="c"># License, or (at your option) any later version.</span>
-<span class="c">#</span>
-<span class="c"># This library is distributed in the hope that it will be useful, but</span>
-<span class="c"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
-<span class="c"># Lesser General Public License for more details.</span>
-<span class="c">#</span>
-<span class="c"># You should have received a copy of the GNU Lesser General Public</span>
-<span class="c"># License along with this library; if not, see</span>
-<span class="c"># &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span></span><span class="c1"># This library is free software; you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Lesser General Public License as</span>
+<span class="c1"># published by the Free Software Foundation; either version 3 of the</span>
+<span class="c1"># License, or (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This library is distributed in the hope that it will be useful, but</span>
+<span class="c1"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1"># Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1"># License along with this library; if not, see</span>
+<span class="c1"># &lt;http://www.gnu.org/licenses/&gt;.</span>
 
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -78,68 +65,71 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
+<span class="kn">import</span> <span class="nn">sys</span>
+
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">izip</span>
-<span class="kn">from</span> <span class="nn">javatools</span> <span class="kn">import</span> <span class="n">unpack_classfile</span>
+<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">ArgumentParser</span><span class="p">,</span> <span class="n">Action</span>
+<span class="kn">from</span> <span class="nn">six</span> <span class="kn">import</span> <span class="n">add_metaclass</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">unpack_classfile</span>
 <span class="kn">from</span> <span class="nn">.change</span> <span class="kn">import</span> <span class="n">GenericChange</span><span class="p">,</span> <span class="n">SuperChange</span>
 <span class="kn">from</span> <span class="nn">.change</span> <span class="kn">import</span> <span class="n">Addition</span><span class="p">,</span> <span class="n">Removal</span>
 <span class="kn">from</span> <span class="nn">.change</span> <span class="kn">import</span> <span class="n">yield_sorted_by_type</span>
 <span class="kn">from</span> <span class="nn">.opcodes</span> <span class="kn">import</span> <span class="n">get_opname_by_code</span><span class="p">,</span> <span class="n">has_const_arg</span>
 <span class="kn">from</span> <span class="nn">.report</span> <span class="kn">import</span> <span class="n">quick_report</span><span class="p">,</span> <span class="n">Reporter</span>
 <span class="kn">from</span> <span class="nn">.report</span> <span class="kn">import</span> <span class="n">JSONReportFormat</span><span class="p">,</span> <span class="n">TextReportFormat</span>
-<span class="kn">from</span> <span class="nn">.report</span> <span class="kn">import</span> <span class="n">general_report_optgroup</span>
-<span class="kn">from</span> <span class="nn">.report</span> <span class="kn">import</span> <span class="n">json_report_optgroup</span><span class="p">,</span> <span class="n">html_report_optgroup</span>
+<span class="kn">from</span> <span class="nn">.report</span> <span class="kn">import</span> <span class="n">add_general_report_optgroup</span>
+<span class="kn">from</span> <span class="nn">.report</span> <span class="kn">import</span> <span class="n">add_json_report_optgroup</span><span class="p">,</span> <span class="n">add_html_report_optgroup</span>
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s">&quot;JavaClassChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;ClassInfoChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;ClassAnnotationsChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;ClassInvisibleAnnotationsChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;ClassConstantPoolChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;ClassFieldsChange&quot;</span><span class="p">,</span> <span class="s">&quot;ClassMethodsChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;JavaClassChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ClassInfoChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ClassAnnotationsChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ClassInvisibleAnnotationsChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ClassConstantPoolChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ClassFieldsChange&quot;</span><span class="p">,</span> <span class="s2">&quot;ClassMethodsChange&quot;</span><span class="p">,</span>
 
-    <span class="s">&quot;ClassMembersChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;MemberSuperChange&quot;</span><span class="p">,</span> <span class="s">&quot;MemberAdded&quot;</span><span class="p">,</span> <span class="s">&quot;MemberRemoved&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ClassMembersChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MemberSuperChange&quot;</span><span class="p">,</span> <span class="s2">&quot;MemberAdded&quot;</span><span class="p">,</span> <span class="s2">&quot;MemberRemoved&quot;</span><span class="p">,</span>
 
-    <span class="s">&quot;FieldChange&quot;</span><span class="p">,</span> <span class="s">&quot;FieldAdded&quot;</span><span class="p">,</span> <span class="s">&quot;FieldRemoved&quot;</span><span class="p">,</span>
-    <span class="s">&quot;FieldNameChange&quot;</span><span class="p">,</span> <span class="s">&quot;FieldTypeChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;FieldSignatureChange&quot;</span><span class="p">,</span> <span class="s">&quot;FieldAnnotationsChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;FieldInvisibleAnnotationsChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;FieldAccessflagsChange&quot;</span><span class="p">,</span> <span class="s">&quot;FieldConstvalueChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;FieldDeprecationChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FieldChange&quot;</span><span class="p">,</span> <span class="s2">&quot;FieldAdded&quot;</span><span class="p">,</span> <span class="s2">&quot;FieldRemoved&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FieldNameChange&quot;</span><span class="p">,</span> <span class="s2">&quot;FieldTypeChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FieldSignatureChange&quot;</span><span class="p">,</span> <span class="s2">&quot;FieldAnnotationsChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FieldInvisibleAnnotationsChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FieldAccessflagsChange&quot;</span><span class="p">,</span> <span class="s2">&quot;FieldConstvalueChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FieldDeprecationChange&quot;</span><span class="p">,</span>
 
-    <span class="s">&quot;MethodChange&quot;</span><span class="p">,</span> <span class="s">&quot;MethodAdded&quot;</span><span class="p">,</span> <span class="s">&quot;MethodRemoved&quot;</span><span class="p">,</span>
-    <span class="s">&quot;MethodNameChange&quot;</span><span class="p">,</span> <span class="s">&quot;MethodTypeChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;MethodSignatureChange&quot;</span><span class="p">,</span> <span class="s">&quot;MethodAnnotationsChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;MethodInvisibleAnnotationsChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;MethodParametersChange&quot;</span><span class="p">,</span> <span class="s">&quot;MethodAccessflagsChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;MethodExceptionsChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;MethodAbstractChange&quot;</span><span class="p">,</span> <span class="s">&quot;MethodCodeChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;MethodDeprecationChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MethodChange&quot;</span><span class="p">,</span> <span class="s2">&quot;MethodAdded&quot;</span><span class="p">,</span> <span class="s2">&quot;MethodRemoved&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MethodNameChange&quot;</span><span class="p">,</span> <span class="s2">&quot;MethodTypeChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MethodSignatureChange&quot;</span><span class="p">,</span> <span class="s2">&quot;MethodAnnotationsChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MethodInvisibleAnnotationsChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MethodParametersChange&quot;</span><span class="p">,</span> <span class="s2">&quot;MethodAccessflagsChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MethodExceptionsChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MethodAbstractChange&quot;</span><span class="p">,</span> <span class="s2">&quot;MethodCodeChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MethodDeprecationChange&quot;</span><span class="p">,</span>
 
-    <span class="s">&quot;CodeAbsoluteLinesChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;CodeRelativeLinesChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;CodeStackChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;CodeLocalsChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;CodeExceptionChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;CodeConstantsChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;CodeBodyChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CodeAbsoluteLinesChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CodeRelativeLinesChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CodeStackChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CodeLocalsChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CodeExceptionChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CodeConstantsChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CodeBodyChange&quot;</span><span class="p">,</span>
 
-    <span class="s">&quot;JavaClassReport&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;JavaClassReport&quot;</span><span class="p">,</span>
 
-    <span class="s">&quot;pretty_merge_constants&quot;</span><span class="p">,</span> <span class="s">&quot;merge_code&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pretty_merge_constants&quot;</span><span class="p">,</span> <span class="s2">&quot;merge_code&quot;</span><span class="p">,</span>
 
-    <span class="s">&quot;cli&quot;</span><span class="p">,</span> <span class="s">&quot;main&quot;</span><span class="p">,</span>
-    <span class="s">&quot;cli_classes_diff&quot;</span><span class="p">,</span>
-    <span class="s">&quot;classdiff_optgroup&quot;</span><span class="p">,</span> <span class="s">&quot;default_classdiff_options&quot;</span><span class="p">,</span>
-    <span class="s">&quot;general_optgroup&quot;</span><span class="p">,</span>
-<span class="p">)</span>
+    <span class="s2">&quot;cli&quot;</span><span class="p">,</span> <span class="s2">&quot;main&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cli_classes_diff&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_classdiff_optgroup&quot;</span><span class="p">,</span> <span class="s2">&quot;default_classdiff_options&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_general_optgroup&quot;</span><span class="p">,</span> <span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">ClassNameChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Class name&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Class name&quot;</span>
 
 
     <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
@@ -152,7 +142,7 @@
 
 <span class="k">class</span> <span class="nc">ClassVersionChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Java class verison&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Java class verison&quot;</span>
 
 
     <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
@@ -169,7 +159,7 @@
 
 <span class="k">class</span> <span class="nc">ClassPlatformChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Java platform&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Java platform&quot;</span>
 
 
     <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
@@ -186,7 +176,7 @@
 
 <span class="k">class</span> <span class="nc">ClassSuperclassChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Superclass&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Superclass&quot;</span>
 
 
     <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
@@ -199,7 +189,7 @@
 
 <span class="k">class</span> <span class="nc">ClassInterfacesChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Interfaces&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Interfaces&quot;</span>
 
 
     <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
@@ -212,7 +202,7 @@
 
 <span class="k">class</span> <span class="nc">ClassAccessflagsChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Access flags&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Access flags&quot;</span>
 
 
     <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
@@ -225,7 +215,7 @@
 
 <span class="k">class</span> <span class="nc">ClassDeprecationChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Deprecation&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Deprecation&quot;</span>
 
 
     <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
@@ -238,7 +228,7 @@
 
 <span class="k">class</span> <span class="nc">ClassSignatureChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Generics Signature&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Generics Signature&quot;</span>
 
 
     <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
@@ -249,11 +239,10 @@
         <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">pretty_signature</span><span class="p">()</span>
 
 
+<span class="nd">@add_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">AnnotationsChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
-
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Runtime annotations&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Runtime annotations&quot;</span>
 
 
     <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
@@ -265,11 +254,10 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">anno</span><span class="o">.</span><span class="n">pretty_annotation</span><span class="p">()</span> <span class="k">for</span> <span class="n">anno</span> <span class="ow">in</span> <span class="n">annos</span><span class="p">]</span>
 
 
+<span class="nd">@add_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">InvisibleAnnotationsChange</span><span class="p">(</span><span class="n">AnnotationsChange</span><span class="p">):</span>
 
-    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
-
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Runtime Invisible annotations&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Runtime Invisible annotations&quot;</span>
 
 
     <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
@@ -278,17 +266,17 @@
 
 <div class="viewcode-block" id="ClassAnnotationsChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassAnnotationsChange">[docs]</a><span class="k">class</span> <span class="nc">ClassAnnotationsChange</span><span class="p">(</span><span class="n">AnnotationsChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Class runtime annotations&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Class runtime annotations&quot;</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ClassInvisibleAnnotationsChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassInvisibleAnnotationsChange">[docs]</a><span class="k">class</span> <span class="nc">ClassInvisibleAnnotationsChange</span><span class="p">(</span><span class="n">InvisibleAnnotationsChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Class runtime invisible annotations&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Class runtime invisible annotations&quot;</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ClassInfoChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassInfoChange">[docs]</a><span class="k">class</span> <span class="nc">ClassInfoChange</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Class information&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Class information&quot;</span>
 
 
     <span class="n">change_types</span> <span class="o">=</span> <span class="p">(</span><span class="n">ClassNameChange</span><span class="p">,</span>
@@ -298,59 +286,55 @@
                     <span class="n">ClassInterfacesChange</span><span class="p">,</span>
                     <span class="n">ClassAccessflagsChange</span><span class="p">,</span>
                     <span class="n">ClassDeprecationChange</span><span class="p">,</span>
-                    <span class="n">ClassSignatureChange</span><span class="p">)</span>
+                    <span class="n">ClassSignatureChange</span><span class="p">)</span></div>
 
-</div>
-<div class="viewcode-block" id="MemberSuperChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MemberSuperChange">[docs]</a><span class="k">class</span> <span class="nc">MemberSuperChange</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MemberSuperChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MemberSuperChange">[docs]</a><span class="nd">@add_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MemberSuperChange</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    basis for FieldChange and MethodChange</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
-
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Member&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Member&quot;</span>
 
 
 <div class="viewcode-block" id="MemberSuperChange.get_description"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MemberSuperChange.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="o">.</span><span class="n">pretty_descriptor</span><span class="p">())</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="o">.</span><span class="n">pretty_descriptor</span><span class="p">())</span></div></div>
 
-</div></div>
-<div class="viewcode-block" id="MemberAdded"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MemberAdded">[docs]</a><span class="k">class</span> <span class="nc">MemberAdded</span><span class="p">(</span><span class="n">Addition</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MemberAdded"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MemberAdded">[docs]</a><span class="nd">@add_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MemberAdded</span><span class="p">(</span><span class="n">Addition</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    basis for FieldAdded and MethodAdded</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
-
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Member added&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Member added&quot;</span>
 
 
 <div class="viewcode-block" id="MemberAdded.get_description"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MemberAdded.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="o">.</span><span class="n">pretty_descriptor</span><span class="p">())</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="o">.</span><span class="n">pretty_descriptor</span><span class="p">())</span></div></div>
 
-</div></div>
-<div class="viewcode-block" id="MemberRemoved"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MemberRemoved">[docs]</a><span class="k">class</span> <span class="nc">MemberRemoved</span><span class="p">(</span><span class="n">Removal</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MemberRemoved"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MemberRemoved">[docs]</a><span class="nd">@add_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MemberRemoved</span><span class="p">(</span><span class="n">Removal</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    basis for FieldChange and MethodChange</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
-
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Member removed&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Member removed&quot;</span>
 
 
 <div class="viewcode-block" id="MemberRemoved.get_description"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MemberRemoved.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="o">.</span><span class="n">pretty_descriptor</span><span class="p">())</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="o">.</span><span class="n">pretty_descriptor</span><span class="p">())</span></div></div>
 
-</div></div>
-<div class="viewcode-block" id="ClassMembersChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassMembersChange">[docs]</a><span class="k">class</span> <span class="nc">ClassMembersChange</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ClassMembersChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassMembersChange">[docs]</a><span class="nd">@add_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ClassMembersChange</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    basis for ClassFieldsChange and ClassMethodsChange</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
-
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Members&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Members&quot;</span>
 
     <span class="n">member_added</span> <span class="o">=</span> <span class="n">MemberAdded</span>
     <span class="n">member_removed</span> <span class="o">=</span> <span class="n">MemberRemoved</span>
@@ -365,85 +349,85 @@
 
         <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">:</span>
             <span class="n">key</span> <span class="o">=</span> <span class="n">member</span><span class="o">.</span><span class="n">get_identifier</span><span class="p">()</span>
-            <span class="n">lf</span> <span class="o">=</span> <span class="n">li</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="n">lf</span> <span class="o">=</span> <span class="n">li</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">lf</span><span class="p">:</span>
                 <span class="k">del</span> <span class="n">li</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
                 <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">member_changed</span><span class="p">(</span><span class="n">lf</span><span class="p">,</span> <span class="n">member</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">member_added</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">member</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">member_added</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">member</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">li</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">member_removed</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">member_removed</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="CodeAbsoluteLinesChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeAbsoluteLinesChange">[docs]</a><span class="k">class</span> <span class="nc">CodeAbsoluteLinesChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Absolute line numbers&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Absolute line numbers&quot;</span>
 
 
 <div class="viewcode-block" id="CodeAbsoluteLinesChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeAbsoluteLinesChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">c</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">get_linenumbertable</span><span class="p">())</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">c</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">get_linenumbertable</span><span class="p">())</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="CodeAbsoluteLinesChange.is_ignored"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeAbsoluteLinesChange.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_absolute_lines</span>
+        <span class="k">return</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_absolute_lines</span></div></div>
 
 
-</div></div>
+
 <div class="viewcode-block" id="CodeRelativeLinesChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeRelativeLinesChange">[docs]</a><span class="k">class</span> <span class="nc">CodeRelativeLinesChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Relative line numbers&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Relative line numbers&quot;</span>
 
 
 <div class="viewcode-block" id="CodeRelativeLinesChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeRelativeLinesChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">c</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">get_relativelinenumbertable</span><span class="p">())</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">c</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">get_relativelinenumbertable</span><span class="p">())</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="CodeRelativeLinesChange.is_ignored"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeRelativeLinesChange.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_relative_lines</span>
+        <span class="k">return</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_relative_lines</span></div></div>
 
 
-</div></div>
+
 <div class="viewcode-block" id="CodeStackChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeStackChange">[docs]</a><span class="k">class</span> <span class="nc">CodeStackChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Stack size&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Stack size&quot;</span>
 
 
 <div class="viewcode-block" id="CodeStackChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeStackChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">c</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">max_stack</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">c</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">max_stack</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span></div></div>
 
 
-</div></div>
+
 <div class="viewcode-block" id="CodeLocalsChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeLocalsChange">[docs]</a><span class="k">class</span> <span class="nc">CodeLocalsChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Locals&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Locals&quot;</span>
 
 
 <div class="viewcode-block" id="CodeLocalsChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeLocalsChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">c</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">max_locals</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">c</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">max_locals</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="CodeExceptionChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeExceptionChange">[docs]</a><span class="k">class</span> <span class="nc">CodeExceptionChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Exception table&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Exception table&quot;</span>
 
 
 <div class="viewcode-block" id="CodeExceptionChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeExceptionChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">c</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">exceptions</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">c</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">exceptions</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="CodeExceptionChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeExceptionChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
         <span class="n">a</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_data</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
             <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">start_pc</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">end_pc</span><span class="p">,</span>
                  <span class="n">e</span><span class="o">.</span><span class="n">handler_pc</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">pretty_catch_type</span><span class="p">())</span>
             <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">a</span><span class="p">)</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="CodeConstantsChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeConstantsChange">[docs]</a><span class="k">class</span> <span class="nc">CodeConstantsChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is a test to find instances where the individual opcodes and</span>
 <span class="sd">    arguments for a method&#39;s code may all be identical except that ops</span>
 <span class="sd">    which load from the constant pool may use a different index. We</span>
@@ -456,17 +440,17 @@
 <span class="sd">    order between the old and new versions of a class.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Code constants&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Code constants&quot;</span>
 
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lcode</span><span class="p">,</span> <span class="n">rcode</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">CodeConstantsChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">lcode</span><span class="p">,</span> <span class="n">rcode</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">offsets</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lcode</span><span class="p">,</span> <span class="n">rcode</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CodeConstantsChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">lcode</span><span class="p">,</span> <span class="n">rcode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offsets</span> <span class="o">=</span> <span class="kc">None</span>
 
 
 <div class="viewcode-block" id="CodeConstantsChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeConstantsChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">offsets</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">None</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="n">pr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
@@ -476,25 +460,25 @@
                 <span class="n">data</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">cpool</span><span class="o">.</span><span class="n">pretty_deref_const</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                 <span class="n">pr</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">offset</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">pr</span>
+        <span class="k">return</span> <span class="n">pr</span></div>
 
-</div>
+
 <div class="viewcode-block" id="CodeConstantsChange.check_impl"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeConstantsChange.check_impl">[docs]</a>    <span class="k">def</span> <span class="nf">check_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span>
         <span class="n">right</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span>
         <span class="n">offsets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">code</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">right</span><span class="o">.</span><span class="n">code</span><span class="p">):</span>
-            <span class="c"># code body change, can&#39;t determine constants</span>
-            <span class="k">return</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">None</span>
+            <span class="c1"># code body change, can&#39;t determine constants</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">None</span>
 
-        <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">izip</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">disassemble</span><span class="p">(),</span> <span class="n">right</span><span class="o">.</span><span class="n">disassemble</span><span class="p">()):</span>
+        <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">disassemble</span><span class="p">(),</span> <span class="n">right</span><span class="o">.</span><span class="n">disassemble</span><span class="p">()):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
-                <span class="c"># code body change, can&#39;t determine constants</span>
-                <span class="k">return</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">None</span>
+                <span class="c1"># code body change, can&#39;t determine constants</span>
+                <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">None</span>
 
             <span class="n">largs</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
             <span class="n">rargs</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
@@ -508,143 +492,143 @@
                 <span class="n">offsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">offsets</span> <span class="o">=</span> <span class="n">offsets</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offsets</span><span class="p">),</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offsets</span><span class="p">),</span> <span class="kc">None</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="CodeBodyChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeBodyChange">[docs]</a><span class="k">class</span> <span class="nc">CodeBodyChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The length or the opcodes or the arguments of the opcodes has</span>
 <span class="sd">    changed, signalling that the method body is different</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Code body&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Code body&quot;</span>
 
 
 <div class="viewcode-block" id="CodeBodyChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeBodyChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">c</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">disassemble</span><span class="p">())</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">c</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">disassemble</span><span class="p">())</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="CodeBodyChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeBodyChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
         <span class="n">pr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">offset</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">args</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_data</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">get_opname_by_code</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
             <span class="n">pr</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">offset</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">pr</span>
+        <span class="k">return</span> <span class="n">pr</span></div>
 
-</div>
+
 <div class="viewcode-block" id="CodeBodyChange.check_impl"><a class="viewcode-back" href="../../../change/#javatools.classdiff.CodeBodyChange.check_impl">[docs]</a>    <span class="k">def</span> <span class="nf">check_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span>
         <span class="n">right</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span>
 
-        <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">code</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">right</span><span class="o">.</span><span class="n">code</span><span class="p">):</span>
-            <span class="n">desc</span> <span class="o">=</span> <span class="s">&quot;Code length changed from </span><span class="si">%r</span><span class="s"> to </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> \
+            <span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;Code length changed from </span><span class="si">%r</span><span class="s2"> to </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> \
                    <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">code</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">right</span><span class="o">.</span><span class="n">code</span><span class="p">))</span>
-            <span class="k">return</span> <span class="bp">True</span><span class="p">,</span> <span class="n">desc</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">desc</span>
 
-        <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">izip</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">disassemble</span><span class="p">(),</span> <span class="n">right</span><span class="o">.</span><span class="n">disassemble</span><span class="p">()):</span>
+        <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">disassemble</span><span class="p">(),</span> <span class="n">right</span><span class="o">.</span><span class="n">disassemble</span><span class="p">()):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
-                <span class="k">return</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">None</span>
+                <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">None</span>
 
-        <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="MethodNameChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodNameChange">[docs]</a><span class="k">class</span> <span class="nc">MethodNameChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Method name&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Method name&quot;</span>
 
 
 <div class="viewcode-block" id="MethodNameChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodNameChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="MethodTypeChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodTypeChange">[docs]</a><span class="k">class</span> <span class="nc">MethodTypeChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Method type&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Method type&quot;</span>
 
 
 <div class="viewcode-block" id="MethodTypeChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodTypeChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_type_descriptor</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_type_descriptor</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="MethodTypeChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodTypeChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">pretty_type</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">pretty_type</span><span class="p">()</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="MethodSignatureChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodSignatureChange">[docs]</a><span class="k">class</span> <span class="nc">MethodSignatureChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Method generic signature&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Method generic signature&quot;</span>
 
 
 <div class="viewcode-block" id="MethodSignatureChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodSignatureChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_signature</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_signature</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="MethodSignatureChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodSignatureChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">pretty_signature</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">pretty_signature</span><span class="p">()</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="MethodParametersChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodParametersChange">[docs]</a><span class="k">class</span> <span class="nc">MethodParametersChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Method parameters&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Method parameters&quot;</span>
 
 
 <div class="viewcode-block" id="MethodParametersChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodParametersChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_arg_type_descriptors</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_arg_type_descriptors</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="MethodParametersChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodParametersChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">pretty_arg_types</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">pretty_arg_types</span><span class="p">())</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="MethodAccessflagsChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodAccessflagsChange">[docs]</a><span class="k">class</span> <span class="nc">MethodAccessflagsChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Method accessflags&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Method accessflags&quot;</span>
 
 
 <div class="viewcode-block" id="MethodAccessflagsChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodAccessflagsChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">access_flags</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">access_flags</span></div>
 
-</div>
+
 <div class="viewcode-block" id="MethodAccessflagsChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodAccessflagsChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">pretty_access_flags</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">pretty_access_flags</span><span class="p">())</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="MethodAbstractChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodAbstractChange">[docs]</a><span class="k">class</span> <span class="nc">MethodAbstractChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Method abstract&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Method abstract&quot;</span>
 
 
 <div class="viewcode-block" id="MethodAbstractChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodAbstractChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="ow">not</span> <span class="n">c</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="n">c</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="MethodAbstractChange.fn_pretty_desc"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodAbstractChange.fn_pretty_desc">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn_data</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s">&quot;Method is abstract&quot;</span>
+            <span class="k">return</span> <span class="s2">&quot;Method is abstract&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s">&quot;Method is concrete&quot;</span>
+            <span class="k">return</span> <span class="s2">&quot;Method is concrete&quot;</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="MethodExceptionsChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodExceptionsChange">[docs]</a><span class="k">class</span> <span class="nc">MethodExceptionsChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Method exceptions&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Method exceptions&quot;</span>
 
 
 <div class="viewcode-block" id="MethodExceptionsChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodExceptionsChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_exceptions</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_exceptions</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="MethodExceptionsChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodExceptionsChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">pretty_exceptions</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">pretty_exceptions</span><span class="p">())</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="MethodCodeChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodCodeChange">[docs]</a><span class="k">class</span> <span class="nc">MethodCodeChange</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Method Code&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Method Code&quot;</span>
 
 
     <span class="n">change_types</span> <span class="o">=</span> <span class="p">(</span><span class="n">CodeAbsoluteLinesChange</span><span class="p">,</span>
@@ -656,56 +640,56 @@
                     <span class="n">CodeBodyChange</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">MethodCodeChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">get_code</span><span class="p">(),</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MethodCodeChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">get_code</span><span class="p">(),</span>
                                                <span class="n">r</span><span class="o">.</span><span class="n">get_code</span><span class="p">())</span>
 
 
 <div class="viewcode-block" id="MethodCodeChange.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodCodeChange.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># if both sides are abstract, don&#39;t bother collecting subchanges</span>
+        <span class="c1"># if both sides are abstract, don&#39;t bother collecting subchanges</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">tuple</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">MethodCodeChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">collect_impl</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">MethodCodeChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">collect_impl</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="MethodCodeChange.check_impl"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodCodeChange.check_impl">[docs]</a>    <span class="k">def</span> <span class="nf">check_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># if one side has gone abstract, don&#39;t bother trying to check</span>
-        <span class="c"># any deeper, they&#39;re different unless they&#39;re both abstract.</span>
+        <span class="c1"># if one side has gone abstract, don&#39;t bother trying to check</span>
+        <span class="c1"># any deeper, they&#39;re different unless they&#39;re both abstract.</span>
 
-        <span class="k">if</span> <span class="bp">None</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">),</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="kc">None</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="p">),</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">MethodCodeChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">check_impl</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">MethodCodeChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">check_impl</span><span class="p">()</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="MethodDeprecationChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodDeprecationChange">[docs]</a><span class="k">class</span> <span class="nc">MethodDeprecationChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Method deprecation&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Method deprecation&quot;</span>
 
 
 <div class="viewcode-block" id="MethodDeprecationChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodDeprecationChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">is_deprecated</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">is_deprecated</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="MethodDeprecationChange.is_ignored"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodDeprecationChange.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">o</span><span class="o">.</span><span class="n">ignore_deprecated</span>
+        <span class="k">return</span> <span class="n">o</span><span class="o">.</span><span class="n">ignore_deprecated</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="MethodAnnotationsChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodAnnotationsChange">[docs]</a><span class="k">class</span> <span class="nc">MethodAnnotationsChange</span><span class="p">(</span><span class="n">AnnotationsChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Method runtime annotations&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Method runtime annotations&quot;</span></div>
 
-</div>
+
 <div class="viewcode-block" id="MethodInvisibleAnnotationsChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodInvisibleAnnotationsChange">[docs]</a><span class="k">class</span> <span class="nc">MethodInvisibleAnnotationsChange</span><span class="p">(</span><span class="n">InvisibleAnnotationsChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Method runtime invisible annotations&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Method runtime invisible annotations&quot;</span></div>
 
-</div>
+
 <div class="viewcode-block" id="MethodChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodChange">[docs]</a><span class="k">class</span> <span class="nc">MethodChange</span><span class="p">(</span><span class="n">MemberSuperChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Method&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Method&quot;</span>
 
 
     <span class="n">change_types</span> <span class="o">=</span> <span class="p">(</span><span class="n">MethodNameChange</span><span class="p">,</span>
@@ -718,100 +702,100 @@
                     <span class="n">MethodExceptionsChange</span><span class="p">,</span>
                     <span class="n">MethodAbstractChange</span><span class="p">,</span>
                     <span class="n">MethodDeprecationChange</span><span class="p">,</span>
-                    <span class="n">MethodCodeChange</span><span class="p">)</span>
+                    <span class="n">MethodCodeChange</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="FieldNameChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldNameChange">[docs]</a><span class="k">class</span> <span class="nc">FieldNameChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Field name&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Field name&quot;</span>
 
 
 <div class="viewcode-block" id="FieldNameChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldNameChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="FieldTypeChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldTypeChange">[docs]</a><span class="k">class</span> <span class="nc">FieldTypeChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Field type&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Field type&quot;</span>
 
 
 <div class="viewcode-block" id="FieldTypeChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldTypeChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_descriptor</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_descriptor</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="FieldTypeChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldTypeChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">pretty_type</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">pretty_type</span><span class="p">()</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="FieldSignatureChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldSignatureChange">[docs]</a><span class="k">class</span> <span class="nc">FieldSignatureChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Field Generic Signature&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Field Generic Signature&quot;</span>
 
 
 <div class="viewcode-block" id="FieldSignatureChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldSignatureChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_signature</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_signature</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="FieldSignatureChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldSignatureChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">pretty_signature</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">pretty_signature</span><span class="p">()</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="FieldAccessflagsChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldAccessflagsChange">[docs]</a><span class="k">class</span> <span class="nc">FieldAccessflagsChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Field accessflags&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Field accessflags&quot;</span>
 
 
 <div class="viewcode-block" id="FieldAccessflagsChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldAccessflagsChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">access_flags</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">access_flags</span></div>
 
-</div>
+
 <div class="viewcode-block" id="FieldAccessflagsChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldAccessflagsChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">pretty_access_flags</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">pretty_access_flags</span><span class="p">())</span></div>
 
-</div>
+
 <div class="viewcode-block" id="FieldAccessflagsChange.fn_pretty_desc"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldAccessflagsChange.fn_pretty_desc">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">pretty_access_flags</span><span class="p">())</span>
+        <span class="k">return</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">pretty_access_flags</span><span class="p">())</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="FieldConstvalueChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldConstvalueChange">[docs]</a><span class="k">class</span> <span class="nc">FieldConstvalueChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Field constvalue&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Field constvalue&quot;</span>
 
 
 <div class="viewcode-block" id="FieldConstvalueChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldConstvalueChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">deref_constantvalue</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">deref_constantvalue</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="FieldConstvalueChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldConstvalueChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">deref_constantvalue</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">deref_constantvalue</span><span class="p">())</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="FieldDeprecationChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldDeprecationChange">[docs]</a><span class="k">class</span> <span class="nc">FieldDeprecationChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Field deprecation&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Field deprecation&quot;</span>
 
 
 <div class="viewcode-block" id="FieldDeprecationChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldDeprecationChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">is_deprecated</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">is_deprecated</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="FieldDeprecationChange.is_ignored"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldDeprecationChange.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">o</span><span class="o">.</span><span class="n">ignore_deprecated</span>
+        <span class="k">return</span> <span class="n">o</span><span class="o">.</span><span class="n">ignore_deprecated</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="FieldAnnotationsChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldAnnotationsChange">[docs]</a><span class="k">class</span> <span class="nc">FieldAnnotationsChange</span><span class="p">(</span><span class="n">AnnotationsChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Field runtime annotations&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Field runtime annotations&quot;</span></div>
 
-</div>
+
 <div class="viewcode-block" id="FieldInvisibleAnnotationsChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldInvisibleAnnotationsChange">[docs]</a><span class="k">class</span> <span class="nc">FieldInvisibleAnnotationsChange</span><span class="p">(</span><span class="n">InvisibleAnnotationsChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Field runtime invisible annotations&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Field runtime invisible annotations&quot;</span></div>
 
-</div>
+
 <div class="viewcode-block" id="FieldChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldChange">[docs]</a><span class="k">class</span> <span class="nc">FieldChange</span><span class="p">(</span><span class="n">MemberSuperChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Field&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Field&quot;</span>
 
 
     <span class="n">change_types</span> <span class="o">=</span> <span class="p">(</span><span class="n">FieldNameChange</span><span class="p">,</span>
@@ -821,22 +805,22 @@
                     <span class="n">FieldInvisibleAnnotationsChange</span><span class="p">,</span>
                     <span class="n">FieldAccessflagsChange</span><span class="p">,</span>
                     <span class="n">FieldConstvalueChange</span><span class="p">,</span>
-                    <span class="n">FieldDeprecationChange</span><span class="p">)</span>
+                    <span class="n">FieldDeprecationChange</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="FieldAdded"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldAdded">[docs]</a><span class="k">class</span> <span class="nc">FieldAdded</span><span class="p">(</span><span class="n">MemberAdded</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Field added&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Field added&quot;</span></div>
 
-</div>
+
 <div class="viewcode-block" id="FieldRemoved"><a class="viewcode-back" href="../../../change/#javatools.classdiff.FieldRemoved">[docs]</a><span class="k">class</span> <span class="nc">FieldRemoved</span><span class="p">(</span><span class="n">MemberRemoved</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Field removed&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Field removed&quot;</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ClassFieldsChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassFieldsChange">[docs]</a><span class="k">class</span> <span class="nc">ClassFieldsChange</span><span class="p">(</span><span class="n">ClassMembersChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Fields&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Fields&quot;</span>
 
 
     <span class="n">member_added</span> <span class="o">=</span> <span class="n">FieldAdded</span>
@@ -844,29 +828,29 @@
     <span class="n">member_changed</span> <span class="o">=</span> <span class="n">FieldChange</span>
 
 
-    <span class="nd">@yield_sorted_by_type</span><span class="p">(</span><span class="n">FieldAdded</span><span class="p">,</span> <span class="n">FieldRemoved</span><span class="p">,</span> <span class="n">FieldChange</span><span class="p">)</span>
-<div class="viewcode-block" id="ClassFieldsChange.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassFieldsChange.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ClassFieldsChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">collect_impl</span><span class="p">()</span>
+<div class="viewcode-block" id="ClassFieldsChange.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassFieldsChange.collect_impl">[docs]</a>    <span class="nd">@yield_sorted_by_type</span><span class="p">(</span><span class="n">FieldAdded</span><span class="p">,</span> <span class="n">FieldRemoved</span><span class="p">,</span> <span class="n">FieldChange</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ClassFieldsChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">collect_impl</span><span class="p">()</span></div>
 
-</div>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lclass</span><span class="p">,</span> <span class="n">rclass</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ClassFieldsChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">lclass</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span>
-                                                <span class="n">rclass</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span>
 
-</div>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lclass</span><span class="p">,</span> <span class="n">rclass</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ClassFieldsChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">lclass</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span>
+                                                <span class="n">rclass</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="MethodAdded"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodAdded">[docs]</a><span class="k">class</span> <span class="nc">MethodAdded</span><span class="p">(</span><span class="n">MemberAdded</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Method added&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Method added&quot;</span></div>
 
-</div>
+
 <div class="viewcode-block" id="MethodRemoved"><a class="viewcode-back" href="../../../change/#javatools.classdiff.MethodRemoved">[docs]</a><span class="k">class</span> <span class="nc">MethodRemoved</span><span class="p">(</span><span class="n">MemberRemoved</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Method removed&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Method removed&quot;</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ClassMethodsChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassMethodsChange">[docs]</a><span class="k">class</span> <span class="nc">ClassMethodsChange</span><span class="p">(</span><span class="n">ClassMembersChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Methods&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Methods&quot;</span>
 
 
     <span class="n">member_added</span> <span class="o">=</span> <span class="n">MethodAdded</span>
@@ -874,40 +858,40 @@
     <span class="n">member_changed</span> <span class="o">=</span> <span class="n">MethodChange</span>
 
 
-    <span class="nd">@yield_sorted_by_type</span><span class="p">(</span><span class="n">MethodAdded</span><span class="p">,</span> <span class="n">MethodRemoved</span><span class="p">,</span> <span class="n">MethodChange</span><span class="p">)</span>
-<div class="viewcode-block" id="ClassMethodsChange.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassMethodsChange.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ClassMethodsChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">collect_impl</span><span class="p">()</span>
+<div class="viewcode-block" id="ClassMethodsChange.collect_impl"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassMethodsChange.collect_impl">[docs]</a>    <span class="nd">@yield_sorted_by_type</span><span class="p">(</span><span class="n">MethodAdded</span><span class="p">,</span> <span class="n">MethodRemoved</span><span class="p">,</span> <span class="n">MethodChange</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ClassMethodsChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">collect_impl</span><span class="p">()</span></div>
 
-</div>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lclass</span><span class="p">,</span> <span class="n">rclass</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ClassMethodsChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">lclass</span><span class="o">.</span><span class="n">methods</span><span class="p">,</span>
-                                                 <span class="n">rclass</span><span class="o">.</span><span class="n">methods</span><span class="p">)</span>
 
-</div>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lclass</span><span class="p">,</span> <span class="n">rclass</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ClassMethodsChange</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">lclass</span><span class="o">.</span><span class="n">methods</span><span class="p">,</span>
+                                                 <span class="n">rclass</span><span class="o">.</span><span class="n">methods</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="ClassConstantPoolChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassConstantPoolChange">[docs]</a><span class="k">class</span> <span class="nc">ClassConstantPoolChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Constant pool&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Constant pool&quot;</span>
 
 
 <div class="viewcode-block" id="ClassConstantPoolChange.fn_data"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassConstantPoolChange.fn_data">[docs]</a>    <span class="k">def</span> <span class="nf">fn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">cpool</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">cpool</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ClassConstantPoolChange.fn_pretty"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassConstantPoolChange.fn_pretty">[docs]</a>    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">cpool</span><span class="o">.</span><span class="n">pretty_constants</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">cpool</span><span class="o">.</span><span class="n">pretty_constants</span><span class="p">())</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ClassConstantPoolChange.is_ignored"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassConstantPoolChange.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_pool</span>
+        <span class="k">return</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_pool</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ClassConstantPoolChange.get_description"><a class="viewcode-back" href="../../../change/#javatools.classdiff.ClassConstantPoolChange.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">+</span> <span class="p">((</span><span class="s">&quot; unaltered&quot;</span><span class="p">,</span> <span class="s">&quot; altered&quot;</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">+</span> <span class="p">((</span><span class="s2">&quot; unaltered&quot;</span><span class="p">,</span> <span class="s2">&quot; altered&quot;</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">()])</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="JavaClassChange"><a class="viewcode-back" href="../../../change/#javatools.classdiff.JavaClassChange">[docs]</a><span class="k">class</span> <span class="nc">JavaClassChange</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Java Class&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Java Class&quot;</span>
 
 
     <span class="n">change_types</span> <span class="o">=</span> <span class="p">(</span><span class="n">ClassInfoChange</span><span class="p">,</span>
@@ -919,31 +903,31 @@
 
 
 <div class="viewcode-block" id="JavaClassChange.get_description"><a class="viewcode-back" href="../../../change/#javatools.classdiff.JavaClassChange.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="o">.</span><span class="n">pretty_this</span><span class="p">())</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="o">.</span><span class="n">pretty_this</span><span class="p">())</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="JavaClassReport"><a class="viewcode-back" href="../../../change/#javatools.classdiff.JavaClassReport">[docs]</a><span class="k">class</span> <span class="nc">JavaClassReport</span><span class="p">(</span><span class="n">JavaClassChange</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    a JavaClassChange with the side-effect of writing reports</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">reporter</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">JavaClassReport</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">reporter</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">JavaClassReport</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span> <span class="o">=</span> <span class="n">reporter</span>
 
 
 <div class="viewcode-block" id="JavaClassReport.check"><a class="viewcode-back" href="../../../change/#javatools.classdiff.JavaClassReport.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">JavaClassReport</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
 
 
-<span class="c"># ---- Utility functions ----</span>
-<span class="c">#</span>
+<span class="c1"># ---- Utility functions ----</span>
+<span class="c1">#</span>
 
-</div></div>
+
 <div class="viewcode-block" id="pretty_merge_constants"><a class="viewcode-back" href="../../../change/#javatools.classdiff.pretty_merge_constants">[docs]</a><span class="k">def</span> <span class="nf">pretty_merge_constants</span><span class="p">(</span><span class="n">left_cpool</span><span class="p">,</span> <span class="n">right_cpool</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    sequence of tuples containing (index, left type, left pretty</span>
 <span class="sd">    value, right type, right pretty value). If the constant pools are</span>
 <span class="sd">    of inequal length, a value of None will be set in place of the</span>
@@ -954,24 +938,24 @@
     <span class="n">rsize</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">right_cpool</span><span class="o">.</span><span class="n">consts</span><span class="p">)</span>
 
     <span class="n">index</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">lsize</span><span class="p">,</span> <span class="n">rsize</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">lsize</span><span class="p">,</span> <span class="n">rsize</span><span class="p">)):</span>
         <span class="n">lt</span><span class="p">,</span> <span class="n">lv</span> <span class="o">=</span> <span class="n">left_cpool</span><span class="o">.</span><span class="n">pretty_const</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
         <span class="n">rt</span><span class="p">,</span> <span class="n">rv</span> <span class="o">=</span> <span class="n">right_cpool</span><span class="o">.</span><span class="n">pretty_const</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
         <span class="k">yield</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">lt</span><span class="p">,</span> <span class="n">lv</span><span class="p">,</span> <span class="n">rt</span><span class="p">,</span> <span class="n">rv</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">lsize</span> <span class="o">&gt;</span> <span class="n">rsize</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">lsize</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">lsize</span><span class="p">):</span>
             <span class="n">lt</span><span class="p">,</span> <span class="n">lv</span> <span class="o">=</span> <span class="n">left_cpool</span><span class="o">.</span><span class="n">pretty_const</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
-            <span class="k">yield</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">lt</span><span class="p">,</span> <span class="n">lv</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">lt</span><span class="p">,</span> <span class="n">lv</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="k">elif</span> <span class="n">rsize</span> <span class="o">&gt;</span> <span class="n">lsize</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">rsize</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">rsize</span><span class="p">):</span>
             <span class="n">rt</span><span class="p">,</span> <span class="n">rv</span> <span class="o">=</span> <span class="n">right_cpool</span><span class="o">.</span><span class="n">pretty_const</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
-            <span class="k">yield</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">rt</span><span class="p">,</span> <span class="n">rv</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">rt</span><span class="p">,</span> <span class="n">rv</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="merge_code"><a class="viewcode-back" href="../../../change/#javatools.classdiff.merge_code">[docs]</a><span class="k">def</span> <span class="nf">merge_code</span><span class="p">(</span><span class="n">left_code</span><span class="p">,</span> <span class="n">right_code</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    { relative_line:</span>
 <span class="sd">      ((left_abs_line, ((offset, op, args), ...)),</span>
 <span class="sd">       (right_abs_line, ((offset, op, args), ...))),</span>
@@ -982,30 +966,34 @@
 
     <span class="n">code_lines</span> <span class="o">=</span> <span class="p">(</span><span class="n">left_code</span> <span class="ow">and</span> <span class="n">left_code</span><span class="o">.</span><span class="n">iter_code_by_lines</span><span class="p">())</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">abs_line</span><span class="p">,</span> <span class="n">rel_line</span><span class="p">,</span> <span class="n">dis</span> <span class="ow">in</span> <span class="n">code_lines</span><span class="p">:</span>
-        <span class="n">data</span><span class="p">[</span><span class="n">rel_line</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">abs_line</span><span class="p">,</span> <span class="n">dis</span><span class="p">),</span> <span class="bp">None</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">rel_line</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="n">data</span><span class="p">[</span><span class="n">rel_line</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">abs_line</span><span class="p">,</span> <span class="n">dis</span><span class="p">),</span> <span class="kc">None</span><span class="p">]</span>
 
     <span class="n">code_lines</span> <span class="o">=</span> <span class="p">(</span><span class="n">right_code</span> <span class="ow">and</span> <span class="n">right_code</span><span class="o">.</span><span class="n">iter_code_by_lines</span><span class="p">())</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">abs_line</span><span class="p">,</span> <span class="n">rel_line</span><span class="p">,</span> <span class="n">dis</span> <span class="ow">in</span> <span class="n">code_lines</span><span class="p">:</span>
-        <span class="n">found</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rel_line</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">found</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">(</span><span class="n">abs_line</span><span class="p">,</span> <span class="n">dis</span><span class="p">)]</span>
+        <span class="k">assert</span> <span class="n">rel_line</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="n">found</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rel_line</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="n">abs_line</span><span class="p">,</span> <span class="n">dis</span><span class="p">)]</span>
             <span class="n">data</span><span class="p">[</span><span class="n">rel_line</span><span class="p">]</span> <span class="o">=</span> <span class="n">found</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">found</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">abs_line</span><span class="p">,</span> <span class="n">dis</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">data</span>
+    <span class="k">return</span> <span class="n">data</span></div>
 
 
-<span class="c"># ---- Begin classdiff CLI code ----</span>
-<span class="c">#</span>
+<span class="c1"># ---- Begin classdiff CLI code ----</span>
+<span class="c1">#</span>
 
-</div>
-<div class="viewcode-block" id="cli_classes_diff"><a class="viewcode-back" href="../../../change/#javatools.classdiff.cli_classes_diff">[docs]</a><span class="k">def</span> <span class="nf">cli_classes_diff</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
-    <span class="n">reports</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;reports&quot;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">())</span>
+
+<div class="viewcode-block" id="cli_classes_diff"><a class="viewcode-back" href="../../../change/#javatools.classdiff.cli_classes_diff">[docs]</a><span class="k">def</span> <span class="nf">cli_classes_diff</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+    <span class="n">reports</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s2">&quot;reports&quot;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">())</span>
     <span class="k">if</span> <span class="n">reports</span><span class="p">:</span>
-        <span class="n">rdir</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">report_dir</span> <span class="ow">or</span> <span class="s">&quot;./&quot;</span>
+        <span class="n">rdir</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">report_dir</span> <span class="ow">or</span> <span class="s2">&quot;./&quot;</span>
 
-        <span class="n">rpt</span> <span class="o">=</span> <span class="n">Reporter</span><span class="p">(</span><span class="n">rdir</span><span class="p">,</span> <span class="s">&quot;JavaClassReport&quot;</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+        <span class="n">rpt</span> <span class="o">=</span> <span class="n">Reporter</span><span class="p">(</span><span class="n">rdir</span><span class="p">,</span> <span class="s2">&quot;JavaClassReport&quot;</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
         <span class="n">rpt</span><span class="o">.</span><span class="n">add_formats_by_name</span><span class="p">(</span><span class="n">reports</span><span class="p">)</span>
 
         <span class="n">delta</span> <span class="o">=</span> <span class="n">JavaClassReport</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">rpt</span><span class="p">)</span>
@@ -1024,173 +1012,160 @@
     <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">delta</span><span class="o">.</span><span class="n">is_change</span><span class="p">())</span> <span class="ow">or</span> <span class="n">delta</span><span class="o">.</span><span class="n">is_ignored</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">0</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="mi">1</span></div>
 
-</div>
-<div class="viewcode-block" id="cli"><a class="viewcode-back" href="../../../change/#javatools.classdiff.cli">[docs]</a><span class="k">def</span> <span class="nf">cli</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">rest</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;wrong number of arguments.&quot;</span><span class="p">)</span>
 
-    <span class="n">left</span> <span class="o">=</span> <span class="n">unpack_classfile</span><span class="p">(</span><span class="n">rest</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">right</span> <span class="o">=</span> <span class="n">unpack_classfile</span><span class="p">(</span><span class="n">rest</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<div class="viewcode-block" id="cli"><a class="viewcode-back" href="../../../change/#javatools.classdiff.cli">[docs]</a><span class="k">def</span> <span class="nf">cli</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+    <span class="n">left</span> <span class="o">=</span> <span class="n">unpack_classfile</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">classfile</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">right</span> <span class="o">=</span> <span class="n">unpack_classfile</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">classfile</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-    <span class="k">return</span> <span class="n">cli_classes_diff</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cli_classes_diff</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span></div>
 
-</div>
-<div class="viewcode-block" id="classdiff_optgroup"><a class="viewcode-back" href="../../../change/#javatools.classdiff.classdiff_optgroup">[docs]</a><span class="k">def</span> <span class="nf">classdiff_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="add_classdiff_optgroup"><a class="viewcode-back" href="../../../change/#javatools.classdiff.add_classdiff_optgroup">[docs]</a><span class="k">def</span> <span class="nf">add_classdiff_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    option group specific to class checking</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionGroup</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Class Checking Options&quot;</span><span class="p">)</span>
 
-    <span class="n">g</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s">&quot;Class Checking Options&quot;</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--ignore-version-up&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                   <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--ignore-version-down&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--ignore-platform-up&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--ignore-platform-down&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                   <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--ignore-absolute-lines&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                   <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--ignore-relative-lines&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                   <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--ignore-deprecated&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--ignore-added&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--ignore-pool&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-version-up&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-version-down&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-platform-up&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-platform-down&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-absolute-lines&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-relative-lines&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-deprecated&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-added&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-pool&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--ignore-lines&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                   <span class="n">help</span><span class="o">=</span><span class="s2">&quot;ignore relative and absolute line-number changes&quot;</span><span class="p">,</span>
+                   <span class="n">action</span><span class="o">=</span><span class="n">_opt_cb_ign_lines</span><span class="p">)</span>
 
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-lines&quot;</span><span class="p">,</span>
-                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;ignore relative and absolute line-number changes&quot;</span><span class="p">,</span>
-                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;callback&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">_opt_cb_ign_lines</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--ignore-platform&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                   <span class="n">help</span><span class="o">=</span><span class="s2">&quot;ignore platform changes&quot;</span><span class="p">,</span>
+                   <span class="n">action</span><span class="o">=</span><span class="n">_opt_cb_ign_platform</span><span class="p">)</span>
 
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-platform&quot;</span><span class="p">,</span>
-                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;ignore platform changes&quot;</span><span class="p">,</span>
-                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;callback&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">_opt_cb_ign_platform</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--ignore-version&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                   <span class="n">help</span><span class="o">=</span><span class="s2">&quot;ignore version changes&quot;</span><span class="p">,</span>
+                   <span class="n">action</span><span class="o">=</span><span class="n">_opt_cb_ign_version</span><span class="p">)</span></div>
 
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore-version&quot;</span><span class="p">,</span>
-                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;ignore version changes&quot;</span><span class="p">,</span>
-                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;callback&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">_opt_cb_ign_version</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">g</span>
-
-</div>
-<span class="k">def</span> <span class="nf">_opt_cb_ignore</span><span class="p">(</span><span class="n">_opt</span><span class="p">,</span> <span class="n">_opt_str</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">_opt_cb_ignore</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    handle the --ignore option, which trigges other options</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
-        <span class="k">return</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">option_string</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
-    <span class="n">options</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">values</span><span class="p">:</span>
+            <span class="k">return</span>
 
-    <span class="n">ignore</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;ignore&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">ignore</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">ignore</span> <span class="o">=</span> <span class="n">ignore</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">ignore</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ignore</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">ignore</span> <span class="o">=</span> <span class="n">ignore</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
-    <span class="n">ign</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">))</span>
-    <span class="n">ign</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ign</span> <span class="k">if</span> <span class="n">i</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ign</span><span class="p">:</span>
-        <span class="n">ignore</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-        <span class="n">iopt_str</span> <span class="o">=</span> <span class="s">&quot;--ignore-&quot;</span> <span class="o">+</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;_&quot;</span><span class="p">,</span><span class="s">&quot;-&quot;</span><span class="p">)</span>
-        <span class="n">iopt</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">get_option</span><span class="p">(</span><span class="n">iopt_str</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">iopt</span><span class="p">:</span>
-            <span class="n">iopt</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">iopt_str</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">parser</span><span class="p">)</span>
+        <span class="n">ign</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))</span>
+        <span class="n">ign</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ign</span> <span class="k">if</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ign</span><span class="p">:</span>
+            <span class="n">ignore</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s2">&quot;ignore_&quot;</span> <span class="o">+</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_opt_cb_ign_lines</span><span class="p">(</span><span class="n">_opt</span><span class="p">,</span> <span class="n">_opt_str</span><span class="p">,</span> <span class="n">_value</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">_opt_cb_ign_lines</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    handle the --ignore-lines option</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">options</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">values</span>
-    <span class="n">options</span><span class="o">.</span><span class="n">ignore_lines</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">options</span><span class="o">.</span><span class="n">ignore_absolute_lines</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">options</span><span class="o">.</span><span class="n">ignore_relative_lines</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">option_string</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">ignore_lines</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">ignore_absolute_lines</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">ignore_relative_lines</span> <span class="o">=</span> <span class="kc">True</span>
 
 
-<span class="k">def</span> <span class="nf">_opt_cb_ign_version</span><span class="p">(</span><span class="n">_opt</span><span class="p">,</span> <span class="n">_opt_str</span><span class="p">,</span> <span class="n">_value</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">_opt_cb_ign_version</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    handle the --ignore-version option</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">options</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">values</span>
-    <span class="n">options</span><span class="o">.</span><span class="n">ignore_version</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">options</span><span class="o">.</span><span class="n">ignore_version_up</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">options</span><span class="o">.</span><span class="n">ignore_version_down</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">option_string</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">ignore_version</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">ignore_version_up</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">ignore_version_down</span> <span class="o">=</span> <span class="kc">True</span>
 
 
-<span class="k">def</span> <span class="nf">_opt_cb_ign_platform</span><span class="p">(</span><span class="n">_opt</span><span class="p">,</span> <span class="n">_opt_str</span><span class="p">,</span> <span class="n">_value</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">_opt_cb_ign_platform</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    handle the --ignore-platform option</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">options</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">values</span>
-    <span class="n">options</span><span class="o">.</span><span class="n">ignore_platform</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">options</span><span class="o">.</span><span class="n">ignore_platform_up</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">options</span><span class="o">.</span><span class="n">ignore_platform_down</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">option_string</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">ignore_platform</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">ignore_platform_up</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">ignore_platform_down</span> <span class="o">=</span> <span class="kc">True</span>
 
 
-<span class="k">def</span> <span class="nf">_opt_cb_verbose</span><span class="p">(</span><span class="n">_opt</span><span class="p">,</span> <span class="n">_opt_str</span><span class="p">,</span> <span class="n">_value</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">_opt_cb_verbose</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    handle the --verbose option</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">options</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">values</span>
-    <span class="n">options</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">options</span><span class="o">.</span><span class="n">show_unchanged</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">options</span><span class="o">.</span><span class="n">show_ignored</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">option_string</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">show_unchanged</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">show_ignored</span> <span class="o">=</span> <span class="kc">True</span>
 
 
-<div class="viewcode-block" id="general_optgroup"><a class="viewcode-back" href="../../../change/#javatools.classdiff.general_optgroup">[docs]</a><span class="k">def</span> <span class="nf">general_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="add_general_optgroup"><a class="viewcode-back" href="../../../change/#javatools.classdiff.add_general_optgroup">[docs]</a><span class="k">def</span> <span class="nf">add_general_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    option group for general-use features of all javatool CLIs</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionGroup</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;General Options&quot;</span><span class="p">)</span>
 
-    <span class="n">g</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s">&quot;General Options&quot;</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-q&quot;</span><span class="p">,</span> <span class="s2">&quot;--quiet&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;silent&quot;</span><span class="p">,</span>
+                   <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-q&quot;</span><span class="p">,</span> <span class="s">&quot;--quiet&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;silent&quot;</span><span class="p">,</span>
-                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">_opt_cb_verbose</span><span class="p">)</span>
 
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-v&quot;</span><span class="p">,</span> <span class="s">&quot;--verbose&quot;</span><span class="p">,</span>
-                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;callback&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">_opt_cb_verbose</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;output&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-o&quot;</span><span class="p">,</span> <span class="s">&quot;--output&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;output&quot;</span><span class="p">,</span>
-                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-j&quot;</span><span class="p">,</span> <span class="s2">&quot;--json&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+                   <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-j&quot;</span><span class="p">,</span> <span class="s">&quot;--json&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;json&quot;</span><span class="p">,</span>
-                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--show-ignored&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--show-unchanged&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--show-ignored&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--show-unchanged&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--ignore&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">_opt_cb_ignore</span><span class="p">,</span>
+                   <span class="n">help</span><span class="o">=</span><span class="s2">&quot;comma-separated list of ignores&quot;</span><span class="p">)</span></div>
 
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--ignore&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&quot;string&quot;</span><span class="p">,</span>
-                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;callback&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">_opt_cb_ignore</span><span class="p">,</span>
-                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;comma-separated list of ignores&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">g</span>
+<span class="k">def</span> <span class="nf">create_optparser</span><span class="p">(</span><span class="n">progname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    an OptionParser instance with the appropriate options and groups</span>
+<span class="sd">    for the classdiff utility</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-</div>
-<span class="k">def</span> <span class="nf">create_optparser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="n">progname</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;classfile&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;class files to compare&quot;</span><span class="p">)</span>
+    <span class="n">add_general_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">add_classdiff_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
 
-    <span class="sd">&quot;&quot;&quot; an OptionParser instance with the appropriate options and groups</span>
-<span class="sd">    for the classdiff utility &quot;&quot;&quot;</span>
-
-    <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span>
-
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="s">&quot;%prog [OPTIONS] OLD_CLASS NEW_CLASS&quot;</span><span class="p">)</span>
-
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">general_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">classdiff_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
-
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">general_report_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">json_report_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">html_report_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
+    <span class="n">add_general_report_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">add_json_report_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">add_html_report_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">parser</span>
 
 
-<div class="viewcode-block" id="default_classdiff_options"><a class="viewcode-back" href="../../../change/#javatools.classdiff.default_classdiff_options">[docs]</a><span class="k">def</span> <span class="nf">default_classdiff_options</span><span class="p">(</span><span class="n">updates</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="default_classdiff_options"><a class="viewcode-back" href="../../../change/#javatools.classdiff.default_classdiff_options">[docs]</a><span class="k">def</span> <span class="nf">default_classdiff_options</span><span class="p">(</span><span class="n">updates</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    generate an options object with the appropriate default values in</span>
 <span class="sd">    place for API usage of classdiff features. overrides is an</span>
 <span class="sd">    optional dictionary which will be used to update fields on the</span>
@@ -1201,48 +1176,46 @@
     <span class="n">options</span><span class="p">,</span> <span class="n">_args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="nb">list</span><span class="p">())</span>
 
     <span class="k">if</span> <span class="n">updates</span><span class="p">:</span>
-        <span class="c">#pylint: disable=W0212</span>
+        <span class="c1"># pylint: disable=W0212</span>
         <span class="n">options</span><span class="o">.</span><span class="n">_update_careful</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">options</span>
+    <span class="k">return</span> <span class="n">options</span></div>
 
-</div>
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../change/#javatools.classdiff.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../change/#javatools.classdiff.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main entry point for the classdiff CLI</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">create_optparser</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">cli</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="o">*</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">create_optparser</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">cli</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span></div>
 
 
-<span class="c">#</span>
-<span class="c"># The end.</span></div>
+<span class="c1">#</span>
+<span class="c1"># The end.</span>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search/" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -1251,18 +1224,16 @@
         <li class="right" >
           <a href="../../../py-modindex/" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="../../../np-modindex/" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../../">javatools 1.4.0 documentation</a> &raquo;</li>
-          <li><a href="../../" >Module code</a> &raquo;</li>
-          <li><a href="../" >javatools</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../../">python-javatools 1.6.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../" >javatools</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">javatools.classdiff</a></li> 
       </ul>
     </div>
 
-    <div class="footer">
-        &copy; Copyright 2014, Christopher O&#39;Brien.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2023, Christopher O&#39;Brien.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");

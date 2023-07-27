@@ -1,33 +1,24 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="English">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Utility Modules &#8212; python-javatools 1.6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <title>Utility Modules &mdash; javatools 1.4.0 documentation</title>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.4.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="javatools 1.4.0 documentation" href="../" />
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
     <link rel="prev" title="Reporting Changes" href="../report/" /> 
-  </head>
-  <body>
-    <div class="related">
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -37,200 +28,62 @@
           <a href="../py-modindex/" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../np-modindex/" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="../report/" title="Reporting Changes"
              accesskey="P">previous</a> |</li>
-        <li><a href="../">javatools 1.4.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../">python-javatools 1.6.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Utility Modules</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
-  <div class="section" id="utility-modules">
-<h1>Utility Modules<a class="headerlink" href="#utility-modules" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-javatools.pack">
-<span id="javatools-pack"></span><h2>javatools.pack<a class="headerlink" href="#module-javatools.pack" title="Permalink to this headline">¶</a></h2>
+  <section id="utility-modules">
+<h1>Utility Modules<a class="headerlink" href="#utility-modules" title="Permalink to this heading">¶</a></h1>
+<section id="module-javatools.pack">
+<span id="javatools-pack"></span><h2>javatools.pack<a class="headerlink" href="#module-javatools.pack" title="Permalink to this heading">¶</a></h2>
 <p>Utility module for unpacking shapes of binary data from a buffer
 or stream.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body">Christopher O&#8217;Brien &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</td>
-</tr>
-<tr class="field-even field"><th class="field-name">license:</th><td class="field-body">LGPL v.3</td>
-</tr>
-</tbody>
-</table>
-<dl class="function">
-<dt id="javatools.pack.compile_struct">
-<tt class="descclassname">javatools.pack.</tt><tt class="descname">compile_struct</tt><big>(</big><em>fmt</em>, <em>cache=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#compile_struct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.compile_struct" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns a struct.Struct instance compiled from fmt. If fmt has
-already been compiled, it will return the previously compiled
-Struct instance from the cache.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="javatools.pack.unpack">
-<tt class="descclassname">javatools.pack.</tt><tt class="descname">unpack</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#unpack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.unpack" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns either a BufferUnpacker or StreamUnpacker instance,
-depending upon the type of data. The unpacker supports the managed
-context interface, so may be used eg: <cite>with unpack(my_data) as
-unpacker:</cite></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="javatools.pack.Unpacker">
-<em class="property">class </em><tt class="descclassname">javatools.pack.</tt><tt class="descname">Unpacker</tt><a class="reference internal" href="../_modules/javatools/pack/#Unpacker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.Unpacker" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Abstract base class for <cite>StreamUnpacker</cite> and <cite>BufferUnpacker</cite>. Use
-the <cite>unpack</cite> function to obtain the correct unpacker instance for
-your data.</p>
-<dl class="method">
-<dt id="javatools.pack.Unpacker.close">
-<tt class="descname">close</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#Unpacker.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.Unpacker.close" title="Permalink to this definition">¶</a></dt>
-<dd><p>close this unpacker and release the underlying data</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.pack.Unpacker.read">
-<tt class="descname">read</tt><big>(</big><em>count</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#Unpacker.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.Unpacker.read" title="Permalink to this definition">¶</a></dt>
-<dd><p>read count bytes from the unpacker and return it. Raises an
-UnpackException if there is not enough data in the underlying
-stream.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.pack.Unpacker.unpack">
-<tt class="descname">unpack</tt><big>(</big><em>format_str</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#Unpacker.unpack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.Unpacker.unpack" title="Permalink to this definition">¶</a></dt>
-<dd><p>unpacks the given format_str from the underlying data and returns
-the results. Will raise an UnpackException if there is not
-enough data to satisfy the specified format</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.pack.Unpacker.unpack_array">
-<tt class="descname">unpack_array</tt><big>(</big><em>fmt</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#Unpacker.unpack_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.Unpacker.unpack_array" title="Permalink to this definition">¶</a></dt>
-<dd><p>reads a count from the unpacker, and unpacks fmt count
-times. Yields a sequence of the unpacked data tuples</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.pack.Unpacker.unpack_objects">
-<tt class="descname">unpack_objects</tt><big>(</big><em>atype</em>, <em>*params</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#Unpacker.unpack_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.Unpacker.unpack_objects" title="Permalink to this definition">¶</a></dt>
-<dd><p>reads a count from the unpacker, and instanciates that many calls
-to atype, with the given params and kwds passed along. Each
-instance then has its unpack method called with this unpacker
-instance passed along. Yields a squence of the unpacked
-instances</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.pack.Unpacker.unpack_struct">
-<tt class="descname">unpack_struct</tt><big>(</big><em>struct</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#Unpacker.unpack_struct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.Unpacker.unpack_struct" title="Permalink to this definition">¶</a></dt>
-<dd><p>unpacks the given struct from the underlying data and returns the
-results. Will raise an UnpackException if there is not enough
-data to satisfy the format of the structure</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.pack.Unpacker.unpack_struct_array">
-<tt class="descname">unpack_struct_array</tt><big>(</big><em>struct</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#Unpacker.unpack_struct_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.Unpacker.unpack_struct_array" title="Permalink to this definition">¶</a></dt>
-<dd><p>reads a count from the unpacker, and unpacks the precompiled
-struct count times. Yields a sequence of the unpacked data
-tuples</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="exception">
-<dt id="javatools.pack.UnpackException">
-<em class="property">exception </em><tt class="descclassname">javatools.pack.</tt><tt class="descname">UnpackException</tt><big>(</big><em>fmt</em>, <em>wanted</em>, <em>present</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#UnpackException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.UnpackException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="http://docs.python.org/2/library/exceptions.html#exceptions.Exception" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></a></p>
-<p>raised when there is not enough data to unpack the expected
-structures</p>
-<dl class="attribute">
-<dt id="javatools.pack.UnpackException.template">
-<tt class="descname">template</tt><em class="property"> = 'format %r requires %i bytes, only %i present'</em><a class="headerlink" href="#javatools.pack.UnpackException.template" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="javatools.pack.StreamUnpacker">
-<em class="property">class </em><tt class="descclassname">javatools.pack.</tt><tt class="descname">StreamUnpacker</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#StreamUnpacker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.StreamUnpacker" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#javatools.pack.Unpacker" title="javatools.pack.Unpacker"><tt class="xref py py-class docutils literal"><span class="pre">javatools.pack.Unpacker</span></tt></a></p>
-<p>Wraps a stream (or creates a stream for a string or buffer) and
-advances along it while unpacking structures from it.</p>
-<p>This class adheres to the context management protocol, so may be
-used in conjunction with the &#8216;with&#8217; keyword</p>
-<dl class="method">
-<dt id="javatools.pack.StreamUnpacker.close">
-<tt class="descname">close</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#StreamUnpacker.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.StreamUnpacker.close" title="Permalink to this definition">¶</a></dt>
-<dd><p>close this unpacker, and the underlying stream if it supports such</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.pack.StreamUnpacker.read">
-<tt class="descname">read</tt><big>(</big><em>count</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#StreamUnpacker.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.StreamUnpacker.read" title="Permalink to this definition">¶</a></dt>
-<dd><p>read count bytes from the unpacker and return it. Raises an
-UnpackException if there is not enough data in the underlying
-stream.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.pack.StreamUnpacker.unpack">
-<tt class="descname">unpack</tt><big>(</big><em>fmt</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#StreamUnpacker.unpack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.StreamUnpacker.unpack" title="Permalink to this definition">¶</a></dt>
-<dd><p>unpacks the given fmt from the underlying stream and returns the
-results. Will raise an UnpackException if there is not enough
-data to satisfy the fmt</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.pack.StreamUnpacker.unpack_struct">
-<tt class="descname">unpack_struct</tt><big>(</big><em>struct</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#StreamUnpacker.unpack_struct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.StreamUnpacker.unpack_struct" title="Permalink to this definition">¶</a></dt>
-<dd><p>unpacks the given struct from the underlying stream and returns
-the results. Will raise an UnpackException if there is not
-enough data to satisfy the format of the structure</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="javatools.pack.BufferUnpacker">
-<em class="property">class </em><tt class="descclassname">javatools.pack.</tt><tt class="descname">BufferUnpacker</tt><big>(</big><em>data</em>, <em>offset=0</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#BufferUnpacker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.BufferUnpacker" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#javatools.pack.Unpacker" title="javatools.pack.Unpacker"><tt class="xref py py-class docutils literal"><span class="pre">javatools.pack.Unpacker</span></tt></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">author<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Christopher O'Brien &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</p>
+</dd>
+<dt class="field-even">license<span class="colon">:</span></dt>
+<dd class="field-even"><p>LGPL v.3</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.pack.BufferUnpacker">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.pack.</span></span><span class="sig-name descname"><span class="pre">BufferUnpacker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#BufferUnpacker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.BufferUnpacker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.pack.Unpacker" title="javatools.pack.Unpacker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unpacker</span></code></a></p>
 <p>Unpacker wrapping a str or buffer.</p>
-<dl class="method">
-<dt id="javatools.pack.BufferUnpacker.close">
-<tt class="descname">close</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#BufferUnpacker.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.BufferUnpacker.close" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.pack.BufferUnpacker.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#BufferUnpacker.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.BufferUnpacker.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>release the underlying buffer</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="javatools.pack.BufferUnpacker.read">
-<tt class="descname">read</tt><big>(</big><em>count</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#BufferUnpacker.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.BufferUnpacker.read" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.pack.BufferUnpacker.read">
+<span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#BufferUnpacker.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.BufferUnpacker.read" title="Permalink to this definition">¶</a></dt>
 <dd><p>read count bytes from the underlying buffer and return them as a
 str. Raises an UnpackException if there is not enough data in
 the underlying buffer.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="javatools.pack.BufferUnpacker.unpack">
-<tt class="descname">unpack</tt><big>(</big><em>fmt</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#BufferUnpacker.unpack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.BufferUnpacker.unpack" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.pack.BufferUnpacker.unpack">
+<span class="sig-name descname"><span class="pre">unpack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#BufferUnpacker.unpack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.BufferUnpacker.unpack" title="Permalink to this definition">¶</a></dt>
 <dd><p>unpacks the given fmt from the underlying buffer and returns the
 results. Will raise an UnpackException if there is not enough
 data to satisfy the fmt</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="javatools.pack.BufferUnpacker.unpack_struct">
-<tt class="descname">unpack_struct</tt><big>(</big><em>struct</em><big>)</big><a class="reference internal" href="../_modules/javatools/pack/#BufferUnpacker.unpack_struct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.pack.BufferUnpacker.unpack_struct" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.pack.BufferUnpacker.unpack_struct">
+<span class="sig-name descname"><span class="pre">unpack_struct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#BufferUnpacker.unpack_struct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.BufferUnpacker.unpack_struct" title="Permalink to this definition">¶</a></dt>
 <dd><p>unpacks the given struct from the underlying buffer and returns
 the results. Will raise an UnpackException if there is not
 enough data to satisfy the format of the structure</p>
@@ -238,401 +91,568 @@ enough data to satisfy the format of the structure</p>
 
 </dd></dl>
 
-</div>
-<div class="section" id="module-javatools.opcodes">
-<span id="javatools-opcodes"></span><h2>javatools.opcodes<a class="headerlink" href="#module-javatools.opcodes" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.pack.StreamUnpacker">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.pack.</span></span><span class="sig-name descname"><span class="pre">StreamUnpacker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#StreamUnpacker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.StreamUnpacker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.pack.Unpacker" title="javatools.pack.Unpacker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unpacker</span></code></a></p>
+<p>Wraps a stream (or creates a stream for a string or buffer) and
+advances along it while unpacking structures from it.</p>
+<p>This class adheres to the context management protocol, so may be
+used in conjunction with the 'with' keyword</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.pack.StreamUnpacker.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#StreamUnpacker.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.StreamUnpacker.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>close this unpacker, and the underlying stream if it supports such</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.pack.StreamUnpacker.read">
+<span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#StreamUnpacker.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.StreamUnpacker.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>read count bytes from the unpacker and return it. Raises an
+UnpackException if there is not enough data in the underlying
+stream.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.pack.StreamUnpacker.unpack">
+<span class="sig-name descname"><span class="pre">unpack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#StreamUnpacker.unpack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.StreamUnpacker.unpack" title="Permalink to this definition">¶</a></dt>
+<dd><p>unpacks the given fmt from the underlying stream and returns the
+results. Will raise an UnpackException if there is not enough
+data to satisfy the fmt</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.pack.StreamUnpacker.unpack_struct">
+<span class="sig-name descname"><span class="pre">unpack_struct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#StreamUnpacker.unpack_struct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.StreamUnpacker.unpack_struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>unpacks the given struct from the underlying stream and returns
+the results. Will raise an UnpackException if there is not
+enough data to satisfy the format of the structure</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="javatools.pack.UnpackException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.pack.</span></span><span class="sig-name descname"><span class="pre">UnpackException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">present</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#UnpackException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.UnpackException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>raised when there is not enough data to unpack the expected
+structures</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="javatools.pack.UnpackException.template">
+<span class="sig-name descname"><span class="pre">template</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'format</span> <span class="pre">%r</span> <span class="pre">requires</span> <span class="pre">%i</span> <span class="pre">bytes,</span> <span class="pre">only</span> <span class="pre">%i</span> <span class="pre">present'</span></em><a class="headerlink" href="#javatools.pack.UnpackException.template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.pack.Unpacker">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.pack.</span></span><span class="sig-name descname"><span class="pre">Unpacker</span></span><a class="reference internal" href="../_modules/javatools/pack/#Unpacker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.Unpacker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Abstract base class for <cite>StreamUnpacker</cite> and <cite>BufferUnpacker</cite>. Use
+the <cite>unpack</cite> function to obtain the correct unpacker instance for
+your data.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.pack.Unpacker.close">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#Unpacker.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.Unpacker.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>close this unpacker and release the underlying data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.pack.Unpacker.read">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#Unpacker.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.Unpacker.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>read count bytes from the unpacker and return it. Raises an
+UnpackException if there is not enough data in the underlying
+stream.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.pack.Unpacker.unpack">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unpack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">format_str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#Unpacker.unpack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.Unpacker.unpack" title="Permalink to this definition">¶</a></dt>
+<dd><p>unpacks the given format_str from the underlying data and returns
+the results. Will raise an UnpackException if there is not
+enough data to satisfy the specified format</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.pack.Unpacker.unpack_array">
+<span class="sig-name descname"><span class="pre">unpack_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#Unpacker.unpack_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.Unpacker.unpack_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>reads a count from the unpacker, and unpacks fmt count
+times. Yields a sequence of the unpacked data tuples</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.pack.Unpacker.unpack_objects">
+<span class="sig-name descname"><span class="pre">unpack_objects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atype</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#Unpacker.unpack_objects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.Unpacker.unpack_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>reads a count from the unpacker, and instanciates that many calls
+to atype, with the given params and kwds passed along. Each
+instance then has its unpack method called with this unpacker
+instance passed along. Yields a squence of the unpacked
+instances</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.pack.Unpacker.unpack_struct">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unpack_struct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#Unpacker.unpack_struct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.Unpacker.unpack_struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>unpacks the given struct from the underlying data and returns the
+results. Will raise an UnpackException if there is not enough
+data to satisfy the format of the structure</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.pack.Unpacker.unpack_struct_array">
+<span class="sig-name descname"><span class="pre">unpack_struct_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#Unpacker.unpack_struct_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.Unpacker.unpack_struct_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>reads a count from the unpacker, and unpacks the precompiled
+struct count times. Yields a sequence of the unpacked data
+tuples</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.pack.compile_struct">
+<span class="sig-prename descclassname"><span class="pre">javatools.pack.</span></span><span class="sig-name descname"><span class="pre">compile_struct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#compile_struct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.compile_struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a struct.Struct instance compiled from fmt. If fmt has
+already been compiled, it will return the previously compiled
+Struct instance from the cache.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.pack.unpack">
+<span class="sig-prename descclassname"><span class="pre">javatools.pack.</span></span><span class="sig-name descname"><span class="pre">unpack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/pack/#unpack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.pack.unpack" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns either a BufferUnpacker or StreamUnpacker instance,
+depending upon the type of data. The unpacker supports the managed
+context interface, so may be used eg: <cite>with unpack(my_data) as
+unpacker:</cite></p>
+</dd></dl>
+
+</section>
+<section id="module-javatools.opcodes">
+<span id="javatools-opcodes"></span><h2>javatools.opcodes<a class="headerlink" href="#module-javatools.opcodes" title="Permalink to this heading">¶</a></h2>
 <p>A module to hold all the Java opcodes. Data taken from publicly
 available sources (see following for more information)</p>
-<div class="section" id="references">
-<h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
-<li><a class="reference external" href="http://java.sun.com/docs/books/jvms/second_edition/html/VMSpecTOC.doc.html">http://java.sun.com/docs/books/jvms/second_edition/html/VMSpecTOC.doc.html</a></li>
+<li><p><a class="reference external" href="http://java.sun.com/docs/books/jvms/second_edition/html/VMSpecTOC.doc.html">http://java.sun.com/docs/books/jvms/second_edition/html/VMSpecTOC.doc.html</a></p></li>
 </ul>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body">Christopher O&#8217;Brien  &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</td>
-</tr>
-<tr class="field-even field"><th class="field-name">license:</th><td class="field-body">LGPL v.3</td>
-</tr>
-</tbody>
-</table>
-<dl class="function">
-<dt id="javatools.opcodes.get_opcode_by_name">
-<tt class="descclassname">javatools.opcodes.</tt><tt class="descname">get_opcode_by_name</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="../_modules/javatools/opcodes/#get_opcode_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.opcodes.get_opcode_by_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>get the integer opcode by its name</p>
+<dl class="field-list simple">
+<dt class="field-odd">author<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Christopher O'Brien  &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</p>
+</dd>
+<dt class="field-even">license<span class="colon">:</span></dt>
+<dd class="field-even"><p>LGPL v.3</p>
+</dd>
+</dl>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.opcodes.disassemble">
+<span class="sig-prename descclassname"><span class="pre">javatools.opcodes.</span></span><span class="sig-name descname"><span class="pre">disassemble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bytecode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/opcodes/#disassemble"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.opcodes.disassemble" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator. Disassembles Java bytecode into a sequence of (offset,
+code, args) tuples
+:type bytecode: bytes</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.opcodes.get_opname_by_code">
-<tt class="descclassname">javatools.opcodes.</tt><tt class="descname">get_opname_by_code</tt><big>(</big><em>code</em><big>)</big><a class="reference internal" href="../_modules/javatools/opcodes/#get_opname_by_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.opcodes.get_opname_by_code" title="Permalink to this definition">¶</a></dt>
-<dd><p>get the name of an opcode</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="javatools.opcodes.get_arg_format">
-<tt class="descclassname">javatools.opcodes.</tt><tt class="descname">get_arg_format</tt><big>(</big><em>code</em><big>)</big><a class="reference internal" href="../_modules/javatools/opcodes/#get_arg_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.opcodes.get_arg_format" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.opcodes.get_arg_format">
+<span class="sig-prename descclassname"><span class="pre">javatools.opcodes.</span></span><span class="sig-name descname"><span class="pre">get_arg_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/opcodes/#get_arg_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.opcodes.get_arg_format" title="Permalink to this definition">¶</a></dt>
 <dd><p>get the format of arguments to this opcode</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.opcodes.has_const_arg">
-<tt class="descclassname">javatools.opcodes.</tt><tt class="descname">has_const_arg</tt><big>(</big><em>code</em><big>)</big><a class="reference internal" href="../_modules/javatools/opcodes/#has_const_arg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.opcodes.has_const_arg" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.opcodes.get_opcode_by_name">
+<span class="sig-prename descclassname"><span class="pre">javatools.opcodes.</span></span><span class="sig-name descname"><span class="pre">get_opcode_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/opcodes/#get_opcode_by_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.opcodes.get_opcode_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the integer opcode by its name</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.opcodes.get_opname_by_code">
+<span class="sig-prename descclassname"><span class="pre">javatools.opcodes.</span></span><span class="sig-name descname"><span class="pre">get_opname_by_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/opcodes/#get_opname_by_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.opcodes.get_opname_by_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the name of an opcode</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.opcodes.has_const_arg">
+<span class="sig-prename descclassname"><span class="pre">javatools.opcodes.</span></span><span class="sig-name descname"><span class="pre">has_const_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/opcodes/#has_const_arg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.opcodes.has_const_arg" title="Permalink to this definition">¶</a></dt>
 <dd><p>which arg is a const for this opcode</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.opcodes.disassemble">
-<tt class="descclassname">javatools.opcodes.</tt><tt class="descname">disassemble</tt><big>(</big><em>bytecode</em><big>)</big><a class="reference internal" href="../_modules/javatools/opcodes/#disassemble"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.opcodes.disassemble" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generator. Disassembles Java bytecode into a sequence of (offset,
-code, args) tuples</p>
-</dd></dl>
-
-</div>
-</div>
-<div class="section" id="module-javatools.manifest">
-<span id="javatools-manifest"></span><h2>javatools.manifest<a class="headerlink" href="#module-javatools.manifest" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-javatools.manifest">
+<span id="javatools-manifest"></span><h2>javatools.manifest<a class="headerlink" href="#module-javatools.manifest" title="Permalink to this heading">¶</a></h2>
 <p>Module for reading and writing files, related to JAR manifest.</p>
-<div class="section" id="id1">
-<h3>References<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<section id="id1">
+<h3>References<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
-<li><a class="reference external" href="http://docs.oracle.com/javase/1.5.0/docs/guide/jar/index.html">http://docs.oracle.com/javase/1.5.0/docs/guide/jar/index.html</a></li>
-<li><a class="reference external" href="http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#JAR%20Manifest">http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#JAR%20Manifest</a></li>
+<li><p><a class="reference external" href="http://docs.oracle.com/javase/1.5.0/docs/guide/jar/index.html">http://docs.oracle.com/javase/1.5.0/docs/guide/jar/index.html</a></p></li>
+<li><p><a class="reference external" href="http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#JAR%20Manifest">http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#JAR%20Manifest</a></p></li>
 </ul>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body">Christopher O&#8217;Brien  &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</td>
-</tr>
-<tr class="field-even field"><th class="field-name">license:</th><td class="field-body">LGPL</td>
-</tr>
-</tbody>
-</table>
-<dl class="class">
-<dt id="javatools.manifest.ManifestChange">
-<em class="property">class </em><tt class="descclassname">javatools.manifest.</tt><tt class="descname">ManifestChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestChange" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../change/#javatools.change.SuperChange" title="javatools.change.SuperChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.SuperChange</span></tt></a></p>
-<dl class="method">
-<dt id="javatools.manifest.ManifestChange.collect_impl">
-<tt class="descname">collect_impl</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestChange.collect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestChange.collect_impl" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="javatools.manifest.ManifestChange.is_ignored">
-<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestChange.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestChange.is_ignored" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="javatools.manifest.ManifestChange.label">
-<tt class="descname">label</tt><em class="property"> = 'Manifest'</em><a class="headerlink" href="#javatools.manifest.ManifestChange.label" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<dl class="field-list simple">
+<dt class="field-odd">author<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Christopher O'Brien  &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</p>
+</dd>
+<dt class="field-even">license<span class="colon">:</span></dt>
+<dd class="field-even"><p>LGPL</p>
+</dd>
+</dl>
+</section>
+<dl class="py exception">
+<dt class="sig sig-object py" id="javatools.manifest.MalformedManifest">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.manifest.</span></span><span class="sig-name descname"><span class="pre">MalformedManifest</span></span><a class="reference internal" href="../_modules/javatools/manifest/#MalformedManifest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.MalformedManifest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Indicates there was a problem in parsing a manifest</p>
 </dd></dl>
 
-<dl class="class">
-<dt id="javatools.manifest.ManifestSectionChange">
-<em class="property">class </em><tt class="descclassname">javatools.manifest.</tt><tt class="descname">ManifestSectionChange</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionChange" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../change/#javatools.change.GenericChange" title="javatools.change.GenericChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.GenericChange</span></tt></a></p>
-<dl class="method">
-<dt id="javatools.manifest.ManifestSectionChange.get_description">
-<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionChange.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionChange.get_description" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="javatools.manifest.ManifestSectionChange.is_ignored">
-<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionChange.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionChange.is_ignored" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="javatools.manifest.ManifestSectionChange.label">
-<tt class="descname">label</tt><em class="property"> = 'Manifest Subsection'</em><a class="headerlink" href="#javatools.manifest.ManifestSectionChange.label" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="javatools.manifest.ManifestSectionAdded">
-<em class="property">class </em><tt class="descclassname">javatools.manifest.</tt><tt class="descname">ManifestSectionAdded</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionAdded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionAdded" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#javatools.manifest.ManifestSectionChange" title="javatools.manifest.ManifestSectionChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.manifest.ManifestSectionChange</span></tt></a>, <a class="reference internal" href="../change/#javatools.change.Addition" title="javatools.change.Addition"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.Addition</span></tt></a></p>
-<dl class="method">
-<dt id="javatools.manifest.ManifestSectionAdded.get_description">
-<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionAdded.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionAdded.get_description" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="javatools.manifest.ManifestSectionAdded.is_ignored">
-<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionAdded.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionAdded.is_ignored" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="javatools.manifest.ManifestSectionAdded.label">
-<tt class="descname">label</tt><em class="property"> = 'Manifest Subsection Added'</em><a class="headerlink" href="#javatools.manifest.ManifestSectionAdded.label" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="javatools.manifest.ManifestSectionRemoved">
-<em class="property">class </em><tt class="descclassname">javatools.manifest.</tt><tt class="descname">ManifestSectionRemoved</tt><big>(</big><em>ldata</em>, <em>rdata</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionRemoved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionRemoved" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#javatools.manifest.ManifestSectionChange" title="javatools.manifest.ManifestSectionChange"><tt class="xref py py-class docutils literal"><span class="pre">javatools.manifest.ManifestSectionChange</span></tt></a>, <a class="reference internal" href="../change/#javatools.change.Removal" title="javatools.change.Removal"><tt class="xref py py-class docutils literal"><span class="pre">javatools.change.Removal</span></tt></a></p>
-<dl class="method">
-<dt id="javatools.manifest.ManifestSectionRemoved.get_description">
-<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionRemoved.get_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionRemoved.get_description" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="javatools.manifest.ManifestSectionRemoved.is_ignored">
-<tt class="descname">is_ignored</tt><big>(</big><em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionRemoved.is_ignored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionRemoved.is_ignored" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="javatools.manifest.ManifestSectionRemoved.label">
-<tt class="descname">label</tt><em class="property"> = 'Manifest Subsection Removed'</em><a class="headerlink" href="#javatools.manifest.ManifestSectionRemoved.label" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="javatools.manifest.Manifest">
-<em class="property">class </em><tt class="descclassname">javatools.manifest.</tt><tt class="descname">Manifest</tt><big>(</big><em>version='1.0'</em>, <em>linesep=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#Manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.Manifest" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#javatools.manifest.ManifestSection" title="javatools.manifest.ManifestSection"><tt class="xref py py-class docutils literal"><span class="pre">javatools.manifest.ManifestSection</span></tt></a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.manifest.Manifest">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.manifest.</span></span><span class="sig-name descname"><span class="pre">Manifest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1.0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linesep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#Manifest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.Manifest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.manifest.ManifestSection" title="javatools.manifest.ManifestSection"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManifestSection</span></code></a></p>
 <p>Represents a Java Manifest as an ordered dictionary containing
 the key:value pairs from the main section of the manifest, and
 zero or more sub-dictionaries of key:value pairs representing the
 sections following the main section. The sections are referenced
-by the value of their &#8216;Name&#8217; pair, which must be unique to the
+by the value of their 'Name' pair, which must be unique to the
 Manifest as a whole.</p>
-<dl class="method">
-<dt id="javatools.manifest.Manifest.clear">
-<tt class="descname">clear</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.Manifest.clear" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.Manifest.add_jar_entries">
+<span class="sig-name descname"><span class="pre">add_jar_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jar_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digest_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SHA-256'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.add_jar_entries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.Manifest.add_jar_entries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add manifest sections for all but signature-related entries
+of :param jar_file.
+:param digest_name The digest algorithm to use
+:return None
+TODO: join code with cli_create</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.Manifest.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.Manifest.clear" title="Permalink to this definition">¶</a></dt>
 <dd><p>removes all items from this manifest, and clears and removes all
 sub-sections</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="javatools.manifest.Manifest.create_section">
-<tt class="descname">create_section</tt><big>(</big><em>name</em>, <em>overwrite=True</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.create_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.Manifest.create_section" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.Manifest.create_section">
+<span class="sig-name descname"><span class="pre">create_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.create_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.Manifest.create_section" title="Permalink to this definition">¶</a></dt>
 <dd><p>create and return a new sub-section of this manifest, with the
 given Name attribute. If a sub-section already exists with
 that name, it will be lost unless overwrite is False in which
 case the existing sub-section will be returned.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="javatools.manifest.Manifest.get_data">
-<tt class="descname">get_data</tt><big>(</big><em>linesep=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.Manifest.get_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serialize the entire manifest and return it as a string</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.Manifest.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linesep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.get_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.Manifest.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the entire manifest and return it as bytes
+:return bytes</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="javatools.manifest.Manifest.get_main_section">
-<tt class="descname">get_main_section</tt><big>(</big><em>linesep=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.get_main_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.Manifest.get_main_section" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serialize just the main section of the manifest and return it as a
-string</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.Manifest.get_main_section">
+<span class="sig-name descname"><span class="pre">get_main_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linesep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.get_main_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.Manifest.get_main_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize just the main section of the manifest and return it as bytes
+:return bytes</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="javatools.manifest.Manifest.parse">
-<tt class="descname">parse</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.Manifest.parse" title="Permalink to this definition">¶</a></dt>
-<dd><p>populate instance with values and sub-sections from data in a
-stream, string, or buffer</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.manifest.Manifest.parse_file">
-<tt class="descname">parse_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.parse_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.Manifest.parse_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse the given file, and attempt to detect the line separator.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="javatools.manifest.Manifest.primary_key">
-<tt class="descname">primary_key</tt><em class="property"> = 'Manifest-Version'</em><a class="headerlink" href="#javatools.manifest.Manifest.primary_key" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.Manifest.load_from_jar">
+<span class="sig-name descname"><span class="pre">load_from_jar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jarfile</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.load_from_jar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.Manifest.load_from_jar" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="javatools.manifest.Manifest.store">
-<tt class="descname">store</tt><big>(</big><em>stream</em>, <em>linesep=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.store"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.Manifest.store" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serialize the Manifest to a stream</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.Manifest.parse">
+<span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.parse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.Manifest.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>populate instance with values and sub-sections
+:param data: UTF-8 encoded manifest
+:type data: bytes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.Manifest.parse_file">
+<span class="sig-name descname"><span class="pre">parse_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.parse_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.Manifest.parse_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load self from the file, such as &quot;MANIFEST.MF&quot; or &quot;SIGNATURE.SF&quot;.
+:param filename: contains UTF-8 encoded manifest</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="javatools.manifest.Manifest.primary_key">
+<span class="sig-name descname"><span class="pre">primary_key</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Manifest-Version'</span></em><a class="headerlink" href="#javatools.manifest.Manifest.primary_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.Manifest.store">
+<span class="sig-name descname"><span class="pre">store</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linesep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.store"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.Manifest.store" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the Manifest to a binary stream</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.Manifest.verify_jar_checksums">
+<span class="sig-name descname"><span class="pre">verify_jar_checksums</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jar_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#Manifest.verify_jar_checksums"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.Manifest.verify_jar_checksums" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify checksums, present in the manifest, against the JAR content.
+:return: list of entries for which verification has failed</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="javatools.manifest.ManifestSection">
-<em class="property">class </em><tt class="descclassname">javatools.manifest.</tt><tt class="descname">ManifestSection</tt><big>(</big><em>name=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="http://docs.python.org/2/library/collections.html#collections.OrderedDict" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">collections.OrderedDict</span></tt></a></p>
-<dl class="method">
-<dt id="javatools.manifest.ManifestSection.get_data">
-<tt class="descname">get_data</tt><big>(</big><em>linesep='n'</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSection.get_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serialize the section and return it as a string</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestChange">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.manifest.</span></span><span class="sig-name descname"><span class="pre">ManifestChange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ldata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestChange"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../change/#javatools.change.SuperChange" title="javatools.change.SuperChange"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuperChange</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestChange.collect_impl">
+<span class="sig-name descname"><span class="pre">collect_impl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestChange.collect_impl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestChange.collect_impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>instantiates each of the entries in in the overriden change_types
+field with the left and right data</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="javatools.manifest.ManifestSection.load">
-<tt class="descname">load</tt><big>(</big><em>items</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSection.load" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestChange.is_ignored">
+<span class="sig-name descname"><span class="pre">is_ignored</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestChange.is_ignored"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestChange.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd><p>If we have changed children and all the children which are changes
+are ignored, then we are ignored. Otherwise, we are not
+ignored</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestChange.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Manifest'</span></em><a class="headerlink" href="#javatools.manifest.ManifestChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestKeyException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.manifest.</span></span><span class="sig-name descname"><span class="pre">ManifestKeyException</span></span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestKeyException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestKeyException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Indicates there was an issue with the key used in a manifest
+section</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.manifest.</span></span><span class="sig-name descname"><span class="pre">ManifestSection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestSection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/collections.html#collections.OrderedDict" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">OrderedDict</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSection.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linesep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\n'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection.get_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestSection.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the section and return it as bytes
+:return bytes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSection.keys_with_suffix">
+<span class="sig-name descname"><span class="pre">keys_with_suffix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">suffix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection.keys_with_suffix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestSection.keys_with_suffix" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of keys ending with given :suffix:.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSection.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestSection.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Populate this section from an iteration of the parse_items call</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="javatools.manifest.ManifestSection.primary">
-<tt class="descname">primary</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection.primary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSection.primary" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSection.primary">
+<span class="sig-name descname"><span class="pre">primary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection.primary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestSection.primary" title="Permalink to this definition">¶</a></dt>
 <dd><p>The primary value for this section</p>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="javatools.manifest.ManifestSection.primary_key">
-<tt class="descname">primary_key</tt><em class="property"> = 'Name'</em><a class="headerlink" href="#javatools.manifest.ManifestSection.primary_key" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSection.primary_key">
+<span class="sig-name descname"><span class="pre">primary_key</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Name'</span></em><a class="headerlink" href="#javatools.manifest.ManifestSection.primary_key" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="javatools.manifest.ManifestSection.store">
-<tt class="descname">store</tt><big>(</big><em>stream</em>, <em>linesep='n'</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection.store"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestSection.store" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serialize this section and write it to a stream</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSection.store">
+<span class="sig-name descname"><span class="pre">store</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linesep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\n'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSection.store"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestSection.store" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize this section and write it to a binary stream</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="javatools.manifest.SignatureManifest">
-<em class="property">class </em><tt class="descclassname">javatools.manifest.</tt><tt class="descname">SignatureManifest</tt><big>(</big><em>version='1.0'</em>, <em>linesep=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#SignatureManifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.SignatureManifest" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#javatools.manifest.Manifest" title="javatools.manifest.Manifest"><tt class="xref py py-class docutils literal"><span class="pre">javatools.manifest.Manifest</span></tt></a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSectionAdded">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.manifest.</span></span><span class="sig-name descname"><span class="pre">ManifestSectionAdded</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ldata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionAdded"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionAdded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.manifest.ManifestSectionChange" title="javatools.manifest.ManifestSectionChange"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManifestSectionChange</span></code></a>, <a class="reference internal" href="../change/#javatools.change.Addition" title="javatools.change.Addition"><code class="xref py py-class docutils literal notranslate"><span class="pre">Addition</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSectionAdded.get_description">
+<span class="sig-name descname"><span class="pre">get_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionAdded.get_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionAdded.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSectionAdded.is_ignored">
+<span class="sig-name descname"><span class="pre">is_ignored</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionAdded.is_ignored"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionAdded.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd><p>is this change ignorable, given parameters on the options
+object.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSectionAdded.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Manifest</span> <span class="pre">Subsection</span> <span class="pre">Added'</span></em><a class="headerlink" href="#javatools.manifest.ManifestSectionAdded.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSectionChange">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.manifest.</span></span><span class="sig-name descname"><span class="pre">ManifestSectionChange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ldata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionChange"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../change/#javatools.change.GenericChange" title="javatools.change.GenericChange"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericChange</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSectionChange.get_description">
+<span class="sig-name descname"><span class="pre">get_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionChange.get_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionChange.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSectionChange.is_ignored">
+<span class="sig-name descname"><span class="pre">is_ignored</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionChange.is_ignored"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionChange.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd><p>is this change ignorable, given parameters on the options
+object.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSectionChange.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Manifest</span> <span class="pre">Subsection'</span></em><a class="headerlink" href="#javatools.manifest.ManifestSectionChange.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSectionRemoved">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.manifest.</span></span><span class="sig-name descname"><span class="pre">ManifestSectionRemoved</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ldata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionRemoved"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionRemoved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.manifest.ManifestSectionChange" title="javatools.manifest.ManifestSectionChange"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManifestSectionChange</span></code></a>, <a class="reference internal" href="../change/#javatools.change.Removal" title="javatools.change.Removal"><code class="xref py py-class docutils literal notranslate"><span class="pre">Removal</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSectionRemoved.get_description">
+<span class="sig-name descname"><span class="pre">get_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionRemoved.get_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionRemoved.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSectionRemoved.is_ignored">
+<span class="sig-name descname"><span class="pre">is_ignored</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#ManifestSectionRemoved.is_ignored"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.ManifestSectionRemoved.is_ignored" title="Permalink to this definition">¶</a></dt>
+<dd><p>is this change ignorable, given parameters on the options
+object.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="javatools.manifest.ManifestSectionRemoved.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Manifest</span> <span class="pre">Subsection</span> <span class="pre">Removed'</span></em><a class="headerlink" href="#javatools.manifest.ManifestSectionRemoved.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.manifest.SignatureManifest">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.manifest.</span></span><span class="sig-name descname"><span class="pre">SignatureManifest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1.0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linesep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#SignatureManifest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.SignatureManifest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.manifest.Manifest" title="javatools.manifest.Manifest"><code class="xref py py-class docutils literal notranslate"><span class="pre">Manifest</span></code></a></p>
 <p>Represents a KEY.SF signature file.  Structure is similar to that
 of Manifest. Each section represents a crypto checksum of a matching
 section from a MANIFEST.MF</p>
-<dl class="method">
-<dt id="javatools.manifest.SignatureManifest.digest_manifest">
-<tt class="descname">digest_manifest</tt><big>(</big><em>manifest</em>, <em>java_algorithm='SHA-256'</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#SignatureManifest.digest_manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.SignatureManifest.digest_manifest" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.SignatureManifest.digest_manifest">
+<span class="sig-name descname"><span class="pre">digest_manifest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">manifest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">java_algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SHA-256'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#SignatureManifest.digest_manifest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.SignatureManifest.digest_manifest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a main section checksum and sub-section checksums based off
 of the data from an existing manifest using an algorithm given
 by Java-style name.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="javatools.manifest.SignatureManifest.get_signature">
-<tt class="descname">get_signature</tt><big>(</big><em>certificate</em>, <em>private_key</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#SignatureManifest.get_signature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.SignatureManifest.get_signature" title="Permalink to this definition">¶</a></dt>
-<dd><p>Produces a signature block for the contents of this signature
-manifest. Executes the <cite>openssl</cite> binary in order to calculate
-this. TODO: replace this with a pyopenssl call</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>certificate</strong> : <cite>str</cite> filename</p>
-<blockquote>
-<div><p>certificate to embed into the signature (PEM format)</p>
-</div></blockquote>
-<p><strong>private_key</strong> : <cite>str</cite> filename</p>
-<blockquote>
-<div><p>RSA private key used to sign (PEM format)</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>signature</strong> : <cite>str</cite></p>
-<blockquote>
-<div><p>content of the signature block file as though produced by
-jarsigner.</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>cpe</strong> : <cite>CalledProcessError</cite></p>
-<blockquote class="last">
-<div><p>if there was a non-zero return code from running the
-underlying openssl exec</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">References</p>
-<p><a class="reference external" href="http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Digital_Signatures">http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Digital_Signatures</a></p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="javatools.manifest.SignatureManifest.primary_key">
-<tt class="descname">primary_key</tt><em class="property"> = 'Signature-Version'</em><a class="headerlink" href="#javatools.manifest.SignatureManifest.primary_key" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.SignatureManifest.get_signature">
+<span class="sig-name descname"><span class="pre">get_signature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">certificate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">private_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_certs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digest_algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SHA-256'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#SignatureManifest.get_signature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.SignatureManifest.get_signature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="javatools.manifest.SignatureManifest.verify_manifest">
-<tt class="descname">verify_manifest</tt><big>(</big><em>manifest</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#SignatureManifest.verify_manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.SignatureManifest.verify_manifest" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="javatools.manifest.SignatureManifest.primary_key">
+<span class="sig-name descname"><span class="pre">primary_key</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Signature-Version'</span></em><a class="headerlink" href="#javatools.manifest.SignatureManifest.primary_key" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</dd></dl>
-
-<dl class="exception">
-<dt id="javatools.manifest.ManifestKeyException">
-<em class="property">exception </em><tt class="descclassname">javatools.manifest.</tt><tt class="descname">ManifestKeyException</tt><a class="reference internal" href="../_modules/javatools/manifest/#ManifestKeyException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.ManifestKeyException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="http://docs.python.org/2/library/exceptions.html#exceptions.Exception" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></a></p>
-<p>Indicates there was an issue with the key used in a manifest
-section</p>
-</dd></dl>
-
-<dl class="exception">
-<dt id="javatools.manifest.MalformedManifest">
-<em class="property">exception </em><tt class="descclassname">javatools.manifest.</tt><tt class="descname">MalformedManifest</tt><a class="reference internal" href="../_modules/javatools/manifest/#MalformedManifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.MalformedManifest" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="http://docs.python.org/2/library/exceptions.html#exceptions.Exception" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></a></p>
-<p>Indicates there was a problem in parsing a manifest</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="javatools.manifest.main">
-<tt class="descclassname">javatools.manifest.</tt><tt class="descname">main</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.main" title="Permalink to this definition">¶</a></dt>
-<dd><p>main entry point for the manifest CLI</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="javatools.manifest.cli">
-<tt class="descclassname">javatools.manifest.</tt><tt class="descname">cli</tt><big>(</big><em>options</em>, <em>rest</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#cli"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.cli" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.SignatureManifest.verify_manifest">
+<span class="sig-name descname"><span class="pre">verify_manifest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">manifest</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#SignatureManifest.verify_manifest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.SignatureManifest.verify_manifest" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="javatools.manifest.cli_create">
-<tt class="descclassname">javatools.manifest.</tt><tt class="descname">cli_create</tt><big>(</big><em>options</em>, <em>rest</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#cli_create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.cli_create" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.SignatureManifest.verify_manifest_entry_checksums">
+<span class="sig-name descname"><span class="pre">verify_manifest_entry_checksums</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">manifest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#SignatureManifest.verify_manifest_entry_checksums"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.SignatureManifest.verify_manifest_entry_checksums" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verifies the checksums over the given manifest. If strict is True
+then entries which had no digests will fail verification. If
+strict is False then entries with no digests will not be
+considered failing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of entries which failed to verify.</p>
+</dd>
+</dl>
+<p>Reference:
+<a class="reference external" href="http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Signature_Validation">http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Signature_Validation</a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.SignatureManifest.verify_manifest_main_attributes_checksum">
+<span class="sig-name descname"><span class="pre">verify_manifest_main_attributes_checksum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">manifest</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#SignatureManifest.verify_manifest_main_attributes_checksum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.SignatureManifest.verify_manifest_main_attributes_checksum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.manifest.SignatureManifest.verify_manifest_main_checksum">
+<span class="sig-name descname"><span class="pre">verify_manifest_main_checksum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">manifest</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#SignatureManifest.verify_manifest_main_checksum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.SignatureManifest.verify_manifest_main_checksum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify the checksum over the manifest main section.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the signature over main section verifies</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.manifest.cli_create">
+<span class="sig-prename descclassname"><span class="pre">javatools.manifest.</span></span><span class="sig-name descname"><span class="pre">cli_create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argument_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#cli_create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.cli_create" title="Permalink to this definition">¶</a></dt>
 <dd><p>command-line call to create a manifest from a JAR file or a
 directory</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.manifest.cli_query">
-<tt class="descclassname">javatools.manifest.</tt><tt class="descname">cli_query</tt><big>(</big><em>options</em>, <em>rest</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#cli_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.cli_query" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.manifest.cli_query">
+<span class="sig-prename descclassname"><span class="pre">javatools.manifest.</span></span><span class="sig-name descname"><span class="pre">cli_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#cli_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.cli_query" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="javatools.manifest.cli_sign">
-<tt class="descclassname">javatools.manifest.</tt><tt class="descname">cli_sign</tt><big>(</big><em>options</em>, <em>rest</em><big>)</big><a class="reference internal" href="../_modules/javatools/manifest/#cli_sign"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.manifest.cli_sign" title="Permalink to this definition">¶</a></dt>
-<dd><p>Signs the jar (almost) identically to jarsigner.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.manifest.cli_verify">
+<span class="sig-prename descclassname"><span class="pre">javatools.manifest.</span></span><span class="sig-name descname"><span class="pre">cli_verify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#cli_verify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.cli_verify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.manifest.main">
+<span class="sig-prename descclassname"><span class="pre">javatools.manifest.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['setup.py',</span> <span class="pre">'build_sphinx']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/manifest/#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.manifest.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>main entry point for the manifest CLI</p>
 </dd></dl>
 
-</div>
-</div>
-<div class="section" id="module-javatools.dirutils">
-<span id="javatools-dirutils"></span><h2>javatools.dirutils<a class="headerlink" href="#module-javatools.dirutils" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-javatools.dirutils">
+<span id="javatools-dirutils"></span><h2>javatools.dirutils<a class="headerlink" href="#module-javatools.dirutils" title="Permalink to this heading">¶</a></h2>
 <p>Utility module for discovering the differences between two directory
 trees</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body">Christopher O&#8217;Brien  &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</td>
-</tr>
-<tr class="field-even field"><th class="field-name">license:</th><td class="field-body">LGPL</td>
-</tr>
-</tbody>
-</table>
-<dl class="class">
-<dt id="javatools.dirutils.ClosingContext">
-<em class="property">class </em><tt class="descclassname">javatools.dirutils.</tt><tt class="descname">ClosingContext</tt><big>(</big><em>managed</em><big>)</big><a class="reference internal" href="../_modules/javatools/dirutils/#ClosingContext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.dirutils.ClosingContext" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="field-list simple">
+<dt class="field-odd">author<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Christopher O'Brien  &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</p>
+</dd>
+<dt class="field-even">license<span class="colon">:</span></dt>
+<dd class="field-even"><p>LGPL</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.dirutils.ClosingContext">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.dirutils.</span></span><span class="sig-name descname"><span class="pre">ClosingContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">managed</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/dirutils/#ClosingContext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.dirutils.ClosingContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A simple context manager which is created with an object instance,
 and will return that instance from __enter__ and call the close
 method on the instance in __exit__</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.dirutils.closing">
-<tt class="descclassname">javatools.dirutils.</tt><tt class="descname">closing</tt><big>(</big><em>managed</em><big>)</big><a class="reference internal" href="../_modules/javatools/dirutils/#closing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.dirutils.closing" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.dirutils.closing">
+<span class="sig-prename descclassname"><span class="pre">javatools.dirutils.</span></span><span class="sig-name descname"><span class="pre">closing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">managed</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/dirutils/#closing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.dirutils.closing" title="Permalink to this definition">¶</a></dt>
 <dd><p>If the managed object already provides its own context management
 via the __enter__ and __exit__ methods, it is returned
 unchanged. However, if the instance does not, a ClosingContext
@@ -640,169 +660,289 @@ will be created to wrap it. When the ClosingContext exits, it will
 call managed.close()</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.dirutils.collect_compare">
-<tt class="descclassname">javatools.dirutils.</tt><tt class="descname">collect_compare</tt><big>(</big><em>left</em>, <em>right</em><big>)</big><a class="reference internal" href="../_modules/javatools/dirutils/#collect_compare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.dirutils.collect_compare" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.dirutils.collect_compare">
+<span class="sig-prename descclassname"><span class="pre">javatools.dirutils.</span></span><span class="sig-name descname"><span class="pre">collect_compare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">left</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/dirutils/#collect_compare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.dirutils.collect_compare" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns a tuple of four lists describing the file paths that have
 been (in order) added, removed, altered, or left the same</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.dirutils.collect_compare_into">
-<tt class="descclassname">javatools.dirutils.</tt><tt class="descname">collect_compare_into</tt><big>(</big><em>left</em>, <em>right</em>, <em>added</em>, <em>removed</em>, <em>altered</em>, <em>same</em><big>)</big><a class="reference internal" href="../_modules/javatools/dirutils/#collect_compare_into"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.dirutils.collect_compare_into" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.dirutils.collect_compare_into">
+<span class="sig-prename descclassname"><span class="pre">javatools.dirutils.</span></span><span class="sig-name descname"><span class="pre">collect_compare_into</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">left</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">added</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">altered</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">same</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/dirutils/#collect_compare_into"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.dirutils.collect_compare_into" title="Permalink to this definition">¶</a></dt>
 <dd><p>collect the results of compare into the given lists (or None if
 you do not wish to collect results of that type. Returns a tuple
 of (added, removed, altered, same)</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.dirutils.compare">
-<tt class="descclassname">javatools.dirutils.</tt><tt class="descname">compare</tt><big>(</big><em>left</em>, <em>right</em><big>)</big><a class="reference internal" href="../_modules/javatools/dirutils/#compare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.dirutils.compare" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.dirutils.compare">
+<span class="sig-prename descclassname"><span class="pre">javatools.dirutils.</span></span><span class="sig-name descname"><span class="pre">compare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">left</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/dirutils/#compare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.dirutils.compare" title="Permalink to this definition">¶</a></dt>
 <dd><p>generator emiting pairs indicating the contents of the left and
 right directories. The pairs are in the form of (difference,
 filename) where difference is one of the LEFT, RIGHT, DIFF, or
 BOTH constants. This generator recursively walks both trees.</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.dirutils.copydir">
-<tt class="descclassname">javatools.dirutils.</tt><tt class="descname">copydir</tt><big>(</big><em>orig</em>, <em>dest</em><big>)</big><a class="reference internal" href="../_modules/javatools/dirutils/#copydir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.dirutils.copydir" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.dirutils.copydir">
+<span class="sig-prename descclassname"><span class="pre">javatools.dirutils.</span></span><span class="sig-name descname"><span class="pre">copydir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/dirutils/#copydir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.dirutils.copydir" title="Permalink to this definition">¶</a></dt>
 <dd><p>copies directory orig to dest. Returns a list of tuples of
 relative filenames which were copied from orig to dest</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.dirutils.fnmatches">
-<tt class="descclassname">javatools.dirutils.</tt><tt class="descname">fnmatches</tt><big>(</big><em>entry</em>, <em>*pattern_list</em><big>)</big><a class="reference internal" href="../_modules/javatools/dirutils/#fnmatches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.dirutils.fnmatches" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.dirutils.fnmatches">
+<span class="sig-prename descclassname"><span class="pre">javatools.dirutils.</span></span><span class="sig-name descname"><span class="pre">fnmatches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">pattern_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/dirutils/#fnmatches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.dirutils.fnmatches" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns true if entry matches any of the glob patterns, false
 otherwise</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.dirutils.makedirsp">
-<tt class="descclassname">javatools.dirutils.</tt><tt class="descname">makedirsp</tt><big>(</big><em>dirname</em><big>)</big><a class="reference internal" href="../_modules/javatools/dirutils/#makedirsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.dirutils.makedirsp" title="Permalink to this definition">¶</a></dt>
-<dd><p>create dirname if it doesn&#8217;t exist</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.dirutils.makedirsp">
+<span class="sig-prename descclassname"><span class="pre">javatools.dirutils.</span></span><span class="sig-name descname"><span class="pre">makedirsp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/dirutils/#makedirsp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.dirutils.makedirsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>create dirname if it doesn't exist</p>
 </dd></dl>
 
-</div>
-<div class="section" id="module-javatools.ziputils">
-<span id="javatools-ziputils"></span><h2>javatools.ziputils<a class="headerlink" href="#module-javatools.ziputils" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-javatools.ziputils">
+<span id="javatools-ziputils"></span><h2>javatools.ziputils<a class="headerlink" href="#module-javatools.ziputils" title="Permalink to this heading">¶</a></h2>
 <p>Utilities for discovering entry deltas in a pair of zip files.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body">Christopher O&#8217;Brien  &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</td>
-</tr>
-<tr class="field-even field"><th class="field-name">license:</th><td class="field-body">LGPL</td>
-</tr>
-</tbody>
-</table>
-<dl class="function">
-<dt id="javatools.ziputils.compare">
-<tt class="descclassname">javatools.ziputils.</tt><tt class="descname">compare</tt><big>(</big><em>left</em>, <em>right</em><big>)</big><a class="reference internal" href="../_modules/javatools/ziputils/#compare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.ziputils.compare" title="Permalink to this definition">¶</a></dt>
+<dl class="field-list simple">
+<dt class="field-odd">author<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Christopher O'Brien  &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</p>
+</dd>
+<dt class="field-even">license<span class="colon">:</span></dt>
+<dd class="field-even"><p>LGPL</p>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.ziputils.compare">
+<span class="sig-prename descclassname"><span class="pre">javatools.ziputils.</span></span><span class="sig-name descname"><span class="pre">compare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">left</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/ziputils/#compare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.ziputils.compare" title="Permalink to this definition">¶</a></dt>
 <dd><p>yields EVENT,ENTRY pairs describing the differences between left
 and right, which are filenames for a pair of zip files</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.ziputils.compare_zips">
-<tt class="descclassname">javatools.ziputils.</tt><tt class="descname">compare_zips</tt><big>(</big><em>left</em>, <em>right</em><big>)</big><a class="reference internal" href="../_modules/javatools/ziputils/#compare_zips"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.ziputils.compare_zips" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.ziputils.compare_zips">
+<span class="sig-prename descclassname"><span class="pre">javatools.ziputils.</span></span><span class="sig-name descname"><span class="pre">compare_zips</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">left</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/ziputils/#compare_zips"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.ziputils.compare_zips" title="Permalink to this definition">¶</a></dt>
 <dd><p>yields EVENT,ENTRY pairs describing the differences between left
 and right ZipFile instances</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.ziputils.open_zip">
-<tt class="descclassname">javatools.ziputils.</tt><tt class="descname">open_zip</tt><big>(</big><em>filename</em>, <em>mode='r'</em><big>)</big><a class="reference internal" href="../_modules/javatools/ziputils/#open_zip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.ziputils.open_zip" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.ziputils.open_zip">
+<span class="sig-prename descclassname"><span class="pre">javatools.ziputils.</span></span><span class="sig-name descname"><span class="pre">open_zip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/ziputils/#open_zip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.ziputils.open_zip" title="Permalink to this definition">¶</a></dt>
 <dd><p>opens a zip file archive at filename in the given mode and returns
 a context manager which will close the archive when the context
-exits. Use eg: with open_zip(&#8216;my.zip&#8217;) as z: ...</p>
+exits. Use eg: with open_zip('my.zip') as z: ...</p>
 <p>In Python 2.6, this will be a ClosingContext instance. In 2.7
 onward, the zipfile.ZipFile class provides its own managed context
 and so the instance is returned unwrapped</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.ziputils.open_zip_entry">
-<tt class="descclassname">javatools.ziputils.</tt><tt class="descname">open_zip_entry</tt><big>(</big><em>zipfile</em>, <em>name</em>, <em>mode='r'</em><big>)</big><a class="reference internal" href="../_modules/javatools/ziputils/#open_zip_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.ziputils.open_zip_entry" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.ziputils.open_zip_entry">
+<span class="sig-prename descclassname"><span class="pre">javatools.ziputils.</span></span><span class="sig-name descname"><span class="pre">open_zip_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zipfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/ziputils/#open_zip_entry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.ziputils.open_zip_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>opens an entry from an opened zip file archive in the given mode
 and returns a context manager which will close the stream when the
-context exits. Use eg: with open_zip_entry(my_zip, &#8216;MANIFEST.MF&#8217;)
+context exits. Use eg: with open_zip_entry(my_zip, 'MANIFEST.MF')
 as data: ...</p>
 <p>In Python 2.6, this will be a ClosingContext instance. In 2.7
 onward, the zipfile.ZipExtFile class provides its own managed
 context and so the instance is returned unwrapped</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.ziputils.zip_file">
-<tt class="descclassname">javatools.ziputils.</tt><tt class="descname">zip_file</tt><big>(</big><em>fn</em>, <em>mode='r'</em><big>)</big><a class="reference internal" href="../_modules/javatools/ziputils/#zip_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.ziputils.zip_file" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.ziputils.zip_entry_rollup">
+<span class="sig-prename descclassname"><span class="pre">javatools.ziputils.</span></span><span class="sig-name descname"><span class="pre">zip_entry_rollup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zipfile</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/ziputils/#zip_entry_rollup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.ziputils.zip_entry_rollup" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a tuple of (files, dirs, size_uncompressed,
+size_compressed). files+dirs will equal len(zipfile.infolist)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.ziputils.zip_file">
+<span class="sig-prename descclassname"><span class="pre">javatools.ziputils.</span></span><span class="sig-name descname"><span class="pre">zip_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/ziputils/#zip_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.ziputils.zip_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns either a zipfile.ZipFile instance or an ExplodedZipFile
 instance, depending on whether fn is the name of a valid zip file,
 or a directory.</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.ziputils.zip_entry_rollup">
-<tt class="descclassname">javatools.ziputils.</tt><tt class="descname">zip_entry_rollup</tt><big>(</big><em>zipfile</em><big>)</big><a class="reference internal" href="../_modules/javatools/ziputils/#zip_entry_rollup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.ziputils.zip_entry_rollup" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns a tuple of (files, dirs, size_uncompressed,
-size_compressed). files+dirs will equal len(zipfile.infolist)</p>
-</dd></dl>
-
-</div>
-</div>
+</section>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../">Table Of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="../">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Utility Modules</a><ul>
-<li><a class="reference internal" href="#module-javatools.pack">javatools.pack</a></li>
+<li><a class="reference internal" href="#module-javatools.pack">javatools.pack</a><ul>
+<li><a class="reference internal" href="#javatools.pack.BufferUnpacker"><code class="docutils literal notranslate"><span class="pre">BufferUnpacker</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.pack.BufferUnpacker.close"><code class="docutils literal notranslate"><span class="pre">BufferUnpacker.close()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.pack.BufferUnpacker.read"><code class="docutils literal notranslate"><span class="pre">BufferUnpacker.read()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.pack.BufferUnpacker.unpack"><code class="docutils literal notranslate"><span class="pre">BufferUnpacker.unpack()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.pack.BufferUnpacker.unpack_struct"><code class="docutils literal notranslate"><span class="pre">BufferUnpacker.unpack_struct()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#javatools.pack.StreamUnpacker"><code class="docutils literal notranslate"><span class="pre">StreamUnpacker</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.pack.StreamUnpacker.close"><code class="docutils literal notranslate"><span class="pre">StreamUnpacker.close()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.pack.StreamUnpacker.read"><code class="docutils literal notranslate"><span class="pre">StreamUnpacker.read()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.pack.StreamUnpacker.unpack"><code class="docutils literal notranslate"><span class="pre">StreamUnpacker.unpack()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.pack.StreamUnpacker.unpack_struct"><code class="docutils literal notranslate"><span class="pre">StreamUnpacker.unpack_struct()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#javatools.pack.UnpackException"><code class="docutils literal notranslate"><span class="pre">UnpackException</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.pack.UnpackException.template"><code class="docutils literal notranslate"><span class="pre">UnpackException.template</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#javatools.pack.Unpacker"><code class="docutils literal notranslate"><span class="pre">Unpacker</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.pack.Unpacker.close"><code class="docutils literal notranslate"><span class="pre">Unpacker.close()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.pack.Unpacker.read"><code class="docutils literal notranslate"><span class="pre">Unpacker.read()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.pack.Unpacker.unpack"><code class="docutils literal notranslate"><span class="pre">Unpacker.unpack()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.pack.Unpacker.unpack_array"><code class="docutils literal notranslate"><span class="pre">Unpacker.unpack_array()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.pack.Unpacker.unpack_objects"><code class="docutils literal notranslate"><span class="pre">Unpacker.unpack_objects()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.pack.Unpacker.unpack_struct"><code class="docutils literal notranslate"><span class="pre">Unpacker.unpack_struct()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.pack.Unpacker.unpack_struct_array"><code class="docutils literal notranslate"><span class="pre">Unpacker.unpack_struct_array()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#javatools.pack.compile_struct"><code class="docutils literal notranslate"><span class="pre">compile_struct()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.pack.unpack"><code class="docutils literal notranslate"><span class="pre">unpack()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-javatools.opcodes">javatools.opcodes</a><ul>
 <li><a class="reference internal" href="#references">References</a></li>
+<li><a class="reference internal" href="#javatools.opcodes.disassemble"><code class="docutils literal notranslate"><span class="pre">disassemble()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.opcodes.get_arg_format"><code class="docutils literal notranslate"><span class="pre">get_arg_format()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.opcodes.get_opcode_by_name"><code class="docutils literal notranslate"><span class="pre">get_opcode_by_name()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.opcodes.get_opname_by_code"><code class="docutils literal notranslate"><span class="pre">get_opname_by_code()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.opcodes.has_const_arg"><code class="docutils literal notranslate"><span class="pre">has_const_arg()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-javatools.manifest">javatools.manifest</a><ul>
 <li><a class="reference internal" href="#id1">References</a></li>
+<li><a class="reference internal" href="#javatools.manifest.MalformedManifest"><code class="docutils literal notranslate"><span class="pre">MalformedManifest</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.Manifest"><code class="docutils literal notranslate"><span class="pre">Manifest</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.manifest.Manifest.add_jar_entries"><code class="docutils literal notranslate"><span class="pre">Manifest.add_jar_entries()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.Manifest.clear"><code class="docutils literal notranslate"><span class="pre">Manifest.clear()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.Manifest.create_section"><code class="docutils literal notranslate"><span class="pre">Manifest.create_section()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.Manifest.get_data"><code class="docutils literal notranslate"><span class="pre">Manifest.get_data()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.Manifest.get_main_section"><code class="docutils literal notranslate"><span class="pre">Manifest.get_main_section()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.Manifest.load_from_jar"><code class="docutils literal notranslate"><span class="pre">Manifest.load_from_jar()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.Manifest.parse"><code class="docutils literal notranslate"><span class="pre">Manifest.parse()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.Manifest.parse_file"><code class="docutils literal notranslate"><span class="pre">Manifest.parse_file()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.Manifest.primary_key"><code class="docutils literal notranslate"><span class="pre">Manifest.primary_key</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.Manifest.store"><code class="docutils literal notranslate"><span class="pre">Manifest.store()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.Manifest.verify_jar_checksums"><code class="docutils literal notranslate"><span class="pre">Manifest.verify_jar_checksums()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-javatools.dirutils">javatools.dirutils</a></li>
-<li><a class="reference internal" href="#module-javatools.ziputils">javatools.ziputils</a></li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestChange"><code class="docutils literal notranslate"><span class="pre">ManifestChange</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.manifest.ManifestChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">ManifestChange.collect_impl()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">ManifestChange.is_ignored()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestChange.label"><code class="docutils literal notranslate"><span class="pre">ManifestChange.label</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestKeyException"><code class="docutils literal notranslate"><span class="pre">ManifestKeyException</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSection"><code class="docutils literal notranslate"><span class="pre">ManifestSection</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSection.get_data"><code class="docutils literal notranslate"><span class="pre">ManifestSection.get_data()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSection.keys_with_suffix"><code class="docutils literal notranslate"><span class="pre">ManifestSection.keys_with_suffix()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSection.load"><code class="docutils literal notranslate"><span class="pre">ManifestSection.load()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSection.primary"><code class="docutils literal notranslate"><span class="pre">ManifestSection.primary()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSection.primary_key"><code class="docutils literal notranslate"><span class="pre">ManifestSection.primary_key</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSection.store"><code class="docutils literal notranslate"><span class="pre">ManifestSection.store()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSectionAdded"><code class="docutils literal notranslate"><span class="pre">ManifestSectionAdded</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSectionAdded.get_description"><code class="docutils literal notranslate"><span class="pre">ManifestSectionAdded.get_description()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSectionAdded.is_ignored"><code class="docutils literal notranslate"><span class="pre">ManifestSectionAdded.is_ignored()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSectionAdded.label"><code class="docutils literal notranslate"><span class="pre">ManifestSectionAdded.label</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSectionChange"><code class="docutils literal notranslate"><span class="pre">ManifestSectionChange</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSectionChange.get_description"><code class="docutils literal notranslate"><span class="pre">ManifestSectionChange.get_description()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSectionChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">ManifestSectionChange.is_ignored()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSectionChange.label"><code class="docutils literal notranslate"><span class="pre">ManifestSectionChange.label</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSectionRemoved"><code class="docutils literal notranslate"><span class="pre">ManifestSectionRemoved</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSectionRemoved.get_description"><code class="docutils literal notranslate"><span class="pre">ManifestSectionRemoved.get_description()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSectionRemoved.is_ignored"><code class="docutils literal notranslate"><span class="pre">ManifestSectionRemoved.is_ignored()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.ManifestSectionRemoved.label"><code class="docutils literal notranslate"><span class="pre">ManifestSectionRemoved.label</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#javatools.manifest.SignatureManifest"><code class="docutils literal notranslate"><span class="pre">SignatureManifest</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.manifest.SignatureManifest.digest_manifest"><code class="docutils literal notranslate"><span class="pre">SignatureManifest.digest_manifest()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.SignatureManifest.get_signature"><code class="docutils literal notranslate"><span class="pre">SignatureManifest.get_signature()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.SignatureManifest.primary_key"><code class="docutils literal notranslate"><span class="pre">SignatureManifest.primary_key</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.SignatureManifest.verify_manifest"><code class="docutils literal notranslate"><span class="pre">SignatureManifest.verify_manifest()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.SignatureManifest.verify_manifest_entry_checksums"><code class="docutils literal notranslate"><span class="pre">SignatureManifest.verify_manifest_entry_checksums()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.SignatureManifest.verify_manifest_main_attributes_checksum"><code class="docutils literal notranslate"><span class="pre">SignatureManifest.verify_manifest_main_attributes_checksum()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.SignatureManifest.verify_manifest_main_checksum"><code class="docutils literal notranslate"><span class="pre">SignatureManifest.verify_manifest_main_checksum()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#javatools.manifest.cli_create"><code class="docutils literal notranslate"><span class="pre">cli_create()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.cli_query"><code class="docutils literal notranslate"><span class="pre">cli_query()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.cli_verify"><code class="docutils literal notranslate"><span class="pre">cli_verify()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.manifest.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-javatools.dirutils">javatools.dirutils</a><ul>
+<li><a class="reference internal" href="#javatools.dirutils.ClosingContext"><code class="docutils literal notranslate"><span class="pre">ClosingContext</span></code></a></li>
+<li><a class="reference internal" href="#javatools.dirutils.closing"><code class="docutils literal notranslate"><span class="pre">closing()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.dirutils.collect_compare"><code class="docutils literal notranslate"><span class="pre">collect_compare()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.dirutils.collect_compare_into"><code class="docutils literal notranslate"><span class="pre">collect_compare_into()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.dirutils.compare"><code class="docutils literal notranslate"><span class="pre">compare()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.dirutils.copydir"><code class="docutils literal notranslate"><span class="pre">copydir()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.dirutils.fnmatches"><code class="docutils literal notranslate"><span class="pre">fnmatches()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.dirutils.makedirsp"><code class="docutils literal notranslate"><span class="pre">makedirsp()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-javatools.ziputils">javatools.ziputils</a><ul>
+<li><a class="reference internal" href="#javatools.ziputils.compare"><code class="docutils literal notranslate"><span class="pre">compare()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.ziputils.compare_zips"><code class="docutils literal notranslate"><span class="pre">compare_zips()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.ziputils.open_zip"><code class="docutils literal notranslate"><span class="pre">open_zip()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.ziputils.open_zip_entry"><code class="docutils literal notranslate"><span class="pre">open_zip_entry()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.ziputils.zip_entry_rollup"><code class="docutils literal notranslate"><span class="pre">zip_entry_rollup()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.ziputils.zip_file"><code class="docutils literal notranslate"><span class="pre">zip_file()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../report/"
-                        title="previous chapter">Reporting Changes</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/utils.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="../report/"
+                          title="previous chapter">Reporting Changes</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/utils.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search/" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -812,18 +952,16 @@ size_compressed). files+dirs will equal len(zipfile.infolist)</p>
           <a href="../py-modindex/" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../np-modindex/" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="../report/" title="Reporting Changes"
              >previous</a> |</li>
-        <li><a href="../">javatools 1.4.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../">python-javatools 1.6.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Utility Modules</a></li> 
       </ul>
     </div>
 
-    <div class="footer">
-        &copy; Copyright 2014, Christopher O&#39;Brien.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2023, Christopher O&#39;Brien.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");

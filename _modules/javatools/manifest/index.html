@@ -1,33 +1,22 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="English">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>javatools.manifest &#8212; python-javatools 1.6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/classic.css" />
     
-    <title>javatools.manifest &mdash; javatools 1.4.0 documentation</title>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     
-    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '1.4.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="top" title="javatools 1.4.0 documentation" href="../../../" />
-    <link rel="up" title="javatools" href="../" /> 
-  </head>
-  <body>
-    <div class="related">
+    <link rel="index" title="Index" href="../../../genindex/" />
+    <link rel="search" title="Search" href="../../../search/" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -36,34 +25,32 @@
         <li class="right" >
           <a href="../../../py-modindex/" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="../../../np-modindex/" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../../">javatools 1.4.0 documentation</a> &raquo;</li>
-          <li><a href="../../" >Module code</a> &raquo;</li>
-          <li><a href="../" accesskey="U">javatools</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../../">python-javatools 1.6.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../" accesskey="U">javatools</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">javatools.manifest</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <h1>Source code for javatools.manifest</h1><div class="highlight"><pre>
-<span class="c"># This library is free software; you can redistribute it and/or modify</span>
-<span class="c"># it under the terms of the GNU Lesser General Public License as</span>
-<span class="c"># published by the Free Software Foundation; either version 3 of the</span>
-<span class="c"># License, or (at your option) any later version.</span>
-<span class="c">#</span>
-<span class="c"># This library is distributed in the hope that it will be useful, but</span>
-<span class="c"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
-<span class="c"># Lesser General Public License for more details.</span>
-<span class="c">#</span>
-<span class="c"># You should have received a copy of the GNU Lesser General Public</span>
-<span class="c"># License along with this library; if not, see</span>
-<span class="c"># &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span></span><span class="c1"># This library is free software; you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Lesser General Public License as</span>
+<span class="c1"># published by the Free Software Foundation; either version 3 of the</span>
+<span class="c1"># License, or (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This library is distributed in the hope that it will be useful, but</span>
+<span class="c1"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1"># Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1"># License along with this library; if not, see</span>
+<span class="c1"># &lt;http://www.gnu.org/licenses/&gt;.</span>
 
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -78,40 +65,48 @@
 <span class="sd">:license: LGPL</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
+<span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">hashlib</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="kn">from</span> <span class="nn">base64</span> <span class="kn">import</span> <span class="n">b64encode</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">cStringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">izip</span>
-<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">join</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="n">split</span><span class="p">,</span> <span class="n">walk</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">join</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="n">split</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">walk</span>
+<span class="kn">from</span> <span class="nn">six</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="nb">zip</span>
 <span class="kn">from</span> <span class="nn">zipfile</span> <span class="kn">import</span> <span class="n">ZipFile</span>
 
 <span class="kn">from</span> <span class="nn">.change</span> <span class="kn">import</span> <span class="n">GenericChange</span><span class="p">,</span> <span class="n">SuperChange</span>
 <span class="kn">from</span> <span class="nn">.change</span> <span class="kn">import</span> <span class="n">Addition</span><span class="p">,</span> <span class="n">Removal</span>
 <span class="kn">from</span> <span class="nn">.dirutils</span> <span class="kn">import</span> <span class="n">fnmatches</span><span class="p">,</span> <span class="n">makedirsp</span>
 
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">buffer</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+    <span class="n">buffer</span> <span class="o">=</span> <span class="nb">memoryview</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s">&quot;ManifestChange&quot;</span><span class="p">,</span> <span class="s">&quot;ManifestSectionChange&quot;</span><span class="p">,</span>
-    <span class="s">&quot;ManifestSectionAdded&quot;</span><span class="p">,</span> <span class="s">&quot;ManifestSectionRemoved&quot;</span><span class="p">,</span>
-    <span class="s">&quot;Manifest&quot;</span><span class="p">,</span> <span class="s">&quot;ManifestSection&quot;</span><span class="p">,</span>
-    <span class="s">&quot;SignatureManifest&quot;</span><span class="p">,</span>
-    <span class="s">&quot;ManifestKeyException&quot;</span><span class="p">,</span> <span class="s">&quot;MalformedManifest&quot;</span><span class="p">,</span>
-    <span class="s">&quot;main&quot;</span><span class="p">,</span> <span class="s">&quot;cli&quot;</span><span class="p">,</span>
-    <span class="s">&quot;cli_create&quot;</span><span class="p">,</span> <span class="s">&quot;cli_query&quot;</span><span class="p">,</span> <span class="s">&quot;cli_sign&quot;</span><span class="p">,</span>
-<span class="p">)</span>
+    <span class="s2">&quot;ManifestChange&quot;</span><span class="p">,</span> <span class="s2">&quot;ManifestSectionChange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ManifestSectionAdded&quot;</span><span class="p">,</span> <span class="s2">&quot;ManifestSectionRemoved&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Manifest&quot;</span><span class="p">,</span> <span class="s2">&quot;ManifestSection&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SignatureManifest&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ManifestKeyException&quot;</span><span class="p">,</span> <span class="s2">&quot;MalformedManifest&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="s2">&quot;cli_create&quot;</span><span class="p">,</span> <span class="s2">&quot;cli_query&quot;</span><span class="p">,</span> <span class="s2">&quot;cli_verify&quot;</span><span class="p">,</span> <span class="p">)</span>
 
 
 <span class="n">_BUFFERING</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">14</span>
 
 
+<span class="n">SIG_FILE_PATTERN</span> <span class="o">=</span> <span class="s2">&quot;*.SF&quot;</span>
+<span class="n">SIG_BLOCK_PATTERNS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;*.RSA&quot;</span><span class="p">,</span> <span class="s2">&quot;*.DSA&quot;</span><span class="p">,</span> <span class="s2">&quot;*.EC&quot;</span><span class="p">,</span> <span class="s2">&quot;SIG-*&quot;</span><span class="p">,</span> <span class="p">)</span>
+
 
 <span class="k">class</span> <span class="nc">UnsupportedDigest</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Indicates an algorithm was requested for which we had no matching</span>
 <span class="sd">    digest support</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -119,126 +114,135 @@
 
 
 <div class="viewcode-block" id="ManifestKeyException"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestKeyException">[docs]</a><span class="k">class</span> <span class="nc">ManifestKeyException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Indicates there was an issue with the key used in a manifest</span>
 <span class="sd">    section</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
-</div>
+
 <div class="viewcode-block" id="MalformedManifest"><a class="viewcode-back" href="../../../utils/#javatools.manifest.MalformedManifest">[docs]</a><span class="k">class</span> <span class="nc">MalformedManifest</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Indicates there was a problem in parsing a manifest</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
 
-<span class="c"># Digests classes by Java name that have been found present in hashlib</span></div>
-<span class="n">NAMED_DIGESTS</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="c1"># Digests classes by Java name that have been found present in hashlib</span>
+<span class="n">JAVA_TO_OPENSSL_DIGESTS</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">JAVA_TO_OPENSSL_DIGEST_NAMES</span> <span class="o">=</span> <span class="p">{}</span>
+
 
 <span class="k">def</span> <span class="nf">_add_digest</span><span class="p">(</span><span class="n">java_name</span><span class="p">,</span> <span class="n">hashlib_name</span><span class="p">):</span>
-    <span class="n">digest</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">hashlib</span><span class="p">,</span> <span class="n">hashlib_name</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="n">digest</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">hashlib</span><span class="p">,</span> <span class="n">hashlib_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">digest</span><span class="p">:</span>
-        <span class="n">NAMED_DIGESTS</span><span class="p">[</span><span class="n">java_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">digest</span>
+        <span class="n">JAVA_TO_OPENSSL_DIGESTS</span><span class="p">[</span><span class="n">java_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">digest</span>
+        <span class="n">JAVA_TO_OPENSSL_DIGEST_NAMES</span><span class="p">[</span><span class="n">java_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">hashlib_name</span>
 
-<span class="k">def</span> <span class="nf">_get_digest</span><span class="p">(</span><span class="n">java_name</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">_get_digest</span><span class="p">(</span><span class="n">java_name</span><span class="p">,</span> <span class="n">as_string</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">NAMED_DIGESTS</span><span class="p">[</span><span class="n">java_name</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">JAVA_TO_OPENSSL_DIGEST_NAMES</span><span class="p">[</span><span class="n">java_name</span><span class="p">]</span> <span class="k">if</span> <span class="n">as_string</span> \
+            <span class="k">else</span> <span class="n">JAVA_TO_OPENSSL_DIGESTS</span><span class="p">[</span><span class="n">java_name</span><span class="p">]</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">UnsupportedDigest</span><span class="p">(</span><span class="n">java_name</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">UnsupportedDigest</span><span class="p">(</span><span class="s2">&quot;Unsupported digest </span><span class="si">%s</span><span class="s2">. Supported: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                                <span class="p">(</span><span class="n">java_name</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span>
+                                 <span class="n">JAVA_TO_OPENSSL_DIGESTS</span><span class="o">.</span><span class="n">keys</span><span class="p">()))))</span>
 
-<span class="c"># Note 1: Java supports also MD2, but hashlib does not</span>
-<span class="n">_add_digest</span><span class="p">(</span><span class="s">&quot;MD2&quot;</span><span class="p">,</span> <span class="s">&quot;md2&quot;</span><span class="p">)</span>
-<span class="n">_add_digest</span><span class="p">(</span><span class="s">&quot;MD5&quot;</span><span class="p">,</span> <span class="s">&quot;md5&quot;</span><span class="p">)</span>
 
-<span class="c"># Note 2: Oracle specifies &quot;SHA-1&quot; algorithm name in their</span>
-<span class="c"># documentation, but it&#39;s called &quot;SHA1&quot; elsewhere and that is what</span>
-<span class="c"># jarsigner uses as well.</span>
-<span class="n">_add_digest</span><span class="p">(</span><span class="s">&quot;SHA1&quot;</span><span class="p">,</span> <span class="s">&quot;sha1&quot;</span><span class="p">)</span>
-<span class="n">_add_digest</span><span class="p">(</span><span class="s">&quot;SHA-256&quot;</span><span class="p">,</span> <span class="s">&quot;sha256&quot;</span><span class="p">)</span>
-<span class="n">_add_digest</span><span class="p">(</span><span class="s">&quot;SHA-384&quot;</span><span class="p">,</span> <span class="s">&quot;sha384&quot;</span><span class="p">)</span>
-<span class="n">_add_digest</span><span class="p">(</span><span class="s">&quot;SHA-512&quot;</span><span class="p">,</span> <span class="s">&quot;sha512&quot;</span><span class="p">)</span>
+<span class="c1"># Note 1: Java supports also MD2, but hashlib does not</span>
+<span class="n">_add_digest</span><span class="p">(</span><span class="s2">&quot;MD2&quot;</span><span class="p">,</span> <span class="s2">&quot;md2&quot;</span><span class="p">)</span>
+<span class="n">_add_digest</span><span class="p">(</span><span class="s2">&quot;MD5&quot;</span><span class="p">,</span> <span class="s2">&quot;md5&quot;</span><span class="p">)</span>
+
+<span class="c1"># Note 2: Oracle specifies &quot;SHA-1&quot; algorithm name in their</span>
+<span class="c1"># documentation, but it&#39;s called &quot;SHA1&quot; elsewhere and that is what</span>
+<span class="c1"># jarsigner uses as well.</span>
+<span class="c1"># http://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#MessageDigest</span>
+<span class="n">_add_digest</span><span class="p">(</span><span class="s2">&quot;SHA1&quot;</span><span class="p">,</span> <span class="s2">&quot;sha1&quot;</span><span class="p">)</span>
+<span class="n">_add_digest</span><span class="p">(</span><span class="s2">&quot;SHA-256&quot;</span><span class="p">,</span> <span class="s2">&quot;sha256&quot;</span><span class="p">)</span>
+<span class="n">_add_digest</span><span class="p">(</span><span class="s2">&quot;SHA-384&quot;</span><span class="p">,</span> <span class="s2">&quot;sha384&quot;</span><span class="p">)</span>
+<span class="n">_add_digest</span><span class="p">(</span><span class="s2">&quot;SHA-512&quot;</span><span class="p">,</span> <span class="s2">&quot;sha512&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="ManifestSectionChange"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestSectionChange">[docs]</a><span class="k">class</span> <span class="nc">ManifestSectionChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Manifest Subsection&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Manifest Subsection&quot;</span>
 
 
 <div class="viewcode-block" id="ManifestSectionChange.get_description"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestSectionChange.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span>
         <span class="n">entry</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">primary</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
-            <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> Changed: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> Changed: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> Unchanged: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> Unchanged: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ManifestSectionChange.is_ignored"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestSectionChange.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;ignore_manifest_subsections&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s2">&quot;ignore_manifest_subsections&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="n">ikeys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;ignore_manifest_key&quot;</span><span class="p">,</span> <span class="nb">set</span><span class="p">()))</span>
+        <span class="n">ikeys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s2">&quot;ignore_manifest_key&quot;</span><span class="p">,</span> <span class="nb">set</span><span class="p">()))</span>
         <span class="k">if</span> <span class="n">ikeys</span><span class="p">:</span>
             <span class="n">lset</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
             <span class="n">rset</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-            <span class="n">changed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">lset</span><span class="o">.</span><span class="n">symmetric_difference</span><span class="p">(</span><span class="n">rset</span><span class="p">))</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">lset</span><span class="o">.</span><span class="n">symmetric_difference</span><span class="p">(</span><span class="n">rset</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">changed</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">ikeys</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">return</span> <span class="kc">False</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="ManifestSectionAdded"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestSectionAdded">[docs]</a><span class="k">class</span> <span class="nc">ManifestSectionAdded</span><span class="p">(</span><span class="n">ManifestSectionChange</span><span class="p">,</span> <span class="n">Addition</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Manifest Subsection Added&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Manifest Subsection Added&quot;</span>
 
 <div class="viewcode-block" id="ManifestSectionAdded.get_description"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestSectionAdded.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="o">.</span><span class="n">primary</span><span class="p">())</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="o">.</span><span class="n">primary</span><span class="p">())</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ManifestSectionAdded.is_ignored"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestSectionAdded.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;ignore_manifest_subsections&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s2">&quot;ignore_manifest_subsections&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="ManifestSectionRemoved"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestSectionRemoved">[docs]</a><span class="k">class</span> <span class="nc">ManifestSectionRemoved</span><span class="p">(</span><span class="n">ManifestSectionChange</span><span class="p">,</span> <span class="n">Removal</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Manifest Subsection Removed&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Manifest Subsection Removed&quot;</span>
 
 <div class="viewcode-block" id="ManifestSectionRemoved.get_description"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestSectionRemoved.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="o">.</span><span class="n">primary</span><span class="p">())</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="o">.</span><span class="n">primary</span><span class="p">())</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ManifestSectionRemoved.is_ignored"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestSectionRemoved.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;ignore_manifest_subsections&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s2">&quot;ignore_manifest_subsections&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div></div>
 
-</div></div>
+
 <span class="k">class</span> <span class="nc">ManifestMainChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Manifest Main Section&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Manifest Main Section&quot;</span>
 
 
     <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_change</span><span class="p">():</span>
-            <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> has changed&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> has changed&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> is unchanged&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is unchanged&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
 
 
     <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-        <span class="n">ikeys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;ignore_manifest_key&quot;</span><span class="p">,</span> <span class="nb">set</span><span class="p">()))</span>
+        <span class="n">ikeys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s2">&quot;ignore_manifest_key&quot;</span><span class="p">,</span> <span class="nb">set</span><span class="p">()))</span>
         <span class="k">if</span> <span class="n">ikeys</span><span class="p">:</span>
             <span class="n">lset</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ldata</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
             <span class="n">rset</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rdata</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-            <span class="n">changed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">lset</span><span class="o">.</span><span class="n">symmetric_difference</span><span class="p">(</span><span class="n">rset</span><span class="p">))</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">_v</span> <span class="ow">in</span> <span class="n">lset</span><span class="o">.</span><span class="n">symmetric_difference</span><span class="p">(</span><span class="n">rset</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">changed</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">ikeys</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
 
 <div class="viewcode-block" id="ManifestChange"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestChange">[docs]</a><span class="k">class</span> <span class="nc">ManifestChange</span><span class="p">(</span><span class="n">SuperChange</span><span class="p">):</span>
 
-    <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Manifest&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Manifest&quot;</span>
 
 
 <div class="viewcode-block" id="ManifestChange.collect_impl"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestChange.collect_impl">[docs]</a>    <span class="k">def</span> <span class="nf">collect_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -252,82 +256,97 @@
             <span class="k">yield</span> <span class="n">ManifestSectionChange</span><span class="p">(</span><span class="n">lm</span><span class="o">.</span><span class="n">sub_sections</span><span class="p">[</span><span class="n">s</span><span class="p">],</span> <span class="n">rm</span><span class="o">.</span><span class="n">sub_sections</span><span class="p">[</span><span class="n">s</span><span class="p">])</span>
 
         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">l_sections</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">r_sections</span><span class="p">):</span>
-            <span class="k">yield</span> <span class="n">ManifestSectionRemoved</span><span class="p">(</span><span class="n">lm</span><span class="o">.</span><span class="n">sub_sections</span><span class="p">[</span><span class="n">s</span><span class="p">],</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">ManifestSectionRemoved</span><span class="p">(</span><span class="n">lm</span><span class="o">.</span><span class="n">sub_sections</span><span class="p">[</span><span class="n">s</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">r_sections</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">l_sections</span><span class="p">):</span>
-            <span class="k">yield</span> <span class="n">ManifestSectionAdded</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">rm</span><span class="o">.</span><span class="n">sub_sections</span><span class="p">[</span><span class="n">s</span><span class="p">])</span>
+            <span class="k">yield</span> <span class="n">ManifestSectionAdded</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">rm</span><span class="o">.</span><span class="n">sub_sections</span><span class="p">[</span><span class="n">s</span><span class="p">])</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ManifestChange.is_ignored"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestChange.is_ignored">[docs]</a>    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;ignore_manifest&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">or</span> \
-            <span class="n">SuperChange</span><span class="o">.</span><span class="n">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s2">&quot;ignore_manifest&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> \
+            <span class="n">SuperChange</span><span class="o">.</span><span class="n">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="ManifestSection"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestSection">[docs]</a><span class="k">class</span> <span class="nc">ManifestSection</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">):</span>
 
-    <span class="n">primary_key</span> <span class="o">=</span> <span class="s">&quot;Name&quot;</span>
+    <span class="n">primary_key</span> <span class="o">=</span> <span class="s2">&quot;Name&quot;</span>
 
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="n">OrderedDict</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">OrderedDict</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
 
 
-    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-        <span class="c">#pylint: disable=W0221</span>
-        <span class="c"># we want the behavior of OrderedDict, but don&#39;t take the</span>
-        <span class="c"># additional parameter</span>
+    <span class="k">def</span> <span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_section</span><span class="p">):</span>
+        <span class="c1"># we need just some ordering, no matter which.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">other_section</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
 
-        <span class="c"># our keys should always be strings, as should our values. We</span>
-        <span class="c"># also have an upper limit on the length we can permit for</span>
-        <span class="c"># keys, per the JAR MANIFEST specification.</span>
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="c1"># pylint: disable=W0221</span>
+        <span class="c1"># we want the behavior of OrderedDict, but don&#39;t take the</span>
+        <span class="c1"># additional parameter</span>
+
+        <span class="c1"># our keys should always be strings, as should our values. We</span>
+        <span class="c1"># also have an upper limit on the length we can permit for</span>
+        <span class="c1"># keys, per the JAR MANIFEST specification.</span>
         <span class="n">k</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">68</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ManifestKeyException</span><span class="p">(</span><span class="s">&quot;key too long&quot;</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ManifestKeyException</span><span class="p">(</span><span class="s2">&quot;key too long&quot;</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">OrderedDict</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+            <span class="n">OrderedDict</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="ManifestSection.primary"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestSection.primary">[docs]</a>    <span class="k">def</span> <span class="nf">primary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The primary value for this section</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ManifestSection.load"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestSection.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Populate this section from an iteration of the parse_items call</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">vals</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
-            <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ManifestSection.store"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestSection.store">[docs]</a>    <span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">linesep</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serialize this section and write it to a stream</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serialize this section and write it to a binary stream</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="s1">&#39;buffer&#39;</span><span class="p">):</span>
+            <span class="n">stream</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">buffer</span>
 
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">write_key_val</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">linesep</span><span class="p">)</span>
 
-        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">linesep</span><span class="p">)</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">linesep</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ManifestSection.get_data"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestSection.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linesep</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serialize the section and return it as a string</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serialize the section and return it as bytes</span>
+<span class="sd">        :return bytes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">stream</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">linesep</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">stream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">stream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div>
 
-</div></div>
+
+<div class="viewcode-block" id="ManifestSection.keys_with_suffix"><a class="viewcode-back" href="../../../utils/#javatools.manifest.ManifestSection.keys_with_suffix">[docs]</a>    <span class="k">def</span> <span class="nf">keys_with_suffix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suffix</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: list of keys ending with given :suffix:.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">suffix</span><span class="p">)]</span></div></div>
+
+
 <div class="viewcode-block" id="Manifest"><a class="viewcode-back" href="../../../utils/#javatools.manifest.Manifest">[docs]</a><span class="k">class</span> <span class="nc">Manifest</span><span class="p">(</span><span class="n">ManifestSection</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents a Java Manifest as an ordered dictionary containing</span>
 <span class="sd">    the key:value pairs from the main section of the manifest, and</span>
 <span class="sd">    zero or more sub-dictionaries of key:value pairs representing the</span>
@@ -336,18 +355,18 @@
 <span class="sd">    Manifest as a whole.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">primary_key</span> <span class="o">=</span> <span class="s">&quot;Manifest-Version&quot;</span>
+    <span class="n">primary_key</span> <span class="o">=</span> <span class="s2">&quot;Manifest-Version&quot;</span>
 
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">linesep</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="c"># can&#39;t use super, because we&#39;re a child of a non-object</span>
-        <span class="n">ManifestSection</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">linesep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># can&#39;t use super, because we&#39;re a child of a non-object</span>
+        <span class="n">ManifestSection</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sub_sections</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">linesep</span> <span class="o">=</span> <span class="n">linesep</span>
 
 
-<div class="viewcode-block" id="Manifest.create_section"><a class="viewcode-back" href="../../../utils/#javatools.manifest.Manifest.create_section">[docs]</a>    <span class="k">def</span> <span class="nf">create_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Manifest.create_section"><a class="viewcode-back" href="../../../utils/#javatools.manifest.Manifest.create_section">[docs]</a>    <span class="k">def</span> <span class="nf">create_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        create and return a new sub-section of this manifest, with the</span>
 <span class="sd">        given Name attribute. If a sub-section already exists with</span>
 <span class="sd">        that name, it will be lost unless overwrite is False in which</span>
@@ -359,87 +378,158 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">sub_sections</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">sect</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">sect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_sections</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">sect</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">sect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_sections</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">sect</span> <span class="o">=</span> <span class="n">ManifestSection</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">sub_sections</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">sect</span>
 
-        <span class="k">return</span> <span class="n">sect</span>
+        <span class="k">return</span> <span class="n">sect</span></div>
 
-</div>
+
 <div class="viewcode-block" id="Manifest.parse_file"><a class="viewcode-back" href="../../../utils/#javatools.manifest.Manifest.parse_file">[docs]</a>    <span class="k">def</span> <span class="nf">parse_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Parse the given file, and attempt to detect the line separator.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load self from the file, such as &quot;MANIFEST.MF&quot; or &quot;SIGNATURE.SF&quot;.</span>
+<span class="sd">        :param filename: contains UTF-8 encoded manifest</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;U&quot;</span><span class="p">,</span> <span class="n">_BUFFERING</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">,</span> <span class="n">_BUFFERING</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div>
 
-        <span class="c"># only set the line seperator from the contents of the</span>
-        <span class="c"># parsed file if it wasn&#39;t explicitly set during creation.</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">linesep</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="c"># works for &#39;\n&#39;, &#39;\r&#39;, and (&#39;\r&#39;,&#39;\n&#39;) cases</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">linesep</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stream</span><span class="o">.</span><span class="n">newlines</span><span class="p">)</span>
 
-</div>
+<div class="viewcode-block" id="Manifest.load_from_jar"><a class="viewcode-back" href="../../../utils/#javatools.manifest.Manifest.load_from_jar">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_jar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jarfile</span><span class="p">):</span>
+        <span class="c1"># Can&#39;t be imported at top level:</span>
+        <span class="kn">from</span> <span class="nn">javatools.jarutil</span> <span class="kn">import</span> <span class="n">MissingManifestError</span>
+        <span class="k">with</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">jarfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">jar</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;META-INF/MANIFEST.MF&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">jar</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="n">MissingManifestError</span><span class="p">(</span>
+                    <span class="s2">&quot;META-INF/MANIFEST.MF not found in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">jarfile</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">jar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;META-INF/MANIFEST.MF&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="Manifest.parse"><a class="viewcode-back" href="../../../utils/#javatools.manifest.Manifest.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        populate instance with values and sub-sections from data in a</span>
-<span class="sd">        stream, string, or buffer</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        populate instance with values and sub-sections</span>
+<span class="sd">        :param data: UTF-8 encoded manifest</span>
+<span class="sd">        :type data: bytes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c"># the main section is the main one for the manifest</span>
+        <span class="c1"># we want at least some data, thus we ignore unknown characters</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linesep</span> <span class="o">=</span> <span class="n">detect_linesep</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="c1"># the first section is the main one for the manifest. It&#39;s</span>
+        <span class="c1"># also where we will check for our newline separator</span>
         <span class="n">sections</span> <span class="o">=</span> <span class="n">parse_sections</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">sections</span><span class="o">.</span><span class="n">next</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">sections</span><span class="p">))</span>
 
-        <span class="c"># and all following sections are considered sub-sections</span>
+        <span class="c1"># and all following sections are considered sub-sections</span>
         <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
-            <span class="n">next_section</span> <span class="o">=</span> <span class="n">ManifestSection</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+            <span class="n">next_section</span> <span class="o">=</span> <span class="n">ManifestSection</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
             <span class="n">next_section</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sub_sections</span><span class="p">[</span><span class="n">next_section</span><span class="o">.</span><span class="n">primary</span><span class="p">()]</span> <span class="o">=</span> <span class="n">next_section</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sub_sections</span><span class="p">[</span><span class="n">next_section</span><span class="o">.</span><span class="n">primary</span><span class="p">()]</span> <span class="o">=</span> <span class="n">next_section</span></div>
 
-</div>
-<div class="viewcode-block" id="Manifest.store"><a class="viewcode-back" href="../../../utils/#javatools.manifest.Manifest.store">[docs]</a>    <span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">linesep</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serialize the Manifest to a stream</span>
+
+<div class="viewcode-block" id="Manifest.store"><a class="viewcode-back" href="../../../utils/#javatools.manifest.Manifest.store">[docs]</a>    <span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">linesep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serialize the Manifest to a binary stream</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c"># either specified here, specified on the instance, or the OS</span>
-        <span class="c"># default</span>
+        <span class="c1"># either specified here, specified on the instance, or the OS</span>
+        <span class="c1"># default</span>
         <span class="n">linesep</span> <span class="o">=</span> <span class="n">linesep</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">linesep</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">linesep</span>
 
         <span class="n">ManifestSection</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">linesep</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">sect</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_sections</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
-            <span class="n">sect</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">linesep</span><span class="p">)</span>
+            <span class="n">sect</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">linesep</span><span class="p">)</span></div>
 
-</div>
-<div class="viewcode-block" id="Manifest.get_main_section"><a class="viewcode-back" href="../../../utils/#javatools.manifest.Manifest.get_main_section">[docs]</a>    <span class="k">def</span> <span class="nf">get_main_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linesep</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serialize just the main section of the manifest and return it as a</span>
-<span class="sd">        string</span>
+
+<div class="viewcode-block" id="Manifest.get_main_section"><a class="viewcode-back" href="../../../utils/#javatools.manifest.Manifest.get_main_section">[docs]</a>    <span class="k">def</span> <span class="nf">get_main_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linesep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serialize just the main section of the manifest and return it as bytes</span>
+<span class="sd">        :return bytes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">linesep</span> <span class="o">=</span> <span class="n">linesep</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">linesep</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">linesep</span>
 
-        <span class="n">stream</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
         <span class="n">ManifestSection</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">linesep</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">stream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">stream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div>
 
-</div>
-<div class="viewcode-block" id="Manifest.get_data"><a class="viewcode-back" href="../../../utils/#javatools.manifest.Manifest.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linesep</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serialize the entire manifest and return it as a string</span>
+
+<div class="viewcode-block" id="Manifest.get_data"><a class="viewcode-back" href="../../../utils/#javatools.manifest.Manifest.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linesep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serialize the entire manifest and return it as bytes</span>
+<span class="sd">        :return bytes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">linesep</span> <span class="o">=</span> <span class="n">linesep</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">linesep</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">linesep</span>
 
-        <span class="n">stream</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">linesep</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">stream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">stream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div>
 
-</div>
+
+<div class="viewcode-block" id="Manifest.verify_jar_checksums"><a class="viewcode-back" href="../../../utils/#javatools.manifest.Manifest.verify_jar_checksums">[docs]</a>    <span class="k">def</span> <span class="nf">verify_jar_checksums</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jar_file</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Verify checksums, present in the manifest, against the JAR content.</span>
+<span class="sd">        :return: list of entries for which verification has failed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">verify_failures</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">zip_file</span> <span class="o">=</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">jar_file</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">zip_file</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">file_skips_verification</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="n">file_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_section</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">digests</span> <span class="o">=</span> <span class="n">file_section</span><span class="o">.</span><span class="n">keys_with_suffix</span><span class="p">(</span><span class="s2">&quot;-Digest&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">digests</span> <span class="ow">and</span> <span class="n">strict</span><span class="p">:</span>
+                <span class="n">verify_failures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="k">for</span> <span class="n">java_digest</span> <span class="ow">in</span> <span class="n">digests</span><span class="p">:</span>
+                <span class="n">read_digest</span> <span class="o">=</span> <span class="n">file_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">java_digest</span> <span class="o">+</span> <span class="s2">&quot;-Digest&quot;</span><span class="p">)</span>
+                <span class="n">calculated_digest</span> <span class="o">=</span> <span class="n">b64_encoded_digest</span><span class="p">(</span>
+                    <span class="n">zip_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+                    <span class="n">_get_digest</span><span class="p">(</span><span class="n">java_digest</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="n">calculated_digest</span> <span class="o">==</span> <span class="n">read_digest</span><span class="p">:</span>
+                    <span class="c1"># found a match</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># for all the digests, not one of them matched. Add</span>
+                <span class="c1"># this filename to the error list</span>
+                <span class="n">verify_failures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">verify_failures</span></div>
+
+
+<div class="viewcode-block" id="Manifest.add_jar_entries"><a class="viewcode-back" href="../../../utils/#javatools.manifest.Manifest.add_jar_entries">[docs]</a>    <span class="k">def</span> <span class="nf">add_jar_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jar_file</span><span class="p">,</span> <span class="n">digest_name</span><span class="o">=</span><span class="s2">&quot;SHA-256&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add manifest sections for all but signature-related entries</span>
+<span class="sd">        of :param jar_file.</span>
+<span class="sd">        :param digest_name The digest algorithm to use</span>
+<span class="sd">        :return None</span>
+<span class="sd">        TODO: join code with cli_create</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">key_digest</span> <span class="o">=</span> <span class="n">digest_name</span> <span class="o">+</span> <span class="s2">&quot;-Digest&quot;</span>
+        <span class="n">digest</span> <span class="o">=</span> <span class="n">_get_digest</span><span class="p">(</span><span class="n">digest_name</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">jar_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">jar</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">jar</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">file_skips_verification</span><span class="p">(</span><span class="n">entry</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_section</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+                <span class="n">section</span><span class="p">[</span><span class="n">key_digest</span><span class="p">]</span> <span class="o">=</span> <span class="n">b64_encoded_digest</span><span class="p">(</span><span class="n">jar</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">entry</span><span class="p">),</span>
+                                                         <span class="n">digest</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="Manifest.clear"><a class="viewcode-back" href="../../../utils/#javatools.manifest.Manifest.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        removes all items from this manifest, and clears and removes all</span>
 <span class="sd">        sub-sections</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -448,136 +538,210 @@
             <span class="n">sub</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sub_sections</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
-        <span class="n">ManifestSection</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">ManifestSection</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
-</div>
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
-</div>
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+
 <div class="viewcode-block" id="SignatureManifest"><a class="viewcode-back" href="../../../utils/#javatools.manifest.SignatureManifest">[docs]</a><span class="k">class</span> <span class="nc">SignatureManifest</span><span class="p">(</span><span class="n">Manifest</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents a KEY.SF signature file.  Structure is similar to that</span>
 <span class="sd">    of Manifest. Each section represents a crypto checksum of a matching</span>
 <span class="sd">    section from a MANIFEST.MF</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">primary_key</span> <span class="o">=</span> <span class="s">&quot;Signature-Version&quot;</span>
+    <span class="n">primary_key</span> <span class="o">=</span> <span class="s2">&quot;Signature-Version&quot;</span>
 
 
-<div class="viewcode-block" id="SignatureManifest.digest_manifest"><a class="viewcode-back" href="../../../utils/#javatools.manifest.SignatureManifest.digest_manifest">[docs]</a>    <span class="k">def</span> <span class="nf">digest_manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span> <span class="n">java_algorithm</span><span class="o">=</span><span class="s">&quot;SHA-256&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SignatureManifest.digest_manifest"><a class="viewcode-back" href="../../../utils/#javatools.manifest.SignatureManifest.digest_manifest">[docs]</a>    <span class="k">def</span> <span class="nf">digest_manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span> <span class="n">java_algorithm</span><span class="o">=</span><span class="s2">&quot;SHA-256&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a main section checksum and sub-section checksums based off</span>
 <span class="sd">        of the data from an existing manifest using an algorithm given</span>
 <span class="sd">        by Java-style name.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c"># pick a line seperator for creating checksums of the manifest</span>
-        <span class="c"># contents. We want to use either the one from the given</span>
-        <span class="c"># manifest, or the OS default if it hasn&#39;t specified one.</span>
+        <span class="c1"># pick a line separator for creating checksums of the manifest</span>
+        <span class="c1"># contents. We want to use either the one from the given</span>
+        <span class="c1"># manifest, or the OS default if it hasn&#39;t specified one.</span>
         <span class="n">linesep</span> <span class="o">=</span> <span class="n">manifest</span><span class="o">.</span><span class="n">linesep</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">linesep</span>
 
-        <span class="n">all_key</span> <span class="o">=</span> <span class="n">java_algorithm</span> <span class="o">+</span> <span class="s">&quot;-Digest-Manifest&quot;</span>
-        <span class="n">main_key</span> <span class="o">=</span> <span class="n">java_algorithm</span> <span class="o">+</span> <span class="s">&quot;-Digest-Manifest-Main-Attributes&quot;</span>
-        <span class="n">sect_key</span> <span class="o">=</span> <span class="n">java_algorithm</span> <span class="o">+</span> <span class="s">&quot;-Digest&quot;</span>
+        <span class="n">all_key</span> <span class="o">=</span> <span class="n">java_algorithm</span> <span class="o">+</span> <span class="s2">&quot;-Digest-Manifest&quot;</span>
+        <span class="n">main_key</span> <span class="o">=</span> <span class="n">java_algorithm</span> <span class="o">+</span> <span class="s2">&quot;-Digest-Manifest-Main-Attributes&quot;</span>
+        <span class="n">sect_key</span> <span class="o">=</span> <span class="n">java_algorithm</span> <span class="o">+</span> <span class="s2">&quot;-Digest&quot;</span>
 
-        <span class="c"># determine a digest class to use based on the java-style</span>
-        <span class="c"># algorithm name</span>
         <span class="n">digest</span> <span class="o">=</span> <span class="n">_get_digest</span><span class="p">(</span><span class="n">java_algorithm</span><span class="p">)</span>
-
-        <span class="c"># calculate the checksum for the main manifest section. We&#39;ll</span>
-        <span class="c"># be re-using this digest to also calculate the total</span>
-        <span class="c"># checksum.</span>
-        <span class="n">h_all</span> <span class="o">=</span> <span class="n">digest</span><span class="p">()</span>
-        <span class="n">h_all</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">get_main_section</span><span class="p">())</span>
-        <span class="bp">self</span><span class="p">[</span><span class="n">main_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">b64encode</span><span class="p">(</span><span class="n">h_all</span><span class="o">.</span><span class="n">digest</span><span class="p">())</span>
+        <span class="n">accum</span> <span class="o">=</span> <span class="n">manifest</span><span class="o">.</span><span class="n">get_main_section</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">main_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">b64_encoded_digest</span><span class="p">(</span><span class="n">accum</span><span class="p">,</span> <span class="n">digest</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">sub_section</span> <span class="ow">in</span> <span class="n">manifest</span><span class="o">.</span><span class="n">sub_sections</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">sub_data</span> <span class="o">=</span> <span class="n">sub_section</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">linesep</span><span class="p">)</span>
-
-            <span class="c"># create a checksums of the section body and store it as a</span>
-            <span class="c"># sub-section of our own</span>
-            <span class="n">h_section</span> <span class="o">=</span> <span class="n">digest</span><span class="p">()</span>
-            <span class="n">h_section</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_data</span><span class="p">)</span>
             <span class="n">sf_sect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_section</span><span class="p">(</span><span class="n">sub_section</span><span class="o">.</span><span class="n">primary</span><span class="p">())</span>
-            <span class="n">sf_sect</span><span class="p">[</span><span class="n">sect_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">b64encode</span><span class="p">(</span><span class="n">h_section</span><span class="o">.</span><span class="n">digest</span><span class="p">())</span>
+            <span class="n">sf_sect</span><span class="p">[</span><span class="n">sect_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">b64_encoded_digest</span><span class="p">(</span><span class="n">sub_data</span><span class="p">,</span> <span class="n">digest</span><span class="p">)</span>
+            <span class="n">accum</span> <span class="o">+=</span> <span class="n">sub_data</span>
 
-            <span class="c"># push this data into this total as well.</span>
-            <span class="n">h_all</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">all_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">b64_encoded_digest</span><span class="p">(</span><span class="n">accum</span><span class="p">,</span> <span class="n">digest</span><span class="p">)</span></div>
 
-        <span class="c"># after traversing all the sub sections, we now have the</span>
-        <span class="c"># digest of the whole manifest.</span>
-        <span class="bp">self</span><span class="p">[</span><span class="n">all_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">b64encode</span><span class="p">(</span><span class="n">h_all</span><span class="o">.</span><span class="n">digest</span><span class="p">())</span>
 
-</div>
-<div class="viewcode-block" id="SignatureManifest.verify_manifest"><a class="viewcode-back" href="../../../utils/#javatools.manifest.SignatureManifest.verify_manifest">[docs]</a>    <span class="k">def</span> <span class="nf">verify_manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manifest</span><span class="p">):</span>
-        <span class="c"># TODO: verify that the digest values in this signature</span>
-        <span class="c"># manifest match with the contents of the given manifest</span>
+<div class="viewcode-block" id="SignatureManifest.verify_manifest_main_checksum"><a class="viewcode-back" href="../../../utils/#javatools.manifest.SignatureManifest.verify_manifest_main_checksum">[docs]</a>    <span class="k">def</span> <span class="nf">verify_manifest_main_checksum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manifest</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Verify the checksum over the manifest main section.</span>
 
-        <span class="k">pass</span>
-
-</div>
-<div class="viewcode-block" id="SignatureManifest.get_signature"><a class="viewcode-back" href="../../../utils/#javatools.manifest.SignatureManifest.get_signature">[docs]</a>    <span class="k">def</span> <span class="nf">get_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">certificate</span><span class="p">,</span> <span class="n">private_key</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Produces a signature block for the contents of this signature</span>
-<span class="sd">        manifest. Executes the `openssl` binary in order to calculate</span>
-<span class="sd">        this. TODO: replace this with a pyopenssl call</span>
-
-<span class="sd">        References</span>
-<span class="sd">        ----------</span>
-<span class="sd">        http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Digital_Signatures</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        certificate : `str` filename</span>
-<span class="sd">          certificate to embed into the signature (PEM format)</span>
-<span class="sd">        private_key : `str` filename</span>
-<span class="sd">          RSA private key used to sign (PEM format)</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        signature : `str`</span>
-<span class="sd">          content of the signature block file as though produced by</span>
-<span class="sd">          jarsigner.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        cpe : `CalledProcessError`</span>
-<span class="sd">          if there was a non-zero return code from running the</span>
-<span class="sd">          underlying openssl exec</span>
+<span class="sd">        :return: True if the signature over main section verifies</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c"># There seems to be no Python crypto library, which would</span>
-        <span class="c"># produce a JAR-compatible signature. So this is a wrapper</span>
-        <span class="c"># around external command.  OpenSSL is known to work.</span>
+        <span class="c1"># NOTE: JAR spec does not state whether there can be &gt;1 digest used,</span>
+        <span class="c1"># and should the validator require any or all digests to match.</span>
+        <span class="c1"># We allow mismatching digests and require just one to be correct.</span>
+        <span class="c1"># We see no security risk: it is the signer of the .SF file</span>
+        <span class="c1"># who shall check, what is being signed.</span>
+        <span class="k">for</span> <span class="n">java_digest</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys_with_suffix</span><span class="p">(</span><span class="s2">&quot;-Digest-Manifest&quot;</span><span class="p">):</span>
+            <span class="n">whole_mf_digest</span> <span class="o">=</span> <span class="n">b64_encoded_digest</span><span class="p">(</span>
+                <span class="n">manifest</span><span class="o">.</span><span class="n">get_data</span><span class="p">(),</span>
+                <span class="n">_get_digest</span><span class="p">(</span><span class="n">java_digest</span><span class="p">))</span>
 
-        <span class="c"># Any other command which reads data on stdin and returns</span>
-        <span class="c"># JAR-compatible &quot;signature file block&quot; on stdout can be used.</span>
-        <span class="c"># Note: Oracle does not specify the content of the &quot;signature</span>
-        <span class="c"># file block&quot;, friendly saying that &quot;These are binary files</span>
-        <span class="c"># not intended to be interpreted by humans&quot;</span>
+            <span class="c1"># It is enough for at least one digest to be correct</span>
+            <span class="k">if</span> <span class="n">whole_mf_digest</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">java_digest</span> <span class="o">+</span> <span class="s2">&quot;-Digest-Manifest&quot;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">Popen</span><span class="p">,</span> <span class="n">PIPE</span><span class="p">,</span> <span class="n">CalledProcessError</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
-        <span class="c"># TODO: handle also DSA and ECDSA keys</span>
-        <span class="n">external_cmd</span> <span class="o">=</span> <span class="s">&quot;openssl cms -sign -binary -noattr -md SHA256&quot;</span> \
-                       <span class="s">&quot; -signer </span><span class="si">%s</span><span class="s"> -inkey </span><span class="si">%s</span><span class="s"> -outform der&quot;</span> \
-                       <span class="o">%</span> <span class="p">(</span><span class="n">certificate</span><span class="p">,</span> <span class="n">private_key</span><span class="p">)</span>
 
-        <span class="n">proc</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">(</span><span class="n">external_cmd</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span>
-                     <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+<div class="viewcode-block" id="SignatureManifest.verify_manifest_main_attributes_checksum"><a class="viewcode-back" href="../../../utils/#javatools.manifest.SignatureManifest.verify_manifest_main_attributes_checksum">[docs]</a>    <span class="k">def</span> <span class="nf">verify_manifest_main_attributes_checksum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manifest</span><span class="p">):</span>
+        <span class="c1"># JAR spec allows for the checksum of the whole manifest to mismatch.</span>
+        <span class="c1"># There is a second chance for the verification to succeed:</span>
+        <span class="c1"># checksum for the main section matches,</span>
+        <span class="c1"># plus checksum for every subsection matches.</span>
 
-        <span class="p">(</span><span class="n">proc_stdout</span><span class="p">,</span> <span class="n">proc_stderr</span><span class="p">)</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys_with_suffix</span><span class="p">(</span><span class="s2">&quot;-Digest-Manifest-Main-Attributes&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">java_digest</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="n">mf_main_attr_digest</span> <span class="o">=</span> <span class="n">b64_encoded_digest</span><span class="p">(</span>
+                <span class="n">manifest</span><span class="o">.</span><span class="n">get_main_section</span><span class="p">(),</span>
+                <span class="n">_get_digest</span><span class="p">(</span><span class="n">java_digest</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="n">proc</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">print</span> <span class="n">proc_stderr</span>
-            <span class="k">raise</span> <span class="n">CalledProcessError</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">returncode</span><span class="p">,</span> <span class="n">external_cmd</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="n">java_digest</span> <span class="o">+</span> <span class="s2">&quot;-Digest-Manifest-Main-Attributes&quot;</span>
+            <span class="k">if</span> <span class="n">mf_main_attr_digest</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attr</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">proc_stdout</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
 
-</div></div>
+
+<div class="viewcode-block" id="SignatureManifest.verify_manifest_entry_checksums"><a class="viewcode-back" href="../../../utils/#javatools.manifest.SignatureManifest.verify_manifest_entry_checksums">[docs]</a>    <span class="k">def</span> <span class="nf">verify_manifest_entry_checksums</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Verifies the checksums over the given manifest. If strict is True</span>
+<span class="sd">        then entries which had no digests will fail verification. If</span>
+<span class="sd">        strict is False then entries with no digests will not be</span>
+<span class="sd">        considered failing.</span>
+
+<span class="sd">        :return: List of entries which failed to verify.</span>
+
+<span class="sd">        Reference:</span>
+<span class="sd">        http://docs.oracle.com/javase/7/docs/technotes/guides/jar/jar.html#Signature_Validation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># TODO: this behavior is probably wrong -- surely if there are</span>
+        <span class="c1"># multiple digests, they should ALL match, or verification would</span>
+        <span class="c1"># fail?</span>
+
+        <span class="n">failures</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">manifest</span><span class="o">.</span><span class="n">sub_sections</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">sf_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_section</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">primary</span><span class="p">(),</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">digests</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">keys_with_suffix</span><span class="p">(</span><span class="s2">&quot;-Digest&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">digests</span> <span class="ow">and</span> <span class="n">strict</span><span class="p">:</span>
+                <span class="n">failures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">primary</span><span class="p">())</span>
+                <span class="k">continue</span>
+
+            <span class="k">for</span> <span class="n">java_digest</span> <span class="ow">in</span> <span class="n">digests</span><span class="p">:</span>
+                <span class="n">section_digest</span> <span class="o">=</span> <span class="n">b64_encoded_digest</span><span class="p">(</span>
+                    <span class="n">s</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">linesep</span><span class="p">),</span>
+                    <span class="n">_get_digest</span><span class="p">(</span><span class="n">java_digest</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="n">section_digest</span> <span class="o">==</span> <span class="n">sf_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">java_digest</span> <span class="o">+</span> <span class="s2">&quot;-Digest&quot;</span><span class="p">):</span>
+                    <span class="c1"># found a match, verified</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># no matches found for the digests present</span>
+                <span class="n">failures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">primary</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">failures</span></div>
+
+
+<div class="viewcode-block" id="SignatureManifest.verify_manifest"><a class="viewcode-back" href="../../../utils/#javatools.manifest.SignatureManifest.verify_manifest">[docs]</a>    <span class="k">def</span> <span class="nf">verify_manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manifest</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_manifest_main_checksum</span><span class="p">(</span><span class="n">manifest</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="c1"># Main checksum does not validate, but there is a second chance.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_manifest_main_attributes_checksum</span><span class="p">(</span><span class="n">manifest</span><span class="p">):</span>
+            <span class="c1"># Let&#39;s return the manifest itself - such return value can be</span>
+            <span class="c1"># interpreted only in exactly this way</span>
+            <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;META-INF/MANIFEST.MF&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_manifest_entry_checksums</span><span class="p">(</span><span class="n">manifest</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SignatureManifest.get_signature"><a class="viewcode-back" href="../../../utils/#javatools.manifest.SignatureManifest.get_signature">[docs]</a>    <span class="k">def</span> <span class="nf">get_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">certificate</span><span class="p">,</span> <span class="n">private_key</span><span class="p">,</span> <span class="n">extra_certs</span><span class="p">,</span>
+                      <span class="n">digest_algorithm</span><span class="o">=</span><span class="s2">&quot;SHA-256&quot;</span><span class="p">):</span>
+
+        <span class="kn">from</span> <span class="nn">.crypto</span> <span class="kn">import</span> <span class="n">create_signature_block</span>
+
+        <span class="n">openssl_digest</span> <span class="o">=</span> <span class="n">_get_digest</span><span class="p">(</span><span class="n">digest_algorithm</span><span class="p">,</span> <span class="n">as_string</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">create_signature_block</span><span class="p">(</span><span class="n">openssl_digest</span><span class="p">,</span> <span class="n">certificate</span><span class="p">,</span> <span class="n">private_key</span><span class="p">,</span>
+                                      <span class="n">extra_certs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">SignatureManifestChange</span><span class="p">(</span><span class="n">ManifestChange</span><span class="p">):</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Signature File&quot;</span>
+
+    <span class="k">def</span> <span class="nf">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s2">&quot;ignore_jar_signature&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> \
+            <span class="n">SuperChange</span><span class="o">.</span><span class="n">is_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">SignatureBlockFileChange</span><span class="p">(</span><span class="n">GenericChange</span><span class="p">):</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Signature Block File&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;[binary data change]&quot;</span>
+
+    <span class="k">def</span> <span class="nf">fn_pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">side_data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;[binary data]&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_b64encode_to_str</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper around b64encode which takes and returns same-named types</span>
+<span class="sd">    on both Python 2 and Python 3.</span>
+<span class="sd">    :type data: bytes</span>
+<span class="sd">    :return: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">b64encode</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># Python3</span>
+        <span class="k">return</span> <span class="n">ret</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+
+<span class="k">def</span> <span class="nf">b64_encoded_digest</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :type data: bytes</span>
+<span class="sd">    :return: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">algorithm</span><span class="p">()</span>
+    <span class="n">h</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_b64encode_to_str</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">digest</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">detect_linesep</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :type data: unicode in Py2, str in Py3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
 <span class="k">def</span> <span class="nf">parse_sections</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    yields one section at a time in the form</span>
 
 <span class="sd">    [ (key, [val, ...]), ... ]</span>
@@ -587,88 +751,98 @@
 <span class="sd">    present if the value is long enough to require line continuations</span>
 <span class="sd">    in which case simply concatenate the vals together to get the full</span>
 <span class="sd">    value.</span>
+<span class="sd">    :type data: unicode in Py2, str in Py3</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
         <span class="k">return</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">buffer</span><span class="p">)):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="c1"># our current section</span>
+    <span class="n">curr</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="c"># our current section</span>
-    <span class="n">curr</span> <span class="o">=</span> <span class="bp">None</span>
-
-    <span class="k">for</span> <span class="n">lineno</span><span class="p">,</span><span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-
-        <span class="c"># Clean up the line</span>
-        <span class="n">cleanline</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\x00</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()):</span>
+        <span class="c1"># Clean up the line</span>
+        <span class="n">cleanline</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cleanline</span><span class="p">:</span>
-            <span class="c"># blank line means end of current section (if any)</span>
+            <span class="c1"># blank line means end of current section (if any)</span>
             <span class="k">if</span> <span class="n">curr</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">curr</span>
-                <span class="n">curr</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="n">curr</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">elif</span> <span class="n">cleanline</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39; &#39;</span><span class="p">:</span>
-            <span class="c"># line beginning with a space means a continuation</span>
-            <span class="k">if</span> <span class="n">curr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">MalformedManifest</span><span class="p">(</span><span class="s">&quot;bad line continuation, &quot;</span>
-                                        <span class="s">&quot; line: </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">lineno</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">cleanline</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span><span class="p">:</span>
+            <span class="c1"># line beginning with a space means a continuation</span>
+            <span class="k">if</span> <span class="n">curr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MalformedManifest</span><span class="p">(</span><span class="s2">&quot;bad line continuation, &quot;</span>
+                                        <span class="s2">&quot; line: </span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">lineno</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># pylint: disable=unsubscriptable-object</span>
                 <span class="n">curr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cleanline</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="c"># otherwise the beginning of a new k:v pair</span>
-            <span class="k">if</span> <span class="n">curr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c1"># otherwise the beginning of a new k:v pair</span>
+            <span class="k">if</span> <span class="n">curr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">curr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
-            <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">cleanline</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="n">curr</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">cleanline</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">curr</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]))</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MalformedManifest</span><span class="p">(</span>
+                    <span class="s2">&quot;Invalid manifest line: </span><span class="si">%i</span><span class="s2">; line contents: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">lineno</span><span class="p">,</span> <span class="n">cleanline</span><span class="p">))</span>
 
-    <span class="c"># yield and leftovers</span>
+
+    <span class="c1"># yield and leftovers</span>
     <span class="k">if</span> <span class="n">curr</span><span class="p">:</span>
         <span class="k">yield</span> <span class="n">curr</span>
 
 
 <span class="k">def</span> <span class="nf">write_key_val</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">linesep</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The MANIFEST specification limits the width of individual lines to</span>
 <span class="sd">    72 bytes (including the terminating newlines). Any key and value</span>
 <span class="sd">    pair that would be longer must be split up over multiple</span>
 <span class="sd">    continuing lines</span>
+<span class="sd">    :type key, val: str in Py3, str or unicode in Py2</span>
+<span class="sd">    :type stream: binary</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">key</span> <span class="o">=</span> <span class="n">key</span> <span class="ow">or</span> <span class="s">&quot;&quot;</span>
-    <span class="n">val</span> <span class="o">=</span> <span class="n">val</span> <span class="ow">or</span> <span class="s">&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="s1">&#39;buffer&#39;</span><span class="p">):</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">buffer</span>
+
+    <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">linesep</span> <span class="o">=</span> <span class="n">linesep</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">69</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">ManifestKeyException</span><span class="p">(</span><span class="s">&quot;bad key length&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">ManifestKeyException</span><span class="p">(</span><span class="s2">&quot;bad key length&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">68</span><span class="p">:</span>
-        <span class="n">kvbuffer</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="s">&quot;: &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)))</span>
+        <span class="n">kvbuffer</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;: &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)))</span>
 
-        <span class="c"># first grab 70 (which is 72 after the trailing newline)</span>
+        <span class="c1"># first grab 70 (which is 72 after the trailing newline)</span>
         <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">kvbuffer</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">70</span><span class="p">))</span>
 
-        <span class="c"># now only 69 at a time, because we need a leading space and a</span>
-        <span class="c"># trailing \n</span>
+        <span class="c1"># now only 69 at a time, because we need a leading space and a</span>
+        <span class="c1"># trailing \n</span>
         <span class="n">part</span> <span class="o">=</span> <span class="n">kvbuffer</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">69</span><span class="p">)</span>
         <span class="k">while</span> <span class="n">part</span><span class="p">:</span>
-            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">linesep</span> <span class="o">+</span> <span class="s">&quot; &quot;</span><span class="p">)</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">linesep</span> <span class="o">+</span> <span class="sa">b</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
             <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
             <span class="n">part</span> <span class="o">=</span> <span class="n">kvbuffer</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">69</span><span class="p">)</span>
         <span class="n">kvbuffer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="k">else</span><span class="p">:</span>
         <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;: &quot;</span><span class="p">)</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;: &quot;</span><span class="p">)</span>
         <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
 
     <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">linesep</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">digest_chunks</span><span class="p">(</span><span class="n">chunks</span><span class="p">,</span> <span class="n">algorithms</span><span class="o">=</span><span class="p">(</span><span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha1</span><span class="p">)):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    returns a base64 rep of the given digest algorithms from the</span>
 <span class="sd">    chunks of data</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -679,17 +853,17 @@
         <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">hashes</span><span class="p">:</span>
             <span class="n">h</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="p">[</span><span class="n">b64encode</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">digest</span><span class="p">())</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">hashes</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">_b64encode_to_str</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">digest</span><span class="p">())</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">hashes</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">file_chunk</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">_BUFFERING</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    returns a generator function which when called will emit x-sized</span>
 <span class="sd">    chunks of filename&#39;s contents</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">chunks</span><span class="p">():</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">,</span> <span class="n">_BUFFERING</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">,</span> <span class="n">_BUFFERING</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
             <span class="n">buf</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
             <span class="k">while</span> <span class="n">buf</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">buf</span>
@@ -698,7 +872,7 @@
 
 
 <span class="k">def</span> <span class="nf">zipentry_chunk</span><span class="p">(</span><span class="n">zipfile</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">_BUFFERING</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    returns a generator function which when called will emit x-sized</span>
 <span class="sd">    chunks of the named entry in the zipfile object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -713,26 +887,19 @@
 
 
 <span class="k">def</span> <span class="nf">directory_generator</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">trim</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    yields a tuple of (relative filename, chunking function). The</span>
 <span class="sd">    chunking function can be called to open and iterate over the</span>
 <span class="sd">    contents of the filename.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">gather</span><span class="p">(</span><span class="n">collect</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">fnames</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">fnames</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
-                <span class="n">collect</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-
-    <span class="n">collect</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-    <span class="n">walk</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">gather</span><span class="p">,</span> <span class="n">collect</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">collect</span><span class="p">:</span>
-        <span class="k">yield</span> <span class="n">fname</span><span class="p">[</span><span class="n">trim</span><span class="p">:],</span> <span class="n">file_chunk</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">dirpath</span><span class="p">,</span> <span class="n">dirnames</span><span class="p">,</span> <span class="n">filenames</span> <span class="ow">in</span> <span class="n">walk</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">join</span><span class="p">(</span><span class="n">dirpath</span><span class="p">,</span> <span class="n">fname</span><span class="p">[</span><span class="n">trim</span><span class="p">:]),</span> <span class="n">file_chunk</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">dirpath</span><span class="p">,</span> <span class="n">fname</span><span class="p">))</span>
 
 
 <span class="k">def</span> <span class="nf">multi_path_generator</span><span class="p">(</span><span class="n">pathnames</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    yields (name,chunkgen) for all of the files found under the list</span>
 <span class="sd">    of pathnames given. This is recursive, so directories will have</span>
 <span class="sd">    their contents emitted. chunkgen is a function that can called and</span>
@@ -748,8 +915,33 @@
             <span class="k">yield</span> <span class="n">pathname</span><span class="p">,</span> <span class="n">file_chunk</span><span class="p">(</span><span class="n">pathname</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">_in_sig_related_dir</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="n">path_components</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">path_components</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">path_components</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;META-INF&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">file_matches_sigfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_in_sig_related_dir</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> \
+        <span class="ow">and</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">SIG_FILE_PATTERN</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">file_matches_sigblock</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_in_sig_related_dir</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> \
+        <span class="ow">and</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">filename</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;META-INF/&quot;</span><span class="p">):]</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="o">*</span><span class="n">SIG_BLOCK_PATTERNS</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">file_skips_verification</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="c1"># http://docs.oracle.com/javase/8/docs/technotes/guides/jar/jar.html#SignedJar-Overview</span>
+
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">filename</span> <span class="o">==</span> <span class="s2">&quot;META-INF/MANIFEST.MF&quot;</span> \
+        <span class="ow">or</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span> \
+        <span class="ow">or</span> <span class="n">file_matches_sigblock</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> \
+        <span class="ow">or</span> <span class="n">file_matches_sigfile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+
 <span class="k">def</span> <span class="nf">single_path_generator</span><span class="p">(</span><span class="n">pathname</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    emits name,chunkgen pairs for the given file at pathname. If</span>
 <span class="sd">    pathname is a directory, will act recursively and will emit for</span>
 <span class="sd">    each file in the directory tree chunkgen is a generator that can</span>
@@ -767,209 +959,170 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">zf</span> <span class="o">=</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">pathname</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">zf</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;/&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">f</span><span class="p">,</span> <span class="n">zipentry_chunk</span><span class="p">(</span><span class="n">zf</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
         <span class="n">zf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="cli_create"><a class="viewcode-back" href="../../../utils/#javatools.manifest.cli_create">[docs]</a><span class="k">def</span> <span class="nf">cli_create</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">rest</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="cli_create"><a class="viewcode-back" href="../../../utils/#javatools.manifest.cli_create">[docs]</a><span class="k">def</span> <span class="nf">cli_create</span><span class="p">(</span><span class="n">argument_list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    command-line call to create a manifest from a JAR file or a</span>
 <span class="sd">    directory</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">print</span> <span class="s">&quot;Usage: manifest --create [-r|--recursive]&quot;</span> \
-              <span class="s">&quot; [-i|--ignore pattern] [-d|--digest algo[,algo ...]]&quot;</span> \
-              <span class="s">&quot; [-m manifest] file|directory&quot;</span>
-        <span class="k">return</span> <span class="mi">1</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;file or directory&quot;</span><span class="p">)</span>
+    <span class="c1"># TODO: shouldn&#39;t we always process directories recursively?</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="s2">&quot;--recursive&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;process directories recursively&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--ignore&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;patterns to ignore &quot;</span>
+                             <span class="s2">&quot;(can be given more than once)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;--manifest&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;output file (default is stdout)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;--digest&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;digest(s) to use, comma-separated&quot;</span><span class="p">)</span>
 
-    <span class="n">requested_digests</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">digest</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">use_digests</span> <span class="o">=</span> <span class="p">[</span><span class="n">_get_digest</span><span class="p">(</span><span class="n">digest</span><span class="p">)</span> <span class="k">for</span> <span class="n">digest</span> <span class="ow">in</span> <span class="n">requested_digests</span><span class="p">]</span>
-    <span class="k">except</span> <span class="n">UnsupportedDigest</span><span class="p">:</span>
-        <span class="k">print</span> <span class="s">&quot;Unknown digest algorithm </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">digest</span>
-        <span class="k">print</span> <span class="s">&quot;Supported algorithms:&quot;</span><span class="p">,</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">NAMED_DIGESTS</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-        <span class="k">return</span> <span class="mi">1</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argument_list</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">recursive</span><span class="p">:</span>
-        <span class="n">entries</span> <span class="o">=</span> <span class="n">multi_path_generator</span><span class="p">(</span><span class="n">rest</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="c1"># TODO: remove digest from here, they are created when signing!</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">digest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">digest</span> <span class="o">=</span> <span class="s2">&quot;MD5,SHA1&quot;</span>
+    <span class="n">requested_digests</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">digest</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+    <span class="n">use_digests</span> <span class="o">=</span> <span class="p">[</span><span class="n">_get_digest</span><span class="p">(</span><span class="n">digest</span><span class="p">)</span> <span class="k">for</span> <span class="n">digest</span> <span class="ow">in</span> <span class="n">requested_digests</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">recursive</span><span class="p">:</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="n">multi_path_generator</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">entries</span> <span class="o">=</span> <span class="n">single_path_generator</span><span class="p">(</span><span class="n">rest</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="n">single_path_generator</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
 
     <span class="n">mf</span> <span class="o">=</span> <span class="n">Manifest</span><span class="p">()</span>
 
-    <span class="n">ignores</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore</span>
+    <span class="n">ignores</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;META-INF/*&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">ignore</span><span class="p">:</span>
+        <span class="n">ignores</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="o">.</span><span class="n">ignore</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">name</span><span class="p">,</span><span class="n">chunks</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
-        <span class="c"># skip the stuff that we were told to ignore</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">chunks</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+        <span class="c1"># skip the stuff that we were told to ignore</span>
         <span class="k">if</span> <span class="n">ignores</span> <span class="ow">and</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">ignores</span><span class="p">):</span>
             <span class="k">continue</span>
 
         <span class="n">sec</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">create_section</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">digest_name</span><span class="p">,</span> <span class="n">digest_value</span> <span class="ow">in</span> \
-            <span class="n">izip</span><span class="p">(</span><span class="n">requested_digests</span><span class="p">,</span> <span class="n">digest_chunks</span><span class="p">(</span><span class="n">chunks</span><span class="p">(),</span> <span class="n">use_digests</span><span class="p">)):</span>
-            <span class="n">sec</span><span class="p">[</span><span class="n">digest_name</span> <span class="o">+</span> <span class="s">&quot;-Digest&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">digest_value</span>
+        <span class="n">digests</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">requested_digests</span><span class="p">,</span> <span class="n">digest_chunks</span><span class="p">(</span><span class="n">chunks</span><span class="p">(),</span> <span class="n">use_digests</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">digest_name</span><span class="p">,</span> <span class="n">digest_value</span> <span class="ow">in</span> <span class="n">digests</span><span class="p">:</span>
+            <span class="n">sec</span><span class="p">[</span><span class="n">digest_name</span> <span class="o">+</span> <span class="s2">&quot;-Digest&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">digest_value</span>
 
-    <span class="n">output</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
-    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">manifest</span><span class="p">:</span>
-        <span class="c"># we&#39;ll output to the manifest file if specified, and we&#39;ll</span>
-        <span class="c"># even create parent directories for it, if necessary</span>
-        <span class="n">makedirsp</span><span class="p">(</span><span class="n">split</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">manifest</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">manifest</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">manifest</span><span class="p">:</span>
+        <span class="c1"># we&#39;ll output to the manifest file if specified, and we&#39;ll</span>
+        <span class="c1"># even create parent directories for it, if necessary</span>
+        <span class="n">makedirsp</span><span class="p">(</span><span class="n">split</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">manifest</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">manifest</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
 
     <span class="n">mf</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">manifest</span><span class="p">:</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">manifest</span><span class="p">:</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-</div>
-<div class="viewcode-block" id="cli_query"><a class="viewcode-back" href="../../../utils/#javatools.manifest.cli_query">[docs]</a><span class="k">def</span> <span class="nf">cli_query</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">rest</span><span class="p">):</span>
-    <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">):</span>
-        <span class="k">print</span> <span class="s">&quot;Usage: manifest --query=key file.jar&quot;</span>
-        <span class="k">return</span> <span class="mi">1</span>
 
-    <span class="n">zf</span> <span class="o">=</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">rest</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<div class="viewcode-block" id="cli_verify"><a class="viewcode-back" href="../../../utils/#javatools.manifest.cli_verify">[docs]</a><span class="k">def</span> <span class="nf">cli_verify</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="s2">&quot;-h&quot;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Usage: manifest v [--ignore=PATH] file.jar&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">2</span>
+
+    <span class="n">jarfn</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">mf</span> <span class="o">=</span> <span class="n">Manifest</span><span class="p">()</span>
-    <span class="n">mf</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">zf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">&quot;META-INF/MANIFEST.MF&quot;</span><span class="p">))</span>
+    <span class="n">mf</span><span class="o">.</span><span class="n">load_from_jar</span><span class="p">(</span><span class="n">jarfn</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">query</span><span class="p">:</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">mfs</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">sub_sections</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">mfs</span><span class="p">:</span>
-                <span class="k">print</span> <span class="n">q</span><span class="p">,</span> <span class="s">&quot;=&quot;</span><span class="p">,</span> <span class="n">mfs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">print</span> <span class="n">q</span><span class="p">,</span> <span class="s">&quot;: No such section&quot;</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">print</span> <span class="n">q</span><span class="p">,</span> <span class="s">&quot;=&quot;</span><span class="p">,</span> <span class="n">mf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-
-</div>
-<span class="k">def</span> <span class="nf">cli_verify</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">rest</span><span class="p">):</span>
-    <span class="c"># TODO: read in the manifest, and then verify the digests for every</span>
-    <span class="c"># file listed.</span>
-
-    <span class="k">print</span> <span class="s">&quot;NYI&quot;</span>
-    <span class="k">return</span> <span class="mi">0</span>
-
-
-<div class="viewcode-block" id="cli_sign"><a class="viewcode-back" href="../../../utils/#javatools.manifest.cli_sign">[docs]</a><span class="k">def</span> <span class="nf">cli_sign</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">rest</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Signs the jar (almost) identically to jarsigner.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">5</span><span class="p">:</span>
-        <span class="k">print</span> <span class="s">&quot;Usage: </span><span class="se">\</span>
-<span class="s">            manifest --sign certificate private_key key_alias file.jar&quot;</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">verify_jar_checksums</span><span class="p">(</span><span class="n">jarfn</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Verify failed, no matching checksums for files: </span><span class="si">%s</span><span class="s2">&quot;</span>
+              <span class="o">%</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors</span><span class="p">))</span>
         <span class="k">return</span> <span class="mi">1</span>
-
-    <span class="n">certificate</span> <span class="o">=</span> <span class="n">rest</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">private_key</span> <span class="o">=</span> <span class="n">rest</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-    <span class="n">key_alias</span> <span class="o">=</span> <span class="n">rest</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-    <span class="n">jar_file</span> <span class="o">=</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">rest</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="s">&quot;a&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="s">&quot;META-INF/MANIFEST.MF&quot;</span> <span class="ow">in</span> <span class="n">jar_file</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
-        <span class="k">print</span> <span class="s">&quot;META-INF/MANIFEST.MF not found in the JAR&quot;</span>
-        <span class="k">return</span> <span class="mi">1</span>
-
-    <span class="n">mf</span> <span class="o">=</span> <span class="n">Manifest</span><span class="p">()</span>
-    <span class="n">mf</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">jar_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">&quot;META-INF/MANIFEST.MF&quot;</span><span class="p">))</span>
-
-    <span class="c"># create a signature manifest, and make it match the line seperator</span>
-    <span class="c"># style of the manifest it&#39;ll be digesting.</span>
-    <span class="n">sf</span> <span class="o">=</span> <span class="n">SignatureManifest</span><span class="p">(</span><span class="n">linesep</span><span class="o">=</span><span class="n">mf</span><span class="o">.</span><span class="n">linesep</span><span class="p">)</span>
-    <span class="n">sf</span><span class="o">.</span><span class="n">digest_manifest</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="s">&quot;SHA-256&quot;</span><span class="p">)</span>
-    <span class="n">jar_file</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s">&quot;META-INF/&quot;</span> <span class="o">+</span> <span class="n">key_alias</span> <span class="o">+</span> <span class="s">&quot;.SF&quot;</span><span class="p">,</span> <span class="n">sf</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
-    <span class="n">jar_file</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s">&quot;META-INF/&quot;</span> <span class="o">+</span> <span class="n">key_alias</span> <span class="o">+</span> <span class="s">&quot;.RSA&quot;</span><span class="p">,</span>
-                      <span class="n">sf</span><span class="o">.</span><span class="n">get_signature</span><span class="p">(</span><span class="n">certificate</span><span class="p">,</span> <span class="n">private_key</span><span class="p">))</span>
-
-    <span class="k">return</span> <span class="mi">0</span>
-
-</div>
-<div class="viewcode-block" id="cli"><a class="viewcode-back" href="../../../utils/#javatools.manifest.cli">[docs]</a><span class="k">def</span> <span class="nf">cli</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">rest</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">verify</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">cli_verify</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">rest</span><span class="p">)</span>
-
-    <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">create</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">cli_create</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">rest</span><span class="p">)</span>
-
-    <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">query</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">cli_query</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">rest</span><span class="p">)</span>
-
-    <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">sign</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">cli_sign</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">rest</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">print</span> <span class="s">&quot;specify one of --verify, --query, --sign, or --create&quot;</span>
-        <span class="k">return</span> <span class="mi">0</span>
-
-</div>
-<span class="k">def</span> <span class="nf">create_optparser</span><span class="p">():</span>
-    <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span>
-
-    <span class="n">parse</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="s">&quot;Create, sign or verify a MANIFEST for&quot;</span>
-                         <span class="s">&quot; a JAR, ZIP, or directory&quot;</span><span class="p">)</span>
-
-    <span class="n">parse</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-v&quot;</span><span class="p">,</span> <span class="s">&quot;--verify&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
-    <span class="n">parse</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-c&quot;</span><span class="p">,</span> <span class="s">&quot;--create&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
-    <span class="n">parse</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-q&quot;</span><span class="p">,</span> <span class="s">&quot;--query&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;append&quot;</span><span class="p">,</span>
-                     <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
-                     <span class="n">help</span><span class="o">=</span><span class="s">&quot;Query the manifest for keys&quot;</span><span class="p">)</span>
-    <span class="n">parse</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-r&quot;</span><span class="p">,</span> <span class="s">&quot;--recursive&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
-    <span class="n">parse</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-m&quot;</span><span class="p">,</span> <span class="s">&quot;--manifest&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                     <span class="n">help</span><span class="o">=</span><span class="s">&quot;manifest file, default is stdout for create&quot;</span>
-                     <span class="s">&quot; or the argument-relative META-INF/MANIFEST.MF&quot;</span>
-                     <span class="s">&quot; for verify.&quot;</span><span class="p">)</span>
-    <span class="n">parse</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-i&quot;</span><span class="p">,</span> <span class="s">&quot;--ignore&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;append&quot;</span><span class="p">,</span>
-                     <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;META-INF/*&quot;</span><span class="p">],</span>
-                     <span class="n">help</span><span class="o">=</span><span class="s">&quot;patterns to ignore when creating or checking&quot;</span>
-                     <span class="s">&quot; files&quot;</span><span class="p">)</span>
-    <span class="n">parse</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-d&quot;</span><span class="p">,</span> <span class="s">&quot;--digest&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&quot;MD5,SHA1&quot;</span><span class="p">,</span>
-                     <span class="n">help</span><span class="o">=</span><span class="s">&quot;comma-separated list of digest algorithms to use&quot;</span>
-                     <span class="s">&quot; in the manifest&quot;</span><span class="p">)</span>
-    <span class="n">parse</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-s&quot;</span><span class="p">,</span> <span class="s">&quot;--sign&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
-                     <span class="n">help</span><span class="o">=</span><span class="s">&quot;sign the JAR file with OpenSSL&quot;</span>
-                     <span class="s">&quot; (must be followed with: &quot;</span>
-                     <span class="s">&quot;certificate.pem, private_key.pem, key_alias)&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">parse</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
 
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../utils/#javatools.manifest.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="cli_query"><a class="viewcode-back" href="../../../utils/#javatools.manifest.cli_query">[docs]</a><span class="k">def</span> <span class="nf">cli_query</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="s2">&quot;-h&quot;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Usage: manifest q file.jar key_to_query...&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="n">mf</span> <span class="o">=</span> <span class="n">Manifest</span><span class="p">()</span>
+    <span class="n">mf</span><span class="o">.</span><span class="n">load_from_jar</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">mfs</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">sub_sections</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">mfs</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="n">mfs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="s2">&quot;: No such section&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="n">mf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span></div>
+
+
+<span class="k">def</span> <span class="nf">usage</span><span class="p">(</span><span class="n">error_msg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">error_msg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Usage: manifest &lt;command&gt; [options] &lt;argument&gt;&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Commands:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    c: create a manifest&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    q: query manifest for values&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    v: verify manifest checksums&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Give option </span><span class="se">\&quot;</span><span class="s2">-h</span><span class="se">\&quot;</span><span class="s2"> for help on a particular command.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">1</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../utils/#javatools.manifest.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    main entry point for the manifest CLI</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">create_optparser</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">cli</span><span class="p">(</span><span class="o">*</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">usage</span><span class="p">(</span><span class="s2">&quot;Command expected&quot;</span><span class="p">)</span>
 
+    <span class="n">command</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">rest</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
 
-<span class="c">#</span>
-<span class="c"># The end.</span></div>
+    <span class="k">if</span> <span class="s2">&quot;create&quot;</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">command</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cli_create</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="s2">&quot;query&quot;</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">command</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cli_query</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="s2">&quot;verify&quot;</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">command</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cli_verify</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">usage</span><span class="p">(</span><span class="s2">&quot;Unknown command: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">command</span><span class="p">)</span></div>
+<span class="c1">#</span>
+<span class="c1"># The end.</span>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search/" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -978,18 +1131,16 @@
         <li class="right" >
           <a href="../../../py-modindex/" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="../../../np-modindex/" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../../">javatools 1.4.0 documentation</a> &raquo;</li>
-          <li><a href="../../" >Module code</a> &raquo;</li>
-          <li><a href="../" >javatools</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../../">python-javatools 1.6.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../" >javatools</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">javatools.manifest</a></li> 
       </ul>
     </div>
 
-    <div class="footer">
-        &copy; Copyright 2014, Christopher O&#39;Brien.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2023, Christopher O&#39;Brien.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");

@@ -1,33 +1,24 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="English">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>python-javatools &#8212; python-javatools 1.6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
-    <title>python-javatools &mdash; javatools 1.4.0 documentation</title>
+    <script data-url_root="#" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '1.4.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="javatools 1.4.0 documentation" href="#" />
+    <link rel="index" title="Index" href="genindex/" />
+    <link rel="search" title="Search" href="search/" />
     <link rel="next" title="Overview of python-javatools" href="overview/" /> 
-  </head>
-  <body>
-    <div class="related">
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -37,22 +28,20 @@
           <a href="py-modindex/" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="np-modindex/" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="overview/" title="Overview of python-javatools"
              accesskey="N">next</a> |</li>
-        <li><a href="#">javatools 1.4.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">python-javatools 1.6.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">python-javatools</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
-  <div class="section" id="python-javatools">
-<h1>python-javatools<a class="headerlink" href="#python-javatools" title="Permalink to this headline">¶</a></h1>
+  <section id="python-javatools">
+<h1>python-javatools<a class="headerlink" href="#python-javatools" title="Permalink to this heading">¶</a></h1>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
 <ul>
@@ -72,75 +61,965 @@
 <li class="toctree-l1"><a class="reference internal" href="javatools/">Javatools Core Modules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="javatools/#module-javatools">javatools</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="javatools/#references">References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.ClassUnpackException"><code class="docutils literal notranslate"><span class="pre">ClassUnpackException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.JavaAnnotation"><code class="docutils literal notranslate"><span class="pre">JavaAnnotation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaAnnotation.pretty_annotation"><code class="docutils literal notranslate"><span class="pre">JavaAnnotation.pretty_annotation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaAnnotation.pretty_elements"><code class="docutils literal notranslate"><span class="pre">JavaAnnotation.pretty_elements()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaAnnotation.pretty_type"><code class="docutils literal notranslate"><span class="pre">JavaAnnotation.pretty_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaAnnotation.unpack"><code class="docutils literal notranslate"><span class="pre">JavaAnnotation.unpack()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="javatools/#module-javatools.classinfo">javatools.classinfo</a></li>
-<li class="toctree-l2"><a class="reference internal" href="javatools/#module-javatools.jarinfo">javatools.jarinfo</a></li>
-<li class="toctree-l2"><a class="reference internal" href="javatools/#module-javatools.distinfo">javatools.distinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.JavaClassInfo"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.deref_const"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.deref_const()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_annotations"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_annotations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_attribute"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_attribute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_enclosingmethod"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_enclosingmethod()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_field_by_name"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_field_by_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_innerclasses"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_innerclasses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_interfaces"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_interfaces()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_invisible_annotations"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_invisible_annotations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_method"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_method_bridges"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_method_bridges()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_methods_by_name"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_methods_by_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_platform"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_platform()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_provides"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_provides()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_requires"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_requires()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_signature"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_signature()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_source_debug_extension"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_source_debug_extension()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_sourcefile"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_sourcefile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_super"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_super()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_this"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_this()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.get_version"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.get_version()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.is_abstract"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.is_abstract()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.is_annotation"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.is_annotation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.is_deprecated"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.is_deprecated()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.is_enum"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.is_enum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.is_final"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.is_final()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.is_interface"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.is_interface()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.is_public"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.is_public()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.is_super"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.is_super()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.pretty_access_flags"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.pretty_access_flags()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.pretty_descriptor"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.pretty_descriptor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.pretty_interfaces"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.pretty_interfaces()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.pretty_signature"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.pretty_signature()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.pretty_super"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.pretty_super()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.pretty_this"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.pretty_this()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaClassInfo.unpack"><code class="docutils literal notranslate"><span class="pre">JavaClassInfo.unpack()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.JavaCodeInfo"><code class="docutils literal notranslate"><span class="pre">JavaCodeInfo</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaCodeInfo.deref_const"><code class="docutils literal notranslate"><span class="pre">JavaCodeInfo.deref_const()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaCodeInfo.disassemble"><code class="docutils literal notranslate"><span class="pre">JavaCodeInfo.disassemble()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaCodeInfo.get_attribute"><code class="docutils literal notranslate"><span class="pre">JavaCodeInfo.get_attribute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaCodeInfo.get_line_for_offset"><code class="docutils literal notranslate"><span class="pre">JavaCodeInfo.get_line_for_offset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaCodeInfo.get_linenumbertable"><code class="docutils literal notranslate"><span class="pre">JavaCodeInfo.get_linenumbertable()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaCodeInfo.get_localvariabletable"><code class="docutils literal notranslate"><span class="pre">JavaCodeInfo.get_localvariabletable()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaCodeInfo.get_localvariabletypetable"><code class="docutils literal notranslate"><span class="pre">JavaCodeInfo.get_localvariabletypetable()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaCodeInfo.get_relativelinenumbertable"><code class="docutils literal notranslate"><span class="pre">JavaCodeInfo.get_relativelinenumbertable()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaCodeInfo.iter_code_by_lines"><code class="docutils literal notranslate"><span class="pre">JavaCodeInfo.iter_code_by_lines()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaCodeInfo.unpack"><code class="docutils literal notranslate"><span class="pre">JavaCodeInfo.unpack()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.JavaConstantPool"><code class="docutils literal notranslate"><span class="pre">JavaConstantPool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaConstantPool.constants"><code class="docutils literal notranslate"><span class="pre">JavaConstantPool.constants()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaConstantPool.deref_const"><code class="docutils literal notranslate"><span class="pre">JavaConstantPool.deref_const()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaConstantPool.get_const"><code class="docutils literal notranslate"><span class="pre">JavaConstantPool.get_const()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaConstantPool.pretty_const"><code class="docutils literal notranslate"><span class="pre">JavaConstantPool.pretty_const()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaConstantPool.pretty_constants"><code class="docutils literal notranslate"><span class="pre">JavaConstantPool.pretty_constants()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaConstantPool.pretty_deref_const"><code class="docutils literal notranslate"><span class="pre">JavaConstantPool.pretty_deref_const()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaConstantPool.unpack"><code class="docutils literal notranslate"><span class="pre">JavaConstantPool.unpack()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.JavaExceptionInfo"><code class="docutils literal notranslate"><span class="pre">JavaExceptionInfo</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaExceptionInfo.get_catch_type"><code class="docutils literal notranslate"><span class="pre">JavaExceptionInfo.get_catch_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaExceptionInfo.info"><code class="docutils literal notranslate"><span class="pre">JavaExceptionInfo.info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaExceptionInfo.pretty_catch_type"><code class="docutils literal notranslate"><span class="pre">JavaExceptionInfo.pretty_catch_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaExceptionInfo.unpack"><code class="docutils literal notranslate"><span class="pre">JavaExceptionInfo.unpack()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.JavaInnerClassInfo"><code class="docutils literal notranslate"><span class="pre">JavaInnerClassInfo</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaInnerClassInfo.get_name"><code class="docutils literal notranslate"><span class="pre">JavaInnerClassInfo.get_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaInnerClassInfo.unpack"><code class="docutils literal notranslate"><span class="pre">JavaInnerClassInfo.unpack()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.deref_annotationdefault"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.deref_annotationdefault()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.deref_const"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.deref_const()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.deref_constantvalue"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.deref_constantvalue()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_annotationdefault"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_annotationdefault()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_annotations"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_annotations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_arg_type_descriptors"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_arg_type_descriptors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_attribute"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_attribute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_code"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_code()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_constantvalue"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_constantvalue()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_descriptor"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_descriptor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_exceptions"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_exceptions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_identifier"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_identifier()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_invisible_annotations"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_invisible_annotations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_invisible_parameter_annotations"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_invisible_parameter_annotations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_module"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_module()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_name"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_parameter_annotations"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_parameter_annotations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_signature"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_signature()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.get_type_descriptor"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.get_type_descriptor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_abstract"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_abstract()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_bridge"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_bridge()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_deprecated"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_deprecated()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_enum"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_enum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_final"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_final()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_module"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_module()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_native"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_native()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_private"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_private()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_protected"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_protected()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_public"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_public()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_static"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_static()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_strict"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_strict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_synchronized"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_synchronized()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_synthetic"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_synthetic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_transient"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_transient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_varargs"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_varargs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.is_volatile"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.is_volatile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.pretty_access_flags"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.pretty_access_flags()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.pretty_arg_types"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.pretty_arg_types()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.pretty_descriptor"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.pretty_descriptor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.pretty_exceptions"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.pretty_exceptions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.pretty_identifier"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.pretty_identifier()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.pretty_signature"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.pretty_signature()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.pretty_type"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.pretty_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.JavaMemberInfo.unpack"><code class="docutils literal notranslate"><span class="pre">JavaMemberInfo.unpack()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.NoPoolException"><code class="docutils literal notranslate"><span class="pre">NoPoolException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.Unimplemented"><code class="docutils literal notranslate"><span class="pre">Unimplemented</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.UnknownConstantPoolTagException"><code class="docutils literal notranslate"><span class="pre">UnknownConstantPoolTagException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.UnpackException"><code class="docutils literal notranslate"><span class="pre">UnpackException</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.UnpackException.template"><code class="docutils literal notranslate"><span class="pre">UnpackException.template</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.is_class"><code class="docutils literal notranslate"><span class="pre">is_class()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.is_class_file"><code class="docutils literal notranslate"><span class="pre">is_class_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.platform_from_version"><code class="docutils literal notranslate"><span class="pre">platform_from_version()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.unpack_class"><code class="docutils literal notranslate"><span class="pre">unpack_class()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.unpack_classfile"><code class="docutils literal notranslate"><span class="pre">unpack_classfile()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="javatools/#module-javatools.classinfo">javatools.classinfo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.classinfo.add_classinfo_optgroup"><code class="docutils literal notranslate"><span class="pre">add_classinfo_optgroup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.classinfo.cli"><code class="docutils literal notranslate"><span class="pre">cli()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.classinfo.cli_class_provides"><code class="docutils literal notranslate"><span class="pre">cli_class_provides()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.classinfo.cli_class_requires"><code class="docutils literal notranslate"><span class="pre">cli_class_requires()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.classinfo.cli_json_class"><code class="docutils literal notranslate"><span class="pre">cli_json_class()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.classinfo.cli_print_class"><code class="docutils literal notranslate"><span class="pre">cli_print_class()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.classinfo.cli_print_classinfo"><code class="docutils literal notranslate"><span class="pre">cli_print_classinfo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.classinfo.cli_simplify_classinfo"><code class="docutils literal notranslate"><span class="pre">cli_simplify_classinfo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.classinfo.cli_simplify_field"><code class="docutils literal notranslate"><span class="pre">cli_simplify_field()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.classinfo.cli_simplify_fields"><code class="docutils literal notranslate"><span class="pre">cli_simplify_fields()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.classinfo.cli_simplify_method"><code class="docutils literal notranslate"><span class="pre">cli_simplify_method()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.classinfo.cli_simplify_methods"><code class="docutils literal notranslate"><span class="pre">cli_simplify_methods()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.classinfo.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="javatools/#module-javatools.jarinfo">javatools.jarinfo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.jarinfo.JarInfo"><code class="docutils literal notranslate"><span class="pre">JarInfo</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.jarinfo.JarInfo.close"><code class="docutils literal notranslate"><span class="pre">JarInfo.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.jarinfo.JarInfo.get_classes"><code class="docutils literal notranslate"><span class="pre">JarInfo.get_classes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.jarinfo.JarInfo.get_classinfo"><code class="docutils literal notranslate"><span class="pre">JarInfo.get_classinfo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.jarinfo.JarInfo.get_manifest"><code class="docutils literal notranslate"><span class="pre">JarInfo.get_manifest()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.jarinfo.JarInfo.get_provides"><code class="docutils literal notranslate"><span class="pre">JarInfo.get_provides()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.jarinfo.JarInfo.get_requires"><code class="docutils literal notranslate"><span class="pre">JarInfo.get_requires()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.jarinfo.JarInfo.get_zipfile"><code class="docutils literal notranslate"><span class="pre">JarInfo.get_zipfile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.jarinfo.JarInfo.open"><code class="docutils literal notranslate"><span class="pre">JarInfo.open()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.jarinfo.add_jarinfo_optgroup"><code class="docutils literal notranslate"><span class="pre">add_jarinfo_optgroup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.jarinfo.cli"><code class="docutils literal notranslate"><span class="pre">cli()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.jarinfo.cli_jar_classes"><code class="docutils literal notranslate"><span class="pre">cli_jar_classes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.jarinfo.cli_jar_manifest_info"><code class="docutils literal notranslate"><span class="pre">cli_jar_manifest_info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.jarinfo.cli_jar_provides"><code class="docutils literal notranslate"><span class="pre">cli_jar_provides()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.jarinfo.cli_jar_requires"><code class="docutils literal notranslate"><span class="pre">cli_jar_requires()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.jarinfo.cli_jar_zip_info"><code class="docutils literal notranslate"><span class="pre">cli_jar_zip_info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.jarinfo.cli_jarinfo"><code class="docutils literal notranslate"><span class="pre">cli_jarinfo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.jarinfo.cli_jarinfo_json"><code class="docutils literal notranslate"><span class="pre">cli_jarinfo_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.jarinfo.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="javatools/#module-javatools.distinfo">javatools.distinfo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.distinfo.DistInfo"><code class="docutils literal notranslate"><span class="pre">DistInfo</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.distinfo.DistInfo.close"><code class="docutils literal notranslate"><span class="pre">DistInfo.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.distinfo.DistInfo.get_classes"><code class="docutils literal notranslate"><span class="pre">DistInfo.get_classes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.distinfo.DistInfo.get_classinfo"><code class="docutils literal notranslate"><span class="pre">DistInfo.get_classinfo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.distinfo.DistInfo.get_contents"><code class="docutils literal notranslate"><span class="pre">DistInfo.get_contents()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.distinfo.DistInfo.get_jarinfo"><code class="docutils literal notranslate"><span class="pre">DistInfo.get_jarinfo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.distinfo.DistInfo.get_jars"><code class="docutils literal notranslate"><span class="pre">DistInfo.get_jars()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.distinfo.DistInfo.get_provides"><code class="docutils literal notranslate"><span class="pre">DistInfo.get_provides()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="javatools/#javatools.distinfo.DistInfo.get_requires"><code class="docutils literal notranslate"><span class="pre">DistInfo.get_requires()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.distinfo.add_distinfo_optgroup"><code class="docutils literal notranslate"><span class="pre">add_distinfo_optgroup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.distinfo.cli"><code class="docutils literal notranslate"><span class="pre">cli()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.distinfo.cli_dist_provides"><code class="docutils literal notranslate"><span class="pre">cli_dist_provides()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.distinfo.cli_dist_requires"><code class="docutils literal notranslate"><span class="pre">cli_dist_requires()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.distinfo.cli_distinfo"><code class="docutils literal notranslate"><span class="pre">cli_distinfo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.distinfo.cli_distinfo_json"><code class="docutils literal notranslate"><span class="pre">cli_distinfo_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.distinfo.create_optparser"><code class="docutils literal notranslate"><span class="pre">create_optparser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="javatools/#javatools.distinfo.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="change/">Comparing Java Artifacts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="change/#module-javatools.change">javatools.change</a></li>
-<li class="toctree-l2"><a class="reference internal" href="change/#module-javatools.classdiff">javatools.classdiff</a></li>
-<li class="toctree-l2"><a class="reference internal" href="change/#module-javatools.jardiff">javatools.jardiff</a></li>
-<li class="toctree-l2"><a class="reference internal" href="change/#module-javatools.distdiff">javatools.distdiff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="change/#module-javatools.change">javatools.change</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.change.Addition"><code class="docutils literal notranslate"><span class="pre">Addition</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.Addition.is_change"><code class="docutils literal notranslate"><span class="pre">Addition.is_change()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.Addition.label"><code class="docutils literal notranslate"><span class="pre">Addition.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.change.Change"><code class="docutils literal notranslate"><span class="pre">Change</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.Change.check"><code class="docutils literal notranslate"><span class="pre">Change.check()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.Change.clear"><code class="docutils literal notranslate"><span class="pre">Change.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.Change.collect"><code class="docutils literal notranslate"><span class="pre">Change.collect()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.Change.get_description"><code class="docutils literal notranslate"><span class="pre">Change.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.Change.get_ldata"><code class="docutils literal notranslate"><span class="pre">Change.get_ldata()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.Change.get_rdata"><code class="docutils literal notranslate"><span class="pre">Change.get_rdata()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.Change.is_change"><code class="docutils literal notranslate"><span class="pre">Change.is_change()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.Change.is_ignored"><code class="docutils literal notranslate"><span class="pre">Change.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.Change.label"><code class="docutils literal notranslate"><span class="pre">Change.label</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.Change.simplify"><code class="docutils literal notranslate"><span class="pre">Change.simplify()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.change.GenericChange"><code class="docutils literal notranslate"><span class="pre">GenericChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.GenericChange.check"><code class="docutils literal notranslate"><span class="pre">GenericChange.check()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.GenericChange.check_impl"><code class="docutils literal notranslate"><span class="pre">GenericChange.check_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.GenericChange.fn_data"><code class="docutils literal notranslate"><span class="pre">GenericChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.GenericChange.fn_differ"><code class="docutils literal notranslate"><span class="pre">GenericChange.fn_differ()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.GenericChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">GenericChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.GenericChange.fn_pretty_desc"><code class="docutils literal notranslate"><span class="pre">GenericChange.fn_pretty_desc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.GenericChange.get_ldata"><code class="docutils literal notranslate"><span class="pre">GenericChange.get_ldata()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.GenericChange.get_rdata"><code class="docutils literal notranslate"><span class="pre">GenericChange.get_rdata()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.GenericChange.label"><code class="docutils literal notranslate"><span class="pre">GenericChange.label</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.GenericChange.pretty_ldata"><code class="docutils literal notranslate"><span class="pre">GenericChange.pretty_ldata()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.GenericChange.pretty_ldata_desc"><code class="docutils literal notranslate"><span class="pre">GenericChange.pretty_ldata_desc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.GenericChange.pretty_rdata"><code class="docutils literal notranslate"><span class="pre">GenericChange.pretty_rdata()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.GenericChange.pretty_rdata_desc"><code class="docutils literal notranslate"><span class="pre">GenericChange.pretty_rdata_desc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.GenericChange.simplify"><code class="docutils literal notranslate"><span class="pre">GenericChange.simplify()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.change.Removal"><code class="docutils literal notranslate"><span class="pre">Removal</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.Removal.is_change"><code class="docutils literal notranslate"><span class="pre">Removal.is_change()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.Removal.label"><code class="docutils literal notranslate"><span class="pre">Removal.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.change.SquashedAddition"><code class="docutils literal notranslate"><span class="pre">SquashedAddition</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SquashedAddition.label"><code class="docutils literal notranslate"><span class="pre">SquashedAddition.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.change.SquashedChange"><code class="docutils literal notranslate"><span class="pre">SquashedChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SquashedChange.clear"><code class="docutils literal notranslate"><span class="pre">SquashedChange.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SquashedChange.is_change"><code class="docutils literal notranslate"><span class="pre">SquashedChange.is_change()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SquashedChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">SquashedChange.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SquashedChange.label"><code class="docutils literal notranslate"><span class="pre">SquashedChange.label</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SquashedChange.simplify"><code class="docutils literal notranslate"><span class="pre">SquashedChange.simplify()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.change.SquashedRemoval"><code class="docutils literal notranslate"><span class="pre">SquashedRemoval</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SquashedRemoval.label"><code class="docutils literal notranslate"><span class="pre">SquashedRemoval.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.change.SuperChange"><code class="docutils literal notranslate"><span class="pre">SuperChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SuperChange.change_types"><code class="docutils literal notranslate"><span class="pre">SuperChange.change_types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SuperChange.check_impl"><code class="docutils literal notranslate"><span class="pre">SuperChange.check_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SuperChange.clear"><code class="docutils literal notranslate"><span class="pre">SuperChange.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SuperChange.collect"><code class="docutils literal notranslate"><span class="pre">SuperChange.collect()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SuperChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">SuperChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SuperChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">SuperChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SuperChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">SuperChange.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SuperChange.label"><code class="docutils literal notranslate"><span class="pre">SuperChange.label</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SuperChange.simplify"><code class="docutils literal notranslate"><span class="pre">SuperChange.simplify()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.change.SuperChange.squash_children"><code class="docutils literal notranslate"><span class="pre">SuperChange.squash_children()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.change.collect_by_type"><code class="docutils literal notranslate"><span class="pre">collect_by_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.change.collect_by_typename"><code class="docutils literal notranslate"><span class="pre">collect_by_typename()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.change.iterate_by_type"><code class="docutils literal notranslate"><span class="pre">iterate_by_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.change.squash"><code class="docutils literal notranslate"><span class="pre">squash()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.change.yield_sorted_by_type"><code class="docutils literal notranslate"><span class="pre">yield_sorted_by_type()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="change/#module-javatools.classdiff">javatools.classdiff</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.ClassAnnotationsChange"><code class="docutils literal notranslate"><span class="pre">ClassAnnotationsChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassAnnotationsChange.label"><code class="docutils literal notranslate"><span class="pre">ClassAnnotationsChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.ClassConstantPoolChange"><code class="docutils literal notranslate"><span class="pre">ClassConstantPoolChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassConstantPoolChange.fn_data"><code class="docutils literal notranslate"><span class="pre">ClassConstantPoolChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassConstantPoolChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">ClassConstantPoolChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassConstantPoolChange.get_description"><code class="docutils literal notranslate"><span class="pre">ClassConstantPoolChange.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassConstantPoolChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">ClassConstantPoolChange.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassConstantPoolChange.label"><code class="docutils literal notranslate"><span class="pre">ClassConstantPoolChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.ClassFieldsChange"><code class="docutils literal notranslate"><span class="pre">ClassFieldsChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassFieldsChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">ClassFieldsChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassFieldsChange.label"><code class="docutils literal notranslate"><span class="pre">ClassFieldsChange.label</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassFieldsChange.member_added"><code class="docutils literal notranslate"><span class="pre">ClassFieldsChange.member_added</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassFieldsChange.member_changed"><code class="docutils literal notranslate"><span class="pre">ClassFieldsChange.member_changed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassFieldsChange.member_removed"><code class="docutils literal notranslate"><span class="pre">ClassFieldsChange.member_removed</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.ClassInfoChange"><code class="docutils literal notranslate"><span class="pre">ClassInfoChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassInfoChange.change_types"><code class="docutils literal notranslate"><span class="pre">ClassInfoChange.change_types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassInfoChange.label"><code class="docutils literal notranslate"><span class="pre">ClassInfoChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.ClassInvisibleAnnotationsChange"><code class="docutils literal notranslate"><span class="pre">ClassInvisibleAnnotationsChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassInvisibleAnnotationsChange.label"><code class="docutils literal notranslate"><span class="pre">ClassInvisibleAnnotationsChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.ClassMembersChange"><code class="docutils literal notranslate"><span class="pre">ClassMembersChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassMembersChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">ClassMembersChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassMembersChange.label"><code class="docutils literal notranslate"><span class="pre">ClassMembersChange.label</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassMembersChange.member_added"><code class="docutils literal notranslate"><span class="pre">ClassMembersChange.member_added</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassMembersChange.member_changed"><code class="docutils literal notranslate"><span class="pre">ClassMembersChange.member_changed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassMembersChange.member_removed"><code class="docutils literal notranslate"><span class="pre">ClassMembersChange.member_removed</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.ClassMethodsChange"><code class="docutils literal notranslate"><span class="pre">ClassMethodsChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassMethodsChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">ClassMethodsChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassMethodsChange.label"><code class="docutils literal notranslate"><span class="pre">ClassMethodsChange.label</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassMethodsChange.member_added"><code class="docutils literal notranslate"><span class="pre">ClassMethodsChange.member_added</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassMethodsChange.member_changed"><code class="docutils literal notranslate"><span class="pre">ClassMethodsChange.member_changed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.ClassMethodsChange.member_removed"><code class="docutils literal notranslate"><span class="pre">ClassMethodsChange.member_removed</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.CodeAbsoluteLinesChange"><code class="docutils literal notranslate"><span class="pre">CodeAbsoluteLinesChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeAbsoluteLinesChange.fn_data"><code class="docutils literal notranslate"><span class="pre">CodeAbsoluteLinesChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeAbsoluteLinesChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">CodeAbsoluteLinesChange.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeAbsoluteLinesChange.label"><code class="docutils literal notranslate"><span class="pre">CodeAbsoluteLinesChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.CodeBodyChange"><code class="docutils literal notranslate"><span class="pre">CodeBodyChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeBodyChange.check_impl"><code class="docutils literal notranslate"><span class="pre">CodeBodyChange.check_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeBodyChange.fn_data"><code class="docutils literal notranslate"><span class="pre">CodeBodyChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeBodyChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">CodeBodyChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeBodyChange.label"><code class="docutils literal notranslate"><span class="pre">CodeBodyChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.CodeConstantsChange"><code class="docutils literal notranslate"><span class="pre">CodeConstantsChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeConstantsChange.check_impl"><code class="docutils literal notranslate"><span class="pre">CodeConstantsChange.check_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeConstantsChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">CodeConstantsChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeConstantsChange.label"><code class="docutils literal notranslate"><span class="pre">CodeConstantsChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.CodeExceptionChange"><code class="docutils literal notranslate"><span class="pre">CodeExceptionChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeExceptionChange.fn_data"><code class="docutils literal notranslate"><span class="pre">CodeExceptionChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeExceptionChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">CodeExceptionChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeExceptionChange.label"><code class="docutils literal notranslate"><span class="pre">CodeExceptionChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.CodeLocalsChange"><code class="docutils literal notranslate"><span class="pre">CodeLocalsChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeLocalsChange.fn_data"><code class="docutils literal notranslate"><span class="pre">CodeLocalsChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeLocalsChange.label"><code class="docutils literal notranslate"><span class="pre">CodeLocalsChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.CodeRelativeLinesChange"><code class="docutils literal notranslate"><span class="pre">CodeRelativeLinesChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeRelativeLinesChange.fn_data"><code class="docutils literal notranslate"><span class="pre">CodeRelativeLinesChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeRelativeLinesChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">CodeRelativeLinesChange.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeRelativeLinesChange.label"><code class="docutils literal notranslate"><span class="pre">CodeRelativeLinesChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.CodeStackChange"><code class="docutils literal notranslate"><span class="pre">CodeStackChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeStackChange.fn_data"><code class="docutils literal notranslate"><span class="pre">CodeStackChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.CodeStackChange.label"><code class="docutils literal notranslate"><span class="pre">CodeStackChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.FieldAccessflagsChange"><code class="docutils literal notranslate"><span class="pre">FieldAccessflagsChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldAccessflagsChange.fn_data"><code class="docutils literal notranslate"><span class="pre">FieldAccessflagsChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldAccessflagsChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">FieldAccessflagsChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldAccessflagsChange.fn_pretty_desc"><code class="docutils literal notranslate"><span class="pre">FieldAccessflagsChange.fn_pretty_desc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldAccessflagsChange.label"><code class="docutils literal notranslate"><span class="pre">FieldAccessflagsChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.FieldAdded"><code class="docutils literal notranslate"><span class="pre">FieldAdded</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldAdded.label"><code class="docutils literal notranslate"><span class="pre">FieldAdded.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.FieldAnnotationsChange"><code class="docutils literal notranslate"><span class="pre">FieldAnnotationsChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldAnnotationsChange.label"><code class="docutils literal notranslate"><span class="pre">FieldAnnotationsChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.FieldChange"><code class="docutils literal notranslate"><span class="pre">FieldChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldChange.change_types"><code class="docutils literal notranslate"><span class="pre">FieldChange.change_types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldChange.label"><code class="docutils literal notranslate"><span class="pre">FieldChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.FieldConstvalueChange"><code class="docutils literal notranslate"><span class="pre">FieldConstvalueChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldConstvalueChange.fn_data"><code class="docutils literal notranslate"><span class="pre">FieldConstvalueChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldConstvalueChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">FieldConstvalueChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldConstvalueChange.label"><code class="docutils literal notranslate"><span class="pre">FieldConstvalueChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.FieldDeprecationChange"><code class="docutils literal notranslate"><span class="pre">FieldDeprecationChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldDeprecationChange.fn_data"><code class="docutils literal notranslate"><span class="pre">FieldDeprecationChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldDeprecationChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">FieldDeprecationChange.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldDeprecationChange.label"><code class="docutils literal notranslate"><span class="pre">FieldDeprecationChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.FieldInvisibleAnnotationsChange"><code class="docutils literal notranslate"><span class="pre">FieldInvisibleAnnotationsChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldInvisibleAnnotationsChange.label"><code class="docutils literal notranslate"><span class="pre">FieldInvisibleAnnotationsChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.FieldNameChange"><code class="docutils literal notranslate"><span class="pre">FieldNameChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldNameChange.fn_data"><code class="docutils literal notranslate"><span class="pre">FieldNameChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldNameChange.label"><code class="docutils literal notranslate"><span class="pre">FieldNameChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.FieldRemoved"><code class="docutils literal notranslate"><span class="pre">FieldRemoved</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldRemoved.label"><code class="docutils literal notranslate"><span class="pre">FieldRemoved.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.FieldSignatureChange"><code class="docutils literal notranslate"><span class="pre">FieldSignatureChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldSignatureChange.fn_data"><code class="docutils literal notranslate"><span class="pre">FieldSignatureChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldSignatureChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">FieldSignatureChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldSignatureChange.label"><code class="docutils literal notranslate"><span class="pre">FieldSignatureChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.FieldTypeChange"><code class="docutils literal notranslate"><span class="pre">FieldTypeChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldTypeChange.fn_data"><code class="docutils literal notranslate"><span class="pre">FieldTypeChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldTypeChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">FieldTypeChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.FieldTypeChange.label"><code class="docutils literal notranslate"><span class="pre">FieldTypeChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.JavaClassChange"><code class="docutils literal notranslate"><span class="pre">JavaClassChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.JavaClassChange.change_types"><code class="docutils literal notranslate"><span class="pre">JavaClassChange.change_types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.JavaClassChange.get_description"><code class="docutils literal notranslate"><span class="pre">JavaClassChange.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.JavaClassChange.label"><code class="docutils literal notranslate"><span class="pre">JavaClassChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.JavaClassReport"><code class="docutils literal notranslate"><span class="pre">JavaClassReport</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.JavaClassReport.check"><code class="docutils literal notranslate"><span class="pre">JavaClassReport.check()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MemberAdded"><code class="docutils literal notranslate"><span class="pre">MemberAdded</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MemberAdded.get_description"><code class="docutils literal notranslate"><span class="pre">MemberAdded.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MemberAdded.label"><code class="docutils literal notranslate"><span class="pre">MemberAdded.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MemberRemoved"><code class="docutils literal notranslate"><span class="pre">MemberRemoved</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MemberRemoved.get_description"><code class="docutils literal notranslate"><span class="pre">MemberRemoved.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MemberRemoved.label"><code class="docutils literal notranslate"><span class="pre">MemberRemoved.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MemberSuperChange"><code class="docutils literal notranslate"><span class="pre">MemberSuperChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MemberSuperChange.get_description"><code class="docutils literal notranslate"><span class="pre">MemberSuperChange.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MemberSuperChange.label"><code class="docutils literal notranslate"><span class="pre">MemberSuperChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MethodAbstractChange"><code class="docutils literal notranslate"><span class="pre">MethodAbstractChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodAbstractChange.fn_data"><code class="docutils literal notranslate"><span class="pre">MethodAbstractChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodAbstractChange.fn_pretty_desc"><code class="docutils literal notranslate"><span class="pre">MethodAbstractChange.fn_pretty_desc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodAbstractChange.label"><code class="docutils literal notranslate"><span class="pre">MethodAbstractChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MethodAccessflagsChange"><code class="docutils literal notranslate"><span class="pre">MethodAccessflagsChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodAccessflagsChange.fn_data"><code class="docutils literal notranslate"><span class="pre">MethodAccessflagsChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodAccessflagsChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">MethodAccessflagsChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodAccessflagsChange.label"><code class="docutils literal notranslate"><span class="pre">MethodAccessflagsChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MethodAdded"><code class="docutils literal notranslate"><span class="pre">MethodAdded</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodAdded.label"><code class="docutils literal notranslate"><span class="pre">MethodAdded.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MethodAnnotationsChange"><code class="docutils literal notranslate"><span class="pre">MethodAnnotationsChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodAnnotationsChange.label"><code class="docutils literal notranslate"><span class="pre">MethodAnnotationsChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MethodChange"><code class="docutils literal notranslate"><span class="pre">MethodChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodChange.change_types"><code class="docutils literal notranslate"><span class="pre">MethodChange.change_types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodChange.label"><code class="docutils literal notranslate"><span class="pre">MethodChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MethodCodeChange"><code class="docutils literal notranslate"><span class="pre">MethodCodeChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodCodeChange.change_types"><code class="docutils literal notranslate"><span class="pre">MethodCodeChange.change_types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodCodeChange.check_impl"><code class="docutils literal notranslate"><span class="pre">MethodCodeChange.check_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodCodeChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">MethodCodeChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodCodeChange.label"><code class="docutils literal notranslate"><span class="pre">MethodCodeChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MethodDeprecationChange"><code class="docutils literal notranslate"><span class="pre">MethodDeprecationChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodDeprecationChange.fn_data"><code class="docutils literal notranslate"><span class="pre">MethodDeprecationChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodDeprecationChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">MethodDeprecationChange.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodDeprecationChange.label"><code class="docutils literal notranslate"><span class="pre">MethodDeprecationChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MethodExceptionsChange"><code class="docutils literal notranslate"><span class="pre">MethodExceptionsChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodExceptionsChange.fn_data"><code class="docutils literal notranslate"><span class="pre">MethodExceptionsChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodExceptionsChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">MethodExceptionsChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodExceptionsChange.label"><code class="docutils literal notranslate"><span class="pre">MethodExceptionsChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MethodInvisibleAnnotationsChange"><code class="docutils literal notranslate"><span class="pre">MethodInvisibleAnnotationsChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodInvisibleAnnotationsChange.label"><code class="docutils literal notranslate"><span class="pre">MethodInvisibleAnnotationsChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MethodNameChange"><code class="docutils literal notranslate"><span class="pre">MethodNameChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodNameChange.fn_data"><code class="docutils literal notranslate"><span class="pre">MethodNameChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodNameChange.label"><code class="docutils literal notranslate"><span class="pre">MethodNameChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MethodParametersChange"><code class="docutils literal notranslate"><span class="pre">MethodParametersChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodParametersChange.fn_data"><code class="docutils literal notranslate"><span class="pre">MethodParametersChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodParametersChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">MethodParametersChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodParametersChange.label"><code class="docutils literal notranslate"><span class="pre">MethodParametersChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MethodRemoved"><code class="docutils literal notranslate"><span class="pre">MethodRemoved</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodRemoved.label"><code class="docutils literal notranslate"><span class="pre">MethodRemoved.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MethodSignatureChange"><code class="docutils literal notranslate"><span class="pre">MethodSignatureChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodSignatureChange.fn_data"><code class="docutils literal notranslate"><span class="pre">MethodSignatureChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodSignatureChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">MethodSignatureChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodSignatureChange.label"><code class="docutils literal notranslate"><span class="pre">MethodSignatureChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.MethodTypeChange"><code class="docutils literal notranslate"><span class="pre">MethodTypeChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodTypeChange.fn_data"><code class="docutils literal notranslate"><span class="pre">MethodTypeChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodTypeChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">MethodTypeChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.classdiff.MethodTypeChange.label"><code class="docutils literal notranslate"><span class="pre">MethodTypeChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.add_classdiff_optgroup"><code class="docutils literal notranslate"><span class="pre">add_classdiff_optgroup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.add_general_optgroup"><code class="docutils literal notranslate"><span class="pre">add_general_optgroup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.cli"><code class="docutils literal notranslate"><span class="pre">cli()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.cli_classes_diff"><code class="docutils literal notranslate"><span class="pre">cli_classes_diff()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.default_classdiff_options"><code class="docutils literal notranslate"><span class="pre">default_classdiff_options()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.merge_code"><code class="docutils literal notranslate"><span class="pre">merge_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.classdiff.pretty_merge_constants"><code class="docutils literal notranslate"><span class="pre">pretty_merge_constants()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="change/#module-javatools.jardiff">javatools.jardiff</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarChange"><code class="docutils literal notranslate"><span class="pre">JarChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarChange.change_types"><code class="docutils literal notranslate"><span class="pre">JarChange.change_types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarChange.label"><code class="docutils literal notranslate"><span class="pre">JarChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarClassAdded"><code class="docutils literal notranslate"><span class="pre">JarClassAdded</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarClassAdded.label"><code class="docutils literal notranslate"><span class="pre">JarClassAdded.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarClassChange"><code class="docutils literal notranslate"><span class="pre">JarClassChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarClassChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">JarClassChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarClassChange.label"><code class="docutils literal notranslate"><span class="pre">JarClassChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarClassRemoved"><code class="docutils literal notranslate"><span class="pre">JarClassRemoved</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarClassRemoved.label"><code class="docutils literal notranslate"><span class="pre">JarClassRemoved.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarClassReport"><code class="docutils literal notranslate"><span class="pre">JarClassReport</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarClassReport.collect_impl"><code class="docutils literal notranslate"><span class="pre">JarClassReport.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarClassReport.report_name"><code class="docutils literal notranslate"><span class="pre">JarClassReport.report_name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarContentAdded"><code class="docutils literal notranslate"><span class="pre">JarContentAdded</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarContentAdded.get_description"><code class="docutils literal notranslate"><span class="pre">JarContentAdded.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarContentAdded.label"><code class="docutils literal notranslate"><span class="pre">JarContentAdded.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarContentChange"><code class="docutils literal notranslate"><span class="pre">JarContentChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarContentChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">JarContentChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarContentChange.get_description"><code class="docutils literal notranslate"><span class="pre">JarContentChange.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarContentChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">JarContentChange.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarContentChange.label"><code class="docutils literal notranslate"><span class="pre">JarContentChange.label</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarContentChange.open_left"><code class="docutils literal notranslate"><span class="pre">JarContentChange.open_left()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarContentChange.open_right"><code class="docutils literal notranslate"><span class="pre">JarContentChange.open_right()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarContentRemoved"><code class="docutils literal notranslate"><span class="pre">JarContentRemoved</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarContentRemoved.get_description"><code class="docutils literal notranslate"><span class="pre">JarContentRemoved.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarContentRemoved.label"><code class="docutils literal notranslate"><span class="pre">JarContentRemoved.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarContentsChange"><code class="docutils literal notranslate"><span class="pre">JarContentsChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarContentsChange.check_impl"><code class="docutils literal notranslate"><span class="pre">JarContentsChange.check_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarContentsChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">JarContentsChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarContentsChange.label"><code class="docutils literal notranslate"><span class="pre">JarContentsChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarContentsReport"><code class="docutils literal notranslate"><span class="pre">JarContentsReport</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarContentsReport.check_impl"><code class="docutils literal notranslate"><span class="pre">JarContentsReport.check_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarContentsReport.collect_impl"><code class="docutils literal notranslate"><span class="pre">JarContentsReport.collect_impl()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarManifestChange"><code class="docutils literal notranslate"><span class="pre">JarManifestChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarManifestChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">JarManifestChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarManifestChange.label"><code class="docutils literal notranslate"><span class="pre">JarManifestChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarReport"><code class="docutils literal notranslate"><span class="pre">JarReport</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarReport.check"><code class="docutils literal notranslate"><span class="pre">JarReport.check()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarReport.collect_impl"><code class="docutils literal notranslate"><span class="pre">JarReport.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarReport.report_name"><code class="docutils literal notranslate"><span class="pre">JarReport.report_name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureBlockFileAdded"><code class="docutils literal notranslate"><span class="pre">JarSignatureBlockFileAdded</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureBlockFileAdded.is_ignored"><code class="docutils literal notranslate"><span class="pre">JarSignatureBlockFileAdded.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureBlockFileAdded.label"><code class="docutils literal notranslate"><span class="pre">JarSignatureBlockFileAdded.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureBlockFileChange"><code class="docutils literal notranslate"><span class="pre">JarSignatureBlockFileChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureBlockFileChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">JarSignatureBlockFileChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureBlockFileChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">JarSignatureBlockFileChange.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureBlockFileChange.label"><code class="docutils literal notranslate"><span class="pre">JarSignatureBlockFileChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureBlockFileRemoved"><code class="docutils literal notranslate"><span class="pre">JarSignatureBlockFileRemoved</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureBlockFileRemoved.is_ignored"><code class="docutils literal notranslate"><span class="pre">JarSignatureBlockFileRemoved.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureBlockFileRemoved.label"><code class="docutils literal notranslate"><span class="pre">JarSignatureBlockFileRemoved.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureFileAdded"><code class="docutils literal notranslate"><span class="pre">JarSignatureFileAdded</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureFileAdded.is_ignored"><code class="docutils literal notranslate"><span class="pre">JarSignatureFileAdded.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureFileAdded.label"><code class="docutils literal notranslate"><span class="pre">JarSignatureFileAdded.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureFileChange"><code class="docutils literal notranslate"><span class="pre">JarSignatureFileChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureFileChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">JarSignatureFileChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureFileChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">JarSignatureFileChange.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureFileChange.label"><code class="docutils literal notranslate"><span class="pre">JarSignatureFileChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureFileRemoved"><code class="docutils literal notranslate"><span class="pre">JarSignatureFileRemoved</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureFileRemoved.is_ignored"><code class="docutils literal notranslate"><span class="pre">JarSignatureFileRemoved.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarSignatureFileRemoved.label"><code class="docutils literal notranslate"><span class="pre">JarSignatureFileRemoved.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.JarTypeChange"><code class="docutils literal notranslate"><span class="pre">JarTypeChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarTypeChange.fn_data"><code class="docutils literal notranslate"><span class="pre">JarTypeChange.fn_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarTypeChange.fn_pretty"><code class="docutils literal notranslate"><span class="pre">JarTypeChange.fn_pretty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.jardiff.JarTypeChange.label"><code class="docutils literal notranslate"><span class="pre">JarTypeChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.add_jardiff_optgroup"><code class="docutils literal notranslate"><span class="pre">add_jardiff_optgroup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.cli"><code class="docutils literal notranslate"><span class="pre">cli()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.cli_jars_diff"><code class="docutils literal notranslate"><span class="pre">cli_jars_diff()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.default_jardiff_options"><code class="docutils literal notranslate"><span class="pre">default_jardiff_options()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.jardiff.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="change/#module-javatools.distdiff">javatools.distdiff</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.DistChange"><code class="docutils literal notranslate"><span class="pre">DistChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">DistChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistChange.get_description"><code class="docutils literal notranslate"><span class="pre">DistChange.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistChange.label"><code class="docutils literal notranslate"><span class="pre">DistChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.DistClassAdded"><code class="docutils literal notranslate"><span class="pre">DistClassAdded</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistClassAdded.label"><code class="docutils literal notranslate"><span class="pre">DistClassAdded.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.DistClassChange"><code class="docutils literal notranslate"><span class="pre">DistClassChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistClassChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">DistClassChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistClassChange.label"><code class="docutils literal notranslate"><span class="pre">DistClassChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.DistClassRemoved"><code class="docutils literal notranslate"><span class="pre">DistClassRemoved</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistClassRemoved.label"><code class="docutils literal notranslate"><span class="pre">DistClassRemoved.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.DistClassReport"><code class="docutils literal notranslate"><span class="pre">DistClassReport</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistClassReport.collect_impl"><code class="docutils literal notranslate"><span class="pre">DistClassReport.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistClassReport.report_name"><code class="docutils literal notranslate"><span class="pre">DistClassReport.report_name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.DistContentAdded"><code class="docutils literal notranslate"><span class="pre">DistContentAdded</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistContentAdded.get_description"><code class="docutils literal notranslate"><span class="pre">DistContentAdded.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistContentAdded.label"><code class="docutils literal notranslate"><span class="pre">DistContentAdded.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.DistContentChange"><code class="docutils literal notranslate"><span class="pre">DistContentChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistContentChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">DistContentChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistContentChange.get_description"><code class="docutils literal notranslate"><span class="pre">DistContentChange.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistContentChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">DistContentChange.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistContentChange.label"><code class="docutils literal notranslate"><span class="pre">DistContentChange.label</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistContentChange.left_fn"><code class="docutils literal notranslate"><span class="pre">DistContentChange.left_fn()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistContentChange.open_left"><code class="docutils literal notranslate"><span class="pre">DistContentChange.open_left()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistContentChange.open_right"><code class="docutils literal notranslate"><span class="pre">DistContentChange.open_right()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistContentChange.right_fn"><code class="docutils literal notranslate"><span class="pre">DistContentChange.right_fn()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.DistContentRemoved"><code class="docutils literal notranslate"><span class="pre">DistContentRemoved</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistContentRemoved.get_description"><code class="docutils literal notranslate"><span class="pre">DistContentRemoved.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistContentRemoved.label"><code class="docutils literal notranslate"><span class="pre">DistContentRemoved.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.DistJarAdded"><code class="docutils literal notranslate"><span class="pre">DistJarAdded</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistJarAdded.label"><code class="docutils literal notranslate"><span class="pre">DistJarAdded.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.DistJarChange"><code class="docutils literal notranslate"><span class="pre">DistJarChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistJarChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">DistJarChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistJarChange.label"><code class="docutils literal notranslate"><span class="pre">DistJarChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.DistJarRemoved"><code class="docutils literal notranslate"><span class="pre">DistJarRemoved</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistJarRemoved.label"><code class="docutils literal notranslate"><span class="pre">DistJarRemoved.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.DistJarReport"><code class="docutils literal notranslate"><span class="pre">DistJarReport</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistJarReport.collect_impl"><code class="docutils literal notranslate"><span class="pre">DistJarReport.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistJarReport.report_name"><code class="docutils literal notranslate"><span class="pre">DistJarReport.report_name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.DistManifestChange"><code class="docutils literal notranslate"><span class="pre">DistManifestChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistManifestChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">DistManifestChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistManifestChange.label"><code class="docutils literal notranslate"><span class="pre">DistManifestChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.DistReport"><code class="docutils literal notranslate"><span class="pre">DistReport</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistReport.check"><code class="docutils literal notranslate"><span class="pre">DistReport.check()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistReport.check_impl"><code class="docutils literal notranslate"><span class="pre">DistReport.check_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistReport.collect_impl"><code class="docutils literal notranslate"><span class="pre">DistReport.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistReport.mp_check_impl"><code class="docutils literal notranslate"><span class="pre">DistReport.mp_check_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistReport.report_name"><code class="docutils literal notranslate"><span class="pre">DistReport.report_name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.DistTextChange"><code class="docutils literal notranslate"><span class="pre">DistTextChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistTextChange.check"><code class="docutils literal notranslate"><span class="pre">DistTextChange.check()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistTextChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">DistTextChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistTextChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">DistTextChange.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="change/#javatools.distdiff.DistTextChange.label"><code class="docutils literal notranslate"><span class="pre">DistTextChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.cli"><code class="docutils literal notranslate"><span class="pre">cli()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.cli_dist_diff"><code class="docutils literal notranslate"><span class="pre">cli_dist_diff()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.default_distdiff_options"><code class="docutils literal notranslate"><span class="pre">default_distdiff_options()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="change/#javatools.distdiff.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="report/">Reporting Changes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="report/#module-javatools.report">javatools.report</a></li>
-<li class="toctree-l2"><a class="reference internal" href="report/#module-javatools.cheetah">javatools.cheetah</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report/#module-javatools.report">javatools.report</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="report/#javatools.report.CheetahReportFormat"><code class="docutils literal notranslate"><span class="pre">CheetahReportFormat</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.CheetahReportFormat.extension"><code class="docutils literal notranslate"><span class="pre">CheetahReportFormat.extension</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.CheetahReportFormat.run_impl"><code class="docutils literal notranslate"><span class="pre">CheetahReportFormat.run_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.CheetahReportFormat.setup"><code class="docutils literal notranslate"><span class="pre">CheetahReportFormat.setup()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="report/#javatools.report.JSONReportFormat"><code class="docutils literal notranslate"><span class="pre">JSONReportFormat</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.JSONReportFormat.extension"><code class="docutils literal notranslate"><span class="pre">JSONReportFormat.extension</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.JSONReportFormat.run_impl"><code class="docutils literal notranslate"><span class="pre">JSONReportFormat.run_impl()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="report/#javatools.report.ReportFormat"><code class="docutils literal notranslate"><span class="pre">ReportFormat</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.ReportFormat.clear"><code class="docutils literal notranslate"><span class="pre">ReportFormat.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.ReportFormat.extension"><code class="docutils literal notranslate"><span class="pre">ReportFormat.extension</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.ReportFormat.run"><code class="docutils literal notranslate"><span class="pre">ReportFormat.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.ReportFormat.run_impl"><code class="docutils literal notranslate"><span class="pre">ReportFormat.run_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.ReportFormat.setup"><code class="docutils literal notranslate"><span class="pre">ReportFormat.setup()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="report/#javatools.report.Reporter"><code class="docutils literal notranslate"><span class="pre">Reporter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.Reporter.add_formats_by_name"><code class="docutils literal notranslate"><span class="pre">Reporter.add_formats_by_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.Reporter.add_report_format"><code class="docutils literal notranslate"><span class="pre">Reporter.add_report_format()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.Reporter.clear"><code class="docutils literal notranslate"><span class="pre">Reporter.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.Reporter.get_relative_breadcrumbs"><code class="docutils literal notranslate"><span class="pre">Reporter.get_relative_breadcrumbs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.Reporter.run"><code class="docutils literal notranslate"><span class="pre">Reporter.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.Reporter.setup"><code class="docutils literal notranslate"><span class="pre">Reporter.setup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.Reporter.subreporter"><code class="docutils literal notranslate"><span class="pre">Reporter.subreporter()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="report/#javatools.report.TextReportFormat"><code class="docutils literal notranslate"><span class="pre">TextReportFormat</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.TextReportFormat.extension"><code class="docutils literal notranslate"><span class="pre">TextReportFormat.extension</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="report/#javatools.report.TextReportFormat.run_impl"><code class="docutils literal notranslate"><span class="pre">TextReportFormat.run_impl()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="report/#javatools.report.add_general_report_optgroup"><code class="docutils literal notranslate"><span class="pre">add_general_report_optgroup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="report/#javatools.report.add_html_report_optgroup"><code class="docutils literal notranslate"><span class="pre">add_html_report_optgroup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="report/#javatools.report.add_json_report_optgroup"><code class="docutils literal notranslate"><span class="pre">add_json_report_optgroup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="report/#javatools.report.quick_report"><code class="docutils literal notranslate"><span class="pre">quick_report()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="report/#module-javatools.cheetah">javatools.cheetah</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="report/#javatools.cheetah.get_templates"><code class="docutils literal notranslate"><span class="pre">get_templates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="report/#javatools.cheetah.xml_entity_escape"><code class="docutils literal notranslate"><span class="pre">xml_entity_escape()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utils/">Utility Modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="utils/#module-javatools.pack">javatools.pack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils/#module-javatools.pack">javatools.pack</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.pack.BufferUnpacker"><code class="docutils literal notranslate"><span class="pre">BufferUnpacker</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.BufferUnpacker.close"><code class="docutils literal notranslate"><span class="pre">BufferUnpacker.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.BufferUnpacker.read"><code class="docutils literal notranslate"><span class="pre">BufferUnpacker.read()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.BufferUnpacker.unpack"><code class="docutils literal notranslate"><span class="pre">BufferUnpacker.unpack()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.BufferUnpacker.unpack_struct"><code class="docutils literal notranslate"><span class="pre">BufferUnpacker.unpack_struct()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.pack.StreamUnpacker"><code class="docutils literal notranslate"><span class="pre">StreamUnpacker</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.StreamUnpacker.close"><code class="docutils literal notranslate"><span class="pre">StreamUnpacker.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.StreamUnpacker.read"><code class="docutils literal notranslate"><span class="pre">StreamUnpacker.read()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.StreamUnpacker.unpack"><code class="docutils literal notranslate"><span class="pre">StreamUnpacker.unpack()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.StreamUnpacker.unpack_struct"><code class="docutils literal notranslate"><span class="pre">StreamUnpacker.unpack_struct()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.pack.UnpackException"><code class="docutils literal notranslate"><span class="pre">UnpackException</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.UnpackException.template"><code class="docutils literal notranslate"><span class="pre">UnpackException.template</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.pack.Unpacker"><code class="docutils literal notranslate"><span class="pre">Unpacker</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.Unpacker.close"><code class="docutils literal notranslate"><span class="pre">Unpacker.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.Unpacker.read"><code class="docutils literal notranslate"><span class="pre">Unpacker.read()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.Unpacker.unpack"><code class="docutils literal notranslate"><span class="pre">Unpacker.unpack()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.Unpacker.unpack_array"><code class="docutils literal notranslate"><span class="pre">Unpacker.unpack_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.Unpacker.unpack_objects"><code class="docutils literal notranslate"><span class="pre">Unpacker.unpack_objects()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.Unpacker.unpack_struct"><code class="docutils literal notranslate"><span class="pre">Unpacker.unpack_struct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.pack.Unpacker.unpack_struct_array"><code class="docutils literal notranslate"><span class="pre">Unpacker.unpack_struct_array()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.pack.compile_struct"><code class="docutils literal notranslate"><span class="pre">compile_struct()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.pack.unpack"><code class="docutils literal notranslate"><span class="pre">unpack()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="utils/#module-javatools.opcodes">javatools.opcodes</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="utils/#references">References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.opcodes.disassemble"><code class="docutils literal notranslate"><span class="pre">disassemble()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.opcodes.get_arg_format"><code class="docutils literal notranslate"><span class="pre">get_arg_format()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.opcodes.get_opcode_by_name"><code class="docutils literal notranslate"><span class="pre">get_opcode_by_name()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.opcodes.get_opname_by_code"><code class="docutils literal notranslate"><span class="pre">get_opname_by_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.opcodes.has_const_arg"><code class="docutils literal notranslate"><span class="pre">has_const_arg()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="utils/#module-javatools.manifest">javatools.manifest</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="utils/#id1">References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.manifest.MalformedManifest"><code class="docutils literal notranslate"><span class="pre">MalformedManifest</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.manifest.Manifest"><code class="docutils literal notranslate"><span class="pre">Manifest</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.Manifest.add_jar_entries"><code class="docutils literal notranslate"><span class="pre">Manifest.add_jar_entries()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.Manifest.clear"><code class="docutils literal notranslate"><span class="pre">Manifest.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.Manifest.create_section"><code class="docutils literal notranslate"><span class="pre">Manifest.create_section()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.Manifest.get_data"><code class="docutils literal notranslate"><span class="pre">Manifest.get_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.Manifest.get_main_section"><code class="docutils literal notranslate"><span class="pre">Manifest.get_main_section()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.Manifest.load_from_jar"><code class="docutils literal notranslate"><span class="pre">Manifest.load_from_jar()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.Manifest.parse"><code class="docutils literal notranslate"><span class="pre">Manifest.parse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.Manifest.parse_file"><code class="docutils literal notranslate"><span class="pre">Manifest.parse_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.Manifest.primary_key"><code class="docutils literal notranslate"><span class="pre">Manifest.primary_key</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.Manifest.store"><code class="docutils literal notranslate"><span class="pre">Manifest.store()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.Manifest.verify_jar_checksums"><code class="docutils literal notranslate"><span class="pre">Manifest.verify_jar_checksums()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="utils/#module-javatools.dirutils">javatools.dirutils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="utils/#module-javatools.ziputils">javatools.ziputils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.manifest.ManifestChange"><code class="docutils literal notranslate"><span class="pre">ManifestChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestChange.collect_impl"><code class="docutils literal notranslate"><span class="pre">ManifestChange.collect_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">ManifestChange.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestChange.label"><code class="docutils literal notranslate"><span class="pre">ManifestChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.manifest.ManifestKeyException"><code class="docutils literal notranslate"><span class="pre">ManifestKeyException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.manifest.ManifestSection"><code class="docutils literal notranslate"><span class="pre">ManifestSection</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestSection.get_data"><code class="docutils literal notranslate"><span class="pre">ManifestSection.get_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestSection.keys_with_suffix"><code class="docutils literal notranslate"><span class="pre">ManifestSection.keys_with_suffix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestSection.load"><code class="docutils literal notranslate"><span class="pre">ManifestSection.load()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestSection.primary"><code class="docutils literal notranslate"><span class="pre">ManifestSection.primary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestSection.primary_key"><code class="docutils literal notranslate"><span class="pre">ManifestSection.primary_key</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestSection.store"><code class="docutils literal notranslate"><span class="pre">ManifestSection.store()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.manifest.ManifestSectionAdded"><code class="docutils literal notranslate"><span class="pre">ManifestSectionAdded</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestSectionAdded.get_description"><code class="docutils literal notranslate"><span class="pre">ManifestSectionAdded.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestSectionAdded.is_ignored"><code class="docutils literal notranslate"><span class="pre">ManifestSectionAdded.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestSectionAdded.label"><code class="docutils literal notranslate"><span class="pre">ManifestSectionAdded.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.manifest.ManifestSectionChange"><code class="docutils literal notranslate"><span class="pre">ManifestSectionChange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestSectionChange.get_description"><code class="docutils literal notranslate"><span class="pre">ManifestSectionChange.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestSectionChange.is_ignored"><code class="docutils literal notranslate"><span class="pre">ManifestSectionChange.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestSectionChange.label"><code class="docutils literal notranslate"><span class="pre">ManifestSectionChange.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.manifest.ManifestSectionRemoved"><code class="docutils literal notranslate"><span class="pre">ManifestSectionRemoved</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestSectionRemoved.get_description"><code class="docutils literal notranslate"><span class="pre">ManifestSectionRemoved.get_description()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestSectionRemoved.is_ignored"><code class="docutils literal notranslate"><span class="pre">ManifestSectionRemoved.is_ignored()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.ManifestSectionRemoved.label"><code class="docutils literal notranslate"><span class="pre">ManifestSectionRemoved.label</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.manifest.SignatureManifest"><code class="docutils literal notranslate"><span class="pre">SignatureManifest</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.SignatureManifest.digest_manifest"><code class="docutils literal notranslate"><span class="pre">SignatureManifest.digest_manifest()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.SignatureManifest.get_signature"><code class="docutils literal notranslate"><span class="pre">SignatureManifest.get_signature()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.SignatureManifest.primary_key"><code class="docutils literal notranslate"><span class="pre">SignatureManifest.primary_key</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.SignatureManifest.verify_manifest"><code class="docutils literal notranslate"><span class="pre">SignatureManifest.verify_manifest()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.SignatureManifest.verify_manifest_entry_checksums"><code class="docutils literal notranslate"><span class="pre">SignatureManifest.verify_manifest_entry_checksums()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.SignatureManifest.verify_manifest_main_attributes_checksum"><code class="docutils literal notranslate"><span class="pre">SignatureManifest.verify_manifest_main_attributes_checksum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/#javatools.manifest.SignatureManifest.verify_manifest_main_checksum"><code class="docutils literal notranslate"><span class="pre">SignatureManifest.verify_manifest_main_checksum()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.manifest.cli_create"><code class="docutils literal notranslate"><span class="pre">cli_create()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.manifest.cli_query"><code class="docutils literal notranslate"><span class="pre">cli_query()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.manifest.cli_verify"><code class="docutils literal notranslate"><span class="pre">cli_verify()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.manifest.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="utils/#module-javatools.dirutils">javatools.dirutils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.dirutils.ClosingContext"><code class="docutils literal notranslate"><span class="pre">ClosingContext</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.dirutils.closing"><code class="docutils literal notranslate"><span class="pre">closing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.dirutils.collect_compare"><code class="docutils literal notranslate"><span class="pre">collect_compare()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.dirutils.collect_compare_into"><code class="docutils literal notranslate"><span class="pre">collect_compare_into()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.dirutils.compare"><code class="docutils literal notranslate"><span class="pre">compare()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.dirutils.copydir"><code class="docutils literal notranslate"><span class="pre">copydir()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.dirutils.fnmatches"><code class="docutils literal notranslate"><span class="pre">fnmatches()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.dirutils.makedirsp"><code class="docutils literal notranslate"><span class="pre">makedirsp()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="utils/#module-javatools.ziputils">javatools.ziputils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.ziputils.compare"><code class="docutils literal notranslate"><span class="pre">compare()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.ziputils.compare_zips"><code class="docutils literal notranslate"><span class="pre">compare_zips()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.ziputils.open_zip"><code class="docutils literal notranslate"><span class="pre">open_zip()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.ziputils.open_zip_entry"><code class="docutils literal notranslate"><span class="pre">open_zip_entry()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.ziputils.zip_entry_rollup"><code class="docutils literal notranslate"><span class="pre">zip_entry_rollup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/#javatools.ziputils.zip_file"><code class="docutils literal notranslate"><span class="pre">zip_file()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 </div>
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h4>Next topic</h4>
-  <p class="topless"><a href="overview/"
-                        title="next chapter">Overview of python-javatools</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/index.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="overview/"
+                          title="next chapter">Overview of python-javatools</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search/" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -150,18 +1029,16 @@
           <a href="py-modindex/" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="np-modindex/" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="overview/" title="Overview of python-javatools"
              >next</a> |</li>
-        <li><a href="#">javatools 1.4.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">python-javatools 1.6.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">python-javatools</a></li> 
       </ul>
     </div>
 
-    <div class="footer">
-        &copy; Copyright 2014, Christopher O&#39;Brien.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2023, Christopher O&#39;Brien.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");

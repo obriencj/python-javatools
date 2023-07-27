@@ -1,34 +1,25 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="English">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Reporting Changes &#8212; python-javatools 1.6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <title>Reporting Changes &mdash; javatools 1.4.0 documentation</title>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.4.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="javatools 1.4.0 documentation" href="../" />
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
     <link rel="next" title="Utility Modules" href="../utils/" />
     <link rel="prev" title="Comparing Java Artifacts" href="../change/" /> 
-  </head>
-  <body>
-    <div class="related">
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -38,214 +29,58 @@
           <a href="../py-modindex/" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../np-modindex/" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="../utils/" title="Utility Modules"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="../change/" title="Comparing Java Artifacts"
              accesskey="P">previous</a> |</li>
-        <li><a href="../">javatools 1.4.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../">python-javatools 1.6.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Reporting Changes</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
-  <div class="section" id="reporting-changes">
-<h1>Reporting Changes<a class="headerlink" href="#reporting-changes" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-javatools.report">
-<span id="javatools-report"></span><h2>javatools.report<a class="headerlink" href="#module-javatools.report" title="Permalink to this headline">¶</a></h2>
+  <section id="reporting-changes">
+<h1>Reporting Changes<a class="headerlink" href="#reporting-changes" title="Permalink to this heading">¶</a></h1>
+<section id="module-javatools.report">
+<span id="javatools-report"></span><h2>javatools.report<a class="headerlink" href="#module-javatools.report" title="Permalink to this heading">¶</a></h2>
 <p>Classes for representing changes as formatted text.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body">Christopher O&#8217;Brien  &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</td>
-</tr>
-<tr class="field-even field"><th class="field-name">license:</th><td class="field-body">LGPL</td>
-</tr>
-</tbody>
-</table>
-<dl class="class">
-<dt id="javatools.report.Reporter">
-<em class="property">class </em><tt class="descclassname">javatools.report.</tt><tt class="descname">Reporter</tt><big>(</big><em>basedir</em>, <em>entry</em>, <em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#Reporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.Reporter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Collects multiple report formats for use in presenting a change</p>
-<dl class="method">
-<dt id="javatools.report.Reporter.add_formats_by_name">
-<tt class="descname">add_formats_by_name</tt><big>(</big><em>rfmt_list</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#Reporter.add_formats_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.Reporter.add_formats_by_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>adds formats by short label descriptors, such as &#8216;txt&#8217;, &#8216;json&#8217;, or
-&#8216;html&#8217;</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.report.Reporter.add_report_format">
-<tt class="descname">add_report_format</tt><big>(</big><em>report_format</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#Reporter.add_report_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.Reporter.add_report_format" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add an output format to this reporter. report_format should be a
-ReportFormat subtype. It will be instantiated when the
-reporter is run.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.report.Reporter.clear">
-<tt class="descname">clear</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/report/#Reporter.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.Reporter.clear" title="Permalink to this definition">¶</a></dt>
-<dd><p>calls clear on any report format instances created during setup
-and drops the cache</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.report.Reporter.get_relative_breadcrumbs">
-<tt class="descname">get_relative_breadcrumbs</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/report/#Reporter.get_relative_breadcrumbs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.Reporter.get_relative_breadcrumbs" title="Permalink to this definition">¶</a></dt>
-<dd><p>get the breadcrumbs as relative to the basedir</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.report.Reporter.run">
-<tt class="descname">run</tt><big>(</big><em>change</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#Reporter.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.Reporter.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>runs the report format instances in this reporter. Will call setup
-if it hasn&#8217;t been called already</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.report.Reporter.setup">
-<tt class="descname">setup</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/report/#Reporter.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.Reporter.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>instantiates all report formats that have been added to this
-reporter, and calls their setup methods.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.report.Reporter.subreporter">
-<tt class="descname">subreporter</tt><big>(</big><em>subpath</em>, <em>entry</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#Reporter.subreporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.Reporter.subreporter" title="Permalink to this definition">¶</a></dt>
-<dd><p>create a reporter for a sub-report, with updated breadcrumbs and
-the same output formats</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="javatools.report.ReportFormat">
-<em class="property">class </em><tt class="descclassname">javatools.report.</tt><tt class="descname">ReportFormat</tt><big>(</big><em>basedir</em>, <em>options</em>, <em>breadcrumbs=()</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#ReportFormat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.ReportFormat" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Base class of a report format provider. Override to describe a
-concrete format type</p>
-<dl class="method">
-<dt id="javatools.report.ReportFormat.clear">
-<tt class="descname">clear</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/report/#ReportFormat.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.ReportFormat.clear" title="Permalink to this definition">¶</a></dt>
-<dd><p>clear up the internal references of this format. Called by the
-parent reporter at the end of run</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="javatools.report.ReportFormat.extension">
-<tt class="descname">extension</tt><em class="property"> = '.report'</em><a class="headerlink" href="#javatools.report.ReportFormat.extension" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="javatools.report.ReportFormat.run">
-<tt class="descname">run</tt><big>(</big><em>change</em>, <em>entry</em>, <em>out=None</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#ReportFormat.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.ReportFormat.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>setup for run, including creating an output file if needed. Calls
-run_impl when ready. If out and entry are both None,
-sys.stdout is used</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.report.ReportFormat.run_impl">
-<tt class="descname">run_impl</tt><big>(</big><em>change</em>, <em>entry</em>, <em>out</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#ReportFormat.run_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.ReportFormat.run_impl" title="Permalink to this definition">¶</a></dt>
-<dd><p>override to actually produce output</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="javatools.report.ReportFormat.setup">
-<tt class="descname">setup</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/report/#ReportFormat.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.ReportFormat.setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>override if the report format has behavior which can be done ahead
-of time, such as copying files or creating directories</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="function">
-<dt id="javatools.report.quick_report">
-<tt class="descclassname">javatools.report.</tt><tt class="descname">quick_report</tt><big>(</big><em>report_type</em>, <em>change</em>, <em>options</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#quick_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.quick_report" title="Permalink to this definition">¶</a></dt>
-<dd><p>writes a change report via report_type to options.output or
-sys.stdout</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="javatools.report.general_report_optgroup">
-<tt class="descclassname">javatools.report.</tt><tt class="descname">general_report_optgroup</tt><big>(</big><em>parser</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#general_report_optgroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.general_report_optgroup" title="Permalink to this definition">¶</a></dt>
-<dd><p>General Reporting Options</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="javatools.report.JSONReportFormat">
-<em class="property">class </em><tt class="descclassname">javatools.report.</tt><tt class="descname">JSONReportFormat</tt><big>(</big><em>basedir</em>, <em>options</em>, <em>breadcrumbs=()</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#JSONReportFormat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.JSONReportFormat" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#javatools.report.ReportFormat" title="javatools.report.ReportFormat"><tt class="xref py py-class docutils literal"><span class="pre">javatools.report.ReportFormat</span></tt></a></p>
-<p>renders a Change and all of its children to a JSON object. Can use
-options from the jon_report_optgroup option group</p>
-<dl class="attribute">
-<dt id="javatools.report.JSONReportFormat.extension">
-<tt class="descname">extension</tt><em class="property"> = '.json'</em><a class="headerlink" href="#javatools.report.JSONReportFormat.extension" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="javatools.report.JSONReportFormat.run_impl">
-<tt class="descname">run_impl</tt><big>(</big><em>change</em>, <em>entry</em>, <em>out</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#JSONReportFormat.run_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.JSONReportFormat.run_impl" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="function">
-<dt id="javatools.report.json_report_optgroup">
-<tt class="descclassname">javatools.report.</tt><tt class="descname">json_report_optgroup</tt><big>(</big><em>parser</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#json_report_optgroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.json_report_optgroup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Option group for the JON report format</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="javatools.report.TextReportFormat">
-<em class="property">class </em><tt class="descclassname">javatools.report.</tt><tt class="descname">TextReportFormat</tt><big>(</big><em>basedir</em>, <em>options</em>, <em>breadcrumbs=()</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#TextReportFormat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.TextReportFormat" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#javatools.report.ReportFormat" title="javatools.report.ReportFormat"><tt class="xref py py-class docutils literal"><span class="pre">javatools.report.ReportFormat</span></tt></a></p>
-<p>Renders the change as indented text</p>
-<dl class="attribute">
-<dt id="javatools.report.TextReportFormat.extension">
-<tt class="descname">extension</tt><em class="property"> = '.text'</em><a class="headerlink" href="#javatools.report.TextReportFormat.extension" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="javatools.report.TextReportFormat.run_impl">
-<tt class="descname">run_impl</tt><big>(</big><em>change</em>, <em>entry</em>, <em>out</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#TextReportFormat.run_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.TextReportFormat.run_impl" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="javatools.report.CheetahReportFormat">
-<em class="property">class </em><tt class="descclassname">javatools.report.</tt><tt class="descname">CheetahReportFormat</tt><big>(</big><em>basedir</em>, <em>options</em>, <em>breadcrumbs=()</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#CheetahReportFormat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.CheetahReportFormat" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#javatools.report.ReportFormat" title="javatools.report.ReportFormat"><tt class="xref py py-class docutils literal"><span class="pre">javatools.report.ReportFormat</span></tt></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">author<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Christopher O'Brien  &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</p>
+</dd>
+<dt class="field-even">license<span class="colon">:</span></dt>
+<dd class="field-even"><p>LGPL</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.report.CheetahReportFormat">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.report.</span></span><span class="sig-name descname"><span class="pre">CheetahReportFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basedir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">breadcrumbs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#CheetahReportFormat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.CheetahReportFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.report.ReportFormat" title="javatools.report.ReportFormat"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReportFormat</span></code></a></p>
 <p>HTML output for a Change</p>
-<dl class="attribute">
-<dt id="javatools.report.CheetahReportFormat.extension">
-<tt class="descname">extension</tt><em class="property"> = '.html'</em><a class="headerlink" href="#javatools.report.CheetahReportFormat.extension" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="javatools.report.CheetahReportFormat.extension">
+<span class="sig-name descname"><span class="pre">extension</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'.html'</span></em><a class="headerlink" href="#javatools.report.CheetahReportFormat.extension" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="javatools.report.CheetahReportFormat.run_impl">
-<tt class="descname">run_impl</tt><big>(</big><em>change</em>, <em>entry</em>, <em>out</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#CheetahReportFormat.run_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.CheetahReportFormat.run_impl" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.report.CheetahReportFormat.run_impl">
+<span class="sig-name descname"><span class="pre">run_impl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#CheetahReportFormat.run_impl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.CheetahReportFormat.run_impl" title="Permalink to this definition">¶</a></dt>
 <dd><p>sets up the report directory for an HTML report. Obtains the
 top-level Cheetah template that is appropriate for the change
 instance, and runs it.</p>
-<dl class="docutils">
-<dt>The cheetah templates are supplied the following values:</dt>
-<dd><ul class="first last simple">
-<li>change - the Change instance to report on</li>
-<li>entry - the string name of the entry for this report</li>
-<li>options - the cli options object</li>
-<li>breadcrumbs - list of backlinks</li>
-<li>javascripts - list of .js links</li>
-<li>stylesheets - list of .css links</li>
+<dl class="simple">
+<dt>The cheetah templates are supplied the following values:</dt><dd><ul class="simple">
+<li><p>change - the Change instance to report on</p></li>
+<li><p>entry - the string name of the entry for this report</p></li>
+<li><p>options - the cli options object</p></li>
+<li><p>breadcrumbs - list of backlinks</p></li>
+<li><p>javascripts - list of .js links</p></li>
+<li><p>stylesheets - list of .css links</p></li>
 </ul>
 </dd>
 </dl>
@@ -254,86 +89,289 @@ which can be called on another Change instance to cause its
 template to be resolved and run in-line.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="javatools.report.CheetahReportFormat.setup">
-<tt class="descname">setup</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/report/#CheetahReportFormat.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.CheetahReportFormat.setup" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.report.CheetahReportFormat.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#CheetahReportFormat.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.CheetahReportFormat.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>copies default stylesheets and javascript files if necessary, and
 appends them to the options</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.report.html_report_optgroup">
-<tt class="descclassname">javatools.report.</tt><tt class="descname">html_report_optgroup</tt><big>(</big><em>parser</em><big>)</big><a class="reference internal" href="../_modules/javatools/report/#html_report_optgroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.report.html_report_optgroup" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.report.JSONReportFormat">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.report.</span></span><span class="sig-name descname"><span class="pre">JSONReportFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basedir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">breadcrumbs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#JSONReportFormat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.JSONReportFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.report.ReportFormat" title="javatools.report.ReportFormat"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReportFormat</span></code></a></p>
+<p>renders a Change and all of its children to a JSON object. Can use
+options from the jon_report_optgroup option group</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="javatools.report.JSONReportFormat.extension">
+<span class="sig-name descname"><span class="pre">extension</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'.json'</span></em><a class="headerlink" href="#javatools.report.JSONReportFormat.extension" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.report.JSONReportFormat.run_impl">
+<span class="sig-name descname"><span class="pre">run_impl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#JSONReportFormat.run_impl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.JSONReportFormat.run_impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>override to actually produce output</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.report.ReportFormat">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.report.</span></span><span class="sig-name descname"><span class="pre">ReportFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basedir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">breadcrumbs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#ReportFormat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.ReportFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Base class of a report format provider. Override to describe a
+concrete format type</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.report.ReportFormat.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#ReportFormat.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.ReportFormat.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>clear up the internal references of this format. Called by the
+parent reporter at the end of run</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="javatools.report.ReportFormat.extension">
+<span class="sig-name descname"><span class="pre">extension</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'.report'</span></em><a class="headerlink" href="#javatools.report.ReportFormat.extension" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.report.ReportFormat.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#ReportFormat.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.ReportFormat.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>setup for run, including creating an output file if needed. Calls
+run_impl when ready. If out and entry are both None,
+sys.stdout is used</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.report.ReportFormat.run_impl">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_impl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#ReportFormat.run_impl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.ReportFormat.run_impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>override to actually produce output</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.report.ReportFormat.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#ReportFormat.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.ReportFormat.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>override if the report format has behavior which can be done ahead
+of time, such as copying files or creating directories</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.report.Reporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.report.</span></span><span class="sig-name descname"><span class="pre">Reporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basedir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#Reporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.Reporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Collects multiple report formats for use in presenting a change</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.report.Reporter.add_formats_by_name">
+<span class="sig-name descname"><span class="pre">add_formats_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rfmt_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#Reporter.add_formats_by_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.Reporter.add_formats_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>adds formats by short label descriptors, such as 'txt', 'json', or
+'html'</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.report.Reporter.add_report_format">
+<span class="sig-name descname"><span class="pre">add_report_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report_format</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#Reporter.add_report_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.Reporter.add_report_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an output format to this reporter. report_format should be a
+ReportFormat subtype. It will be instantiated when the
+reporter is run.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.report.Reporter.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#Reporter.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.Reporter.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>calls clear on any report format instances created during setup
+and drops the cache</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.report.Reporter.get_relative_breadcrumbs">
+<span class="sig-name descname"><span class="pre">get_relative_breadcrumbs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#Reporter.get_relative_breadcrumbs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.Reporter.get_relative_breadcrumbs" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the breadcrumbs as relative to the basedir</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.report.Reporter.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#Reporter.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.Reporter.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>runs the report format instances in this reporter. Will call setup
+if it hasn't been called already</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.report.Reporter.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#Reporter.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.Reporter.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>instantiates all report formats that have been added to this
+reporter, and calls their setup methods.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.report.Reporter.subreporter">
+<span class="sig-name descname"><span class="pre">subreporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#Reporter.subreporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.Reporter.subreporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>create a reporter for a sub-report, with updated breadcrumbs and
+the same output formats</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="javatools.report.TextReportFormat">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">javatools.report.</span></span><span class="sig-name descname"><span class="pre">TextReportFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basedir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">breadcrumbs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#TextReportFormat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.TextReportFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#javatools.report.ReportFormat" title="javatools.report.ReportFormat"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReportFormat</span></code></a></p>
+<p>Renders the change as indented text</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="javatools.report.TextReportFormat.extension">
+<span class="sig-name descname"><span class="pre">extension</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'.text'</span></em><a class="headerlink" href="#javatools.report.TextReportFormat.extension" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="javatools.report.TextReportFormat.run_impl">
+<span class="sig-name descname"><span class="pre">run_impl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#TextReportFormat.run_impl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.TextReportFormat.run_impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>override to actually produce output</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.report.add_general_report_optgroup">
+<span class="sig-prename descclassname"><span class="pre">javatools.report.</span></span><span class="sig-name descname"><span class="pre">add_general_report_optgroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#add_general_report_optgroup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.add_general_report_optgroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>General Reporting Options</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.report.add_html_report_optgroup">
+<span class="sig-prename descclassname"><span class="pre">javatools.report.</span></span><span class="sig-name descname"><span class="pre">add_html_report_optgroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#add_html_report_optgroup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.add_html_report_optgroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Option group for the HTML report format</p>
 </dd></dl>
 
-</div>
-<div class="section" id="module-javatools.cheetah">
-<span id="javatools-cheetah"></span><h2>javatools.cheetah<a class="headerlink" href="#module-javatools.cheetah" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.report.add_json_report_optgroup">
+<span class="sig-prename descclassname"><span class="pre">javatools.report.</span></span><span class="sig-name descname"><span class="pre">add_json_report_optgroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#add_json_report_optgroup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.add_json_report_optgroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Option group for the JSON report format</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.report.quick_report">
+<span class="sig-prename descclassname"><span class="pre">javatools.report.</span></span><span class="sig-name descname"><span class="pre">quick_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/report/#quick_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.report.quick_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>writes a change report via report_type to options.output or
+sys.stdout</p>
+</dd></dl>
+
+</section>
+<section id="module-javatools.cheetah">
+<span id="javatools-cheetah"></span><h2>javatools.cheetah<a class="headerlink" href="#module-javatools.cheetah" title="Permalink to this heading">¶</a></h2>
 <p>Collects available Cheetah templates for use with the HTML report</p>
-<p>author: Christopher O&#8217;Brien &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;
+<p>author: Christopher O'Brien &lt;<a class="reference external" href="mailto:obriencj&#37;&#52;&#48;gmail&#46;com">obriencj<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;
 license: LGPL</p>
-<dl class="function">
-<dt id="javatools.cheetah.get_templates">
-<tt class="descclassname">javatools.cheetah.</tt><tt class="descname">get_templates</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/javatools/cheetah/#get_templates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.cheetah.get_templates" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.cheetah.get_templates">
+<span class="sig-prename descclassname"><span class="pre">javatools.cheetah.</span></span><span class="sig-name descname"><span class="pre">get_templates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/cheetah/#get_templates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.cheetah.get_templates" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Cheetah Template classes contained within this module</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="javatools.cheetah.xml_entity_escape">
-<tt class="descclassname">javatools.cheetah.</tt><tt class="descname">xml_entity_escape</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/javatools/cheetah/#xml_entity_escape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#javatools.cheetah.xml_entity_escape" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="javatools.cheetah.xml_entity_escape">
+<span class="sig-prename descclassname"><span class="pre">javatools.cheetah.</span></span><span class="sig-name descname"><span class="pre">xml_entity_escape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/javatools/cheetah/#xml_entity_escape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#javatools.cheetah.xml_entity_escape" title="Permalink to this definition">¶</a></dt>
 <dd><p>replace special characters with their XML entity versions</p>
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../">Table Of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="../">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Reporting Changes</a><ul>
-<li><a class="reference internal" href="#module-javatools.report">javatools.report</a></li>
-<li><a class="reference internal" href="#module-javatools.cheetah">javatools.cheetah</a></li>
+<li><a class="reference internal" href="#module-javatools.report">javatools.report</a><ul>
+<li><a class="reference internal" href="#javatools.report.CheetahReportFormat"><code class="docutils literal notranslate"><span class="pre">CheetahReportFormat</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.report.CheetahReportFormat.extension"><code class="docutils literal notranslate"><span class="pre">CheetahReportFormat.extension</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.CheetahReportFormat.run_impl"><code class="docutils literal notranslate"><span class="pre">CheetahReportFormat.run_impl()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.CheetahReportFormat.setup"><code class="docutils literal notranslate"><span class="pre">CheetahReportFormat.setup()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#javatools.report.JSONReportFormat"><code class="docutils literal notranslate"><span class="pre">JSONReportFormat</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.report.JSONReportFormat.extension"><code class="docutils literal notranslate"><span class="pre">JSONReportFormat.extension</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.JSONReportFormat.run_impl"><code class="docutils literal notranslate"><span class="pre">JSONReportFormat.run_impl()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#javatools.report.ReportFormat"><code class="docutils literal notranslate"><span class="pre">ReportFormat</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.report.ReportFormat.clear"><code class="docutils literal notranslate"><span class="pre">ReportFormat.clear()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.ReportFormat.extension"><code class="docutils literal notranslate"><span class="pre">ReportFormat.extension</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.ReportFormat.run"><code class="docutils literal notranslate"><span class="pre">ReportFormat.run()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.ReportFormat.run_impl"><code class="docutils literal notranslate"><span class="pre">ReportFormat.run_impl()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.ReportFormat.setup"><code class="docutils literal notranslate"><span class="pre">ReportFormat.setup()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#javatools.report.Reporter"><code class="docutils literal notranslate"><span class="pre">Reporter</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.report.Reporter.add_formats_by_name"><code class="docutils literal notranslate"><span class="pre">Reporter.add_formats_by_name()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.Reporter.add_report_format"><code class="docutils literal notranslate"><span class="pre">Reporter.add_report_format()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.Reporter.clear"><code class="docutils literal notranslate"><span class="pre">Reporter.clear()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.Reporter.get_relative_breadcrumbs"><code class="docutils literal notranslate"><span class="pre">Reporter.get_relative_breadcrumbs()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.Reporter.run"><code class="docutils literal notranslate"><span class="pre">Reporter.run()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.Reporter.setup"><code class="docutils literal notranslate"><span class="pre">Reporter.setup()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.Reporter.subreporter"><code class="docutils literal notranslate"><span class="pre">Reporter.subreporter()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#javatools.report.TextReportFormat"><code class="docutils literal notranslate"><span class="pre">TextReportFormat</span></code></a><ul>
+<li><a class="reference internal" href="#javatools.report.TextReportFormat.extension"><code class="docutils literal notranslate"><span class="pre">TextReportFormat.extension</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.TextReportFormat.run_impl"><code class="docutils literal notranslate"><span class="pre">TextReportFormat.run_impl()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#javatools.report.add_general_report_optgroup"><code class="docutils literal notranslate"><span class="pre">add_general_report_optgroup()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.add_html_report_optgroup"><code class="docutils literal notranslate"><span class="pre">add_html_report_optgroup()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.add_json_report_optgroup"><code class="docutils literal notranslate"><span class="pre">add_json_report_optgroup()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.report.quick_report"><code class="docutils literal notranslate"><span class="pre">quick_report()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-javatools.cheetah">javatools.cheetah</a><ul>
+<li><a class="reference internal" href="#javatools.cheetah.get_templates"><code class="docutils literal notranslate"><span class="pre">get_templates()</span></code></a></li>
+<li><a class="reference internal" href="#javatools.cheetah.xml_entity_escape"><code class="docutils literal notranslate"><span class="pre">xml_entity_escape()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../change/"
-                        title="previous chapter">Comparing Java Artifacts</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="../utils/"
-                        title="next chapter">Utility Modules</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/report.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="../change/"
+                          title="previous chapter">Comparing Java Artifacts</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="../utils/"
+                          title="next chapter">Utility Modules</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/report.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search/" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -343,21 +381,19 @@ license: LGPL</p>
           <a href="../py-modindex/" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../np-modindex/" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="../utils/" title="Utility Modules"
              >next</a> |</li>
         <li class="right" >
           <a href="../change/" title="Comparing Java Artifacts"
              >previous</a> |</li>
-        <li><a href="../">javatools 1.4.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../">python-javatools 1.6.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Reporting Changes</a></li> 
       </ul>
     </div>
 
-    <div class="footer">
-        &copy; Copyright 2014, Christopher O&#39;Brien.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2023, Christopher O&#39;Brien.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");

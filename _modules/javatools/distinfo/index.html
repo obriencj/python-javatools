@@ -1,33 +1,22 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="English">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>javatools.distinfo &#8212; python-javatools 1.6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/classic.css" />
     
-    <title>javatools.distinfo &mdash; javatools 1.4.0 documentation</title>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     
-    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '1.4.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="top" title="javatools 1.4.0 documentation" href="../../../" />
-    <link rel="up" title="javatools" href="../" /> 
-  </head>
-  <body>
-    <div class="related">
+    <link rel="index" title="Index" href="../../../genindex/" />
+    <link rel="search" title="Search" href="../../../search/" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -36,34 +25,32 @@
         <li class="right" >
           <a href="../../../py-modindex/" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="../../../np-modindex/" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../../">javatools 1.4.0 documentation</a> &raquo;</li>
-          <li><a href="../../" >Module code</a> &raquo;</li>
-          <li><a href="../" accesskey="U">javatools</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../../">python-javatools 1.6.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../" accesskey="U">javatools</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">javatools.distinfo</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <h1>Source code for javatools.distinfo</h1><div class="highlight"><pre>
-<span class="c"># This library is free software; you can redistribute it and/or modify</span>
-<span class="c"># it under the terms of the GNU Lesser General Public License as</span>
-<span class="c"># published by the Free Software Foundation; either version 3 of the</span>
-<span class="c"># License, or (at your option) any later version.</span>
-<span class="c">#</span>
-<span class="c"># This library is distributed in the hope that it will be useful, but</span>
-<span class="c"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
-<span class="c"># Lesser General Public License for more details.</span>
-<span class="c">#</span>
-<span class="c"># You should have received a copy of the GNU Lesser General Public</span>
-<span class="c"># License along with this library; if not, see</span>
-<span class="c"># &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span></span><span class="c1"># This library is free software; you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Lesser General Public License as</span>
+<span class="c1"># published by the Free Software Foundation; either version 3 of the</span>
+<span class="c1"># License, or (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This library is distributed in the hope that it will be useful, but</span>
+<span class="c1"># WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1"># Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1"># License along with this library; if not, see</span>
+<span class="c1"># &lt;http://www.gnu.org/licenses/&gt;.</span>
 
 
 
@@ -76,45 +63,53 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-
-<span class="n">DIST_JAR</span> <span class="o">=</span> <span class="s">&quot;jar&quot;</span>
-<span class="n">DIST_CLASS</span> <span class="o">=</span> <span class="s">&quot;class&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
 
+<span class="kn">import</span> <span class="nn">sys</span>
 
-<span class="kn">from</span> <span class="nn">.jarinfo</span> <span class="kn">import</span> <span class="n">REQ_BY_CLASS</span><span class="p">,</span> <span class="n">PROV_BY_CLASS</span>
-<span class="n">REQ_BY_JAR</span> <span class="o">=</span> <span class="s">&quot;jar.requires&quot;</span>
-<span class="n">PROV_BY_JAR</span> <span class="o">=</span> <span class="s">&quot;jar.provides&quot;</span>
+<span class="kn">from</span> <span class="nn">json</span> <span class="kn">import</span> <span class="n">dump</span>
+<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">ArgumentParser</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">join</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">rmtree</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">mkdtemp</span>
 
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">unpack_classfile</span>
+<span class="kn">from</span> <span class="nn">.jarinfo</span> <span class="kn">import</span> <span class="n">JarInfo</span><span class="p">,</span> <span class="n">JAR_PATTERNS</span><span class="p">,</span> <span class="n">REQ_BY_CLASS</span><span class="p">,</span> <span class="n">PROV_BY_CLASS</span>
+<span class="kn">from</span> <span class="nn">.dirutils</span> <span class="kn">import</span> <span class="n">fnmatches</span>
+<span class="kn">from</span> <span class="nn">.ziputils</span> <span class="kn">import</span> <span class="n">open_zip</span>
+
+
+<span class="n">DIST_JAR</span> <span class="o">=</span> <span class="s2">&quot;jar&quot;</span>
+<span class="n">DIST_CLASS</span> <span class="o">=</span> <span class="s2">&quot;class&quot;</span>
+
+<span class="n">REQ_BY_JAR</span> <span class="o">=</span> <span class="s2">&quot;jar.requires&quot;</span>
+<span class="n">PROV_BY_JAR</span> <span class="o">=</span> <span class="s2">&quot;jar.provides&quot;</span>
 
 
 <div class="viewcode-block" id="DistInfo"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.DistInfo">[docs]</a><span class="k">class</span> <span class="nc">DistInfo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_path</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_path</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_path</span> <span class="o">=</span> <span class="n">base_path</span>
 
-        <span class="c"># a pair of strings useful for later reporting. Non-mandatory</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">product</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="c1"># a pair of strings useful for later reporting. Non-mandatory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">product</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="c"># if the dist is a zip, we&#39;ll explode it into tmpdir</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="c1"># if the dist is a zip, we&#39;ll explode it into tmpdir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_requires</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_provides</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_requires</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_provides</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 
     <span class="k">def</span> <span class="nf">_working_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isdir</span>
-        <span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">mkdtemp</span>
-        <span class="kn">from</span> <span class="nn">.ziputils</span> <span class="kn">import</span> <span class="n">open_zip</span>
-
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span>
 
@@ -123,7 +118,7 @@
 
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="n">mkdtemp</span><span class="p">()</span>
-            <span class="k">with</span> <span class="n">open_zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_path</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">open_zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">:</span>
                 <span class="n">zf</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span>
 
@@ -136,121 +131,103 @@
 
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_jars</span><span class="p">():</span>
             <span class="n">ji</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_jarinfo</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">sym</span><span class="p">,</span><span class="n">data</span> <span class="ow">in</span> <span class="n">ji</span><span class="o">.</span><span class="n">get_requires</span><span class="p">()</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-                <span class="n">req</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="nb">list</span><span class="p">())</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">REQ_BY_JAR</span><span class="p">,</span><span class="n">entry</span><span class="p">,</span><span class="n">data</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">sym</span><span class="p">,</span><span class="n">data</span> <span class="ow">in</span> <span class="n">ji</span><span class="o">.</span><span class="n">get_provides</span><span class="p">()</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-                <span class="n">prov</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="nb">list</span><span class="p">())</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">PROV_BY_JAR</span><span class="p">,</span><span class="n">entry</span><span class="p">,</span><span class="n">data</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">sym</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">ji</span><span class="o">.</span><span class="n">get_requires</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">req</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">REQ_BY_JAR</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">sym</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">ji</span><span class="o">.</span><span class="n">get_provides</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">prov</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">PROV_BY_JAR</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
                 <span class="n">p</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span>
             <span class="n">ji</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_classes</span><span class="p">():</span>
             <span class="n">ci</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_classinfo</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_requires</span><span class="p">():</span>
-                <span class="n">req</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="nb">list</span><span class="p">())</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">REQ_BY_CLASS</span><span class="p">,</span><span class="n">entry</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_provides</span><span class="p">(</span><span class="n">private</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-                <span class="n">prov</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="nb">list</span><span class="p">())</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">PROV_BY_CLASS</span><span class="p">,</span><span class="n">entry</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_provides</span><span class="p">(</span><span class="n">private</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+                <span class="n">req</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">REQ_BY_CLASS</span><span class="p">,</span> <span class="n">entry</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_provides</span><span class="p">(</span><span class="n">private</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                <span class="n">prov</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">PROV_BY_CLASS</span><span class="p">,</span> <span class="n">entry</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_provides</span><span class="p">(</span><span class="n">private</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
                 <span class="n">p</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span>
 
-        <span class="n">req</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">req</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">req</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">p</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_requires</span> <span class="o">=</span> <span class="n">req</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_provides</span> <span class="o">=</span> <span class="n">prov</span>
 
 
 <div class="viewcode-block" id="DistInfo.get_requires"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.DistInfo.get_requires">[docs]</a>    <span class="k">def</span> <span class="nf">get_requires</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ignored</span><span class="o">=</span><span class="nb">tuple</span><span class="p">()):</span>
-        <span class="sd">&quot;&quot;&quot; a map of requirements to what requires it. ignored is an</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; a map of requirements to what requires it. ignored is an</span>
 <span class="sd">        optional list of globbed patterns indicating packages,</span>
 <span class="sd">        classes, etc that shouldn&#39;t be included in the provides map&quot;&quot;&quot;</span>
 
-        <span class="kn">from</span> <span class="nn">.dirutils</span> <span class="kn">import</span> <span class="n">fnmatches</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_requires</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_requires</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_collect_requires_provides</span><span class="p">()</span>
 
         <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_requires</span>
         <span class="k">if</span> <span class="n">ignored</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                      <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="o">*</span><span class="n">ignored</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">d</span>
+        <span class="k">return</span> <span class="n">d</span></div>
 
-</div>
+
 <div class="viewcode-block" id="DistInfo.get_provides"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.DistInfo.get_provides">[docs]</a>    <span class="k">def</span> <span class="nf">get_provides</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ignored</span><span class="o">=</span><span class="nb">tuple</span><span class="p">()):</span>
-        <span class="sd">&quot;&quot;&quot; a map of provided classes and class members, and what</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; a map of provided classes and class members, and what</span>
 <span class="sd">        provides them. ignored is an optional list of globbed patterns</span>
 <span class="sd">        indicating packages, classes, etc that shouldn&#39;t be included</span>
 <span class="sd">        in the provides map&quot;&quot;&quot;</span>
 
-        <span class="kn">from</span> <span class="nn">.dirutils</span> <span class="kn">import</span> <span class="n">fnmatches</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_provides</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_provides</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_collect_requires_provides</span><span class="p">()</span>
 
         <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_provides</span>
         <span class="k">if</span> <span class="n">ignored</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                      <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="o">*</span><span class="n">ignored</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">d</span>
+        <span class="k">return</span> <span class="n">d</span></div>
 
-</div>
+
 <div class="viewcode-block" id="DistInfo.get_jars"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.DistInfo.get_jars">[docs]</a>    <span class="k">def</span> <span class="nf">get_jars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; sequence of entry names found in this distribution &quot;&quot;&quot;</span>
-
-        <span class="kn">from</span> <span class="nn">.jarinfo</span> <span class="kn">import</span> <span class="n">JAR_PATTERNS</span>
-        <span class="kn">from</span> <span class="nn">.dirutils</span> <span class="kn">import</span> <span class="n">fnmatches</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; sequence of entry names found in this distribution &quot;&quot;&quot;</span>
 
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_contents</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="o">*</span><span class="n">JAR_PATTERNS</span><span class="p">):</span>
-                <span class="k">yield</span> <span class="n">entry</span>
+                <span class="k">yield</span> <span class="n">entry</span></div>
 
-</div>
+
 <div class="viewcode-block" id="DistInfo.get_jarinfo"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.DistInfo.get_jarinfo">[docs]</a>    <span class="k">def</span> <span class="nf">get_jarinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">.jarinfo</span> <span class="kn">import</span> <span class="n">JarInfo</span>
-        <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
+        <span class="k">return</span> <span class="n">JarInfo</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_path</span><span class="p">,</span> <span class="n">entry</span><span class="p">))</span></div>
 
-        <span class="k">return</span> <span class="n">JarInfo</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_path</span><span class="p">,</span><span class="n">entry</span><span class="p">))</span>
 
-</div>
 <div class="viewcode-block" id="DistInfo.get_classes"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.DistInfo.get_classes">[docs]</a>    <span class="k">def</span> <span class="nf">get_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; sequence of entry names found in the distribution.  This</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; sequence of entry names found in the distribution.  This</span>
 <span class="sd">        is only the collection of class files directly in the dist, it</span>
 <span class="sd">        does not include classes within JARs that are inthe dist.&quot;&quot;&quot;</span>
 
-        <span class="kn">from</span> <span class="nn">.dirutils</span> <span class="kn">import</span> <span class="n">fnmatches</span>
-
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_contents</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s">&quot;*.class&quot;</span><span class="p">):</span>
-                <span class="k">yield</span> <span class="n">entry</span>
+            <span class="k">if</span> <span class="n">fnmatches</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s2">&quot;*.class&quot;</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">entry</span></div>
 
-</div>
+
 <div class="viewcode-block" id="DistInfo.get_classinfo"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.DistInfo.get_classinfo">[docs]</a>    <span class="k">def</span> <span class="nf">get_classinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">javatools</span> <span class="kn">import</span> <span class="n">unpack_classfile</span>
-        <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
+        <span class="k">return</span> <span class="n">unpack_classfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_path</span><span class="p">,</span> <span class="n">entry</span><span class="p">))</span></div>
 
-        <span class="k">return</span> <span class="n">unpack_classfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_path</span><span class="p">,</span><span class="n">entry</span><span class="p">))</span>
 
-</div>
 <div class="viewcode-block" id="DistInfo.get_contents"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.DistInfo.get_contents">[docs]</a>    <span class="k">def</span> <span class="nf">get_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_collect_dist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_working_path</span><span class="p">()))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span></div>
 
-</div>
+
 <div class="viewcode-block" id="DistInfo.close"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.DistInfo.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; if this was a zip&#39;d distribution, any introspection</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; if this was a zip&#39;d distribution, any introspection</span>
 <span class="sd">        may have resulted in opening or creating temporary files.</span>
 <span class="sd">        Call close in order to clean up. &quot;&quot;&quot;</span>
 
-        <span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">rmtree</span>
-
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">:</span>
             <span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span> <span class="o">=</span> <span class="kc">None</span></div></div>
 
 
-</div></div>
 <span class="k">def</span> <span class="nf">_collect_dist</span><span class="p">(</span><span class="n">pathn</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span><span class="p">,</span> <span class="n">relpath</span>
     <span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">walk</span>
@@ -259,63 +236,54 @@
             <span class="k">yield</span> <span class="n">relpath</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">f</span><span class="p">),</span> <span class="n">pathn</span><span class="p">)</span>
 
 
-
-<span class="c">#</span>
-<span class="c"># --- CLI ---</span>
-
+<span class="c1"># --- CLI ---</span>
+<span class="c1">#</span>
 
 
 <div class="viewcode-block" id="cli_dist_provides"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.cli_dist_provides">[docs]</a><span class="k">def</span> <span class="nf">cli_dist_provides</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-    <span class="k">print</span> <span class="s">&quot;distribution provides:&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;distribution provides:&quot;</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">provided</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">get_provides</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">api_ignore</span><span class="p">)):</span>
-        <span class="k">print</span> <span class="s">&quot; &quot;</span><span class="p">,</span> <span class="n">provided</span>
-    <span class="k">print</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">provided</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span></div>
 
 
-</div>
 <div class="viewcode-block" id="cli_dist_requires"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.cli_dist_requires">[docs]</a><span class="k">def</span> <span class="nf">cli_dist_requires</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-    <span class="k">print</span> <span class="s">&quot;distribution requires:&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;distribution requires:&quot;</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">required</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">get_requires</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">api_ignore</span><span class="p">)):</span>
-        <span class="k">print</span> <span class="s">&quot; &quot;</span><span class="p">,</span> <span class="n">required</span>
-    <span class="k">print</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">required</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span></div>
 
 
-</div>
 <div class="viewcode-block" id="cli_distinfo"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.cli_distinfo">[docs]</a><span class="k">def</span> <span class="nf">cli_distinfo</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">dist_provides</span><span class="p">:</span>
         <span class="n">cli_dist_provides</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">dist_requires</span><span class="p">:</span>
-        <span class="n">cli_dist_requires</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+        <span class="n">cli_dist_requires</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span></div>
 
-    <span class="c">#TODO: simple things like listing JARs and non-JAR files</span>
+    <span class="c1"># TODO: simple things like listing JARs and non-JAR files</span>
 
 
-</div>
 <div class="viewcode-block" id="cli_distinfo_json"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.cli_distinfo_json">[docs]</a><span class="k">def</span> <span class="nf">cli_distinfo_json</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">json</span> <span class="kn">import</span> <span class="n">dump</span>
-    <span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">stdout</span>
-
     <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">dist_provides</span><span class="p">:</span>
-        <span class="n">data</span><span class="p">[</span><span class="s">&quot;dist.provides&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get_provides</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">api_ignore</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;dist.provides&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get_provides</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">api_ignore</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">dist_requires</span><span class="p">:</span>
-        <span class="n">data</span><span class="p">[</span><span class="s">&quot;dist.requires&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get_requires</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">api_ignore</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;dist.requires&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get_requires</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">api_ignore</span><span class="p">)</span>
 
-    <span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
 
 
-</div>
-<div class="viewcode-block" id="cli"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.cli">[docs]</a><span class="k">def</span> <span class="nf">cli</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">rest</span><span class="p">):</span>
-    <span class="c">#pylint: disable=W0613</span>
-    <span class="c"># parser unused</span>
+<div class="viewcode-block" id="cli"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.cli">[docs]</a><span class="k">def</span> <span class="nf">cli</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+    <span class="c1"># pylint: disable=W0613</span>
+    <span class="c1"># parser unused</span>
 
-    <span class="n">pathn</span> <span class="o">=</span> <span class="n">rest</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">pathn</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">dist</span>
     <span class="n">info</span> <span class="o">=</span> <span class="n">DistInfo</span><span class="p">(</span><span class="n">pathn</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">json</span><span class="p">:</span>
@@ -324,78 +292,67 @@
         <span class="n">cli_distinfo</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
 
     <span class="n">info</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="mi">0</span></div>
 
 
-</div>
-<div class="viewcode-block" id="distinfo_optgroup"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.distinfo_optgroup">[docs]</a><span class="k">def</span> <span class="nf">distinfo_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionGroup</span>
+<div class="viewcode-block" id="add_distinfo_optgroup"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.add_distinfo_optgroup">[docs]</a><span class="k">def</span> <span class="nf">add_distinfo_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Distribution Info Options&quot;</span><span class="p">)</span>
 
-    <span class="n">g</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s">&quot;Distribution Info Options&quot;</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--dist-provides&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;dist_provides&quot;</span><span class="p">,</span>
+                   <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">help</span><span class="o">=</span><span class="s2">&quot;API provides information at the distribution level&quot;</span><span class="p">)</span>
 
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--dist-provides&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;dist_provides&quot;</span><span class="p">,</span>
-                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;API provides information at the distribution level&quot;</span><span class="p">)</span>
-
-    <span class="n">g</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--dist-requires&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;dist_requires&quot;</span><span class="p">,</span>
-                 <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;API requires information at the distribution level&quot;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">g</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--dist-requires&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;dist_requires&quot;</span><span class="p">,</span>
+                   <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">help</span><span class="o">=</span><span class="s2">&quot;API requires information at the distribution level&quot;</span><span class="p">)</span></div>
 
 
-</div>
-<div class="viewcode-block" id="create_optparser"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.create_optparser">[docs]</a><span class="k">def</span> <span class="nf">create_optparser</span><span class="p">():</span>
-    <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span>
-    <span class="kn">from</span> <span class="nn">.jarinfo</span> <span class="kn">import</span> <span class="n">jarinfo_optgroup</span>
-    <span class="kn">from</span> <span class="nn">.classinfo</span> <span class="kn">import</span> <span class="n">classinfo_optgroup</span>
+<div class="viewcode-block" id="create_optparser"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.create_optparser">[docs]</a><span class="k">def</span> <span class="nf">create_optparser</span><span class="p">(</span><span class="n">progname</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">.jarinfo</span> <span class="kn">import</span> <span class="n">add_jarinfo_optgroup</span>
+    <span class="kn">from</span> <span class="nn">.classinfo</span> <span class="kn">import</span> <span class="n">add_classinfo_optgroup</span>
 
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="s">&quot;%prog [OPTIONS] DISTRIBUTION&quot;</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="n">progname</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;dist&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;distribution to inspect&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--json&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;output in JSON mode&quot;</span><span class="p">)</span>
 
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;--json&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;json&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s">&quot;output in JSON mode&quot;</span><span class="p">)</span>
+    <span class="n">add_distinfo_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">add_jarinfo_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">add_classinfo_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
 
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">distinfo_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">jarinfo_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">classinfo_optgroup</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
-
-    <span class="k">return</span> <span class="n">parser</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
 
 
-</div>
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">create_optparser</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">cli</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="o">*</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../javatools/#javatools.distinfo.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">):</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">create_optparser</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">cli</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span></div>
 
 
-
-<span class="c">#</span>
-<span class="c"># The end.</span></div>
+<span class="c1">#</span>
+<span class="c1"># The end.</span>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search/" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -404,18 +361,16 @@
         <li class="right" >
           <a href="../../../py-modindex/" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="../../../np-modindex/" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../../">javatools 1.4.0 documentation</a> &raquo;</li>
-          <li><a href="../../" >Module code</a> &raquo;</li>
-          <li><a href="../" >javatools</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../../">python-javatools 1.6.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../" >javatools</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">javatools.distinfo</a></li> 
       </ul>
     </div>
 
-    <div class="footer">
-        &copy; Copyright 2014, Christopher O&#39;Brien.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2023, Christopher O&#39;Brien.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
