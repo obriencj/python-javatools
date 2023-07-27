@@ -58,16 +58,6 @@ clean: clean-built tidy	## Removes built content, test logs, coverage reports
 	@rm -rf .coverage* htmlcov/* logs/*
 
 
-##@ Containerized RPMs
-packaging-build: $(ARCHIVE)	## Launches all containerized builds
-	@./tools/launch-build.sh
-
-
-packaging-test: packaging-build	## Launches all containerized tests
-	@rm -rf logs/*
-	@./tools/launch-test.sh
-
-
 ##@ Testing
 test: clean	## Launches tox
 	@tox
@@ -154,7 +144,7 @@ clean-docs:	## Remove built docs
 	@rm -rf build/sphinx/*
 
 
-.PHONY: archive build clean clean-built clean-docs default deploy-docs docs flake8 help mypy overview packaging-build packaging-test quick-test rpm srpm stage-docs test tidy
+.PHONY: archive build clean clean-built clean-docs default deploy-docs docs flake8 help mypy overview quick-test rpm srpm stage-docs test tidy
 
 
 # The end.
