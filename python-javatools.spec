@@ -168,14 +168,15 @@ Python Java Tools
 
 %changelog
 
-* Sun Jul 2 2023 Christopher O'Brien <obriencj@gmail.com> - 1.6.0-0
+* Thu Jul 27 2023 Christopher O'Brien <obriencj@gmail.com> - 1.6.0-1
 - version 1.6.0
 - m2crypto is runtime optional
+- python2 and python3 support
 
 * Sun Jun 21 2020 Christopher O'Brien <obriencj@gmail.com> - 1.5.0-1
 - version 1.5.0
 
-* Thu Jan 21 2014 Christopher O'Brien <obriencj@gmail.com> - 1.4.0-1
+* Sun Oct 05 2019 Christopher O'Brien <obriencj@gmail.com> - 1.4.0-1
 - version 1.4.0
 - added ChangeLog as its own file
 - move to setuptools
@@ -186,7 +187,7 @@ Python Java Tools
 * Thu Jun 14 2012 Christopher O'Brien <obriencj@gmail.com> - 1.2-1
 - require python 2.6 and later
 
-* Sun May 6 2012 Christopher O'Brien <obriencj@gmail.com> - 1.1-1
+* Sun May 06 2012 Christopher O'Brien <obriencj@gmail.com> - 1.1-1
 - dependency features, license files
 
 * Fri Apr 27 2012 Christopher O'Brien <obriencj@gmail.com> - 1.0-1
