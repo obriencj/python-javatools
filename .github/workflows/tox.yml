@@ -14,16 +14,18 @@ on:
     ignore-paths:
       - 'docs/**'
     paths:
-      - '*.py'
-      - '*.tmpl'
+      - 'setup.*'
+      - '**/*.py'
+      - '**/*.tmpl'
       - 'tests/**'
 
   pull_request:
     ignore-paths:
       - 'docs/**'
     paths:
-      - '*.py'
-      - '*.tmpl'
+      - 'setup.*'
+      - '**/*.py'
+      - '**/*.tmpl'
       - 'tests/**'
 
 
