@@ -3,7 +3,7 @@ Overview of python-javatools
 
 A `python <http://python.org>`__ module for unpacking and inspecting
 `Java <http://www.oracle.com/technetwork/java/index.html>`__ Class
-files, JARs, and collections of either.
+files, JARs, and collections of either. Supporting features up to JDK 8.
 
 It can do deep checking of classes to perform comparisons of
 functionality, and output reports in multiple formats.
@@ -19,48 +19,60 @@ github. Or heck, just fork it!
 Requirements
 ------------
 
--  `Python <http://python.org>`__ 2.6 or later (no support for Python 3)
--  `Setuptools <http://pythonhosted.org/setuptools/>`__
--  `Cheetah <http://www.cheetahtemplate.org>`__ is used in the
+-  `Python <http://python.org>`__ 2.7, 3.7, 3.8, 3.9, 3.10, 3.11
+-  `Setuptools <https://pypi.org/project/setuptools/>`__
+-  `Six <https://pypi.org/project/six/>`__
+-  `Cheetah3 <http://www.cheetahtemplate.org>`__ is used in the
    generation of HTML reports
+-  `M2Crypto <https://gitlab.com/m2crypto/m2crypto/>`__ (optional) is
+   used for cryptographic operations
 
 In addition, the following tools are used in building and testing the
 project.
 
+-  `Tox <https://pypi.org/project/tox>`__
 -  `GNU Make <http://www.gnu.org/software/make/>`__
--  `Pylint <http://pypi.python.org/pypi/pylint/>`__
+-  `Flake8 <https://pypi.org/project/flake8/>`__
 
 All of these packages are available in most linux distributions (eg.
-Fedora), and for OSX via `MacPorts <http://www.macports.org>`__.
+Fedora), and for OSX via `MacPorts <http://www.macports.org>`__ and
+`HomeBrew <https://brew.sh/>`__, or available directly from pip.
+
+M2Crypto can be difficult on some platforms, and so is set as an
+optional dependency. If an execution path attempts to perform an action
+which requires M2Crypto (primarily Jar signing and Jar signature
+verification), then a ``CryptoDisabled`` exception will be raised, or a
+message will be printed to stdout explaining that the feature is
+unavailable. See the `M2Crypto Install
+Guide <https://gitlab.com/m2crypto/m2crypto/-/blob/master/INSTALL.rst>`__
+for workarounds in your environment.
 
 Building
 --------
 
-This module uses `setuptools <http://pythonhosted.org/setuptools/>`__,
+This module uses `setuptools <https://pypi.org/project/setuptools/>`__,
 so running the following will build the project:
 
 ``python setup.py build``
 
 to install, run:
 
-``sudo python setup.py install``
+``python -m pip install . --user``
 
 Testing
 ~~~~~~~
 
-Tests are written as ``unittest`` test cases. If you'd like to run the
+Tests are written as ``unittest`` test cases. If you’d like to run the
 tests, simply invoke:
 
 ``python setup.py test``
 
-There is also a custom ``pylint`` command, which can be use via:
-
-``python setup.py pylint``
+or invoke tests across a wider range of platforms via ``tox``
 
 RPM
 ~~~
 
-If you'd prefer to build an RPM, see the wiki entry for `Building as an
+If you’d prefer to build an RPM, see the wiki entry for `Building as an
 RPM <https://github.com/obriencj/python-javatools/wiki/Building-as-an-RPM>`__.
 
 Javatools Scripts
@@ -77,7 +89,9 @@ Javatools Scripts
 -  jardiff - prints the deltas between the contents of a JAR, and runs
    classdiff on differing Java class files contained in the JARs
 
--  manifest - creates manifests, signs JAR with OpenSSL
+-  jarutil - creates and signs JARs, verifies JAR signatures
+
+-  manifest - creates and queries JAR manifests
 
 -  distinfo - prints information about a mixed multi-jar/class
    distribution, such as provides/requires lists.
@@ -88,19 +102,21 @@ Javatools Scripts
 Additional References
 ---------------------
 
--  Oracle's Java Virtual Machine Specification `Chapter 4 "The class
+-  Oracle’s Java Virtual Machine Specification `Chapter 4 “The class
    File
-   Format" <http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html>`__
+   Format” <http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html>`__
 -  `Java Archive (JAR)
    Files <http://docs.oracle.com/javase/1.5.0/docs/guide/jar/index.html>`__
 
 Contact
 -------
 
-Christopher O'Brien obriencj@gmail.com
+Author: Christopher O’Brien obriencj@gmail.com
 
-If you're interested in my other projects, feel free to visit `my
+If you’re interested in my other projects, feel free to visit `my
 blog <http://obriencj.preoccupied.net/>`__.
+
+Original Git Repository: https://github.com/obriencj/python-javatools
 
 License
 -------
